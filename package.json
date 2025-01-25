@@ -1,0 +1,13 @@
+{
+  "name": "team7-bungeobbang",
+  "version": "1.0.0",
+  "description": "7조 부릉부릉 붕어빵 레포지토리입니다.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "prepare": "husky"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
