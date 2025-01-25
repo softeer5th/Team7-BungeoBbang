@@ -1,50 +1,25 @@
-# React + TypeScript + Vite
+## ON:U Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+### Directory Structure
 
-Currently, two official plugins are available:
-
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
-
-- Configure the top-level `parserOptions` property like this:
-
-```js
-export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ["./tsconfig.node.json", "./tsconfig.app.json"],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-});
 ```
+frontend/
+├── public/
+├── src/
+│ ├── assets/
+│ │ ├── icons/
+│ │ └── imgs/
+│ ├── components/ # 공통 UI 컴포넌트
+│ ├── config/ # 환경 설정 (API URL, 서브 도메인 매핑)
+│ ├── domains/ # 학생 / 학생회 도메인 구현 폴더
+│ ├── hooks/ # 전역 커스텀 훅
+│ ├── routes/ # 라우팅 관련
+│ ├── store/ # 상태 관리
+│ ├── styles/ # 전역 스타일 관련
+│ ├── utils/ # 유틸리티 함수
+│ ├── App.css
+│ ├── App.tsx
+│ ├── index.css
+│ ├── main.tsx
 
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
-
-```js
-// eslint.config.js
-import react from "eslint-plugin-react";
-
-export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: "18.3" } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs["jsx-runtime"].rules,
-  },
-});
 ```
