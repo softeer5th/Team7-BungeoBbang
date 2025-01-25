@@ -1,0 +1,1 @@
+cd front && npx --no-install husky-run pre-commit
