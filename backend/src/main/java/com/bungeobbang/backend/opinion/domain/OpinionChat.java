@@ -1,4 +1,4 @@
-package com.bungeobbang.backend.question.domain;
+package com.bungeobbang.backend.opinion.domain;
 
 import org.bson.codecs.pojo.annotations.BsonProperty;
 
