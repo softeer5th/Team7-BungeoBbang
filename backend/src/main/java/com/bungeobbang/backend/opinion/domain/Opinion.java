@@ -1,8 +1,9 @@
-package com.bungeobbang.backend.question.domain;
+package com.bungeobbang.backend.opinion.domain;
 
 import com.bungeobbang.backend.common.entity.BaseTimeEntity;
 import com.bungeobbang.backend.common.type.CategoryType;
 import com.bungeobbang.backend.member.domain.Member;
+import com.bungeobbang.backend.university.domain.University;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -18,6 +19,10 @@ public class Opinion extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = IDENTITY)
     private Long id;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "university_id")
+    private University university;
 
     @Enumerated(STRING)
     private CategoryType categoryType;

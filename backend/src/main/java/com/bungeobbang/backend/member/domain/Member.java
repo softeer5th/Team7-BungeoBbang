@@ -1,6 +1,7 @@
 package com.bungeobbang.backend.member.domain;
 
 import com.bungeobbang.backend.common.entity.BaseTimeEntity;
+import com.bungeobbang.backend.university.domain.University;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -16,8 +17,15 @@ public class Member extends BaseTimeEntity {
     @GeneratedValue(strategy = IDENTITY)
     private Long id;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "university_id")
+    private University university;
+
     @Column(unique = true, updatable = false)
     private String loginId;
+
+    @Column(nullable = false)
+    private String email;
 
     @Column
     @Enumerated(value = EnumType.STRING)
