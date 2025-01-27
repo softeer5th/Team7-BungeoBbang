@@ -1,0 +1,16 @@
+[build]
+  base = "frontend"
+  publish = "dist"
+  command = "npm run build"
+
+[[redirects]]
+  from = "https://admin.onu.com/*"
+  to = "/index.html"
+  status = 200
+  
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+  
