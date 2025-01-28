@@ -15,7 +15,6 @@ import io.jsonwebtoken.Jwts;
 
 @Component
 public class JwtProvider {
-    public static final String EMPTY_SUBJECT = "";
     private final SecretKey secretKey;
     private final Long accessExpirationTime;
     private final Long refreshExpirationTime;
@@ -31,7 +30,7 @@ public class JwtProvider {
     }
 
     public MemberTokens generateLoginToken(final String subject) {
-        final String refreshToken = createToken(EMPTY_SUBJECT, refreshExpirationTime);
+        final String refreshToken = createToken(subject, refreshExpirationTime);
         final String accessToken = createToken(subject, accessExpirationTime);
         return new MemberTokens(refreshToken, accessToken);
     }
