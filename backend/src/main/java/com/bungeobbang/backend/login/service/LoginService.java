@@ -34,7 +34,7 @@ public class LoginService {
 
     private LoginResponse getLoginResultResponse(final Member member) {
         if (member.getUniversity() == null) {
-            return new LoginResponse(member.getId(), false, "", "");
+            return new LoginResponse(member.getId(), false, null, null);
         }
         final MemberTokens memberTokens = jwtProvider.generateLoginToken(member.getId().toString());
         saveRefreshToken(member, memberTokens.getRefreshToken());
