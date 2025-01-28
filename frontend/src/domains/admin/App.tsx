@@ -1,15 +1,13 @@
-import { useState } from 'react';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import LoginPage from './pages/login';
 
 function AdminApp() {
-  const [count, setCount] = useState(0);
-
   return (
-    <div style={{ padding: '2rem', textAlign: 'center' }}>
-      <h1>학생회 포털</h1>
-      <div>
-        <button onClick={() => setCount((count) => count + 1)}>count is {count}</button>
-      </div>
-    </div>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<LoginPage />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
 
