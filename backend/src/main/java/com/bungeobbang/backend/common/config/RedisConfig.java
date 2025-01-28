@@ -19,9 +19,9 @@ public class RedisConfig {
     @Bean
     public JedisPool jedisPool() {
         JedisPoolConfig poolConfig = new JedisPoolConfig();
-        poolConfig.setMaxTotal(10);  // 최대 연결 수
-        poolConfig.setMaxIdle(5);    // 최대 유휴 커넥션 수
-        poolConfig.setMinIdle(1);    // 최소 유휴 커넥션 수
+        poolConfig.setMaxTotal(50);  // 최대 연결 수
+        poolConfig.setMaxIdle(15);    // 최대 유휴 커넥션 수
+        poolConfig.setMinIdle(5);    // 최소 유휴 커넥션 수
         poolConfig.setJmxEnabled(false); // JMX 비활성화
         return new JedisPool(poolConfig, host, port);
     }
