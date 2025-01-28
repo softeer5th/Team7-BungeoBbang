@@ -45,21 +45,21 @@ public class LoginService {
     }
 
     private void saveRefreshToken(final Member member, final String refreshToken) {
-        Jedis jedis = jedisPool.getResource();
+        final Jedis jedis = jedisPool.getResource();
         jedis.setex(String.format("refreshToken%s", member.getId()), 604800, refreshToken);
         log.info("saved refreshToken = {}", jedis.get(String.format("refreshToken%s", member.getId())));
     }
 
-    private Member findOrCreateMember(final String socialLoginId, ProviderType providerType) {
+    private Member findOrCreateMember(final String socialLoginId, final ProviderType providerType) {
         return memberRepository.findByLoginId(socialLoginId)
                 .orElseGet(() -> createMember(socialLoginId, providerType));
     }
 
-    private Member createMember(final String socialLoginId, ProviderType providerType) {
+    private Member createMember(final String socialLoginId, final ProviderType providerType) {
         if (memberRepository.existsByLoginId(socialLoginId)) {
             throw new AuthException(MEMBER_CREATION_FAILED);
         }
-        Member member = memberRepository.save(new Member(socialLoginId, providerType));
+        final Member member = memberRepository.save(new Member(socialLoginId, providerType));
         log.debug("saved member = {}", member);
         return member;
     }

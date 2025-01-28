@@ -18,8 +18,8 @@ public class LoginController {
             @PathVariable final String provider,
             @RequestParam final String code
             ) {
-        ProviderType providerType = ProviderType.fromString(provider);
-        LoginResponse loginResponse = loginService.login(providerType, code);
+        final ProviderType providerType = ProviderType.fromString(provider);
+        final LoginResponse loginResponse = loginService.login(providerType, code);
         return ResponseEntity.ok(loginResponse);
     }
 }
