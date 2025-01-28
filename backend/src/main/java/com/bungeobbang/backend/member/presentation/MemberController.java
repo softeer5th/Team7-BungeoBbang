@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class MemberController {
 
-    private final LoginService loginService;
     private final MemberService memberService;
 
     @GetMapping("/student/auth/{provider}/login")

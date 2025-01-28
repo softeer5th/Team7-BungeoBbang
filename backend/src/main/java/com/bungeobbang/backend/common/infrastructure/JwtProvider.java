@@ -1,6 +1,6 @@
-package com.bungeobbang.backend.login.infrastructure;
+package com.bungeobbang.backend.common.infrastructure;
 
-import com.bungeobbang.backend.login.domain.MemberTokens;
+import com.bungeobbang.backend.member.domain.MemberTokens;
 import io.jsonwebtoken.Header;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
