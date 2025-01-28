@@ -26,9 +26,11 @@ public class LoginService {
     private final JedisPool jedisPool;
 
     public LoginResponse login(final ProviderType providerType, final String code) {
+        log.info("Login provider type: {}, code: {}", providerType, code);
         final OauthProvider oauthProvider = oauthProviders.mapping(providerType);
         final OauthUserInfo oauthUserInfo = oauthProvider.getUserInfo(code);
         final Member member = findOrCreateMember(oauthUserInfo.getSocialLoginId(), providerType);
+        log.info("member: {}", member);
         return getLoginResultResponse(member);
     }
 
@@ -45,6 +47,7 @@ public class LoginService {
     private void saveRefreshToken(final Member member, final String refreshToken) {
         Jedis jedis = jedisPool.getResource();
         jedis.setex(String.format("refreshToken%s", member.getId()), 604800, refreshToken);
+        log.info("saved refreshToken = {}", jedis.get(String.format("refreshToken%s", member.getId())));
     }
 
     private Member findOrCreateMember(final String socialLoginId, ProviderType providerType) {
