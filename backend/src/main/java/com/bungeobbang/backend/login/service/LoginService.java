@@ -8,6 +8,7 @@ import com.bungeobbang.backend.member.domain.Member;
 import com.bungeobbang.backend.member.domain.ProviderType;
 import com.bungeobbang.backend.member.domain.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
@@ -16,6 +17,7 @@ import static com.bungeobbang.backend.common.exception.ErrorCode.MEMBER_CREATION
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class LoginService {
 
     private final OauthProviders oauthProviders;
@@ -54,7 +56,8 @@ public class LoginService {
         if (memberRepository.existsByLoginId(socialLoginId)) {
             throw new AuthException(MEMBER_CREATION_FAILED);
         }
-        Member member = new Member(socialLoginId, providerType);
-        return memberRepository.save(member);
+        Member member = memberRepository.save(new Member(socialLoginId, providerType));
+        log.debug("saved member = {}", member);
+        return member;
     }
 }
