@@ -1,5 +1,7 @@
 import styled from 'styled-components';
 import React from 'react';
+import { BorderProps } from './BorderProps';
+import { IconLoadingBox } from './IconLoadingBox';
 
 interface TopAppBarProps {
   leftIconSrc?: string;
@@ -10,11 +12,7 @@ interface TopAppBarProps {
   backgroundColor?: string;
   foregroundColor?: string;
   titleColor?: string;
-  border?: {
-    borderWidth?: string;
-    borderColor?: string;
-    borderRadius?: string;
-  };
+  border?: BorderProps;
 }
 
 export const TopAppBar: React.FC<TopAppBarProps> = ({
@@ -34,7 +32,7 @@ export const TopAppBar: React.FC<TopAppBarProps> = ({
   return (
     <TopAppBarContainer backgroundColor={backgroundColor} border={border}>
       {LeftIcon && (
-        <React.Suspense fallback={<div>Loading...</div>}>
+        <React.Suspense fallback={<IconLoadingBox width="24px" height="24px" />}>
           <IconWrapper onClick={onLeftIconClick}>
             <LeftIcon width="24px" height="24px" stroke={foregroundColor} />
           </IconWrapper>
@@ -46,7 +44,7 @@ export const TopAppBar: React.FC<TopAppBarProps> = ({
       </TitleText>
 
       {RightIcon && (
-        <React.Suspense>
+        <React.Suspense fallback={<IconLoadingBox width="24px" height="24px" />}>
           <IconWrapper onClick={onRightIconClick}>
             <RightIcon width="24px" height="24px" fill={foregroundColor} />
           </IconWrapper>

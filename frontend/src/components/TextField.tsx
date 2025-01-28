@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
+import { BorderProps } from './BorderProps';
 
 interface TextFieldProps {
   value: string;
@@ -7,12 +8,7 @@ interface TextFieldProps {
   onChange: (value: string) => void;
   placeholderColor?: string;
   color?: string;
-  border?: {
-    borderWidth?: string;
-    borderColor?: string;
-    borderRadius?: string;
-    errorBorderColor?: string;
-  };
+  border?: BorderProps;
   errorText?: string;
 }
 
@@ -25,13 +21,12 @@ export const TextField: React.FC<TextFieldProps> = ({
   border,
   errorText,
 }) => {
-  const [hasError, setHasError] = useState(!!errorText);
+
+  const hasError = Boolean(errorText)
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value;
     onChange(newValue);
-
-    setHasError(false);
   };
 
   return (
@@ -45,11 +40,10 @@ export const TextField: React.FC<TextFieldProps> = ({
         border={border}
         hasError={hasError}
       />
-      {hasError && errorText && <ErrorText>{errorText}</ErrorText>}
+      {hasError && <ErrorText>{errorText}</ErrorText>}
     </TextFieldContainer>
   );
 };
-
 
 const TextFieldContainer = styled.div`
   display: flex;
@@ -69,7 +63,6 @@ const TextFieldInput = styled.input<{
   };
   hasError: boolean;
 }>`
-
   width: 100%;
   padding: 14px;
   box-sizing: border-box;
@@ -77,7 +70,9 @@ const TextFieldInput = styled.input<{
   color: ${(props) => props.color || '#393939'};
   border: ${(props) =>
     `${props.border?.borderWidth || '1px'} solid ${
-      props.hasError ? props.border?.errorBorderColor || '#FF4B4B' : props.border?.borderColor || '#E0E0E0'
+      props.hasError
+        ? props.border?.errorBorderColor || '#FF4B4B'
+        : props.border?.borderColor || '#E0E0E0'
     }`};
   border-radius: ${(props) => props.border?.borderRadius || '12px'};
   outline: none;
@@ -85,11 +80,10 @@ const TextFieldInput = styled.input<{
   &::placeholder {
     color: ${(props) => props.placeholderColor || '#A8A8A8'};
   }
-
 `;
 
 const ErrorText = styled.span`
   font-size: 12px;
-  color: #FF4B4B;
+  color: #ff4b4b;
   margin-top: 6px;
 `;
