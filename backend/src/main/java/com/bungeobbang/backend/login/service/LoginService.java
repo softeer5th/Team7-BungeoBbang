@@ -1,6 +1,7 @@
 package com.bungeobbang.backend.login.service;
 
 import com.bungeobbang.backend.common.exception.AuthException;
+import com.bungeobbang.backend.common.service.RedisService;
 import com.bungeobbang.backend.login.domain.*;
 import com.bungeobbang.backend.login.dto.response.LoginResponse;
 import com.bungeobbang.backend.login.infrastructure.JwtProvider;
@@ -10,8 +11,6 @@ import com.bungeobbang.backend.member.domain.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import redis.clients.jedis.Jedis;
-import redis.clients.jedis.JedisPool;
 
 import static com.bungeobbang.backend.common.exception.ErrorCode.MEMBER_CREATION_FAILED;
 
@@ -23,7 +22,7 @@ public class LoginService {
     private final OauthProviders oauthProviders;
     private final MemberRepository memberRepository;
     private final JwtProvider jwtProvider;
-    private final JedisPool jedisPool;
+    private final RedisService redisService;
 
     public LoginResponse login(final ProviderType providerType, final String code) {
         log.info("Login provider type: {}, code: {}", providerType, code);
@@ -45,9 +44,8 @@ public class LoginService {
     }
 
     private void saveRefreshToken(final Member member, final String refreshToken) {
-        final Jedis jedis = jedisPool.getResource();
-        jedis.setex(String.format("refreshToken%s", member.getId()), 604800, refreshToken);
-        log.info("saved refreshToken = {}", jedis.get(String.format("refreshToken%s", member.getId())));
+        redisService.setex(String.format("refreshToken%s", member.getId()), 604800L, refreshToken);
+        log.info("saved refreshToken = {}", redisService.get(String.format("refreshToken%s", member.getId())));
     }
 
     private Member findOrCreateMember(final String socialLoginId, final ProviderType providerType) {
