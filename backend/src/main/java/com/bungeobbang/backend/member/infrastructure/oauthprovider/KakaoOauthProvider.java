@@ -1,10 +1,10 @@
-package com.bungeobbang.backend.login.infrastructure.oauthprovider;
+package com.bungeobbang.backend.member.infrastructure.oauthprovider;
 
 import com.bungeobbang.backend.common.exception.AuthException;
-import com.bungeobbang.backend.login.domain.OauthAccessToken;
-import com.bungeobbang.backend.login.domain.OauthProvider;
-import com.bungeobbang.backend.login.domain.OauthUserInfo;
-import com.bungeobbang.backend.login.infrastructure.oauthuserinfo.KakaoUserInfo;
+import com.bungeobbang.backend.member.domain.OauthAccessToken;
+import com.bungeobbang.backend.member.domain.OauthProvider;
+import com.bungeobbang.backend.member.domain.OauthUserInfo;
+import com.bungeobbang.backend.member.infrastructure.oauthuserinfo.KakaoUserInfo;
 
 import com.bungeobbang.backend.member.domain.ProviderType;
 import org.springframework.beans.factory.annotation.Value;

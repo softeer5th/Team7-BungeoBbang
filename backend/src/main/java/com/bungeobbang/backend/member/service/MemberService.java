@@ -1,12 +1,10 @@
-package com.bungeobbang.backend.login.service;
+package com.bungeobbang.backend.member.service;
 
 import com.bungeobbang.backend.common.exception.AuthException;
 import com.bungeobbang.backend.common.service.RedisService;
-import com.bungeobbang.backend.login.domain.*;
-import com.bungeobbang.backend.login.dto.response.LoginResponse;
-import com.bungeobbang.backend.login.infrastructure.JwtProvider;
-import com.bungeobbang.backend.member.domain.Member;
-import com.bungeobbang.backend.member.domain.ProviderType;
+import com.bungeobbang.backend.member.dto.response.LoginResponse;
+import com.bungeobbang.backend.member.infrastructure.JwtProvider;
+import com.bungeobbang.backend.member.domain.*;
 import com.bungeobbang.backend.member.domain.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,7 +15,7 @@ import static com.bungeobbang.backend.common.exception.ErrorCode.MEMBER_CREATION
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class LoginService {
+public class MemberService {
 
     private final OauthProviders oauthProviders;
     private final MemberRepository memberRepository;

@@ -1,6 +1,6 @@
-package com.bungeobbang.backend.login.infrastructure.oauthuserinfo;
+package com.bungeobbang.backend.member.infrastructure.oauthuserinfo;
 
-import com.bungeobbang.backend.login.domain.OauthUserInfo;
+import com.bungeobbang.backend.member.domain.OauthUserInfo;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;

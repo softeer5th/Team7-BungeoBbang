@@ -1,7 +1,6 @@
-package com.bungeobbang.backend.login.domain;
+package com.bungeobbang.backend.member.domain;
 
 import com.bungeobbang.backend.common.exception.AuthException;
-import com.bungeobbang.backend.member.domain.ProviderType;
 import org.springframework.stereotype.Component;
 
 import java.util.List;

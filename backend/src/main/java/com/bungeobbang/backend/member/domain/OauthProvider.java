@@ -1,6 +1,5 @@
-package com.bungeobbang.backend.login.domain;
+package com.bungeobbang.backend.member.domain;
 
-import com.bungeobbang.backend.member.domain.ProviderType;
 import org.springframework.web.client.RestTemplate;
 
 public interface OauthProvider {
