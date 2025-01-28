@@ -1,6 +1,7 @@
 package com.bungeobbang.backend.login.domain;
 
 import com.bungeobbang.backend.common.exception.AuthException;
+import com.bungeobbang.backend.member.domain.ProviderType;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -16,9 +17,9 @@ public class OauthProviders {
         this.providers = providers;
     }
 
-    public OauthProvider mapping(final String providerName) {
+    public OauthProvider mapping(final ProviderType providerType) {
         return providers.stream()
-                .filter(provider -> provider.is(providerName))
+                .filter(provider -> provider.is(providerType))
                 .findFirst()
                 .orElseThrow(() -> new AuthException(NOT_SUPPORTED_OAUTH_SERVICE));
     }

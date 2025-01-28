@@ -6,6 +6,7 @@ import com.bungeobbang.backend.login.domain.OauthProvider;
 import com.bungeobbang.backend.login.domain.OauthUserInfo;
 import com.bungeobbang.backend.login.infrastructure.oauthuserinfo.KakaoUserInfo;
 
+import com.bungeobbang.backend.member.domain.ProviderType;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Component;
@@ -25,6 +26,7 @@ public class KakaoOauthProvider implements OauthProvider {
 
     private static final String PROPERTIES_PATH = "${oauth2.provider.kakao.";
     private static final String PROVIDER_NAME = "kakao";
+    private static final ProviderType PROVIDER_TYPE = ProviderType.KAKAO;
     private static final String SECURE_RESOURCE = "secure_resource";
 
     protected final String clientId;
@@ -48,8 +50,13 @@ public class KakaoOauthProvider implements OauthProvider {
     }
 
     @Override
-    public boolean is(final String name) {
-        return PROVIDER_NAME.equals(name);
+    public ProviderType getProviderType() {
+        return ProviderType.KAKAO;
+    }
+
+    @Override
+    public boolean is(ProviderType providerType) {
+        return PROVIDER_TYPE.equals(providerType);
     }
 
     @Override
