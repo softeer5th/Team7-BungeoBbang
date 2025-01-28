@@ -32,6 +32,8 @@ dependencies {
     implementation 'com.h2database:h2'
     // Mongodb
     implementation group: 'org.mongodb', name: 'mongodb-driver-sync', version: '5.2.1'
+    // Redis
+    implementation 'redis.clients:jedis:4.3.1'
     // Lombok
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
