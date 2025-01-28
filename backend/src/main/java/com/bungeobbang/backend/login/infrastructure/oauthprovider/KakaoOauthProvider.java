@@ -25,7 +25,6 @@ import static java.lang.Boolean.TRUE;
 public class KakaoOauthProvider implements OauthProvider {
 
     private static final String PROPERTIES_PATH = "${oauth2.provider.kakao.";
-    private static final String PROVIDER_NAME = "kakao";
     private static final ProviderType PROVIDER_TYPE = ProviderType.KAKAO;
     private static final String SECURE_RESOURCE = "secure_resource";
 
