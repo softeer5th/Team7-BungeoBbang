@@ -24,7 +24,7 @@ export const TopAppBar: React.FC<TopAppBarProps> = ({
   onRightIconClick = () => {},
   backgroundColor = '#FFFFFF',
   foregroundColor = '#000000',
-  titleColor = '#000000',
+  titleColor,
   border,
 }) => {
   const LeftIcon = leftIconSrc ? React.lazy(() => import(`${leftIconSrc}?react`)) : null;
@@ -35,7 +35,11 @@ export const TopAppBar: React.FC<TopAppBarProps> = ({
       {LeftIcon && (
         <React.Suspense fallback={<IconLoadingBox width="24px" height="24px" />}>
           <IconWrapper onClick={onLeftIconClick}>
-            <LeftIcon width="24px" height="24px" stroke={foregroundColor} />
+            <LeftIcon
+              height="24px"
+              stroke={titleColor || foregroundColor}
+              fill={titleColor || foregroundColor}
+            />
           </IconWrapper>
         </React.Suspense>
       )}
@@ -51,7 +55,7 @@ export const TopAppBar: React.FC<TopAppBarProps> = ({
       {RightIcon && (
         <React.Suspense fallback={<IconLoadingBox width="24px" height="24px" />}>
           <IconWrapper onClick={onRightIconClick}>
-            <RightIcon width="24px" height="24px" fill={foregroundColor} />
+            <RightIcon width="24px" height="24px" stroke={foregroundColor} fill={foregroundColor} />
           </IconWrapper>
         </React.Suspense>
       )}
@@ -80,9 +84,8 @@ const TopAppBarContainer = styled.div<{
 `;
 
 const IconWrapper = styled.div`
-  height: 100%;
+  height: 40px;
   aspect-ratio: 1/1;
-  padding: 8px;
   display: flex;
   justify-content: center;
   align-items: center;
