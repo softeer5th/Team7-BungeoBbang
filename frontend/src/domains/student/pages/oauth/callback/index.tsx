@@ -7,8 +7,9 @@ const OAuthCallback = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const handleKakaoCallback = async () => {
+    const handleOAuthCallback = async () => {
       const code = new URL(window.location.href).searchParams.get('code');
+      const provider = window.location.pathname.includes('kakao') ? 'kakao' : 'google';
 
       if (!code) {
         navigate('/');
@@ -16,7 +17,7 @@ const OAuthCallback = () => {
       }
 
       try {
-        const { data } = await api.post('/student/auth/kakao/login', { code });
+        const { data } = await api.post(`/student/auth/${provider}/login`, { code });
         await JWTManager.setTokens(data);
         navigate('/main');
       } catch (error) {
@@ -25,7 +26,7 @@ const OAuthCallback = () => {
       }
     };
 
-    handleKakaoCallback();
+    handleOAuthCallback();
   }, [navigate]);
 
   return <div>로그인 처리중...</div>;
