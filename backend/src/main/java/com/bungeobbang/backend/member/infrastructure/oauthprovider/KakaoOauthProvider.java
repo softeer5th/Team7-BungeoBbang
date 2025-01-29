@@ -28,11 +28,11 @@ public class KakaoOauthProvider implements OauthProvider {
     private static final ProviderType PROVIDER_TYPE = ProviderType.KAKAO;
     private static final String SECURE_RESOURCE = "secure_resource";
 
-    protected final String clientId;
-    protected final String clientSecret;
-    protected final String redirectUri;
-    protected final String tokenUri;
-    protected final String userUri;
+    private final String clientId;
+    private final String clientSecret;
+    private final String redirectUri;
+    private final String tokenUri;
+    private final String userUri;
 
     private final RestTemplate restTemplate;
 
