@@ -17,10 +17,10 @@ interface BottomNavigationProps {
 export const BottomNavigation: React.FC<BottomNavigationProps> = ({
   startDestination,
   destinations,
-  backgroundColor,
-  foregroundColor,
-  selectedForegroundColor,
-  alarmColor,
+  backgroundColor = '#FFFFFF',
+  foregroundColor = '#C6C6C6',
+  selectedForegroundColor = '#1F87FF',
+  alarmColor = '#FF4B4B',
   border,
   onItemClick = () => {},
 }) => {
@@ -46,13 +46,13 @@ export const BottomNavigation: React.FC<BottomNavigationProps> = ({
 };
 
 const BottomNavigationWrapper = styled.div<{
-  backgroundColor?: string;
+  backgroundColor: string;
   border?: BorderProps;
 }>`
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: ${(props) => props.backgroundColor || '#FFFFFF'};
+  background-color: ${(props) => props.backgroundColor};
   border: ${(props) =>
     props.border
       ? `${props.border.borderWidth || '1px'} solid ${props.border.borderColor || '#000000'}`

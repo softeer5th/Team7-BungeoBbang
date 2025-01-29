@@ -2,6 +2,7 @@ import styled from 'styled-components';
 import React from 'react';
 import { BorderProps } from './BorderProps';
 import { IconLoadingBox } from './IconLoadingBox';
+import Typography from '../styles/Typography';
 
 interface TopAppBarProps {
   leftIconSrc?: string;
@@ -39,7 +40,11 @@ export const TopAppBar: React.FC<TopAppBarProps> = ({
         </React.Suspense>
       )}
 
-      <TitleText titleCentered={!!leftIconSrc} titleColor={titleColor || foregroundColor}>
+      <TitleText
+        variant="heading3"
+        titleCentered={!!leftIconSrc}
+        titleColor={titleColor || foregroundColor}
+      >
         {title}
       </TitleText>
 
@@ -55,7 +60,7 @@ export const TopAppBar: React.FC<TopAppBarProps> = ({
 };
 
 const TopAppBarContainer = styled.div<{
-  backgroundColor?: string;
+  backgroundColor: string;
   border?: {
     borderWidth?: string;
     borderColor?: string;
@@ -66,14 +71,12 @@ const TopAppBarContainer = styled.div<{
   align-items: center;
   justify-content: center;
   padding: 5px 16px 5px 16px;
-  background-color: ${(props) => props.backgroundColor || '#FFFFFF'};
+  background-color: ${(props) => props.backgroundColor};
   border: ${(props) =>
     props.border
       ? `${props.border.borderWidth || '1px'} solid ${props.border.borderColor || '#000000'}`
       : 'none'};
   border-radius: ${(props) => props.border?.borderRadius || '0px'};
-  box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
-  position: relative;
 `;
 
 const IconWrapper = styled.div`
@@ -86,14 +89,10 @@ const IconWrapper = styled.div`
   cursor: pointer;
 `;
 
-const TitleText = styled.p<{ titleCentered: boolean; titleColor?: string }>`
+const TitleText = styled(Typography)<{ titleCentered: boolean; titleColor: string }>`
   flex: 1;
   margin: 0;
-  font-size: 18px;
-  font-weight: bold;
-  line-height: 130%;
-  letter-spacing: -2%;
-  color: ${(props) => props.titleColor || '#000000'};
+  color: ${(props) => props.titleColor};
   z-index: 1;
   text-align: ${(props) => (props.titleCentered ? 'center' : 'left')};
 `;

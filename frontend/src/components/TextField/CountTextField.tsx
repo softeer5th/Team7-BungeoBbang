@@ -1,5 +1,6 @@
 import styled from 'styled-components';
 import { BorderProps } from '../BorderProps';
+import Typography from '../../styles/Typography';
 
 interface CountTextFieldProps {
   value: string;
@@ -7,17 +8,17 @@ interface CountTextFieldProps {
   placeholder?: string;
   onChange: (value: string) => void;
   placeholderColor?: string;
-  color?: string;
+  textColor?: string;
   border?: BorderProps;
 }
 
 export const CountTextField: React.FC<CountTextFieldProps> = ({
   value,
   maxLength,
-  placeholder = '',
+  placeholder,
   onChange,
-  placeholderColor,
-  color,
+  placeholderColor = '#A8A8A8',
+  textColor = '#222222',
   border,
 }) => {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -31,14 +32,15 @@ export const CountTextField: React.FC<CountTextFieldProps> = ({
   return (
     <CountTextFieldContainer>
       <TextFieldInput
+        variant = "body1"
         value={value}
         placeholder={placeholder}
         onChange={handleInputChange}
         placeholderColor={placeholderColor}
-        color={color}
+        textColor={textColor}
         border={border}
       />
-      <CountText>
+      <CountText variant = "caption2">
         {value.length}/{maxLength}
       </CountText>
     </CountTextFieldContainer>
@@ -52,29 +54,26 @@ const CountTextFieldContainer = styled.div`
   align-items: flex-end;
 `;
 
-const TextFieldInput = styled.input<{
-  placeholderColor?: string;
-  color?: string;
+const TextFieldInput =  styled(Typography).attrs({ as: 'input' })<{
+  placeholderColor: string;
+  textColor: string;
   border?: BorderProps;
 }>`
   width: 100%;
   padding: 14px;
   box-sizing: border-box;
-  font-size: 16px;
-  color: ${(props) => props.color || '#393939'};
+  color: ${(props) => props.textColor};
   border: ${(props) =>
     `${props.border?.borderWidth || '1px'} solid ${props.border?.borderColor || '#E0E0E0'}`};
   border-radius: ${(props) => props.border?.borderRadius || '12px'};
   outline: none;
 
   &::placeholder {
-    color: ${(props) => props.placeholderColor || '#A8A8A8'};
+    color: ${(props) => props.placeholderColor};
   }
 `;
 
-const CountText = styled.span`
-  font-size: 12px;
-  line-height: 130%;
+const CountText = styled(Typography)`
   color: #a8a8a8;
   margin-top: 6px;
 `;

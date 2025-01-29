@@ -1,7 +1,8 @@
 import styled from 'styled-components';
-import { BorderProps } from '../BorderProps';
+import { BorderProps } from './BorderProps';
 import { Button, ButtonProps } from './Button';
 import parse from 'html-react-parser';
+import Typography from '../styles/Typography';
 
 interface DialogProps {
   title?: string;
@@ -24,8 +25,8 @@ export const Dialog: React.FC<DialogProps> = ({
   onDismiss = () => {},
   backgroundColor = '#FFFFFF',
   titleBackgroundColor = '#F4F4F4',
-  titleTextColor = '#000000',
-  bodyTextColor = '#000000',
+  titleTextColor = '#393939',
+  bodyTextColor = '#525252',
   confirmButton,
   dissmissButton,
   border,
@@ -34,10 +35,14 @@ export const Dialog: React.FC<DialogProps> = ({
     <DialogContainer backgroundColor={backgroundColor} border={border}>
       {title && (
         <TitleContainer titleBackgroundColor={titleBackgroundColor}>
-          <TitleText titleTextColor={titleTextColor}>{title}</TitleText>
+          <TitleText variant="body2" titleTextColor={titleTextColor}>
+            {title}
+          </TitleText>
         </TitleContainer>
       )}
-      <BodyText bodyTextColor={bodyTextColor}> {parse(body)}</BodyText>
+      <BodyText variant="body1" bodyTextColor={bodyTextColor}>
+        {parse(body)}
+      </BodyText>
       <ButtonContainer>
         {dissmissButton && (
           <Button {...dissmissButton} onClick={() => onDismiss()}>
@@ -53,11 +58,11 @@ export const Dialog: React.FC<DialogProps> = ({
 };
 
 const DialogContainer = styled.div<{
-  backgroundColor?: string;
+  backgroundColor: string;
   border?: BorderProps;
 }>`
   padding: 24px 12px 12px 12px;
-  background-color: ${(props) => props.backgroundColor || '#FFFFFF'};
+  background-color: ${(props) => props.backgroundColor};
   border: ${(props) =>
     props.border
       ? `${props.border?.borderWidth || '1px'} solid ${props.border?.borderColor || '#E0E0E0'}`
@@ -70,34 +75,29 @@ const DialogContainer = styled.div<{
 `;
 
 const TitleContainer = styled.div<{
-  titleBackgroundColor?: string;
+  titleBackgroundColor: string;
 }>`
   width: 100%;
   padding: 9px 22px 9px 22px;
+  margin-bottom: 18px;
   box-sizing: border-box;
-  background-color: ${(props) => props.titleBackgroundColor || '#F4F4F4'};
+  background-color: ${(props) => props.titleBackgroundColor};
   border-radius: 99px;
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-bottom: 18px;
 `;
 
-const TitleText = styled.p<{
-  titleTextColor?: string;
+const TitleText = styled(Typography)<{
+  titleTextColor: string;
 }>`
-  font-size: 14px;
-  line-height: 150%;
-  font-weight: bold;
-  color: ${(props) => props.titleTextColor || '#393939'};
+  color: ${(props) => props.titleTextColor};
 `;
 
-const BodyText = styled.p<{
-  bodyTextColor?: string;
+const BodyText = styled(Typography)<{
+  bodyTextColor: string;
 }>`
-  font-size: 16px;
-  line-height: 130%;
-  color: ${(props) => props.bodyTextColor || '#525252'};
+  color: ${(props) => props.bodyTextColor};
   text-align: center;
 `;
 

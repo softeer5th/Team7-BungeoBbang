@@ -1,5 +1,6 @@
 import styled from 'styled-components';
 import { BorderProps } from './BorderProps';
+import Typography from '../styles/Typography';
 
 export interface ButtonProps {
   text: string;
@@ -13,27 +14,27 @@ export interface ButtonProps {
 export const Button: React.FC<ButtonProps> = ({
   text,
   onClick = () => {},
-  backgroundColor,
-  textColor,
+  backgroundColor = '#1F87FF',
+  textColor = '#FFFFFF',
   border,
-  disabled,
+  disabled = false,
 }) => {
   return (
     <ButtonContainer
       onClick={onClick}
       backgroundColor={backgroundColor}
-      textColor={textColor}
       border={border}
       disabled={disabled ? true : false}
     >
-      {text}
+      <ButtonText disabled={disabled ? true : false} variant="heading4" textColor={textColor}>
+        {text}
+      </ButtonText>
     </ButtonContainer>
   );
 };
 
 const ButtonContainer = styled.div<{
-  backgroundColor?: string;
-  textColor?: string;
+  backgroundColor: string;
   border?: {
     borderWidth?: string;
     borderColor?: string;
@@ -46,13 +47,19 @@ const ButtonContainer = styled.div<{
   justify-content: center;
   align-items: center;
   padding: 15px;
-  font-size: 16px;
+  box-sizing: border-box;
   background-color: ${(props) => (props.disabled ? '#E0E0E0' : props.backgroundColor || '#1F87FF')};
-  color: ${(props) => (props.disabled ? '#A8A8A8' : props.textColor || '#FFFFFF')};
   border: ${(props) =>
     props.border
       ? `${props.border?.borderWidth || '1px'} solid ${props.border?.borderColor || '#1F87FF'}`
       : `none`};
   border-radius: ${(props) => props.border?.borderRadius || '12px'};
   cursor: ${(props) => (props.disabled ? 'not-allowed' : 'pointer')};
+`;
+
+const ButtonText = styled(Typography)<{
+  disabled: boolean;
+  textColor: string;
+}>`
+  color: ${(props) => (props.disabled ? '#A8A8A8' : props.textColor)};
 `;

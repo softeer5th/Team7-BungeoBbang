@@ -1,6 +1,7 @@
 import styled from 'styled-components';
 import React from 'react';
 import { IconLoadingBox } from '../IconLoadingBox';
+import Typography from '../../styles/Typography';
 
 export interface BottomNavigationItemProps {
   itemId: string;
@@ -25,7 +26,7 @@ export const BottomNavigationItem: React.FC<
   title,
   foregroundColor = '#C6C6C6',
   selectedForegroundColor = '#1F87FF',
-  alarmColor = '#FF0000',
+  alarmColor = '#FF4B4B',
   onItemClick = () => {},
   selected = false,
   hasAlarm = false,
@@ -33,11 +34,15 @@ export const BottomNavigationItem: React.FC<
   const Icon = iconSrc ? React.lazy(() => import(`${iconSrc}?react`)) : null;
 
   return (
-    <BottomNavigationItemWrapper selected = {selected} onClick={() => onItemClick(itemId)}>
+    <BottomNavigationItemWrapper
+      selected={selected}
+      selectedBackgroundColor={selectedForegroundColor}
+      onClick={() => onItemClick(itemId)}
+    >
       <BottomNavigationItemContainer>
         {hasAlarm && <AlarmIcon color={alarmColor} />}
         {Icon && (
-          <React.Suspense fallback={<IconLoadingBox width = "24px" height = "24px"/>}>
+          <React.Suspense fallback={<IconLoadingBox width="24px" height="24px" />}>
             <Icon
               width="24px"
               height="24px"
@@ -47,7 +52,10 @@ export const BottomNavigationItem: React.FC<
           </React.Suspense>
         )}
         {title && (
-          <TitleText textColor={selected ? selectedForegroundColor : foregroundColor}>
+          <TitleText
+            variant="caption3"
+            textColor={selected ? selectedForegroundColor : foregroundColor}
+          >
             {title}
           </TitleText>
         )}
@@ -56,16 +64,23 @@ export const BottomNavigationItem: React.FC<
   );
 };
 
-const BottomNavigationItemWrapper = styled.div<{selected: boolean}>`
+const BottomNavigationItemWrapper = styled.div<{
+  selected: boolean;
+  selectedBackgroundColor?: string;
+}>`
   flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
-  background-color: ${(props) => props.selected ? "#C6C6C6" : "transparent"};
+  background-color: 'transparent';
   justify-content: center;
   cursor: pointer;
   padding: 8px;
   padding-top: 4px;
+
+  &:active {
+    background-color: #f4f4f4;
+  }
 `;
 
 const BottomNavigationItemContainer = styled.div`
@@ -86,12 +101,9 @@ const AlarmIcon = styled.div<{ color: string }>`
   right: 0;
 `;
 
-const TitleText = styled.p<{ textColor: string }>`
+const TitleText = styled(Typography)<{ textColor: string }>`
   margin: 0;
   margin-top: 4px;
-  font-size: 10px;
-  line-height: 130%;
-  letter-spacing: -2%;
   color: ${(props) => props.textColor};
   text-align: center;
 `;

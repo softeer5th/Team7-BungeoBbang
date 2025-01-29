@@ -3,8 +3,8 @@ export const IconLoadingBox: React.FC<{ width: string; height: string}> = ({ wid
       style={{
         width,
         height,
-        backgroundColor: '#f0f0f0', // 로딩 화면 배경색
-        borderRadius: '50%', // 아이콘 모양에 맞춤
+        backgroundColor: '#f0f0f0',
+        borderRadius: '50%',
       }}
     />
   );

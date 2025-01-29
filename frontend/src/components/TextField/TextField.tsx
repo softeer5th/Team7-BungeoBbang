@@ -1,27 +1,29 @@
 import styled from 'styled-components';
 import { BorderProps } from '../BorderProps';
+import Typography from '../../styles/Typography';
 
 interface TextFieldProps {
   value: string;
   placeholder?: string;
   onChange: (value: string) => void;
   placeholderColor?: string;
-  color?: string;
+  textColor?: string;
   border?: BorderProps;
   errorText?: string;
+  errorTextColor?: string;
 }
 
 export const TextField: React.FC<TextFieldProps> = ({
   value,
   placeholder = '',
   onChange,
-  placeholderColor,
-  color,
+  placeholderColor = '#A8A8A8',
+  textColor = '#3C3C3C',
   border,
   errorText,
+  errorTextColor = '#FF4B4B',
 }) => {
-
-  const hasError = Boolean(errorText)
+  const hasError = Boolean(errorText);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value;
@@ -31,15 +33,20 @@ export const TextField: React.FC<TextFieldProps> = ({
   return (
     <TextFieldContainer>
       <TextFieldInput
+        variant="body1"
         value={value}
         placeholder={placeholder}
         onChange={handleInputChange}
         placeholderColor={placeholderColor}
-        color={color}
+        textColor={textColor}
         border={border}
         hasError={hasError}
       />
-      {hasError && <ErrorText>{errorText}</ErrorText>}
+      {hasError && (
+        <ErrorText variant="caption2" errorTextColor={errorTextColor}>
+          {errorText}
+        </ErrorText>
+      )}
     </TextFieldContainer>
   );
 };
@@ -51,17 +58,16 @@ const TextFieldContainer = styled.div`
   align-items: flex-start;
 `;
 
-const TextFieldInput = styled.input<{
-  placeholderColor?: string;
-  color?: string;
+const TextFieldInput = styled(Typography).attrs({ as: 'input' })<{
+  placeholderColor: string;
+  textColor: string;
   border?: BorderProps;
   hasError: boolean;
 }>`
   width: 100%;
   padding: 14px;
   box-sizing: border-box;
-  font-size: 16px;
-  color: ${(props) => props.color || '#393939'};
+  color: ${(props) => props.textColor};
   border: ${(props) =>
     `${props.border?.borderWidth || '1px'} solid ${
       props.hasError
@@ -76,8 +82,9 @@ const TextFieldInput = styled.input<{
   }
 `;
 
-const ErrorText = styled.span`
-  font-size: 12px;
-  color: #ff4b4b;
+const ErrorText = styled(Typography)<{
+  errorTextColor: string;
+}>`
+  color: ${(props) => props.errorTextColor};
   margin-top: 6px;
 `;
