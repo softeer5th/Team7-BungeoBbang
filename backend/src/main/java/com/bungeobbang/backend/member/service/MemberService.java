@@ -1,7 +1,7 @@
 package com.bungeobbang.backend.member.service;
 
 import com.bungeobbang.backend.common.service.RedisService;
-import com.bungeobbang.backend.member.dto.response.LoginResponse;
+import com.bungeobbang.backend.member.dto.response.MemberLoginResponse;
 import com.bungeobbang.backend.common.infrastructure.JwtProvider;
 import com.bungeobbang.backend.member.domain.*;
 import com.bungeobbang.backend.member.domain.repository.MemberRepository;
@@ -36,9 +36,9 @@ public class MemberService {
             return new MemberLoginResponse(member.getId(), false, null, null);
         }
         final MemberTokens memberTokens = jwtProvider.generateLoginToken(member.getId().toString());
-        saveRefreshToken(member, memberTokens.getRefreshToken());
+        saveRefreshToken(member, memberTokens.refreshToken());
 
-        return new MemberLoginResponse(member.getId(), true, memberTokens.getAccessToken(), memberTokens.getRefreshToken());
+        return new MemberLoginResponse(member.getId(), true, memberTokens.accessToken(), memberTokens.refreshToken());
     }
 
     private void saveRefreshToken(final Member member, final String refreshToken) {
