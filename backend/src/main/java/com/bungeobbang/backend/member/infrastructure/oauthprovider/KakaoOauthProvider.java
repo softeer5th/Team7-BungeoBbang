@@ -11,6 +11,7 @@ import org.springframework.http.*;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -33,18 +34,22 @@ public class KakaoOauthProvider implements OauthProvider {
     protected final String tokenUri;
     protected final String userUri;
 
+    private final RestTemplate restTemplate;
+
     public KakaoOauthProvider(
             @Value(PROPERTIES_PATH + "client-id}") final String clientId,
             @Value(PROPERTIES_PATH + "client-secret}") final String clientSecret,
             @Value(PROPERTIES_PATH + "redirect-uri}") final String redirectUri,
             @Value(PROPERTIES_PATH + "request-token-uri}") final String tokenUri,
-            @Value(PROPERTIES_PATH + "request-user-info-uri}") final String userUri
+            @Value(PROPERTIES_PATH + "request-user-info-uri}") final String userUri,
+            RestTemplate restTemplate
     ) {
         this.clientId = clientId;
         this.clientSecret = clientSecret;
         this.redirectUri = redirectUri;
         this.tokenUri = tokenUri;
         this.userUri = userUri;
+        this.restTemplate = restTemplate;
     }
 
     @Override
