@@ -1,7 +1,7 @@
 package com.bungeobbang.backend.member.service;
 
 import com.bungeobbang.backend.common.service.RedisService;
-import com.bungeobbang.backend.member.dto.response.MemberLoginResponse;
+import com.bungeobbang.backend.member.dto.MemberLoginResult;
 import com.bungeobbang.backend.common.infrastructure.JwtProvider;
 import com.bungeobbang.backend.member.domain.*;
 import com.bungeobbang.backend.member.domain.repository.MemberRepository;
@@ -22,7 +22,7 @@ public class MemberService {
     private final JwtProvider jwtProvider;
     private final RedisService redisService;
 
-    public MemberLoginResponse login(final ProviderType providerType, final String code) {
+    public MemberLoginResult login(final ProviderType providerType, final String code) {
         log.info("Login provider type: {}, code: {}", providerType, code);
         final OauthProvider oauthProvider = oauthProviders.mapping(providerType);
         final OauthUserInfo oauthUserInfo = oauthProvider.getUserInfo(code);
@@ -31,14 +31,10 @@ public class MemberService {
         return getLoginResultResponse(member);
     }
 
-    private MemberLoginResponse getLoginResultResponse(final Member member) {
-        if (member.getUniversity() == null) {
-            return new MemberLoginResponse(member.getId(), false, null, null);
-        }
+    private MemberLoginResult getLoginResultResponse(final Member member) {
         final MemberTokens memberTokens = jwtProvider.generateLoginToken(member.getId().toString());
         saveRefreshToken(member, memberTokens.refreshToken());
-
-        return new MemberLoginResponse(member.getId(), true, memberTokens.accessToken(), memberTokens.refreshToken());
+        return new MemberLoginResult(member.getId(), memberTokens.accessToken(), memberTokens.refreshToken());
     }
 
     private void saveRefreshToken(final Member member, final String refreshToken) {
