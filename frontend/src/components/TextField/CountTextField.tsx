@@ -10,6 +10,7 @@ interface CountTextFieldProps {
   placeholderColor?: string;
   textColor?: string;
   border?: BorderProps;
+  disabled?: boolean;
 }
 
 export const CountTextField: React.FC<CountTextFieldProps> = ({
@@ -20,6 +21,7 @@ export const CountTextField: React.FC<CountTextFieldProps> = ({
   placeholderColor = '#A8A8A8',
   textColor = '#222222',
   border,
+  disabled = false,
 }) => {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     let newValue = e.target.value;
@@ -32,15 +34,16 @@ export const CountTextField: React.FC<CountTextFieldProps> = ({
   return (
     <CountTextFieldContainer>
       <TextFieldInput
-        variant = "body1"
+        variant="body1"
         value={value}
         placeholder={placeholder}
         onChange={handleInputChange}
         placeholderColor={placeholderColor}
         textColor={textColor}
         border={border}
+        disabled={disabled}
       />
-      <CountText variant = "caption2">
+      <CountText variant="caption2">
         {value.length}/{maxLength}
       </CountText>
     </CountTextFieldContainer>
@@ -54,7 +57,7 @@ const CountTextFieldContainer = styled.div`
   align-items: flex-end;
 `;
 
-const TextFieldInput =  styled(Typography).attrs({ as: 'input' })<{
+const TextFieldInput = styled(Typography).attrs({ as: 'input' })<{
   placeholderColor: string;
   textColor: string;
   border?: BorderProps;
@@ -62,7 +65,8 @@ const TextFieldInput =  styled(Typography).attrs({ as: 'input' })<{
   width: 100%;
   padding: 14px;
   box-sizing: border-box;
-  color: ${(props) => props.textColor};
+  background-color: ${(props) => (props.disabled ? '#E0E0E0' : '#FFFFFF')};
+  color: ${(props) => (props.disabled ? '#C6C6C6' : props.textColor)};
   border: ${(props) =>
     `${props.border?.borderWidth || '1px'} solid ${props.border?.borderColor || '#E0E0E0'}`};
   border-radius: ${(props) => props.border?.borderRadius || '12px'};

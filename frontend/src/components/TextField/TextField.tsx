@@ -11,6 +11,7 @@ interface TextFieldProps {
   border?: BorderProps;
   errorText?: string;
   errorTextColor?: string;
+  disabled?: boolean;
 }
 
 export const TextField: React.FC<TextFieldProps> = ({
@@ -22,6 +23,7 @@ export const TextField: React.FC<TextFieldProps> = ({
   border,
   errorText,
   errorTextColor = '#FF4B4B',
+  disabled = false,
 }) => {
   const hasError = Boolean(errorText);
 
@@ -41,6 +43,7 @@ export const TextField: React.FC<TextFieldProps> = ({
         textColor={textColor}
         border={border}
         hasError={hasError}
+        disabled={disabled}
       />
       {hasError && (
         <ErrorText variant="caption2" errorTextColor={errorTextColor}>
@@ -63,11 +66,13 @@ const TextFieldInput = styled(Typography).attrs({ as: 'input' })<{
   textColor: string;
   border?: BorderProps;
   hasError: boolean;
+  disabled: boolean;
 }>`
   width: 100%;
   padding: 14px;
   box-sizing: border-box;
-  color: ${(props) => props.textColor};
+  background-color: ${(props) => (props.disabled ? '#E0E0E0' : '#FFFFFF')};
+  color: ${(props) => (props.disabled ? '#C6C6C6' : props.textColor)};
   border: ${(props) =>
     `${props.border?.borderWidth || '1px'} solid ${
       props.hasError
