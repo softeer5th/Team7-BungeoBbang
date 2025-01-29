@@ -52,9 +52,6 @@ public class MemberService {
     }
 
     private Member createMember(final String socialLoginId, final ProviderType providerType) {
-        if (memberRepository.existsByLoginId(socialLoginId)) {
-            throw new AuthException(MEMBER_CREATION_FAILED);
-        }
         final Member member = memberRepository.save(new Member(socialLoginId, providerType));
         log.debug("saved member = {}", member);
         return member;
