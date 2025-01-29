@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 import { BorderProps } from './BorderProps';
 
-interface ButtonProps {
+export interface ButtonProps {
   text: string;
   onClick?: () => void;
   backgroundColor?: string;
