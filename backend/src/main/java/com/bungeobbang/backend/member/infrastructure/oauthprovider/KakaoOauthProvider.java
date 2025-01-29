@@ -2,8 +2,7 @@ package com.bungeobbang.backend.member.infrastructure.oauthprovider;
 
 import com.bungeobbang.backend.common.exception.AuthException;
 import com.bungeobbang.backend.member.domain.OauthAccessToken;
-import com.bungeobbang.backend.member.domain.OauthProvider;
-import com.bungeobbang.backend.member.domain.OauthUserInfo;
+import com.bungeobbang.backend.member.infrastructure.oauthuserinfo.OauthUserInfo;
 import com.bungeobbang.backend.member.infrastructure.oauthuserinfo.KakaoUserInfo;
 
 import com.bungeobbang.backend.member.domain.ProviderType;

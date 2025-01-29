@@ -1,16 +1,16 @@
 package com.bungeobbang.backend.member.service;
 
-import com.bungeobbang.backend.common.exception.AuthException;
 import com.bungeobbang.backend.common.service.RedisService;
 import com.bungeobbang.backend.member.dto.response.LoginResponse;
 import com.bungeobbang.backend.common.infrastructure.JwtProvider;
 import com.bungeobbang.backend.member.domain.*;
 import com.bungeobbang.backend.member.domain.repository.MemberRepository;
+import com.bungeobbang.backend.member.infrastructure.oauthprovider.OauthProvider;
+import com.bungeobbang.backend.member.infrastructure.oauthprovider.OauthProviders;
+import com.bungeobbang.backend.member.infrastructure.oauthuserinfo.OauthUserInfo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-
-import static com.bungeobbang.backend.common.exception.ErrorCode.MEMBER_CREATION_FAILED;
 
 @Service
 @RequiredArgsConstructor

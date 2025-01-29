@@ -1,5 +1,7 @@
-package com.bungeobbang.backend.member.domain;
+package com.bungeobbang.backend.member.infrastructure.oauthprovider;
 
+import com.bungeobbang.backend.member.domain.ProviderType;
+import com.bungeobbang.backend.member.infrastructure.oauthuserinfo.OauthUserInfo;
 import org.springframework.web.client.RestTemplate;
 
 public interface OauthProvider {
