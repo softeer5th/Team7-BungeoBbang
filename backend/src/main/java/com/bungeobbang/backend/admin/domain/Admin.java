@@ -29,4 +29,10 @@ public class Admin extends BaseTimeEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "university_id", nullable = false)
     private University university;
+
+    public Admin(Long id, String loginId, String password) {
+        this.id = id;
+        this.loginId = loginId;
+        this.password = password;
+    }
 }
