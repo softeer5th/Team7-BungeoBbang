@@ -24,11 +24,22 @@ public class Member extends BaseTimeEntity {
     @Column(unique = true, updatable = false)
     private String loginId;
 
-    @Column(nullable = false)
+    @Column
     private String email;
 
     @Column
     @Enumerated(value = EnumType.STRING)
     private ProviderType provider;
 
+    public Member(String loginId, ProviderType provider) {
+        this.university = null;
+        this.email = null;
+        this.loginId = loginId;
+        this.provider = provider;
+    }
+
+    @Override
+    public String toString() {
+        return String.format("id = %s, loginId = %s, email = %s, provider = %s", id, loginId, email, provider);
+    }
 }
