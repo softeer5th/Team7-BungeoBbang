@@ -1,6 +1,6 @@
 package com.bungeobbang.backend.member.service;
 
-import com.bungeobbang.backend.common.service.RedisService;
+import com.bungeobbang.backend.common.infrastructure.RedisClient;
 import com.bungeobbang.backend.member.dto.MemberLoginResult;
 import com.bungeobbang.backend.common.infrastructure.JwtProvider;
 import com.bungeobbang.backend.member.domain.*;
@@ -20,7 +20,7 @@ public class MemberService {
     private final OauthProviders oauthProviders;
     private final MemberRepository memberRepository;
     private final JwtProvider jwtProvider;
-    private final RedisService redisService;
+    private final RedisClient redisClient;
 
     public MemberLoginResult login(final ProviderType providerType, final String code) {
         log.info("Login provider type: {}, code: {}", providerType, code);
@@ -38,8 +38,8 @@ public class MemberService {
     }
 
     private void saveRefreshToken(final Member member, final String refreshToken) {
-        redisService.setex(String.format("refreshToken%s", member.getId()), 604800L, refreshToken);
-        log.info("saved refreshToken = {}", redisService.get(String.format("refreshToken%s", member.getId())));
+        redisClient.setex(String.format("refreshToken%s", member.getId()), 604800L, refreshToken);
+        log.info("saved refreshToken = {}", redisClient.get(String.format("refreshToken%s", member.getId())));
     }
 
     private Member findOrCreateMember(final String socialLoginId, final ProviderType providerType) {

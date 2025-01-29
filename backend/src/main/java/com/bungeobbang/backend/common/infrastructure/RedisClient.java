@@ -1,4 +1,4 @@
-package com.bungeobbang.backend.common.service;
+package com.bungeobbang.backend.common.infrastructure;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -7,7 +7,7 @@ import redis.clients.jedis.JedisPool;
 
 @Service
 @RequiredArgsConstructor
-public class RedisService {
+public class RedisClient {
 
     private final JedisPool jedisPool;
 
