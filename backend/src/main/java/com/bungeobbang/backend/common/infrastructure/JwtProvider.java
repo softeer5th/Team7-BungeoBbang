@@ -1,7 +1,8 @@
 package com.bungeobbang.backend.common.infrastructure;
 
-import com.bungeobbang.backend.member.domain.MemberTokens;
+import com.bungeobbang.backend.member.dto.response.MemberTokens;
 import io.jsonwebtoken.Header;
+import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
@@ -10,8 +11,6 @@ import org.springframework.stereotype.Component;
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
-
-import io.jsonwebtoken.Jwts;
 
 @Component
 public class JwtProvider {
