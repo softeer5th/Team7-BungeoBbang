@@ -1,6 +1,5 @@
-import React, { useState } from 'react';
 import styled from 'styled-components';
-import { BorderProps } from './BorderProps';
+import { BorderProps } from '../BorderProps';
 
 interface TextFieldProps {
   value: string;
@@ -55,12 +54,7 @@ const TextFieldContainer = styled.div`
 const TextFieldInput = styled.input<{
   placeholderColor?: string;
   color?: string;
-  border?: {
-    borderWidth?: string;
-    borderColor?: string;
-    borderRadius?: string;
-    errorBorderColor?: string;
-  };
+  border?: BorderProps;
   hasError: boolean;
 }>`
   width: 100%;
