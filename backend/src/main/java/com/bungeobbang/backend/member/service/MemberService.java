@@ -22,7 +22,7 @@ public class MemberService {
     private final JwtProvider jwtProvider;
     private final RedisService redisService;
 
-    public LoginResponse login(final ProviderType providerType, final String code) {
+    public MemberLoginResponse login(final ProviderType providerType, final String code) {
         log.info("Login provider type: {}, code: {}", providerType, code);
         final OauthProvider oauthProvider = oauthProviders.mapping(providerType);
         final OauthUserInfo oauthUserInfo = oauthProvider.getUserInfo(code);
@@ -31,14 +31,14 @@ public class MemberService {
         return getLoginResultResponse(member);
     }
 
-    private LoginResponse getLoginResultResponse(final Member member) {
+    private MemberLoginResponse getLoginResultResponse(final Member member) {
         if (member.getUniversity() == null) {
-            return new LoginResponse(member.getId(), false, null, null);
+            return new MemberLoginResponse(member.getId(), false, null, null);
         }
         final MemberTokens memberTokens = jwtProvider.generateLoginToken(member.getId().toString());
         saveRefreshToken(member, memberTokens.getRefreshToken());
 
-        return new LoginResponse(member.getId(), true, memberTokens.getAccessToken(), memberTokens.getRefreshToken());
+        return new MemberLoginResponse(member.getId(), true, memberTokens.getAccessToken(), memberTokens.getRefreshToken());
     }
 
     private void saveRefreshToken(final Member member, final String refreshToken) {
