@@ -1,10 +1,12 @@
 package com.bungeobbang.backend.member.service;
 
-import com.bungeobbang.backend.common.infrastructure.RedisClient;
-import com.bungeobbang.backend.member.dto.MemberLoginResult;
 import com.bungeobbang.backend.common.infrastructure.JwtProvider;
-import com.bungeobbang.backend.member.domain.*;
+import com.bungeobbang.backend.common.infrastructure.RedisClient;
+import com.bungeobbang.backend.member.domain.Member;
+import com.bungeobbang.backend.member.domain.ProviderType;
 import com.bungeobbang.backend.member.domain.repository.MemberRepository;
+import com.bungeobbang.backend.member.dto.response.MemberLoginResult;
+import com.bungeobbang.backend.member.dto.response.MemberTokens;
 import com.bungeobbang.backend.member.infrastructure.oauthprovider.OauthProvider;
 import com.bungeobbang.backend.member.infrastructure.oauthprovider.OauthProviders;
 import com.bungeobbang.backend.member.infrastructure.oauthuserinfo.OauthUserInfo;

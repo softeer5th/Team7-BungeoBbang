@@ -34,6 +34,8 @@ dependencies {
     implementation group: 'org.mongodb', name: 'mongodb-driver-sync', version: '5.2.1'
     // Redis
     implementation 'redis.clients:jedis:4.3.1'
+    // password encoder
+    implementation group: 'org.mindrot', name: 'jbcrypt', version: '0.4'
     // Lombok
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
