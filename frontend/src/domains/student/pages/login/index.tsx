@@ -1,5 +1,5 @@
 import React from 'react';
-import { Container, Logo, WelcomeText, SocialButton } from './styles';
+import * as S from './styles';
 import { AUTH_CONFIG } from '../../../../config/auth';
 import logoImage from '@/assets/icons/logo.png';
 import kakaoIcon from '@/assets/icons/kakao-logo.png';
@@ -24,22 +24,26 @@ const LoginPage = () => {
   };
 
   return (
-    <Container>
-      <Logo src={logoImage} alt="ON:U Logo" />
-      <WelcomeText>
-        <h1>간편로그인 후 이용이 가능합니다.</h1>
-      </WelcomeText>
+    <S.Container>
+      <S.LogoTextWrapper>
+        <S.Logo src={logoImage} alt="ON:U Logo" />
+        <S.WelcomeText>
+          간편로그인 후 <br /> 이용이 가능합니다.
+        </S.WelcomeText>
+      </S.LogoTextWrapper>
 
-      <SocialButton className="kakao" onClick={handleKakaoLogin}>
-        <img src={kakaoIcon} alt="Kakao" />
-        카카오 로그인
-      </SocialButton>
+      <S.SocialButtonWrapper>
+        <S.SocialButton className="kakao" onClick={handleKakaoLogin}>
+          <img src={kakaoIcon} alt="Kakao" />
+          카카오 로그인
+        </S.SocialButton>
 
-      <SocialButton className="google" onClick={handleGoogleLogin}>
-        <img src={googleIcon} alt="Google" />
-        구글 로그인
-      </SocialButton>
-    </Container>
+        <S.SocialButton className="google" onClick={handleGoogleLogin}>
+          <img src={googleIcon} alt="Google" />
+          구글 로그인
+        </S.SocialButton>
+      </S.SocialButtonWrapper>
+    </S.Container>
   );
 };
 
