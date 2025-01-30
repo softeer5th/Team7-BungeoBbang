@@ -8,6 +8,7 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.mail.javamail.MimeMessagePreparator;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -34,6 +35,7 @@ public class EmailAuthService {
         this.title = title;
     }
 
+    @Async
     public void sendVerificationEmail(final String email) {
         final String code = generateVerificationCode();
         emailVerificationCodeRepository.save(email, code);
