@@ -17,7 +17,10 @@ const OAuthCallback = () => {
       }
 
       try {
-        const { data } = await api.post(`/student/auth/${provider}/login`, { code });
+        const { data } = await api.post(`/student/auth/${provider}/login`, {
+          code: code,
+        });
+
         await JWTManager.setTokens(data);
         navigate('/main');
       } catch (error) {

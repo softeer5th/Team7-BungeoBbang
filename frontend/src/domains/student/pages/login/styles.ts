@@ -48,11 +48,8 @@ export const SocialButton = styled.button`
   align-items: center;
 
   color: var(--Default-Gray-80, #393939);
-
-  /* 온유/Heading 4 l SB */
   font-size: 16px;
-  font-style: normal;
-  font-weight: 600;
+  font-weight: 500;
   line-height: 130%; /* 20.8px */
   letter-spacing: -0.32px;
   cursor: pointer;

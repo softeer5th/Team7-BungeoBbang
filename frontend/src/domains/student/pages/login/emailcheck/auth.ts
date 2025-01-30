@@ -1,30 +1,38 @@
 import api from '@/utils/api';
 
-interface EmailVerificationResponse {
-  success: boolean;
-  message: string;
+interface EmailRequest {
+  email: string;
 }
 
-export const authService = {
-  // 이메일 인증 요청
-  sendVerificationEmail: async (email: string) => {
-    try {
-      const response = await api.post<EmailVerificationResponse>('/student/auth/email', { email });
-      return response.data;
-    } catch (error) {
-      throw error;
-    }
-  },
+interface EmailVerificationRequest {
+  email: string;
+  code: string;
+}
 
-  // 이메일 인증 확인
-  verifyEmail: async (code: string) => {
-    try {
-      const response = await api.post<EmailVerificationResponse>('/student/auth/email/verify', {
-        code,
-      });
-      return response.data;
-    } catch (error) {
-      throw error;
-    }
-  },
+interface EmailResponse {
+  status?: string;
+  message?: string;
+}
+
+export const sendEmailVerification = async (email: string): Promise<EmailResponse> => {
+  try {
+    const requestBody: EmailRequest = { email: email };
+    const response = await api.post('/student/auth/email', requestBody);
+    return response.data;
+  } catch (error) {
+    throw new Error(error.response?.data?.message || '인증 코드 전송에 실패하였습니다.');
+  }
+};
+
+export const confirmEmailVerification = async (
+  email: string,
+  code: string,
+): Promise<EmailResponse> => {
+  try {
+    const requestBody: EmailVerificationRequest = { email: email, code: code };
+    const response = await api.post('/api/auth/email/confirm', requestBody);
+    return response.data;
+  } catch (error) {
+    throw new Error(error.response?.data?.message || '인증 코드 확인에 실패하였습니다.');
+  }
 };

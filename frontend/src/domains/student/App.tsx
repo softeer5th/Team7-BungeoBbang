@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import LoginPage from './pages/login';
 import OAuthCallback from './pages/oauth/callback';
 import EmailVerification from './pages/login/emailcheck';
+import UniversitySelection from './pages/login/univcheck';
 
 function StudentApp() {
   return (
@@ -11,6 +12,7 @@ function StudentApp() {
         <Route path="/oauth/callback/kakao" element={<OAuthCallback />} />
         <Route path="/oauth/callback/google" element={<OAuthCallback />} />
         <Route path="/email" element={<EmailVerification />} />
+        <Route path="/univ" element={<UniversitySelection />} />
       </Routes>
     </BrowserRouter>
   );
