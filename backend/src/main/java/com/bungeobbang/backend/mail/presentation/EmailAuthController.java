@@ -1,7 +1,7 @@
 package com.bungeobbang.backend.mail.presentation;
 
-import com.bungeobbang.backend.mail.dto.request.EmailRequest;
 import com.bungeobbang.backend.mail.dto.request.EmailVerificationRequest;
+import com.bungeobbang.backend.mail.dto.request.SendVerificationMailRequest;
 import com.bungeobbang.backend.mail.service.EmailAuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -17,7 +17,7 @@ public class EmailAuthController {
     private final EmailAuthService emailAuthService;
 
     @PostMapping()
-    public ResponseEntity<Void> sendVerificationEmail(@RequestBody EmailRequest request) {
+    public ResponseEntity<Void> sendVerificationEmail(@RequestBody SendVerificationMailRequest request) {
         emailAuthService.sendVerificationEmail(request.email());
         return ResponseEntity.ok().build();
     }

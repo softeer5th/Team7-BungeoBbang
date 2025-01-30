@@ -1,6 +1,6 @@
 package com.bungeobbang.backend.mail.dto.request;
 
-public record EmailRequest(
+public record SendVerificationMailRequest(
         String email
 ) {
 }
