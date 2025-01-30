@@ -30,6 +30,7 @@ export const BottomNavigation: React.FC<BottomNavigationProps> = ({
     <BottomNavigationWrapper backgroundColor={backgroundColor} border={border}>
       {destinations.map((destination) => (
         <BottomNavigationItem
+          key={destination.itemId}
           {...destination}
           foregroundColor={foregroundColor}
           selectedForegroundColor={selectedForegroundColor}
