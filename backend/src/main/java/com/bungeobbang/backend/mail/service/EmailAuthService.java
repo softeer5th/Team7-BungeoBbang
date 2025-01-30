@@ -2,7 +2,6 @@ package com.bungeobbang.backend.mail.service;
 
 import com.bungeobbang.backend.common.exception.AuthException;
 import com.bungeobbang.backend.common.exception.ErrorCode;
-import com.bungeobbang.backend.mail.domain.EmailVerificationCode;
 import com.bungeobbang.backend.mail.domain.repository.EmailVerificationCodeRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
@@ -35,16 +34,20 @@ public class EmailAuthService {
         this.title = title;
     }
 
-    public void sendEmail(final String email) {
+    public void sendVerificationEmail(final String email) {
         final String code = generateVerificationCode();
-        emailVerificationCodeRepository.save(new EmailVerificationCode(email, code));
+        emailVerificationCodeRepository.save(email, code);
 
         sendAuthMail(email, code);
     }
 
     public void verifyCode(final String email, final String code) {
-        final EmailVerificationCode verificationCode = emailVerificationCodeRepository.findByEmail(email);
-        if (!verificationCode.code().equals(code)) {
+        final String verificationCode = emailVerificationCodeRepository.findByEmail(email);
+        if (verificationCode == null) {
+            throw new AuthException(ErrorCode.EMAIL_CODE_EXPIRED);
+        }
+
+        if (!verificationCode.equals(code)) {
             throw new AuthException(ErrorCode.CODE_MISMATCH);
         }
     }
@@ -55,7 +58,7 @@ public class EmailAuthService {
         return String.valueOf(code);
     }
 
-    private String loadEmailTemplate(String code) {
+    private String loadEmailTemplate(final String code) {
         ClassPathResource resource = new ClassPathResource("templates/email-template.html");
         try {
             String emailHtml = Files.readString(resource.getFile().toPath(), StandardCharsets.UTF_8);
@@ -65,7 +68,7 @@ public class EmailAuthService {
         }
     }
 
-    private void sendAuthMail(String email, String code) {
+    private void sendAuthMail(final String email, final String code) {
         MimeMessagePreparator messagePreparator = mimeMessage -> {
             MimeMessageHelper messageHelper = new MimeMessageHelper(mimeMessage);
             messageHelper.setFrom(sender);
