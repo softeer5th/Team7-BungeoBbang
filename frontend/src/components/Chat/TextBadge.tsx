@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import Typography from '../styles/Typography';
+import Typography from '../../styles/Typography';
 
 interface TextBadgeProps {
   text?: string;
