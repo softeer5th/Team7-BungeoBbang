@@ -5,6 +5,7 @@ import Typography from '../styles/Typography';
 export interface ButtonProps {
   text: string;
   onClick?: () => void;
+  children?: React.ReactNode;
   backgroundColor?: string;
   textColor?: string;
   border?: BorderProps;
