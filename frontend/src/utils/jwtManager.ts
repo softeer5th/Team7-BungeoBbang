@@ -1,3 +1,6 @@
+import axios from 'axios';
+import { AUTH_CONFIG } from '@/config/auth';
+
 class JWTManager {
   private static instance: JWTManager;
   private accessToken: string | null = null;
