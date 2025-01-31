@@ -35,7 +35,7 @@ export const BottomSheet = styled.div<{ isOpen: boolean }>`
   background-color: white;
   border-top-left-radius: 12px;
   border-top-right-radius: 12px;
-  transform: translateY(${({ isOpen }) => (isOpen ? '0' : '100%')});
+  transform: translateY(${({ $isOpen }) => ($isOpen ? '0' : '100%')});
   transition: transform 0.3s ease-in-out;
   box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.1);
 `;

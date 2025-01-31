@@ -14,7 +14,7 @@ const LoginPage = () => {
     const GOOGLE_AUTH_URL = 'https://accounts.google.com/o/oauth2/v2/auth';
     const params = {
       client_id: AUTH_CONFIG.GOOGLE.CLIENT_ID,
-      redirect_uri: `${window.location.origin}/oauth/callback/google`,
+      redirect_uri: AUTH_CONFIG.GOOGLE.REDIRECT_URI,
       response_type: 'code',
       scope: 'email profile',
     };

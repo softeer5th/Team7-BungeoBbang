@@ -8,21 +8,27 @@ const OAuthCallback = () => {
 
   useEffect(() => {
     const handleOAuthCallback = async () => {
-      const code = new URL(window.location.href).searchParams.get('code');
+      const encodedCode = new URL(window.location.href).searchParams.get('code');
       const provider = window.location.pathname.includes('kakao') ? 'kakao' : 'google';
 
-      if (!code) {
+      if (!encodedCode) {
         navigate('/');
         return;
       }
 
       try {
+        const code = decodeURIComponent(encodedCode);
+
         const { data } = await api.post(`/student/auth/${provider}/login`, {
-          code: code,
+          code,
         });
 
+        console.log(data);
+
         await JWTManager.setTokens(data);
-        navigate('/main');
+        //if (data.isNew) navigate('/home');
+        //else
+        navigate('/univ');
       } catch (error) {
         console.error('Login failed:', error);
         navigate('/');

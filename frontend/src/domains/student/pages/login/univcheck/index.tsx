@@ -17,7 +17,8 @@ const UniversitySelection: React.FC = () => {
 
   const handleNext = () => {
     if (selectedUniversity) {
-      navigate('/next-step'); // 다음 단계로 이동
+      // 대학 등록 로직 구현
+      navigate('/email');
     }
   };
 
@@ -33,7 +34,7 @@ const UniversitySelection: React.FC = () => {
         {selectedUniversity || '대학교 선택'}
       </S.SelectButton>
 
-      <S.BottomSheet isOpen={isOpen}>
+      <S.BottomSheet $isOpen={isOpen}>
         <S.BottomSheetHeader>
           <S.BottomSheetTitle>대학교 선택</S.BottomSheetTitle>
           <S.CloseButton onClick={() => setIsOpen(false)}>×</S.CloseButton>
