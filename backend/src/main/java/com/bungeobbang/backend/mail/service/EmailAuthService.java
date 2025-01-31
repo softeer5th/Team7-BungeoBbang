@@ -10,16 +10,19 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.mail.javamail.MimeMessagePreparator;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StreamUtils;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.util.Random;
 
 import static com.bungeobbang.backend.common.exception.ErrorCode.TEMPLATE_FILE_READ_ERROR;
 
 @Service
 public class EmailAuthService {
+    private static final String TEMPLATE_FILE_PATH = "templates/email-template.html";
+    private static final String VERIFICATION_CODE = "{{VERIFICATION_CODE}}";
     private final EmailVerificationCodeRepository emailVerificationCodeRepository;
     private final JavaMailSender mailSender;
     private final String sender;
@@ -61,10 +64,10 @@ public class EmailAuthService {
     }
 
     private String loadEmailTemplate(final String code) {
-        ClassPathResource resource = new ClassPathResource("templates/email-template.html");
-        try {
-            String emailHtml = Files.readString(resource.getFile().toPath(), StandardCharsets.UTF_8);
-            return emailHtml.replace("{{VERIFICATION_CODE}}", code);
+        ClassPathResource resource = new ClassPathResource(TEMPLATE_FILE_PATH);
+        try (InputStream inputStream = resource.getInputStream()) {
+            final String emailHtml = StreamUtils.copyToString(inputStream, StandardCharsets.UTF_8);
+            return emailHtml.replace(VERIFICATION_CODE, code);
         } catch (IOException e) {
             throw new AuthException(TEMPLATE_FILE_READ_ERROR);
         }
