@@ -38,6 +38,11 @@ public class Member extends BaseTimeEntity {
         this.provider = provider;
     }
 
+    public void updateUniversity(University university, String email) {
+        this.university = university;
+        this.email = email;
+    }
+
     @Override
     public String toString() {
         return String.format("id = %s, loginId = %s, email = %s, provider = %s", id, loginId, email, provider);
