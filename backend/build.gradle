@@ -35,7 +35,7 @@ dependencies {
     // Mongodb
     implementation group: 'org.mongodb', name: 'mongodb-driver-sync', version: '5.2.1'
     // Redis
-    implementation 'redis.clients:jedis:4.3.1'
+    implementation 'io.lettuce:lettuce-core:6.5.0.RELEASE'
     // mail
     implementation 'org.springframework.boot:spring-boot-starter-mail'
     // password encoder
