@@ -49,12 +49,10 @@ export default function SchoolEmailPage() {
 
     try {
       const isConfirmed = await confirmEmailVerification(email, verificationCode);
-      console.log(isConfirmed);
+
       Number(isConfirmed) === 200
         ? await patchUniversity(email)
         : setError('인증 코드 확인에 실패하였습니다.');
-
-      console.log('인증 성공');
     } catch (err) {
       setError(err instanceof Error ? err.message : '인증 코드 확인에 실패하였습니다.');
     } finally {

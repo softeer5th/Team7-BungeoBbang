@@ -20,7 +20,7 @@ const OAuthCallback = () => {
         const response = await api.post(`/student/auth/${provider}/login`, {
           code: decodeURIComponent(encodedCode),
         });
-        console.log(response);
+
         const accessToken = response.headers['access-token'];
         const refreshToken = response.headers['refresh-token'];
         const memberID = response.data.memberId;
@@ -33,7 +33,7 @@ const OAuthCallback = () => {
         response.data.isEmailVerified ? navigate('/main') : navigate('/email');
         navigate('/univ');
       } catch (error) {
-        console.error('Login failed:', error);
+        console.error('OAuth callback error:', error);
         navigate('/');
       }
     };

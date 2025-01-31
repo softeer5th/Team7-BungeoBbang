@@ -40,6 +40,8 @@ api.interceptors.response.use(
           return api(originalRequest);
         }
       } catch (refreshError) {
+        console.log('Refresh token error:', refreshError);
+
         await JWTManager.clearTokens();
       }
     }

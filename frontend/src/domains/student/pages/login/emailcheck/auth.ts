@@ -33,7 +33,6 @@ export const confirmEmailVerification = async (
     const response = await api.post('/student/auth/email/verify', requestBody);
     return response.status;
   } catch (error) {
-    console.log(error);
     throw new Error(error.response?.data?.message || '인증 코드 확인에 실패하였습니다.');
   }
 };
