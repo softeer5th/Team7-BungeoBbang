@@ -8,7 +8,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
@@ -21,9 +21,9 @@ class MemberControllerIntegrationTest {
     @Test
     @DisplayName("지원하지 않는 ProviderType으로 로그인 시 실패")
     void login_invalidProvider() throws Exception {
-        mockMvc.perform(get("/student/auth/naver/login", "unknown")
-                        .param("code", "testCode123")
-                        .contentType(MediaType.APPLICATION_JSON))
+        mockMvc.perform(post("/student/auth/naver/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"code\": \"code\"}"))
                 .andExpect(status().isNotImplemented());
     }
 }
