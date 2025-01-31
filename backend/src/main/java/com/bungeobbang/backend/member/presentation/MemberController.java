@@ -6,6 +6,7 @@ import com.bungeobbang.backend.member.dto.request.SocialLoginRequest;
 import com.bungeobbang.backend.member.dto.response.MemberLoginResponse;
 import com.bungeobbang.backend.member.dto.response.MemberLoginResult;
 import com.bungeobbang.backend.member.service.MemberService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,7 +22,7 @@ public class MemberController {
     @PostMapping("/{provider}/login")
     public ResponseEntity<MemberLoginResponse> login(
             @PathVariable final String provider,
-            @RequestBody final SocialLoginRequest request
+            @RequestBody @Valid final SocialLoginRequest request
     ) {
         final ProviderType providerType = ProviderType.fromString(provider);
         final MemberLoginResult memberLoginResult = memberService.login(providerType, request.code());
@@ -32,7 +33,7 @@ public class MemberController {
     }
 
     @PatchMapping("/university")
-    public ResponseEntity<Void> updateUniversity(@RequestBody final MemberUniversityUpdateRequest request) {
+    public ResponseEntity<Void> updateUniversity(@RequestBody @Valid final MemberUniversityUpdateRequest request) {
         memberService.updateUniversityInfo(request);
         return ResponseEntity.ok().build();
     }
