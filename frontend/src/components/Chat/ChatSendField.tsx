@@ -1,7 +1,8 @@
 import { useRef, useState } from 'react';
 import styled from 'styled-components';
 import CameraIcon from '/src/assets/icons/camera.svg?react';
-import ArrowUpIcon from '/src/assets/icons/arrow_up.svg?react';
+import ArrowUpIcon from '/src/assets/icons/arrow-up.svg?react';
+import CloseIcon from '/src/assets/icons/close-2.svg?react';
 import Typography from '../../styles/Typography';
 import { BorderProps } from '../BorderProps';
 
@@ -20,13 +21,12 @@ interface ChatSendFieldProps {
   imageButtonDisabledIconColor?: string;
   placeholderColor?: string;
   disabledPlaceholderColor?: string;
+  textColor?: string;
   textFieldBorder?: BorderProps;
   onChange?: (newValue: string) => void;
-  setTextFieldDisabled?: (isDisabled: boolean) => void;
   onSendMessage?: (message: string, images: string[]) => void;
-  imageList?: string[];
+  images?: string[];
   setImageList?: (images: string[]) => void;
-  addImage?: (image: string) => void;
   onImageDelete?: (imageId: string) => void;
   maxLengthOfImages?: number;
   imageDisabled?: boolean;
@@ -49,6 +49,7 @@ export const ChatSendField: React.FC<ChatSendFieldProps> = ({
   imageButtonDisabledIconColor = '#F4F4F4',
   placeholderColor = '#1F87FF',
   disabledPlaceholderColor = '#C6C6C6',
+  textColor = '#3C3C3C',
   textFieldBorder = {
     borderWidth: '1px',
     borderColor: '#E0E0E0',
@@ -56,38 +57,45 @@ export const ChatSendField: React.FC<ChatSendFieldProps> = ({
     borderRadius: '20px',
   },
   onChange = () => {},
-  setTextFieldDisabled = () => {},
   onSendMessage = () => {},
-  imageList = [],
+  images = [],
   setImageList = () => {},
-  addImage = () => {},
-  onImageDelete = () => {},
+  onImageDelete = (imageId: string) => {},
   maxLengthOfImages = 5,
   imageDisabled = false,
   textDisabled = false,
   sendDisabled = false,
 }) => {
-  const [message, setMessage] = useState(text);
-  const [images, setImages] = useState<string[]>(imageList);
   const textAreaRef = useRef(null);
+
+  let maxTextInputHeight = 174;
+  if (images) maxTextInputHeight = 102;
 
   const handleTextInput = (newMessage) => {
     handleResizeHeight();
-    onChange(newMessage);
+
+    let newValue = newMessage;
+    if (newMessage.length >= maxLength) {
+      newValue = newMessage.slice(0, maxLength);
+    }
+    onChange(newValue);
   };
 
   const handleResizeHeight = () => {
     if (textAreaRef.current) {
-      console.log(textAreaRef.current.scrollHeight);
-      textAreaRef.current.style.height = textAreaRef.current.scrollHeight + 'px';
+      textAreaRef.current.style.height = 'auto';
+      let scrollHeight = textAreaRef.current.scrollHeight;
+      if (scrollHeight >= maxTextInputHeight) {
+        scrollHeight = maxTextInputHeight;
+      }
+
+      textAreaRef.current.style.height = scrollHeight + 'px';
     }
   };
 
   const handleSend = () => {
-    if (message.trim() || images.length > 0) {
-      onSendMessage(message, images);
-      setMessage('');
-      setImages([]);
+    if (text.trim()) {
+      onSendMessage(text, images);
     }
   };
 
@@ -101,7 +109,7 @@ export const ChatSendField: React.FC<ChatSendFieldProps> = ({
     }
   };
 
-  const isImageDisabled = images.length >= 5 || imageDisabled;
+  const isImageDisabled = images.length >= maxLengthOfImages || imageDisabled;
 
   return (
     <ChatSendContainer bcakgroundColor={backgroundColor}>
@@ -121,21 +129,39 @@ export const ChatSendField: React.FC<ChatSendFieldProps> = ({
 
       <TextFieldContainer>
         <CountText variant="caption2">
-          {message.length}/{maxLength}
+          {text.length}/{maxLength}
         </CountText>
         <TextFieldBox border={textFieldBorder}>
-          <TextFieldInput
-            ref={textAreaRef}
-            variant="body3"
-            value={text}
-            placeholder={placeholder}
-            placeholderColor={textDisabled ? disabledPlaceholderColor : placeholderColor}
-            onChange={(e) => handleTextInput(e.target.value)}
-          />
+          {images && images.length > 0 && (
+            <ImageList>
+              {images.map((image, index) => (
+                <ImageListItem key={index}>
+                  <DeleteButtonBox onClick={() => onImageDelete(index)}>
+                    <CloseIcon width="16px" height="16px" stroke="white" />
+                  </DeleteButtonBox>
+                  <ImageBox src={image} />
+                </ImageListItem>
+              ))}
+            </ImageList>
+          )}
+
+          <TextFieldInputWrapper>
+            <TextFieldInput
+              rows={1}
+              ref={textAreaRef}
+              variant="body3"
+              value={text}
+              textColor={textColor}
+              placeholder={placeholder}
+              placeholderColor={textDisabled ? disabledPlaceholderColor : placeholderColor}
+              onChange={(e) => handleTextInput(e.target.value)}
+            />
+
+            <SendButtonWrapper />
+          </TextFieldInputWrapper>
 
           <SendButtonBox
             onClick={handleSend}
-            disabled={sendDisabled}
             backgroundColor={
               sendDisabled ? sendButtonDisabledBackgroundColor : sendButtonBackgroundColor
             }
@@ -156,6 +182,7 @@ export const ChatSendField: React.FC<ChatSendFieldProps> = ({
 const ChatSendContainer = styled.div<{
   bcakgroundColor: string;
 }>`
+  width: 100%;
   display: flex;
   align-items: flex-end;
   padding: 8px 16px 8px 16px;
@@ -177,7 +204,7 @@ const HiddenFileInput = styled.input`
 `;
 
 const TextFieldContainer = styled.div`
-  flex: 1;
+  width: calc(100% - 40px - 6px);
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
@@ -193,14 +220,65 @@ const TextFieldBox = styled.div<{
   border: BorderProps;
 }>`
   width: 100%;
+  max-height: 174px;
   padding: 6px 4px 6px 12px;
-  box-sizing: border-box;
   border: ${(props) =>
     `${props.border?.borderWidth || '1px'} solid ${props.border?.borderColor || '#E0E0E0'}`};
   border-radius: ${(props) => props.border?.borderRadius || '12px'};
   display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  position: relative;
+`;
+
+const ImageList = styled.div`
+  width: 100%;
+  flex-wrap: no-wrap;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  overflow-x: auto;
+  gap: 4px;
+  margin-bottom: 10px;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+`;
+
+const ImageListItem = styled.div`
+  position: relative;
+  width: fit-content;
+`;
+
+const DeleteButtonBox = styled.div`
+  width: 16px;
+  height: 16px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #3c3c3c;
+  border: 2px solid #ffffff;
+  border-radius: 50%;
+  box-sizing: content-box;
+  position: absolute;
+  top: -2px;
+  right: -2px;
+`;
+
+const ImageBox = styled.img`
+  width: 60px;
+  height: 60px;
+  border-radius: 16px;
+  margin-top: 6px;
+`;
+
+const TextFieldInputWrapper = styled.div`
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 `;
 
 const TextFieldInput = styled(Typography).attrs({ as: 'textarea' })<{
@@ -214,11 +292,14 @@ const TextFieldInput = styled(Typography).attrs({ as: 'textarea' })<{
   border: none;
   resize: none;
 
-  rows: 10;
-  // max-height: 102px;
   &::placeholder {
     color: ${(props) => props.placeholderColor};
   }
+`;
+
+const SendButtonWrapper = styled.div`
+  width: 30px;
+  height: 30px;
 `;
 
 const SendButtonBox = styled.div<{ backgroundColor: string }>`
@@ -230,4 +311,7 @@ const SendButtonBox = styled.div<{ backgroundColor: string }>`
   align-items: center;
   justify-content: center;
   cursor: pointer;
+  position: absolute;
+  right: 4px;
+  bottom: 6px;
 `;
