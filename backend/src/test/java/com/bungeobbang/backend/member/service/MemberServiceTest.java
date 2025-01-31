@@ -2,7 +2,7 @@ package com.bungeobbang.backend.member.service;
 
 import com.bungeobbang.backend.common.exception.AuthException;
 import com.bungeobbang.backend.common.infrastructure.JwtProvider;
-import com.bungeobbang.backend.common.infrastructure.RedisClient;
+import com.bungeobbang.backend.common.infrastructure.RedisHandler;
 import com.bungeobbang.backend.member.domain.Member;
 import com.bungeobbang.backend.member.domain.repository.MemberRepository;
 import com.bungeobbang.backend.member.dto.request.MemberUniversityUpdateRequest;
@@ -33,7 +33,7 @@ class MemberServiceTest {
     @Mock
     private UniversityRepository universityRepository;
     @Mock
-    private RedisClient redisClient;
+    private RedisHandler redisHandler;
     @Mock
     private JwtProvider jwtProvider;
 

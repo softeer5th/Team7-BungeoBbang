@@ -2,7 +2,7 @@ package com.bungeobbang.backend.member.service;
 
 import com.bungeobbang.backend.common.exception.AuthException;
 import com.bungeobbang.backend.common.infrastructure.JwtProvider;
-import com.bungeobbang.backend.common.infrastructure.RedisClient;
+import com.bungeobbang.backend.common.infrastructure.RedisHandler;
 import com.bungeobbang.backend.member.domain.Member;
 import com.bungeobbang.backend.member.domain.ProviderType;
 import com.bungeobbang.backend.member.domain.repository.MemberRepository;
@@ -30,7 +30,7 @@ public class MemberService {
     private final MemberRepository memberRepository;
     private final UniversityRepository universityRepository;
     private final JwtProvider jwtProvider;
-    private final RedisClient redisClient;
+    private final RedisHandler redisHandler;
 
     public MemberLoginResult login(final ProviderType providerType, final String code) {
         log.info("Login provider type: {}, code: {}", providerType, code);
@@ -65,8 +65,8 @@ public class MemberService {
     }
 
     private void saveRefreshToken(final Member member, final String refreshToken) {
-        redisClient.setex(String.format("refreshToken%s", member.getId()), 604800L, refreshToken);
-        log.info("saved refreshToken = {}", redisClient.get(String.format("refreshToken%s", member.getId())));
+        redisHandler.setex(String.format("refreshToken%s", member.getId()), 604800L, refreshToken);
+        log.info("saved refreshToken = {}", redisHandler.get(String.format("refreshToken%s", member.getId())));
     }
 
     private Member findOrCreateMember(final String socialLoginId, final ProviderType providerType) {
