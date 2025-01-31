@@ -1,12 +1,8 @@
-interface Tokens {
-  access: string;
-  refresh: string;
-}
-
 class JWTManager {
   private static instance: JWTManager;
   private accessToken: string | null = null;
   private refreshToken: string | null = null;
+  private memberId: number | null = null;
 
   private constructor() {}
 
@@ -17,9 +13,10 @@ class JWTManager {
     return JWTManager.instance;
   }
 
-  async setTokens({ access, refresh }: Tokens): Promise<void> {
-    this.accessToken = access;
-    this.refreshToken = refresh;
+  async setTokens(refreshToken: string, accessToken: string, memberID: number): Promise<void> {
+    this.accessToken = accessToken;
+    this.refreshToken = refreshToken;
+    this.memberId = memberID;
   }
 
   async getAccessToken(): Promise<string | null> {
@@ -30,9 +27,14 @@ class JWTManager {
     return this.refreshToken;
   }
 
+  async getMemberId(): Promise<number | null> {
+    return this.memberId;
+  }
+
   async clearTokens(): Promise<void> {
     this.accessToken = null;
     this.refreshToken = null;
+    this.memberId = null;
     window.location.href = '/';
   }
 }

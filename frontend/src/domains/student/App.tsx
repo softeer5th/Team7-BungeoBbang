@@ -9,7 +9,7 @@ function StudentApp() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<LoginPage />} />
-        <Route path="/oauth/callback/kakao" element={<OAuthCallback />} />
+        <Route path="/kakao/redirect" element={<OAuthCallback />} />
         <Route path="/google/redirect" element={<OAuthCallback />} />
         <Route path="/email" element={<EmailVerification />} />
         <Route path="/univ" element={<UniversitySelection />} />
