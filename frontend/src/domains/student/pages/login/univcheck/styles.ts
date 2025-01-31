@@ -1,34 +1,11 @@
 import styled from 'styled-components';
+import * as C from '../check-styles.ts';
 
-export const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-  background-color: #ffffff;
-`;
-
-export const Header = styled.div`
-  padding: 20px;
-`;
-
-export const BackButton = styled.button`
-  background: none;
-  border: none;
-  font-size: 24px;
-  margin-bottom: 24px;
-  cursor: pointer;
-`;
-
-export const Title = styled.h1`
-  font-size: 24px;
-  font-weight: bold;
-  margin-bottom: 12px;
-`;
-
-export const Subtitle = styled.p`
-  color: #666;
-  font-size: 16px;
-`;
+export const Container = C.Container;
+export const BackButton = C.BackButton;
+export const Title = C.Title;
+export const Subtitle = C.Subtitle;
+export const SubmitButton = C.SubmitButton;
 
 export const SelectButton = styled.button`
   width: calc(100% - 40px);
