@@ -58,7 +58,10 @@ public class MemberService {
     private MemberLoginResult getLoginResultResponse(final Member member) {
         final MemberTokens memberTokens = jwtProvider.generateLoginToken(member.getId().toString());
         saveRefreshToken(member, memberTokens.refreshToken());
-        return new MemberLoginResult(member.getId(), memberTokens.accessToken(), memberTokens.refreshToken());
+        return new MemberLoginResult(member.getId(),
+                member.getUniversity() != null,
+                memberTokens.accessToken(),
+                memberTokens.refreshToken());
     }
 
     private void saveRefreshToken(final Member member, final String refreshToken) {

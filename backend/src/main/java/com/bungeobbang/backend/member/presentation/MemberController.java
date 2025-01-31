@@ -14,7 +14,8 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/student/auth")
 @RequiredArgsConstructor
 public class MemberController {
-
+    private final static String ACCESS_TOKEN = "access-token";
+    private final static String REFRESH_TOKEN = "refresh-token";
     private final MemberService memberService;
 
     @PostMapping("/{provider}/login")
@@ -25,8 +26,9 @@ public class MemberController {
         final ProviderType providerType = ProviderType.fromString(provider);
         final MemberLoginResult memberLoginResult = memberService.login(providerType, request.code());
         return ResponseEntity.ok()
-                .header("Authorization", String.format("Bearer %s", memberLoginResult.accessToken()))
-                .body(new MemberLoginResponse(memberLoginResult.memberId(), memberLoginResult.refreshToken()));
+                .header(ACCESS_TOKEN, memberLoginResult.accessToken())
+                .header(REFRESH_TOKEN, memberLoginResult.refreshToken())
+                .body(new MemberLoginResponse(memberLoginResult.memberId(), memberLoginResult.isEmailVerified()));
     }
 
     @PatchMapping("/university")
