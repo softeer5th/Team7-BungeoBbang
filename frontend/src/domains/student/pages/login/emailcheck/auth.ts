@@ -30,9 +30,10 @@ export const confirmEmailVerification = async (
 ): Promise<EmailResponse> => {
   try {
     const requestBody: EmailVerificationRequest = { email: email, code: code };
-    const response = await api.post('/api/auth/email/confirm', requestBody);
-    return response.data;
+    const response = await api.post('/student/auth/email/verify', requestBody);
+    return response.status;
   } catch (error) {
+    console.log(error);
     throw new Error(error.response?.data?.message || '인증 코드 확인에 실패하였습니다.');
   }
 };

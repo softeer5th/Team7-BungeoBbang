@@ -20,6 +20,7 @@ const OAuthCallback = () => {
         const response = await api.post(`/student/auth/${provider}/login`, {
           code: decodeURIComponent(encodedCode),
         });
+        console.log(response);
         const accessToken = response.headers['access-token'];
         const refreshToken = response.headers['refresh-token'];
         const memberID = response.data.memberId;
@@ -29,7 +30,7 @@ const OAuthCallback = () => {
         }
 
         await JWTManager.setTokens(refreshToken, accessToken, memberID);
-        reponse.data.isEmailVerified ? navigate('/main') : navigate('/email');
+        response.data.isEmailVerified ? navigate('/main') : navigate('/email');
         navigate('/univ');
       } catch (error) {
         console.error('Login failed:', error);
