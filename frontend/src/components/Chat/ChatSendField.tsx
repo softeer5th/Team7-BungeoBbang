@@ -1,9 +1,9 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import styled from 'styled-components';
 import CameraIcon from '/src/assets/icons/camera.svg?react';
 import ArrowUpIcon from '/src/assets/icons/arrow_up.svg?react';
-import Typography from '../styles/Typography';
-import { BorderProps } from './BorderProps';
+import Typography from '../../styles/Typography';
+import { BorderProps } from '../BorderProps';
 
 interface ChatSendFieldProps {
   placeholder?: string;
@@ -20,12 +20,8 @@ interface ChatSendFieldProps {
   imageButtonDisabledIconColor?: string;
   placeholderColor?: string;
   disabledPlaceholderColor?: string;
-  textFieldBorder?: {
-    borderWidth?: string;
-    borderColor?: string;
-    disabledBorderColor?: string;
-    borderRadius?: string;
-  };
+  textFieldBorder?: BorderProps;
+  onChange?: (newValue: string) => void;
   setTextFieldDisabled?: (isDisabled: boolean) => void;
   onSendMessage?: (message: string, images: string[]) => void;
   imageList?: string[];
@@ -59,6 +55,7 @@ export const ChatSendField: React.FC<ChatSendFieldProps> = ({
     disabledBorderColor: '#E0E0E0',
     borderRadius: '20px',
   },
+  onChange = () => {},
   setTextFieldDisabled = () => {},
   onSendMessage = () => {},
   imageList = [],
@@ -72,15 +69,19 @@ export const ChatSendField: React.FC<ChatSendFieldProps> = ({
 }) => {
   const [message, setMessage] = useState(text);
   const [images, setImages] = useState<string[]>(imageList);
+  const textAreaRef = useRef(null);
 
-  // const handleTextInput (newMessage) => {
-  //   handleResizeHeight();
-  //   setMessage(newMessage);
-  // };
-  // const handleResizeHeight = () => {
-  //   textarea.current.style.height = 'auto'; //height 초기화
-  //   textarea.current.style.height = textarea.current.scrollHeight + 'px';
-  // };
+  const handleTextInput = (newMessage) => {
+    handleResizeHeight();
+    onChange(newMessage);
+  };
+
+  const handleResizeHeight = () => {
+    if (textAreaRef.current) {
+      console.log(textAreaRef.current.scrollHeight);
+      textAreaRef.current.style.height = textAreaRef.current.scrollHeight + 'px';
+    }
+  };
 
   const handleSend = () => {
     if (message.trim() || images.length > 0) {
@@ -123,13 +124,14 @@ export const ChatSendField: React.FC<ChatSendFieldProps> = ({
           {message.length}/{maxLength}
         </CountText>
         <TextFieldBox border={textFieldBorder}>
-          {/* <TextFieldInput
+          <TextFieldInput
+            ref={textAreaRef}
             variant="body3"
-            value={message}
+            value={text}
             placeholder={placeholder}
             placeholderColor={textDisabled ? disabledPlaceholderColor : placeholderColor}
             onChange={(e) => handleTextInput(e.target.value)}
-          /> */}
+          />
 
           <SendButtonBox
             onClick={handleSend}
@@ -198,7 +200,7 @@ const TextFieldBox = styled.div<{
   border-radius: ${(props) => props.border?.borderRadius || '12px'};
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-end;
 `;
 
 const TextFieldInput = styled(Typography).attrs({ as: 'textarea' })<{
@@ -210,6 +212,7 @@ const TextFieldInput = styled(Typography).attrs({ as: 'textarea' })<{
   color: ${(props) => (props.disabled ? '#C6C6C6' : props.textColor)};
   outline: none;
   border: none;
+  resize: none;
 
   rows: 10;
   // max-height: 102px;
