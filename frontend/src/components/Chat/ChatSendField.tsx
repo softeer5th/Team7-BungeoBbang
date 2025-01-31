@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useRef } from 'react';
 import styled from 'styled-components';
 import CameraIcon from '/src/assets/icons/camera.svg?react';
 import ArrowUpIcon from '/src/assets/icons/arrow-up.svg?react';
@@ -26,8 +26,8 @@ interface ChatSendFieldProps {
   onChange?: (newValue: string) => void;
   onSendMessage?: (message: string, images: string[]) => void;
   images?: string[];
-  setImageList?: (images: string[]) => void;
-  onImageDelete?: (imageId: string) => void;
+  // setImageList?: (images: string[]) => void;
+  onImageDelete?: (imageId: number) => void;
   maxLengthOfImages?: number;
   imageDisabled?: boolean;
   textDisabled?: boolean;
@@ -59,19 +59,19 @@ export const ChatSendField: React.FC<ChatSendFieldProps> = ({
   onChange = () => {},
   onSendMessage = () => {},
   images = [],
-  setImageList = () => {},
-  onImageDelete = (imageId: string) => {},
+  // setImageList = () => {},
+  onImageDelete = () => {},
   maxLengthOfImages = 5,
   imageDisabled = false,
   textDisabled = false,
   sendDisabled = false,
 }) => {
-  const textAreaRef = useRef(null);
+  const textAreaRef = useRef<HTMLTextAreaElement>(null);
 
   let maxTextInputHeight = 174;
   if (images) maxTextInputHeight = 102;
 
-  const handleTextInput = (newMessage) => {
+  const handleTextInput = (newMessage: string) => {
     handleResizeHeight();
 
     let newValue = newMessage;
@@ -99,15 +99,15 @@ export const ChatSendField: React.FC<ChatSendFieldProps> = ({
     }
   };
 
-  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (event.target.files) {
-      const uploadedImages = Array.from(event.target.files).map((file) =>
-        URL.createObjectURL(file),
-      );
-      setImages([...images, ...uploadedImages]);
-      setImageList([...images, ...uploadedImages]);
-    }
-  };
+  // const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  //   if (event.target.files) {
+  //     const uploadedImages = Array.from(event.target.files).map((file) =>
+  //       URL.createObjectURL(file),
+  //     );
+  //     // setImages([...images, ...uploadedImages]);
+  //     setImageList([...images, ...uploadedImages]);
+  //   }
+  // };
 
   const isImageDisabled = images.length >= maxLengthOfImages || imageDisabled;
 

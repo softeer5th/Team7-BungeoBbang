@@ -10,7 +10,8 @@
     "preview": "vite preview",
     "format": "prettier --write .",
     "type-check": "tsc --noEmit",
-    "prepare": "husky"
+    "prepare": "husky",
+    "postinstall": "npm install rollup @rollup/plugin-node-resolve @rollup/plugin-commonjs"
   },
   "dependencies": {
     "html-react-parser": "^5.2.2",
