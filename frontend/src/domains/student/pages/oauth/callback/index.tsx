@@ -17,20 +17,23 @@ const OAuthCallback = () => {
       }
 
       try {
-        const code = decodeURIComponent(encodedCode);
-
-        const { data } = await api.post(`/student/auth/${provider}/login`, {
-          code,
+        const response = await api.post(`/student/auth/${provider}/login`, {
+          code: decodeURIComponent(encodedCode),
         });
 
-        console.log(data);
+        const accessToken = response.headers['access-token'];
+        const refreshToken = response.headers['refresh-token'];
+        const memberID = response.data.memberId;
 
-        await JWTManager.setTokens(data);
-        //if (data.isNew) navigate('/home');
-        //else
+        if (!accessToken || !refreshToken || !memberID) {
+          throw new Error(' token or member id not found in headers');
+        }
+
+        await JWTManager.setTokens(refreshToken, accessToken, memberID);
+        response.data.isEmailVerified ? navigate('/main') : navigate('/email');
         navigate('/univ');
       } catch (error) {
-        console.error('Login failed:', error);
+        console.error('OAuth callback error:', error);
         navigate('/');
       }
     };

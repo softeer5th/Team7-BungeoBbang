@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import { ChevronLeft } from 'react-feather';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { sendEmailVerification, confirmEmailVerification } from './auth';
 import * as S from './styles';
+import api from '@/utils/api';
+import JWTManager from '@/utils/jwtManager';
 
 type Step = 'email' | 'verification';
 
@@ -14,16 +16,14 @@ export default function SchoolEmailPage() {
   const [error, setError] = useState<string | null>(null);
 
   const navigate = useNavigate();
+  const location = useLocation();
+  const university = location.state?.university;
 
   const isEmailValid = email.length > 0;
   const isVerificationValid = verificationCode.length > 0;
 
   const handleGoBack = () => {
-    if (step === 'verification') {
-      setStep('email');
-    } else {
-      navigate(-1);
-    }
+    step === 'verification' ? setStep('email') : navigate(-1);
   };
 
   const handleSubmitEmail = async () => {
@@ -33,9 +33,7 @@ export default function SchoolEmailPage() {
     setError(null);
 
     try {
-      const jo = await sendEmailVerification(email);
-      console.log(jo);
-
+      await sendEmailVerification(email);
       setStep('verification');
     } catch (err) {
       setError(err instanceof Error ? err.message : '인증 코드 전송에 실패하였습니다.');
@@ -50,13 +48,39 @@ export default function SchoolEmailPage() {
     setError(null);
 
     try {
-      await confirmEmailVerification(email, verificationCode);
-      // 인증 성공 후 처리
-      console.log('인증 성공');
+      const isConfirmed = await confirmEmailVerification(email, verificationCode);
+
+      Number(isConfirmed) === 200
+        ? await patchUniversity(email)
+        : setError('인증 코드 확인에 실패하였습니다.');
     } catch (err) {
       setError(err instanceof Error ? err.message : '인증 코드 확인에 실패하였습니다.');
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const patchUniversity = async (email: string) => {
+    if (!university) {
+      return;
+    }
+
+    const memberId = await JWTManager.getMemberId();
+
+    try {
+      await api.patch('/student/auth/university', {
+        memberId: memberId,
+        universityId: university.id,
+        email: email,
+      });
+
+      // navigate('/main');
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : '학교 정보 저장에 실패하였습니다. <br /> 다시 시도해주세요.',
+      );
     }
   };
 

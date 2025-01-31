@@ -1,4 +1,4 @@
-import React from 'react';
+// import React from 'react';
 import * as S from './styles';
 import { AUTH_CONFIG } from '../../../../config/auth';
 import logoImage from '@/assets/icons/logo.png';

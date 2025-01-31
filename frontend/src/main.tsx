@@ -1,4 +1,4 @@
-import { StrictMode } from 'react';
+// import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import './index.css';
 import { theme } from './styles/theme.ts';
@@ -12,10 +12,11 @@ import AdminApp from './domains/admin/App.tsx';
 const isAdmin = window.location.pathname.startsWith('/admin');
 
 createRoot(document.getElementById('root')!).render(
-  <StrictMode>
+
     <ThemeProvider theme={theme}>
       <GlobalStyle />
       {isAdmin ? <AdminApp /> : <StudentApp />}
     </ThemeProvider>
-  </StrictMode>,
+
 );
+

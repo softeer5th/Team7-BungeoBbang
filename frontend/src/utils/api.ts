@@ -11,11 +11,15 @@ const api: AxiosInstance = axios.create({
 // 요청 인터셉터
 api.interceptors.request.use(
   async (config) => {
-    const token = await JWTManager.getAccessToken();
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
+    try {
+      const token = await JWTManager.getAccessToken();
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
+      return config;
+    } catch (error) {
+      return Promise.reject(error);
     }
-    return config;
   },
   (error) => Promise.reject(error),
 );
@@ -30,26 +34,15 @@ api.interceptors.response.use(
       originalRequest._retry = true;
 
       try {
-        const refreshToken = await JWTManager.getRefreshToken();
-        const { data } = await axios.post(
-          `${AUTH_CONFIG.API.BASE_URL}/auth/refresh`,
-          { refresh: refreshToken },
-          { withCredentials: true },
-        );
-
-        await JWTManager.setTokens({
-          access: data.accessToken,
-          refresh: refreshToken as string,
-        });
-
-        if (originalRequest.headers) {
-          originalRequest.headers.Authorization = `Bearer ${data.accessToken}`;
+        const token = await JWTManager.getAccessToken(); // 자동으로 refresh 처리
+        if (token && originalRequest.headers) {
+          originalRequest.headers.Authorization = `Bearer ${token}`;
+          return api(originalRequest);
         }
-
-        return api(originalRequest);
       } catch (refreshError) {
+        console.log('Refresh token error:', refreshError);
+
         await JWTManager.clearTokens();
-        return Promise.reject(refreshError);
       }
     }
 
