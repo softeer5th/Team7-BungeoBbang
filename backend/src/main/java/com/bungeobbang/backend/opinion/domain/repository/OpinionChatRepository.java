@@ -26,8 +26,7 @@ public class OpinionChatRepository {
         this.collection = database.getCollection("opinion_chat");
     }
 
-    public void save(OpinionChat opinionChat) {
-        Document doc = new Document()
+    // OpinionChat 삽입
     public void save(final OpinionChat opinionChat) {
         final Document doc = new Document()
                 .append("member_id", opinionChat.getMemberId())
