@@ -1,11 +1,20 @@
 package com.bungeobbang.backend.opinion.domain.repository;
 
 import com.bungeobbang.backend.opinion.domain.OpinionChat;
+import com.mongodb.client.DistinctIterable;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import org.bson.Document;
+import org.bson.types.ObjectId;
 import org.springframework.stereotype.Repository;
+
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 @Repository
 public class OpinionChatRepository {
@@ -28,6 +37,13 @@ public class OpinionChatRepository {
         collection.insertOne(doc);
     }
 
+    public Set<Long> findDistinctOpinionIdsByAdmin() {
+        DistinctIterable<Long> distinctOpinionIds = collection.distinct("opinion_id",
+                new Document("is_admin", true), Long.class);
+        // Iterable을 Stream으로 변환 후 Set에 수집
+        return StreamSupport.stream(distinctOpinionIds.spliterator(), false)
+                .collect(Collectors.toSet()); // Set으로 수집
+    }
     private OpinionChat documentToOpinionChat(Document doc) {
         return new OpinionChat(
                 doc.getLong("member_id"),
