@@ -37,31 +37,32 @@ public class OpinionService {
 
     private static final Integer eachCursorSize = 8;
 
-    public OpinionStatisticsResponse computeOpinionStatistics(Accessor accessor) {
+    public OpinionStatisticsResponse computeOpinionStatistics(final Accessor accessor) {
+        final Member member = memberRepository.findById(accessor.id())
+                .orElseThrow(() -> new MemberException(ErrorCode.INVALID_MEMBER));
         List<Opinion> opinions = opinionRepository.findAllByCreatedAtBetweenAndUniversityId(
                         LocalDateTime.now().minusMonths(1L),
                         LocalDateTime.now(),
-                        accessor.universityId());
-        Long inquires = Long.valueOf(opinions.size());
+                        member.getUniversity().getId());
+        Long opinionCount = Long.valueOf(opinions.size());
 
         Set<Long> opinionIds = opinionChatRepository.findDistinctOpinionIdsByAdmin();
 
         // 소속 대학의 1달간 모든 '말해요' opinion에 대해서, 학생회의(is_admin==true) 채팅이 있었던 경우 카운트
-        Long responses = opinions.stream()
+        Long responseCount = opinions.stream()
                 .filter(opinion -> opinionIds.contains(opinion.getId()))
                 .count();
 
-        return new OpinionStatisticsResponse(inquires, responses);
+        return new OpinionStatisticsResponse(opinionCount, responseCount);
     }
 
     public OpinionCreationResponse createOpinion(
             final OpinionCreationRequest creationRequest,
             final Accessor accessor
     ) {
-        final University university = universityRepository.findById(accessor.universityId())
-                .orElseThrow(() -> new UniversityException(ErrorCode.INVALID_UNIVERSITY));
         final Member member = memberRepository.findById(accessor.id())
                 .orElseThrow(() -> new MemberException(ErrorCode.INVALID_MEMBER));
+        final University university = member.getUniversity();
 
         // 말해요 채팅방 생성
         Opinion opinion = new Opinion(
