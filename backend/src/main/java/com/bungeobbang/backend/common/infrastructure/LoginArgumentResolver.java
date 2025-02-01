@@ -1,7 +1,7 @@
 package com.bungeobbang.backend.common.infrastructure;
 
-import com.bungeobbang.backend.auth.domain.Accessor;
 import com.bungeobbang.backend.auth.Auth;
+import com.bungeobbang.backend.auth.domain.Accessor;
 import com.bungeobbang.backend.auth.domain.Authority;
 import com.bungeobbang.backend.common.exception.MemberException;
 import com.bungeobbang.backend.member.domain.Member;
@@ -39,6 +39,7 @@ public class LoginArgumentResolver implements HandlerMethodArgumentResolver {
             final WebDataBinderFactory binderFactory) {
 
         final String accessToken = extractor.extractAccessToken(webRequest.getHeader(AUTHORIZATION));
+        jwtProvider.validateToken(accessToken);
         final Long memberId = Long.valueOf(jwtProvider.getSubject(accessToken));
         final Member member = memberRepository.findById(memberId).
                 orElseThrow(() -> new MemberException(INVALID_MEMBER));

@@ -1,5 +1,6 @@
 package com.bungeobbang.backend.common.infrastructure;
 
+import com.bungeobbang.backend.common.exception.AuthException;
 import com.bungeobbang.backend.member.dto.response.MemberTokens;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
@@ -9,6 +10,9 @@ import org.springframework.stereotype.Component;
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
+
+import static com.bungeobbang.backend.common.exception.ErrorCode.EXPIRED_ACCESS_TOKEN;
+import static com.bungeobbang.backend.common.exception.ErrorCode.INVALID_ACCESS_TOKEN;
 
 @Component
 public class JwtProvider {
@@ -57,5 +61,15 @@ public class JwtProvider {
                 .setSigningKey(secretKey)
                 .build()
                 .parseClaimsJws(token);
+    }
+
+    public void validateToken(final String accessToken) {
+        try {
+            parseToken(accessToken);
+        } catch (final ExpiredJwtException e) {
+            throw new AuthException(EXPIRED_ACCESS_TOKEN);
+        } catch (final JwtException | IllegalArgumentException e) {
+            throw new AuthException(INVALID_ACCESS_TOKEN);
+        }
     }
 }
