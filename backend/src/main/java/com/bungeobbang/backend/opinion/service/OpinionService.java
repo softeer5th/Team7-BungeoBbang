@@ -58,10 +58,10 @@ public class OpinionService {
             final OpinionCreationRequest creationRequest,
             final Accessor accessor
     ) {
-        University university = universityRepository.findById(accessor.universityId())
-                .orElseThrow(() -> new UniversityException(ErrorCode.UNIVERSITY_LOOKUP_FAILED));
-        Member member = memberRepository.findById(accessor.id())
-                .orElseThrow(() -> new MemberException(ErrorCode.MEMBER_LOOKUP_FAILED));
+        final University university = universityRepository.findById(accessor.universityId())
+                .orElseThrow(() -> new UniversityException(ErrorCode.INVALID_UNIVERSITY));
+        final Member member = memberRepository.findById(accessor.id())
+                .orElseThrow(() -> new MemberException(ErrorCode.INVALID_MEMBER));
 
         // 말해요 채팅방 생성
         Opinion opinion = new Opinion(
@@ -89,7 +89,7 @@ public class OpinionService {
     @Transactional
     public void changeOpinionRemind(final Long roomId) {
         Opinion opinion = opinionRepository.findById(roomId)
-                .orElseThrow(() -> new OpinionException(ErrorCode.OPINION_LOOKUP_FAILED));
+                .orElseThrow(() -> new OpinionException(ErrorCode.INVALID_OPINION));
         opinion.editIsRemind(true);
     }
 

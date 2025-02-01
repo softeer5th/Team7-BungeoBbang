@@ -19,8 +19,7 @@ public class MemberOpinionController {
     private final OpinionService opinionService;
     @GetMapping()
     public ResponseEntity<OpinionStatisticsResponse> getOpinionStatistics(
-            @Auth final Accessor accessor
-    ) {
+            @Auth final Accessor accessor) {
         return ResponseEntity.ok()
                 .body(opinionService.computeOpinionStatistics(accessor));
     }

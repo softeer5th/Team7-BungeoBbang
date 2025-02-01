@@ -7,13 +7,11 @@ import org.springframework.http.HttpStatus;
 public enum ErrorCode {
     // Opinion
     OPINION_COUNT_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "말해요 의견 수 카운트에 실패하였습니다."),
-    OPINION_LOOKUP_FAILED(HttpStatus.NOT_FOUND, "말해요 채팅방 조회에 실패하였습니다."),
+    INVALID_OPINION(HttpStatus.NOT_FOUND, "말해요 채팅방 조회에 실패하였습니다."),
     // Member
     INVALID_MEMBER(HttpStatus.NOT_FOUND, "존재하지 않는 사용자입니다."),
-    MEMBER_LOOKUP_FAILED(HttpStatus.NOT_FOUND, "사용자 조회에 실패하였습니다."),
     // University
     INVALID_UNIVERSITY(HttpStatus.NOT_FOUND, "아직 등록되지 않은 대학교입니다."),
-    UNIVERSITY_LOOKUP_FAILED(HttpStatus.NOT_FOUND, "대학 조회에 실패하였습니다."),
     // Auth
     INVALID_AUTHORIZATION_CODE(HttpStatus.BAD_REQUEST, "유효하지 않은 인증 코드입니다."),
     NOT_SUPPORTED_OAUTH_SERVICE(HttpStatus.NOT_IMPLEMENTED, "해당 OAuth 서비스는 제공하지 않습니다."),
