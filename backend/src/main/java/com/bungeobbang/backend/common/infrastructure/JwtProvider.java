@@ -45,4 +45,17 @@ public class JwtProvider {
                 .signWith(secretKey, SignatureAlgorithm.HS256)
                 .compact();
     }
+
+    public String getSubject(final String token) {
+        return parseToken(token)
+                .getBody()
+                .getSubject();
+    }
+
+    private Jws<Claims> parseToken(final String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(secretKey)
+                .build()
+                .parseClaimsJws(token);
+    }
 }
