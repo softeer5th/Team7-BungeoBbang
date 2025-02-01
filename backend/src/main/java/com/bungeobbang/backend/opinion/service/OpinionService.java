@@ -35,7 +35,7 @@ public class OpinionService {
     private final UniversityRepository universityRepository;
     private final MemberRepository memberRepository;
 
-    private static final Integer eachCursorSize = 8;
+    private static final Integer chunkSize = 8;
 
     public OpinionStatisticsResponse computeOpinionStatistics(final Accessor accessor) {
         final Member member = memberRepository.findById(accessor.id())

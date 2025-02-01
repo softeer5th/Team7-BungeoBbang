@@ -25,7 +25,7 @@ public class MemberOpinionController {
     }
 
     @PostMapping()
-    public ResponseEntity<OpinionCreationResponse> postOpinion(
+    public ResponseEntity<OpinionCreationResponse> suggestOpinion(
             @RequestBody @Valid final OpinionCreationRequest creationRequest,
             @Auth final Accessor accessor) {
         return ResponseEntity.ok()
