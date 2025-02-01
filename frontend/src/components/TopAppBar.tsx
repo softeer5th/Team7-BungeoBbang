@@ -35,7 +35,7 @@ export const TopAppBar: React.FC<TopAppBarProps> = ({
       {LeftIcon && (
         <React.Suspense fallback={<IconLoadingBox width="24px" height="24px" />}>
           <IconWrapper onClick={onLeftIconClick}>
-            <LeftIcon height="24px" stroke={titleColor || foregroundColor} />
+            <LeftIcon height="24px" stroke={titleColor ??  foregroundColor} fill = {titleColor ?? foregroundColor} />
           </IconWrapper>
         </React.Suspense>
       )}
@@ -43,7 +43,7 @@ export const TopAppBar: React.FC<TopAppBarProps> = ({
       <TitleText
         variant="heading3"
         titleCentered={!!leftIconSrc}
-        titleColor={titleColor || foregroundColor}
+        titleColor={titleColor ?? foregroundColor}
       >
         {title}
       </TitleText>

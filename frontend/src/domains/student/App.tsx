@@ -3,6 +3,7 @@ import LoginPage from './pages/login';
 import OAuthCallback from './pages/oauth/callback';
 import EmailVerification from './pages/login/emailcheck';
 import UniversitySelection from './pages/login/univcheck';
+import AgendaPage from './pages/agenda';
 
 function StudentApp() {
   return (
@@ -13,6 +14,7 @@ function StudentApp() {
         <Route path="/google/redirect" element={<OAuthCallback />} />
         <Route path="/email" element={<EmailVerification />} />
         <Route path="/univ" element={<UniversitySelection />} />
+        <Route path="/agenda" element={<AgendaPage />} />
       </Routes>
     </BrowserRouter>
   );
