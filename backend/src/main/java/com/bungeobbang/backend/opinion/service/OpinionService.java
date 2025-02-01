@@ -4,7 +4,6 @@ import com.bungeobbang.backend.auth.domain.Accessor;
 import com.bungeobbang.backend.common.exception.ErrorCode;
 import com.bungeobbang.backend.common.exception.MemberException;
 import com.bungeobbang.backend.common.exception.OpinionException;
-import com.bungeobbang.backend.common.exception.UniversityException;
 import com.bungeobbang.backend.member.domain.Member;
 import com.bungeobbang.backend.member.domain.repository.MemberRepository;
 import com.bungeobbang.backend.opinion.domain.Opinion;
@@ -88,7 +87,7 @@ public class OpinionService {
     }
 
     @Transactional
-    public void changeOpinionRemind(final Long roomId) {
+    public void remindOpinion(final Long roomId) {
         Opinion opinion = opinionRepository.findById(roomId)
                 .orElseThrow(() -> new OpinionException(ErrorCode.INVALID_OPINION));
         opinion.editIsRemind(true);
