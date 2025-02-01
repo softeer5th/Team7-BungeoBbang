@@ -28,6 +28,8 @@ public class OpinionChatRepository {
 
     public void save(OpinionChat opinionChat) {
         Document doc = new Document()
+    public void save(final OpinionChat opinionChat) {
+        final Document doc = new Document()
                 .append("member_id", opinionChat.getMemberId())
                 .append("opinion_id", opinionChat.getOpinionId())
                 .append("chat", opinionChat.getChat())
