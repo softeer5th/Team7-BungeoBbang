@@ -37,8 +37,8 @@ public class OpinionService {
 
     private static final Integer chunkSize = 8;
 
-    public OpinionStatisticsResponse computeOpinionStatistics(final Accessor accessor) {
-        final Member member = memberRepository.findById(accessor.id())
+    public OpinionStatisticsResponse computeOpinionStatistics(Long memberId) {
+        final Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new MemberException(ErrorCode.INVALID_MEMBER));
         List<Opinion> opinions = opinionRepository.findAllByCreatedAtBetweenAndUniversityId(
                         LocalDateTime.now().minusMonths(1L),
@@ -58,9 +58,9 @@ public class OpinionService {
 
     public OpinionCreationResponse createOpinion(
             final OpinionCreationRequest creationRequest,
-            final Accessor accessor
+            Long memberId
     ) {
-        final Member member = memberRepository.findById(accessor.id())
+        final Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new MemberException(ErrorCode.INVALID_MEMBER));
         final University university = member.getUniversity();
 

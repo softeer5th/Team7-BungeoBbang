@@ -21,7 +21,7 @@ public class MemberOpinionController {
     public ResponseEntity<OpinionStatisticsResponse> getOpinionStatistics(
             @Auth final Accessor accessor) {
         return ResponseEntity.ok()
-                .body(opinionService.computeOpinionStatistics(accessor));
+                .body(opinionService.computeOpinionStatistics(accessor.id()));
     }
 
     @PostMapping()
@@ -29,13 +29,12 @@ public class MemberOpinionController {
             @RequestBody @Valid final OpinionCreationRequest creationRequest,
             @Auth final Accessor accessor) {
         return ResponseEntity.ok()
-                .body(opinionService.createOpinion(creationRequest, accessor));
+                .body(opinionService.createOpinion(creationRequest, accessor.id()));
     }
 
     @PatchMapping("/{roomId}/remind")
     public ResponseEntity<Void> patchOpinionRemind(
-            @PathVariable @Valid final Long roomId,
-            @Auth final Accessor accessor) {
+            @PathVariable @Valid final Long roomId) {
         opinionService.changeOpinionRemind(roomId);
         return ResponseEntity.ok().build();
     }
