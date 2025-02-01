@@ -1,4 +1,4 @@
-package com.bungeobbang.backend.auth;
+package com.bungeobbang.backend.common.infrastructure;
 
 import com.bungeobbang.backend.common.exception.AuthException;
 import org.springframework.stereotype.Component;

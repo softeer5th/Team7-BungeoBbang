@@ -1,6 +1,6 @@
 package com.bungeobbang.backend.common.config;
 
-import com.bungeobbang.backend.auth.LoginArgumentResolver;
+import com.bungeobbang.backend.common.infrastructure.LoginArgumentResolver;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;

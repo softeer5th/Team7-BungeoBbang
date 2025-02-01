@@ -1,7 +1,9 @@
-package com.bungeobbang.backend.auth;
+package com.bungeobbang.backend.common.infrastructure;
 
+import com.bungeobbang.backend.auth.domain.Accessor;
+import com.bungeobbang.backend.auth.Auth;
+import com.bungeobbang.backend.auth.domain.Authority;
 import com.bungeobbang.backend.common.exception.MemberException;
-import com.bungeobbang.backend.common.infrastructure.JwtProvider;
 import com.bungeobbang.backend.member.domain.Member;
 import com.bungeobbang.backend.member.domain.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
@@ -25,8 +27,8 @@ public class LoginArgumentResolver implements HandlerMethodArgumentResolver {
 
     @Override
     public boolean supportsParameter(final MethodParameter parameter) {
-        return parameter.withContainingClass(Long.class)
-                .hasParameterAnnotation(Auth.class);
+        return parameter.hasParameterAnnotation(Auth.class) &&
+                parameter.getParameterType().equals(Accessor.class);
     }
 
     @Override
@@ -41,6 +43,6 @@ public class LoginArgumentResolver implements HandlerMethodArgumentResolver {
         final Member member = memberRepository.findById(memberId).
                 orElseThrow(() -> new MemberException(INVALID_MEMBER));
 
-        return new Accessor(memberId, member.getUniversity().getId());
+        return new Accessor(memberId, member.getUniversity().getId(), Authority.MEMBER);
     }
 }
