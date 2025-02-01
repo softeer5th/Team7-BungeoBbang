@@ -8,21 +8,29 @@ import com.bungeobbang.backend.opinion.service.OpinionService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-public class OpinionController {
+@RequestMapping("/student/opinion")
+public class MemberOpinionController {
 
     private final OpinionService opinionService;
 
-    @PostMapping("/student/opinion")
+    @PostMapping()
     public ResponseEntity<OpinionCreationResponse> postOpinion(
             @RequestBody @Valid OpinionCreationRequest creationRequest,
             @Auth final Accessor accessor) {
         return ResponseEntity.ok()
                 .body(opinionService.createOpinion(creationRequest, accessor));
     }
+
+    @PatchMapping("/{roomId}/remind")
+    public ResponseEntity<Void> patchOpinionRemind(
+            @PathVariable @Valid Long roomId,
+            @Auth final Accessor accessor) {
+        opinionService.changeOpinionRemind(roomId);
+        return ResponseEntity.ok().build();
+    }
+
 }

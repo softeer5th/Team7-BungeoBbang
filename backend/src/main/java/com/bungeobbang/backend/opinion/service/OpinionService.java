@@ -60,4 +60,11 @@ public class OpinionService {
 
         return new OpinionCreationResponse(opinionId);
     }
+    @Transactional
+    public void changeOpinionRemind(final Long roomId) {
+        Opinion opinion = opinionRepository.findById(roomId)
+                .orElseThrow(() -> new OpinionException(ErrorCode.OPINION_LOOKUP_FAILED));
+        opinion.editIsRemind(true);
+    }
+
 }

@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 public enum ErrorCode {
     // Opinion
     OPINION_COUNT_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "말해요 의견 수 카운트에 실패하였습니다."),
+    OPINION_LOOKUP_FAILED(HttpStatus.NOT_FOUND, "말해요 채팅방 조회에 실패하였습니다."),
     // Member
     INVALID_MEMBER(HttpStatus.NOT_FOUND, "존재하지 않는 사용자입니다."),
     MEMBER_LOOKUP_FAILED(HttpStatus.NOT_FOUND, "사용자 조회에 실패하였습니다."),
