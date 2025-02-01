@@ -1,9 +1,7 @@
 package com.bungeobbang.backend.common.infrastructure;
 
 import com.bungeobbang.backend.member.dto.response.MemberTokens;
-import io.jsonwebtoken.Header;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -32,7 +30,7 @@ public class JwtProvider {
     public MemberTokens generateLoginToken(final String subject) {
         final String refreshToken = createToken(EMPTY_SUBJECT, refreshExpirationTime);
         final String accessToken = createToken(subject, accessExpirationTime);
-        return new MemberTokens(refreshToken, accessToken);
+        return new MemberTokens(accessToken, refreshToken);
     }
 
     private String createToken(final String subject, final Long validityInMilliseconds) {
