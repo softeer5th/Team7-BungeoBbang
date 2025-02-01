@@ -21,7 +21,7 @@ public class OpinionChatRepository {
     private final MongoDatabase database;
     private final MongoCollection<Document> collection;
 
-    public OpinionChatRepository(MongoClient mongoClient) {
+    public OpinionChatRepository(final MongoClient mongoClient) {
         this.database = mongoClient.getDatabase("mydatabase");
         this.collection = database.getCollection("opinion_chat");
     }
@@ -38,9 +38,10 @@ public class OpinionChatRepository {
     }
 
     public Set<Long> findDistinctOpinionIdsByAdmin() {
-        DistinctIterable<Long> distinctOpinionIds = collection.distinct("opinion_id",
-                new Document("is_admin", true), Long.class);
-        // Iterable을 Stream으로 변환 후 Set에 수집
+        final DistinctIterable<Long> distinctOpinionIds = collection.distinct(
+                "opinion_id",
+                new Document("is_admin", true)
+                , Long.class);
         return StreamSupport.stream(distinctOpinionIds.spliterator(), false)
                 .collect(Collectors.toSet()); // Set으로 수집
     }

@@ -30,25 +30,23 @@ public class OpinionService {
 
     private final OpinionRepository opinionRepository;
     private final OpinionChatRepository opinionChatRepository;
-
-    private final UniversityRepository universityRepository;
     private final MemberRepository memberRepository;
 
     private static final Integer chunkSize = 8;
 
-    public OpinionStatisticsResponse computeOpinionStatistics(Long memberId) {
+    public OpinionStatisticsResponse computeOpinionStatistics(final Long memberId) {
         final Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new MemberException(ErrorCode.INVALID_MEMBER));
-        List<Opinion> opinions = opinionRepository.findAllByCreatedAtBetweenAndUniversityId(
+        final List<Opinion> opinions = opinionRepository.findAllByCreatedAtBetweenAndUniversityId(
                         LocalDateTime.now().minusMonths(1L),
                         LocalDateTime.now(),
                         member.getUniversity().getId());
-        Long opinionCount = Long.valueOf(opinions.size());
+        final Long opinionCount = Long.valueOf(opinions.size());
 
-        Set<Long> opinionIds = opinionChatRepository.findDistinctOpinionIdsByAdmin();
+        final Set<Long> opinionIds = opinionChatRepository.findDistinctOpinionIdsByAdmin();
 
         // 소속 대학의 1달간 모든 '말해요' opinion에 대해서, 학생회의(is_admin==true) 채팅이 있었던 경우 카운트
-        Long responseCount = opinions.stream()
+        final Long responseCount = opinions.stream()
                 .filter(opinion -> opinionIds.contains(opinion.getId()))
                 .count();
 
@@ -57,24 +55,24 @@ public class OpinionService {
 
     public OpinionCreationResponse createOpinion(
             final OpinionCreationRequest creationRequest,
-            Long memberId
+            final Long memberId
     ) {
         final Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new MemberException(ErrorCode.INVALID_MEMBER));
         final University university = member.getUniversity();
 
         // 말해요 채팅방 생성
-        Opinion opinion = new Opinion(
+        final Opinion opinion = new Opinion(
                 university,
                 creationRequest.categoryType(),
                 creationRequest.opinionType(),
                 member,
                 false,
                 1);
-        Long opinionId = opinionRepository.save(opinion).getId();
+        final Long opinionId = opinionRepository.save(opinion).getId();
 
         // 채팅 저장
-        OpinionChat opinionChat = new OpinionChat(
+        final OpinionChat opinionChat = new OpinionChat(
                 member.getId(),
                 opinionId,
                 creationRequest.content(),
@@ -88,7 +86,7 @@ public class OpinionService {
 
     @Transactional
     public void remindOpinion(final Long roomId) {
-        Opinion opinion = opinionRepository.findById(roomId)
+        final Opinion opinion = opinionRepository.findById(roomId)
                 .orElseThrow(() -> new OpinionException(ErrorCode.INVALID_OPINION));
         opinion.editIsRemind(true);
     }
