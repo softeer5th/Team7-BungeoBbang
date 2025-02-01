@@ -3,6 +3,7 @@ package com.bungeobbang.backend.common.infrastructure;
 import com.bungeobbang.backend.auth.Auth;
 import com.bungeobbang.backend.auth.domain.Accessor;
 import com.bungeobbang.backend.auth.domain.Authority;
+import com.bungeobbang.backend.common.exception.AuthException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.MethodParameter;
 import org.springframework.stereotype.Component;
@@ -33,10 +34,14 @@ public class LoginArgumentResolver implements HandlerMethodArgumentResolver {
             final NativeWebRequest webRequest,
             final WebDataBinderFactory binderFactory) {
 
-        final String accessToken = extractor.extractAccessToken(webRequest.getHeader(AUTHORIZATION));
-        jwtProvider.validateToken(accessToken);
-        final Long memberId = Long.valueOf(jwtProvider.getSubject(accessToken));
-
-        return new Accessor(memberId, Authority.MEMBER);
+        try {
+            final String accessToken = extractor.extractAccessToken(webRequest.getHeader(AUTHORIZATION));
+            jwtProvider.validateToken(accessToken);
+            final Long memberId = Long.valueOf(jwtProvider.getSubject(accessToken));
+            return new Accessor(memberId, Authority.MEMBER);
+        }
+        catch (AuthException e) {
+            return new Accessor(0L, Authority.GUEST);
+        }
     }
 }
