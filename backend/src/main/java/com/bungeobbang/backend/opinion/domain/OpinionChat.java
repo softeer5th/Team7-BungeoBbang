@@ -13,10 +13,10 @@ public class OpinionChat {
     @BsonProperty("_id")
     private ObjectId id;
 
-    @BsonProperty("member_id")
+    @BsonProperty("memberId")
     private Long memberId;
 
-    @BsonProperty("opinion_id")
+    @BsonProperty("opinionId")
     private Long opinionId;
 
     @BsonProperty("chat")
@@ -25,10 +25,10 @@ public class OpinionChat {
     @BsonProperty("images")
     private List<String> images;
 
-    @BsonProperty("is_admin")
+    @BsonProperty("isAdmin")
     private boolean isAdmin;
 
-    @BsonProperty("created_at")
+    @BsonProperty("createdAt")
     private LocalDateTime createdAt;
 
     public OpinionChat(Long memberId, Long opinionId, String chat, List<String> images, boolean isAdmin, LocalDateTime createdAt) {
