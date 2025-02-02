@@ -73,20 +73,6 @@ public class Agenda extends BaseTimeEntity {
         this.images = images;
     }
 
-    @Builder
-    public Agenda(int count, boolean isEnd, String content, LocalDate endDate, LocalDate startDate, String title, Admin admin, University university, CategoryType categoryType, Long id) {
-        this.count = count;
-        this.isEnd = isEnd;
-        this.content = content;
-        this.endDate = endDate;
-        this.startDate = startDate;
-        this.title = title;
-        this.admin = admin;
-        this.university = university;
-        this.categoryType = categoryType;
-        this.id = id;
-    }
-
     public void end() {
         this.endDate = LocalDate.now();
         this.isEnd = true;
