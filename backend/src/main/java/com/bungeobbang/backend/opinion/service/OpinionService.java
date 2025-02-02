@@ -15,7 +15,6 @@ import com.bungeobbang.backend.opinion.dto.response.MemberOpinionListResponse;
 import com.bungeobbang.backend.opinion.dto.response.OpinionCreationResponse;
 import com.bungeobbang.backend.opinion.dto.response.OpinionStatisticsResponse;
 import com.bungeobbang.backend.university.domain.University;
-import com.bungeobbang.backend.university.domain.repository.UniversityRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -38,17 +37,17 @@ public class OpinionService {
         final Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new MemberException(ErrorCode.INVALID_MEMBER));
         final List<Opinion> opinions = opinionRepository.findAllByCreatedAtBetweenAndUniversityId(
-                        LocalDateTime.now().minusMonths(1L),
-                        LocalDateTime.now(),
-                        member.getUniversity().getId());
+                LocalDateTime.now().minusMonths(1L),
+                LocalDateTime.now(),
+                member.getUniversity().getId());
         final Long opinionCount = Long.valueOf(opinions.size());
 
-        final Set<Long> opinionIds = opinionChatRepository.findDistinctOpinionIdsByAdmin();
 
+        final List<OpinionChat> opinionChats = opinionChatRepository.findDistinctOpinionIdByIsAdminTrue();
         // 소속 대학의 1달간 모든 '말해요' opinion에 대해서, 학생회의(is_admin==true) 채팅이 있었던 경우 카운트
         final Long responseCount = opinions.stream()
-                .filter(opinion -> opinionIds.contains(opinion.getId()))
-                .count();
+                .filter(opinion -> opinionChats.stream()
+                        .anyMatch(chat -> chat.getOpinionId().equals(opinion.getId()))).count();
 
         return new OpinionStatisticsResponse(opinionCount, responseCount);
     }

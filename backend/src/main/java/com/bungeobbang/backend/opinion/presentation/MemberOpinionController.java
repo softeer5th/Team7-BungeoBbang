@@ -36,6 +36,9 @@ public class MemberOpinionController {
     public ResponseEntity<Void> patchOpinionRemind(
             @PathVariable @Valid final Long roomId) {
         opinionService.changeOpinionRemind(roomId);
+        opinionService.remindOpinion(roomId);
+        return ResponseEntity.ok().build();
+    }
         return ResponseEntity.ok().build();
     }
 
