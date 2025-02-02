@@ -64,4 +64,11 @@ public class AdminAgendaService {
 
         agenda.end();
     }
+
+    @Transactional
+    public void deleteAgenda(Long agendaId) {
+        agendaRepository.deleteById(agendaId);
+
+        // todo async로 채팅내역 삭제...
+    }
 }

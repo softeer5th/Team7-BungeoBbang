@@ -29,4 +29,11 @@ public class AdminAgendaController {
         adminAgendaService.endAgenda(agendaId);
         return ResponseEntity.noContent().build();
     }
+
+    @DeleteMapping("/{agendaId}")
+    public ResponseEntity<Void> deleteAgenda(@AdminAuth Accessor accessor,
+                                             @PathVariable Long agendaId) {
+        adminAgendaService.deleteAgenda(agendaId);
+        return ResponseEntity.noContent().build();
+    }
 }
