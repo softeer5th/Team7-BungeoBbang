@@ -6,6 +6,7 @@ import com.bungeobbang.backend.common.type.CategoryType;
 import com.bungeobbang.backend.university.domain.University;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -55,4 +56,18 @@ public class Agenda extends BaseTimeEntity {
 
     @OneToMany(mappedBy = "agenda")
     private Set<AgendaImage> imageList;
+
+    @Builder
+    public Agenda(int count, boolean isEnd, String content, LocalDate endDate, LocalDate startDate, String title, Admin admin, University university, CategoryType categoryType, Long id) {
+        this.count = count;
+        this.isEnd = isEnd;
+        this.content = content;
+        this.endDate = endDate;
+        this.startDate = startDate;
+        this.title = title;
+        this.admin = admin;
+        this.university = university;
+        this.categoryType = categoryType;
+        this.id = id;
+    }
 }
