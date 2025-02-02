@@ -25,19 +25,33 @@ public class Opinion extends BaseTimeEntity {
     private University university;
 
     @Enumerated(STRING)
+    @Column(name = "category_type", nullable = false)
     private CategoryType categoryType;
 
     @Enumerated(STRING)
+    @Column(name = "opinion_type", nullable = false)
     private OpinionType opinionType;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id", nullable = false)
     private Member member;
 
-    @Column(nullable = false)
+    @Column(name = "is_remind", nullable = false)
     private boolean isRemind;
 
     @Column(name = "chat_count", nullable = false)
     private int chatCount;
 
+    public Opinion(University university, CategoryType categoryType, OpinionType opinionType, Member member, boolean isRemind, int chatCount) {
+        this.university = university;
+        this.categoryType = categoryType;
+        this.opinionType = opinionType;
+        this.member = member;
+        this.isRemind = isRemind;
+        this.chatCount = chatCount;
+    }
+
+    public void editIsRemind(boolean isRemind) {
+        this.isRemind = isRemind;
+    }
 }
