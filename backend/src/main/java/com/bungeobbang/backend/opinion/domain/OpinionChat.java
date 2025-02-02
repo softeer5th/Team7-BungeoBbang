@@ -1,34 +1,30 @@
 package com.bungeobbang.backend.opinion.domain;
 
+import jakarta.persistence.Id;
 import lombok.Getter;
-import org.bson.codecs.pojo.annotations.BsonProperty;
 import org.bson.types.ObjectId;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
+@Document(collection = "opinion_chat")
 public class OpinionChat {
 
-    @BsonProperty("_id")
+    @Id
     private ObjectId id;
 
-    @BsonProperty("memberId")
     private Long memberId;
 
-    @BsonProperty("opinionId")
     private Long opinionId;
 
-    @BsonProperty("chat")
     private String chat;
 
-    @BsonProperty("images")
     private List<String> images;
 
-    @BsonProperty("isAdmin")
     private boolean isAdmin;
 
-    @BsonProperty("createdAt")
     private LocalDateTime createdAt;
 
     public OpinionChat(Long memberId, Long opinionId, String chat, List<String> images, boolean isAdmin, LocalDateTime createdAt) {
