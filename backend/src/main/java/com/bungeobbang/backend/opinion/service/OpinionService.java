@@ -78,11 +78,6 @@ public class OpinionService {
         opinion.editIsRemind(true);
     }
 
-        // cursor 없이 첫 요청인 경우
-        if (cursor == null) {
-            cursor = Long.MAX_VALUE;
-        }
-
     public MemberOpinionListResponse findMemberOpinionList(final Long cursor, final Long memberId) {
         List<Opinion> opinions = opinionRepository.findRecentOpinionsByMemberIdAndCursor(memberId, cursor);
 
