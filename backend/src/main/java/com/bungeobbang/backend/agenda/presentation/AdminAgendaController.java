@@ -8,10 +8,7 @@ import com.bungeobbang.backend.auth.domain.Accessor;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/admin/agenda")
@@ -23,8 +20,13 @@ public class AdminAgendaController {
     public ResponseEntity<AgendaCreationResponse> createAgenda(
             @AdminAuth Accessor accessor,
             @RequestBody @Valid AgendaCreationRequest request) {
-        System.out.println(accessor.authority());
         return ResponseEntity.ok(adminAgendaService.createAgenda(accessor.id(), request));
     }
 
+    @PatchMapping("/{agendaId}/end")
+    public ResponseEntity<Void> endAgenda(@AdminAuth Accessor accessor,
+                                          @PathVariable Long agendaId) {
+        adminAgendaService.endAgenda(agendaId);
+        return ResponseEntity.noContent().build();
+    }
 }

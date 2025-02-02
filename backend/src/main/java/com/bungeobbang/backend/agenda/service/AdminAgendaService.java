@@ -9,11 +9,15 @@ import com.bungeobbang.backend.agenda.domain.repository.AgendaRepository;
 import com.bungeobbang.backend.agenda.dto.request.AgendaCreationRequest;
 import com.bungeobbang.backend.agenda.dto.response.AgendaCreationResponse;
 import com.bungeobbang.backend.common.exception.AdminException;
+import com.bungeobbang.backend.common.exception.AgendaException;
 import com.bungeobbang.backend.common.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+
+import static com.bungeobbang.backend.common.exception.ErrorCode.INVALID_AGENDA;
 
 @Service
 @RequiredArgsConstructor
@@ -51,5 +55,13 @@ public class AdminAgendaService {
                                 .name(image)
                                 .build())
                 .toList();
+    }
+
+    @Transactional
+    public void endAgenda(Long agendaId) {
+        final Agenda agenda = agendaRepository.findById(agendaId)
+                .orElseThrow(() -> new AgendaException(INVALID_AGENDA));
+
+        agenda.end();
     }
 }

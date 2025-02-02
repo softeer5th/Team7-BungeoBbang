@@ -5,6 +5,9 @@ import org.springframework.http.HttpStatus;
 
 @Getter
 public enum ErrorCode {
+    //Agenda
+    NOT_SUPPORT_STATUS(HttpStatus.BAD_REQUEST, "지원하지 않는 안건 상태입니다."),
+    INVALID_AGENDA(HttpStatus.NOT_FOUND, "존재하지 않는 답해요 안건입니다."),
     // Opinion
     OPINION_COUNT_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "말해요 의견 수 카운트에 실패하였습니다."),
     INVALID_OPINION(HttpStatus.NOT_FOUND, "말해요 채팅방 조회에 실패하였습니다."),

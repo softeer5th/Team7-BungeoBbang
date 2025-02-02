@@ -55,7 +55,7 @@ public class Agenda extends BaseTimeEntity {
     private int count;
 
     @OneToMany(mappedBy = "agenda")
-    private Set<AgendaImage> imageList;
+    private Set<AgendaImage> images;
 
     @Builder
     public Agenda(int count, boolean isEnd, String content, LocalDate endDate, LocalDate startDate, String title, Admin admin, University university, CategoryType categoryType, Long id) {
@@ -69,5 +69,10 @@ public class Agenda extends BaseTimeEntity {
         this.university = university;
         this.categoryType = categoryType;
         this.id = id;
+    }
+
+    public void end() {
+        this.endDate = LocalDate.now();
+        this.isEnd = true;
     }
 }
