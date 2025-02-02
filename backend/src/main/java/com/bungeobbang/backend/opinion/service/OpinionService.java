@@ -1,13 +1,14 @@
 package com.bungeobbang.backend.opinion.service;
 
-import com.bungeobbang.backend.auth.domain.Accessor;
 import com.bungeobbang.backend.common.exception.ErrorCode;
 import com.bungeobbang.backend.common.exception.MemberException;
 import com.bungeobbang.backend.common.exception.OpinionException;
+import com.bungeobbang.backend.common.type.CategoryType;
 import com.bungeobbang.backend.member.domain.Member;
 import com.bungeobbang.backend.member.domain.repository.MemberRepository;
 import com.bungeobbang.backend.opinion.domain.Opinion;
 import com.bungeobbang.backend.opinion.domain.OpinionChat;
+import com.bungeobbang.backend.opinion.domain.OpinionType;
 import com.bungeobbang.backend.opinion.domain.repository.OpinionChatRepository;
 import com.bungeobbang.backend.opinion.domain.repository.OpinionRepository;
 import com.bungeobbang.backend.opinion.dto.request.OpinionCreationRequest;
@@ -63,8 +64,8 @@ public class OpinionService {
         // 말해요 채팅방 생성
         final Opinion opinion = new Opinion(
                 university,
-                creationRequest.categoryType(),
-                creationRequest.opinionType(),
+                OpinionType.fromString(creationRequest.type()),
+                CategoryType.fromString(creationRequest.category()),
                 member,
                 false,
                 1);
