@@ -25,8 +25,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -63,27 +63,10 @@ public class OpinionService {
     ) {
         final Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new MemberException(ErrorCode.INVALID_MEMBER));
-        final University university = member.getUniversity();
 
-        // 말해요 채팅방 생성
-        final Opinion opinion = new Opinion(
-                university,
-                OpinionType.fromString(creationRequest.type()),
-                CategoryType.fromString(creationRequest.category()),
-                member,
-                false,
-                1);
-        final Long opinionId = opinionRepository.save(opinion).getId();
-
-        // 채팅 저장
-        final OpinionChat opinionChat = new OpinionChat(
-                member.getId(),
-                opinionId,
-                creationRequest.content(),
-                creationRequest.images(),
-                false,
-                LocalDateTime.now());
-        opinionChatRepository.save(opinionChat);
+        final Opinion opinion = createOpinionEntity(creationRequest, member);
+        final Long opinionId = opinionRepository.save(opinion).getId();;
+        createAndSaveOpinionChat(creationRequest, member, opinionId);
 
         return new OpinionCreationResponse(opinionId);
     }
@@ -95,12 +78,12 @@ public class OpinionService {
         opinion.editIsRemind(true);
     }
 
-    public MemberOpinionListResponse findMemberOpinionList(Long cursor, final Long memberId) {
         // cursor 없이 첫 요청인 경우
         if (cursor == null) {
             cursor = Long.MAX_VALUE;
         }
 
+    public MemberOpinionListResponse findMemberOpinionList(final Long cursor, final Long memberId) {
         List<Opinion> opinions = opinionRepository.findRecentOpinionsByMemberIdAndCursor(memberId, cursor);
 
         boolean hasNextPage = true;
@@ -108,25 +91,56 @@ public class OpinionService {
         if (opinions.size() < 9) hasNextPage = false;
         if (hasNextPage) nextCursor = opinions.get(8).getId();
 
-        List<MemberOpinionInfo> opinionInfos = new ArrayList<>();
-        // 각 Opinion 에 대해 isNew 판단 로직
-        for (Opinion opinion : opinions) {
-            log.debug("opinionId: {}", opinion.getId());
-            final OpinionLastRead opinionLastRead = opinionLastReadRepository.findByOpinionIdAndIsAdmin(opinion.getId(), false)
-                    .orElseThrow(() -> new OpinionException(ErrorCode.INVALID_OPINION_LAST_READ));
-            log.debug("opinionLastReadChatId: {}", opinionLastRead.getLastReadChatId());
-            final OpinionChat lastChat = opinionChatRepository.findTopByOpinionIdOrderByCreatedAtDesc(opinion.getId())
-                    .orElseThrow(() -> new OpinionException(ErrorCode.INVALID_OPINION_CHAT));
-            log.debug("lastChatId: " + lastChat.getId());
-            opinionInfos.add(new MemberOpinionInfo(
-                    opinion.getId(),
-                    opinion.getOpinionType().getDescription(),
-                    opinion.getCategoryType().getDescription(),
-                    lastChat.getChat(),
-                    lastChat.getCreatedAt(),
-                    !opinionLastRead.getLastReadChatId().equals(lastChat.getId())));
-        }
-
+        List<MemberOpinionInfo> opinionInfos = convertToMemberOpinionInfoList(opinions);
         return new MemberOpinionListResponse(opinionInfos, nextCursor, hasNextPage);
+    }
+
+    private Opinion createOpinionEntity(OpinionCreationRequest creationRequest, Member member) {
+        final University university = member.getUniversity();
+        return new Opinion(
+                university,
+                OpinionType.fromString(creationRequest.type()),
+                CategoryType.fromString(creationRequest.category()),
+                member,
+                false,
+                1
+        );
+    }
+
+    private void createAndSaveOpinionChat(OpinionCreationRequest creationRequest, Member member, Long opinionId) {
+        final OpinionChat opinionChat = new OpinionChat(
+                member.getId(),
+                opinionId,
+                creationRequest.content(),
+                creationRequest.images(),
+                false,
+                LocalDateTime.now()
+        );
+        opinionChatRepository.save(opinionChat);
+    }
+
+    private List<MemberOpinionInfo> convertToMemberOpinionInfoList(List<Opinion> opinions) {
+        return opinions.stream()
+                .map(opinion -> {
+                    log.debug("opinionId: {}", opinion.getId());
+
+                    final OpinionLastRead opinionLastRead = opinionLastReadRepository.findByOpinionIdAndIsAdmin(opinion.getId(), false)
+                            .orElseThrow(() -> new OpinionException(ErrorCode.INVALID_OPINION_LAST_READ));
+                    log.debug("opinionLastReadChatId: {}", opinionLastRead.getLastReadChatId());
+
+                    final OpinionChat lastChat = opinionChatRepository.findTopByOpinionIdOrderByCreatedAtDesc(opinion.getId())
+                            .orElseThrow(() -> new OpinionException(ErrorCode.INVALID_OPINION_CHAT));
+                    log.debug("lastChatId: " + lastChat.getId());
+
+                    return new MemberOpinionInfo(
+                            opinion.getId(),
+                            opinion.getOpinionType().getDescription(),
+                            opinion.getCategoryType().getDescription(),
+                            lastChat.getChat(),
+                            lastChat.getCreatedAt(),
+                            !opinionLastRead.getLastReadChatId().equals(lastChat.getId())
+                    );
+                })
+                .collect(Collectors.toList());
     }
 }
