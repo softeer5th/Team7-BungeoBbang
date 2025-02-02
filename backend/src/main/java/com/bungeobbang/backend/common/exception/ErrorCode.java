@@ -11,6 +11,8 @@ public enum ErrorCode {
     INVALID_OPINION_TYPE(HttpStatus.BAD_REQUEST, "잘못된 말해요 타입입니다."),
     OPINION_COUNT_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "말해요 의견 수 카운트에 실패하였습니다."),
     INVALID_OPINION(HttpStatus.NOT_FOUND, "말해요 채팅방 조회에 실패하였습니다."),
+    INVALID_OPINION_CHAT(HttpStatus.NOT_FOUND, "말해요 채팅 조회에 실패하였습니다."),
+    INVALID_OPINION_LAST_READ(HttpStatus.NOT_FOUND, "말해요 마지막 읽은 채팅 id 조회에 실패하였습니다."),
     // Member
     INVALID_MEMBER(HttpStatus.NOT_FOUND, "존재하지 않는 사용자입니다."),
     // University

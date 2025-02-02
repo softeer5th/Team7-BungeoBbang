@@ -8,31 +8,35 @@ import com.bungeobbang.backend.member.domain.Member;
 import com.bungeobbang.backend.member.domain.repository.MemberRepository;
 import com.bungeobbang.backend.opinion.domain.Opinion;
 import com.bungeobbang.backend.opinion.domain.OpinionChat;
+import com.bungeobbang.backend.opinion.domain.OpinionLastRead;
 import com.bungeobbang.backend.opinion.domain.OpinionType;
 import com.bungeobbang.backend.opinion.domain.repository.OpinionChatRepository;
+import com.bungeobbang.backend.opinion.domain.repository.OpinionLastReadRepository;
 import com.bungeobbang.backend.opinion.domain.repository.OpinionRepository;
 import com.bungeobbang.backend.opinion.dto.request.OpinionCreationRequest;
+import com.bungeobbang.backend.opinion.dto.response.MemberOpinionInfo;
 import com.bungeobbang.backend.opinion.dto.response.MemberOpinionListResponse;
 import com.bungeobbang.backend.opinion.dto.response.OpinionCreationResponse;
 import com.bungeobbang.backend.opinion.dto.response.OpinionStatisticsResponse;
 import com.bungeobbang.backend.university.domain.University;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class OpinionService {
 
     private final OpinionRepository opinionRepository;
     private final OpinionChatRepository opinionChatRepository;
     private final MemberRepository memberRepository;
-
-    private static final Integer chunkSize = 8;
+    private final OpinionLastReadRepository opinionLastReadRepository;
 
     public OpinionStatisticsResponse computeOpinionStatistics(final Long memberId) {
         final Member member = memberRepository.findById(memberId)
@@ -91,4 +95,38 @@ public class OpinionService {
         opinion.editIsRemind(true);
     }
 
+    public MemberOpinionListResponse findMemberOpinionList(Long cursor, final Long memberId) {
+        // cursor 없이 첫 요청인 경우
+        if (cursor == null) {
+            cursor = Long.MAX_VALUE;
+        }
+
+        List<Opinion> opinions = opinionRepository.findRecentOpinionsByMemberIdAndCursor(memberId, cursor);
+
+        boolean hasNextPage = true;
+        Long nextCursor = -1L;
+        if (opinions.size() < 9) hasNextPage = false;
+        if (hasNextPage) nextCursor = opinions.get(8).getId();
+
+        List<MemberOpinionInfo> opinionInfos = new ArrayList<>();
+        // 각 Opinion 에 대해 isNew 판단 로직
+        for (Opinion opinion : opinions) {
+            log.debug("opinionId: {}", opinion.getId());
+            final OpinionLastRead opinionLastRead = opinionLastReadRepository.findByOpinionIdAndIsAdmin(opinion.getId(), false)
+                    .orElseThrow(() -> new OpinionException(ErrorCode.INVALID_OPINION_LAST_READ));
+            log.debug("opinionLastReadChatId: {}", opinionLastRead.getLastReadChatId());
+            final OpinionChat lastChat = opinionChatRepository.findTopByOpinionIdOrderByCreatedAtDesc(opinion.getId())
+                    .orElseThrow(() -> new OpinionException(ErrorCode.INVALID_OPINION_CHAT));
+            log.debug("lastChatId: " + lastChat.getId());
+            opinionInfos.add(new MemberOpinionInfo(
+                    opinion.getId(),
+                    opinion.getOpinionType().getDescription(),
+                    opinion.getCategoryType().getDescription(),
+                    lastChat.getChat(),
+                    lastChat.getCreatedAt(),
+                    !opinionLastRead.getLastReadChatId().equals(lastChat.getId())));
+        }
+
+        return new MemberOpinionListResponse(opinionInfos, nextCursor, hasNextPage);
+    }
 }

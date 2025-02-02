@@ -9,4 +9,7 @@ import java.util.List;
 @Repository
 public interface OpinionChatRepository extends MongoRepository<OpinionChat, String> {
     List<OpinionChat> findDistinctOpinionIdByIsAdminTrue();
+
+    Optional<OpinionChat> findTopByOpinionIdOrderByCreatedAtDesc(Long opinionId);
+
 }
