@@ -66,7 +66,7 @@ public class OpinionService {
 
         final Opinion opinion = createOpinionEntity(creationRequest, member);
         final Long opinionId = opinionRepository.save(opinion).getId();;
-        createAndSaveOpinionChat(creationRequest, member, opinionId);
+        saveOpinionChat(creationRequest, member, opinionId);
 
         return new OpinionCreationResponse(opinionId);
     }
@@ -102,7 +102,7 @@ public class OpinionService {
         );
     }
 
-    private void createAndSaveOpinionChat(OpinionCreationRequest creationRequest, Member member, Long opinionId) {
+    private void saveOpinionChat(OpinionCreationRequest creationRequest, Member member, Long opinionId) {
         final OpinionChat opinionChat = new OpinionChat(
                 member.getId(),
                 opinionId,
