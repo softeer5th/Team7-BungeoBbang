@@ -1,4 +1,4 @@
-import { ChatListCardData } from '../ChatListCardData.tsx';
+import { ChatListCardData } from '../ChatRoomListCardData.tsx';
 import * as S from './styles.ts';
 
 interface ChatRoomListItemProps{

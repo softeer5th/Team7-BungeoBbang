@@ -54,8 +54,6 @@ export const ChatRoomList = styled.div`
   flex-grow: 1;
 `;
 
-
-
 export const EmptyTextWrapper = styled.div`
   width: 100%;
   height: 100%;

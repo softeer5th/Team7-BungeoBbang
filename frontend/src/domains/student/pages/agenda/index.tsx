@@ -6,11 +6,14 @@ import { TopAppBar } from '@/components/TopAppBar';
 import { BottomNavigationItemProps } from '@/components/bottom-navigation/BottomNavigationItem';
 import { useTheme } from 'styled-components';
 import { useEffect, useState } from 'react';
-import { ChatListCardData } from './ChatListCardData';
-import { ChatRoomListItem } from './chat-list-item/ChatListItem.tsx';
+import { ChatListCardData } from './ChatRoomListCardData.tsx';
+import { ChatRoomListItem } from './chat-room-list-item/ChatRoomListItem.tsx';
+import { useNavigate } from 'react-router-dom';
 
 const AgendaPage = () => {
   const theme = useTheme();
+
+  const navigate = useNavigate();
 
   const [chatRooms, setChatRooms] = useState<ChatListCardData[]>([]);
 
@@ -104,7 +107,14 @@ const AgendaPage = () => {
 
         <S.ChatRoomList>
           {chatRooms && chatRooms.length > 0 ? (
-            chatRooms.map((room) => <ChatRoomListItem room={room} onCardClick={() => {}} />)
+            chatRooms.map((room) => (
+              <ChatRoomListItem
+                room={room}
+                onCardClick={() => {
+                  navigate(`/agenda/chat/${room.roomId}`);
+                }}
+              />
+            ))
           ) : (
             <S.EmptyTextWrapper>
               <S.EmptyText variant="heading4">현재 개설된 채팅방이 없습니다.</S.EmptyText>

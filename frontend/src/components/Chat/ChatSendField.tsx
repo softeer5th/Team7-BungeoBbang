@@ -1,7 +1,7 @@
 import { useRef } from 'react';
 import styled from 'styled-components';
 import CameraIcon from '/src/assets/icons/camera.svg?react';
-import ArrowUpIcon from '/src/assets/icons/arrow-up.svg?react';
+import ArrowUpIcon from '/src/assets/icons/full-arrow-up.svg?react';
 import CloseIcon from '/src/assets/icons/close-2.svg?react';
 import Typography from '../../styles/Typography';
 import { BorderProps } from '../BorderProps';
@@ -197,6 +197,8 @@ const ChatSendContainer = styled.div<{
   bcakgroundColor: string;
 }>`
   width: 100%;
+  position: sticky;
+  bottom: 0px;
   display: flex;
   align-items: flex-end;
   padding: 8px 16px 8px 16px;
