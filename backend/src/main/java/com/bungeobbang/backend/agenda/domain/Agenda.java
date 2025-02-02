@@ -11,7 +11,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 import static jakarta.persistence.EnumType.STRING;
 import static jakarta.persistence.FetchType.LAZY;
@@ -55,7 +56,22 @@ public class Agenda extends BaseTimeEntity {
     private int count;
 
     @OneToMany(mappedBy = "agenda")
-    private Set<AgendaImage> images;
+    private List<AgendaImage> images = new ArrayList<>();
+
+    @Builder
+    public Agenda(Long id, CategoryType categoryType, University university, Admin admin, String title, LocalDate startDate, LocalDate endDate, String content, boolean isEnd, int count, List<AgendaImage> images) {
+        this.id = id;
+        this.categoryType = categoryType;
+        this.university = university;
+        this.admin = admin;
+        this.title = title;
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.content = content;
+        this.isEnd = isEnd;
+        this.count = count;
+        this.images = images;
+    }
 
     @Builder
     public Agenda(int count, boolean isEnd, String content, LocalDate endDate, LocalDate startDate, String title, Admin admin, University university, CategoryType categoryType, Long id) {

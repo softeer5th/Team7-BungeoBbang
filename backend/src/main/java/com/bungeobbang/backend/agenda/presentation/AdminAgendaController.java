@@ -1,6 +1,7 @@
 package com.bungeobbang.backend.agenda.presentation;
 
 import com.bungeobbang.backend.agenda.dto.request.AgendaCreationRequest;
+import com.bungeobbang.backend.agenda.dto.request.AgendaEditRequest;
 import com.bungeobbang.backend.agenda.dto.response.AgendaCreationResponse;
 import com.bungeobbang.backend.agenda.service.AdminAgendaService;
 import com.bungeobbang.backend.auth.admin.AdminAuth;
@@ -34,6 +35,14 @@ public class AdminAgendaController {
     public ResponseEntity<Void> deleteAgenda(@AdminAuth Accessor accessor,
                                              @PathVariable Long agendaId) {
         adminAgendaService.deleteAgenda(agendaId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/{agendaId}")
+    public ResponseEntity<Void> editAgenda(@AdminAuth Accessor accessor,
+                                           @PathVariable Long agendaId,
+                                           @RequestBody AgendaEditRequest request) {
+        adminAgendaService.editAgenda(agendaId, request);
         return ResponseEntity.noContent().build();
     }
 }
