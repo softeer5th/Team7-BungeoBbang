@@ -12,7 +12,6 @@ import java.util.List;
 
 @Getter
 @Document(collection = "opinion_chat")
-@Builder
 public class OpinionChat {
 
     @Id
@@ -31,6 +30,7 @@ public class OpinionChat {
     @CreatedDate
     private LocalDateTime createdAt;
 
+    @Builder
     public OpinionChat(Long memberId, Long opinionId, String chat, List<String> images, boolean isAdmin) {
         this.memberId = memberId;
         this.opinionId = opinionId;
