@@ -28,6 +28,9 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * 말해요 서비스 로직을 처리하는 클래스.
+ */
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -38,6 +41,13 @@ public class OpinionService {
     private final MemberRepository memberRepository;
     private final OpinionLastReadRepository opinionLastReadRepository;
 
+    /**
+     * 의견 통계 정보를 계산합니다.
+     *
+     * @param memberId 회원 ID
+     * @return OpinionStatisticsResponse 1달간 말해요 통계 응답 객체
+     * @throws MemberException 학생 정보를 조회할 수 없는 경우 예외 발생
+     */
     public OpinionStatisticsResponse computeOpinionStatistics(final Long memberId) {
         final Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new MemberException(ErrorCode.INVALID_MEMBER));
@@ -47,9 +57,8 @@ public class OpinionService {
                 member.getUniversity().getId());
         final Long opinionCount = Long.valueOf(opinions.size());
 
-
         final List<OpinionChat> opinionChats = opinionChatRepository.findDistinctOpinionIdByIsAdminTrue();
-        // 소속 대학의 1달간 모든 '말해요' opinion에 대해서, 학생회의(is_admin==true) 채팅이 있었던 경우 카운트
+        // 소속 대학의 1달간 모든 '말해요' opinion에 대해 학생회의(is_admin==true) 채팅이 있었던 경우 카운트
         final Long responseCount = opinions.stream()
                 .filter(opinion -> opinionChats.stream()
                         .anyMatch(chat -> chat.getOpinionId().equals(opinion.getId()))).count();
@@ -57,6 +66,14 @@ public class OpinionService {
         return new OpinionStatisticsResponse(opinionCount, responseCount);
     }
 
+    /**
+     * 말해요의 새로운 의견 생성(==채팅방 생성)
+     *
+     * @param creationRequest 의견 생성 요청 객체
+     * @param memberId        학생 ID
+     * @return OpinionCreationResponse roomId(==opinionId)
+     * @throws MemberException 학생 정보를 조회할 수 없는 경우 예외 발생
+     */
     public OpinionCreationResponse createOpinion(
             final OpinionCreationRequest creationRequest,
             final Long memberId
@@ -65,12 +82,18 @@ public class OpinionService {
                 .orElseThrow(() -> new MemberException(ErrorCode.INVALID_MEMBER));
 
         final Opinion opinion = createOpinionEntity(creationRequest, member);
-        final Long opinionId = opinionRepository.save(opinion).getId();;
+        final Long opinionId = opinionRepository.save(opinion).getId();
         saveOpinionChat(creationRequest, member, opinionId);
 
         return new OpinionCreationResponse(opinionId);
     }
 
+    /**
+     * 학생의 리마인드를 처리합니다.
+     *
+     * @param roomId 채팅방ID(==opinionId)
+     * @throws OpinionException 말해요 채팅방을 조회할 수 없는 경우 예외 발생
+     */
     @Transactional
     public void remindOpinion(final Long roomId) {
         final Opinion opinion = opinionRepository.findById(roomId)
@@ -78,6 +101,13 @@ public class OpinionService {
         opinion.editIsRemind(true);
     }
 
+    /**
+     * 회원의 의견 목록을 조회합니다.
+     *
+     * @param cursor   이전 응답에서 반환했던 cursor(== 이전 응답에서의 마지막 opinionId)
+     * @param memberId 학생 ID
+     * @return MemberOpinionListResponse 학생 본인이 만들었던 말해요 채팅방 정보 리스트
+     */
     public MemberOpinionListResponse findMemberOpinionList(final Long cursor, final Long memberId) {
         List<Opinion> opinions = opinionRepository.findRecentOpinionsByMemberIdAndCursor(memberId, cursor);
 
@@ -90,6 +120,13 @@ public class OpinionService {
         return new MemberOpinionListResponse(opinionInfos, nextCursor, hasNextPage);
     }
 
+    /**
+     * Opinion 엔티티를 생성합니다.
+     *
+     * @param creationRequest 의견 생성 요청 객체
+     * @param member          회원 객체
+     * @return Opinion 생성된 의견 엔티티
+     */
     private Opinion createOpinionEntity(OpinionCreationRequest creationRequest, Member member) {
         final University university = member.getUniversity();
         return new Opinion(
@@ -102,6 +139,13 @@ public class OpinionService {
         );
     }
 
+    /**
+     * OpinionChat 엔티티를 저장합니다.
+     *
+     * @param creationRequest 말해요 채팅방 생성 요청 객체
+     * @param member          학생 객체
+     * @param opinionId       말해요 채팅방 ID
+     */
     private void saveOpinionChat(OpinionCreationRequest creationRequest, Member member, Long opinionId) {
         final OpinionChat opinionChat = new OpinionChat(
                 member.getId(),
@@ -113,6 +157,13 @@ public class OpinionService {
         opinionChatRepository.save(opinionChat);
     }
 
+    /**
+     * Opinion 리스트를 MemberOpinionInfo 리스트로 변환합니다.
+     * 마지막 읽은 채팅의 id와 실제 마지막 채팅의 id를 비교하여 isNew를 결정합니다.
+     *
+     * @param opinions Opinion 리스트
+     * @return List<MemberOpinionInfo> 변환된 회원 의견 정보 리스트
+     */
     private List<MemberOpinionInfo> convertToMemberOpinionInfoList(List<Opinion> opinions) {
         return opinions.stream()
                 .map(opinion -> {
