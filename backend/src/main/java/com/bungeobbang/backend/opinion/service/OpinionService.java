@@ -50,12 +50,17 @@ public class OpinionService {
                 LocalDateTime.now().minusMonths(1L),
                 LocalDateTime.now(),
                 member.getUniversity().getId());
-        List<Long> opinionIds = opinions.stream()
+        final List<Long> opinionIds = opinions.stream()
                 .map(Opinion::getId)
                 .toList();
 
         final List<OpinionChat> opinionChats = opinionChatRepository.findDistinctOpinionIdByIsAdminTrue(opinionIds);
-        return new OpinionStatisticsResponse(Long.valueOf(opinions.size()), Long.valueOf(opinionChats.size()));
+        final int opinionCount = opinions.size();
+        final int responseCount = opinionChats.size();
+        final double rawRate = (double) opinionCount / responseCount;
+        final int adminResponseRate = (int) Math.round(rawRate * 10) / 10;
+
+        return new OpinionStatisticsResponse(opinionCount, adminResponseRate);
     }
 
     /**
