@@ -1,4 +1,4 @@
-package com.bungeobbang.backend.auth;
+package com.bungeobbang.backend.auth.member;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;

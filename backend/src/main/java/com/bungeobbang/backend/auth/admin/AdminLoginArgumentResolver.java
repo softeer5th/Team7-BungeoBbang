@@ -1,10 +1,10 @@
 package com.bungeobbang.backend.auth.admin;
 
+import com.bungeobbang.backend.auth.BearerAuthorizationExtractor;
+import com.bungeobbang.backend.auth.JwtProvider;
 import com.bungeobbang.backend.auth.domain.Accessor;
 import com.bungeobbang.backend.auth.domain.Authority;
 import com.bungeobbang.backend.common.exception.AuthException;
-import com.bungeobbang.backend.common.infrastructure.BearerAuthorizationExtractor;
-import com.bungeobbang.backend.common.infrastructure.JwtProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.MethodParameter;
 import org.springframework.stereotype.Component;
