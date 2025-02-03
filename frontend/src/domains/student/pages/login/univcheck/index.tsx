@@ -59,22 +59,29 @@ const UniversitySelection = () => {
         {selectedUniversity?.name || '대학교 선택'}
       </S.SelectButton>
 
-      <S.BottomSheet isOpen={isOpen}>
-        <S.BottomSheetHeader>
-          <S.BottomSheetTitle>대학교 선택</S.BottomSheetTitle>
-          <S.CloseButton onClick={() => setIsOpen(false)}>×</S.CloseButton>
-        </S.BottomSheetHeader>
-        <S.UniversityList>
-          {universityObject.map((university) => (
-            <S.UniversityItem
-              key={university.id}
-              onClick={() => handleUniversitySelect(university)}
-            >
-              {university.name}
-            </S.UniversityItem>
-          ))}
-        </S.UniversityList>
-      </S.BottomSheet>
+      {isOpen && (
+        <S.Overlay onClick={() => setIsOpen(false)}>
+          <S.BottomSheet
+            isOpen={isOpen}
+            onClick={(e) => e.stopPropagation()} // 바텀시트 내부 클릭 막기
+          >
+            <S.BottomSheetHeader>
+              <S.BottomSheetTitle>대학교를 선택해주세요</S.BottomSheetTitle>
+            </S.BottomSheetHeader>
+            <S.UniversityList>
+              {universityObject.map((university) => (
+                <S.UniversityItem
+                  key={university.id}
+                  onClick={() => handleUniversitySelect(university)}
+                  selected={selectedUniversity?.id === university.id}
+                >
+                  {university.name}
+                </S.UniversityItem>
+              ))}
+            </S.UniversityList>
+          </S.BottomSheet>
+        </S.Overlay>
+      )}
 
       <S.NextButton disabled={!selectedUniversity} onClick={handleNext}>
         다음
