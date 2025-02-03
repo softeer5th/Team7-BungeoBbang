@@ -23,7 +23,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 /**
- * 말해요 서비스 로직을 처리하는 클래스.
+ * 학생이 사용하는 말해요 관련 서비스 로직을 처리하는 클래스.
  */
 @Service
 @RequiredArgsConstructor
@@ -36,9 +36,9 @@ public class MemberOpinionService {
     private final OpinionLastReadRepository opinionLastReadRepository;
 
     /**
-     * 의견 통계 정보를 계산합니다.
+     * 1개월 동안의 의견 통계 정보를 계산합니다.
      *
-     * @param memberId 회원 ID
+     * @param memberId 학생 ID
      * @return OpinionStatisticsResponse 1달간 말해요 통계 응답 객체
      * @throws MemberException 학생 정보를 조회할 수 없는 경우 예외 발생
      */
@@ -63,11 +63,11 @@ public class MemberOpinionService {
     }
 
     /**
-     * 말해요의 새로운 의견 생성(==채팅방 생성)
+     * 새로운 의견(채팅방)을 생성합니다.
      *
-     * @param creationRequest 의견 생성 요청 객체
+     * @param creationRequest 말해요 채팅방 생성 요청 객체
      * @param memberId        학생 ID
-     * @return OpinionCreationResponse opinionId
+     * @return OpinionCreationResponse 생성된 말해요 채팅방의 ID를 포함한 응답 객체
      * @throws MemberException 학생 정보를 조회할 수 없는 경우 예외 발생
      */
     public OpinionCreationResponse createOpinion(
@@ -85,10 +85,10 @@ public class MemberOpinionService {
     }
 
     /**
-     * 학생의 리마인드를 처리합니다.
+     * 학생이 특정 의견을 리마인드하도록 설정합니다.
      *
-     * @param opinionId 채팅방ID(==opinionId)
-     * @throws OpinionException 말해요 채팅방을 조회할 수 없는 경우 예외 발생
+     * @param opinionId 의견(채팅방) ID
+     * @throws OpinionException opinion을 찾을 수 없는 경우 예외 발생
      */
     @Transactional
     public void remindOpinion(final Long opinionId) {
@@ -98,10 +98,10 @@ public class MemberOpinionService {
     }
 
     /**
-     * 회원의 의견 목록을 조회합니다.
+     * 학생이 생성한 말해요 리스트를 조회합니다.
      *
      * @param memberId 학생 ID
-     * @return MemberOpinionListResponse 학생 본인이 만들었던 말해요 채팅방 정보 리스트
+     * @return MemberOpinionListResponse 학생이 생성한 말해요 채팅방 목록 응답 객체
      */
     public MemberOpinionInfoListResponse findMemberOpinionList(final Long memberId) {
         final List<Opinion> opinions = opinionRepository.findAllByMemberId(memberId);
@@ -133,7 +133,7 @@ public class MemberOpinionService {
      *
      * @param creationRequest 말해요 채팅방 생성 요청 객체
      * @param member          학생 객체
-     * @param opinionId       말해요 채팅방 ID
+     * @param opinionId       생성된 말해요 채팅방 ID
      */
     private void saveOpinionChat(final OpinionCreationRequest creationRequest,
                                  final Member member,
@@ -149,10 +149,10 @@ public class MemberOpinionService {
 
     /**
      * Opinion 리스트를 MemberOpinionInfo 리스트로 변환합니다.
-     * 마지막 읽은 채팅의 id와 실제 마지막 채팅의 id를 비교하여 isNew를 결정합니다.
+     * 마지막 읽은 채팅의 ID와 실제 마지막 채팅의 ID를 비교하여 isNew 값을 설정합니다.
      *
-     * @param opinions Opinion 리스트
-     * @return List<MemberOpinionInfo> 변환된 회원 의견 정보 리스트
+     * @param opinions 해당 학생이 개설한 말해요 채팅방 리스트
+     * @return 변환된 회원 의견 정보 리스트
      */
     private List<MemberOpinionInfoResponse> convertToMemberOpinionInfoList(final List<Opinion> opinions) {
         return opinions.stream()
