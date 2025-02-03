@@ -10,12 +10,12 @@ const LoginPage = () => {
         <h1>간편로그인 후 이용이 가능합니다.</h1>
       </WelcomeText>
 
-      <SocialButton className="kakao" onClick={onKakaoLogin}>
+      <SocialButton className="kakao">
         <img src="/kakao-icon.png" alt="Kakao" />
         카카오 로그인
       </SocialButton>
 
-      <SocialButton className="google" onClick={onGoogleLogin}>
+      <SocialButton className="google">
         <img src="/google-icon.png" alt="Google" />
         구글 로그인
       </SocialButton>
