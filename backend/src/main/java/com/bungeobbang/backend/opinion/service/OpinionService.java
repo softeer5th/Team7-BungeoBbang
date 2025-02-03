@@ -12,10 +12,7 @@ import com.bungeobbang.backend.opinion.domain.repository.OpinionChatRepository;
 import com.bungeobbang.backend.opinion.domain.repository.OpinionLastReadRepository;
 import com.bungeobbang.backend.opinion.domain.repository.OpinionRepository;
 import com.bungeobbang.backend.opinion.dto.request.OpinionCreationRequest;
-import com.bungeobbang.backend.opinion.dto.response.MemberOpinionInfo;
-import com.bungeobbang.backend.opinion.dto.response.MemberOpinionListResponse;
-import com.bungeobbang.backend.opinion.dto.response.OpinionCreationResponse;
-import com.bungeobbang.backend.opinion.dto.response.OpinionStatisticsResponse;
+import com.bungeobbang.backend.opinion.dto.response.*;
 import com.bungeobbang.backend.university.domain.University;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -53,15 +50,12 @@ public class OpinionService {
                 LocalDateTime.now().minusMonths(1L),
                 LocalDateTime.now(),
                 member.getUniversity().getId());
-        final Long opinionCount = Long.valueOf(opinions.size());
+        List<Long> opinionIds = opinions.stream()
+                .map(Opinion::getId)
+                .toList();
 
-        final List<OpinionChat> opinionChats = opinionChatRepository.findDistinctOpinionIdByIsAdminTrue();
-        // 소속 대학의 1달간 모든 '말해요' opinion에 대해 학생회의(is_admin==true) 채팅이 있었던 경우 카운트
-        final Long responseCount = opinions.stream()
-                .filter(opinion -> opinionChats.stream()
-                        .anyMatch(chat -> chat.getOpinionId().equals(opinion.getId()))).count();
-
-        return new OpinionStatisticsResponse(opinionCount, responseCount);
+        final List<OpinionChat> opinionChats = opinionChatRepository.findDistinctOpinionIdByIsAdminTrue(opinionIds);
+        return new OpinionStatisticsResponse(Long.valueOf(opinions.size()), Long.valueOf(opinionChats.size()));
     }
 
     /**
@@ -106,7 +100,7 @@ public class OpinionService {
      * @param memberId 학생 ID
      * @return MemberOpinionListResponse 학생 본인이 만들었던 말해요 채팅방 정보 리스트
      */
-    public MemberOpinionListResponse findMemberOpinionList(final Long cursor, final Long memberId) {
+    public MemberOpinionInfoListResponse findMemberOpinionList(final Long cursor, final Long memberId) {
         List<Opinion> opinions = opinionRepository.findRecentOpinionsByMemberIdAndCursor(memberId, cursor);
 
         boolean hasNextPage = true;
@@ -114,8 +108,8 @@ public class OpinionService {
         if (opinions.size() < 9) hasNextPage = false;
         if (hasNextPage) nextCursor = opinions.get(8).getId();
 
-        List<MemberOpinionInfo> opinionInfos = convertToMemberOpinionInfoList(opinions);
-        return new MemberOpinionListResponse(opinionInfos, nextCursor, hasNextPage);
+        List<MemberOpinionInfoResponse> opinionInfos = convertToMemberOpinionInfoList(opinions);
+        return new MemberOpinionInfoListResponse(opinionInfos, nextCursor, hasNextPage);
     }
 
     /**
@@ -161,7 +155,7 @@ public class OpinionService {
      * @param opinions Opinion 리스트
      * @return List<MemberOpinionInfo> 변환된 회원 의견 정보 리스트
      */
-    private List<MemberOpinionInfo> convertToMemberOpinionInfoList(List<Opinion> opinions) {
+    private List<MemberOpinionInfoResponse> convertToMemberOpinionInfoList(List<Opinion> opinions) {
         return opinions.stream()
                 .map(opinion -> {
                     log.debug("opinionId: {}", opinion.getId());
@@ -174,14 +168,14 @@ public class OpinionService {
                             .orElseThrow(() -> new OpinionException(ErrorCode.INVALID_OPINION_CHAT));
                     log.debug("lastChatId: " + lastChat.getId());
 
-                    return new MemberOpinionInfo(
-                            opinion.getId(),
-                            opinion.getOpinionType(),
-                            opinion.getCategoryType(),
-                            lastChat.getChat(),
-                            lastChat.getCreatedAt(),
-                            !opinionLastRead.getLastReadChatId().equals(lastChat.getId())
-                    );
+                    return MemberOpinionInfoResponse.builder()
+                            .opinionId(opinion.getId())
+                            .opinionType(opinion.getOpinionType())
+                            .categoryType(opinion.getCategoryType())
+                            .lastChat(lastChat.getChat())
+                            .lastChatTime(lastChat.getCreatedAt())
+                            .isNew(!opinionLastRead.getLastReadChatId().equals(lastChat.getId()))
+                            .build();
                 })
                 .collect(Collectors.toList());
     }
