@@ -50,7 +50,7 @@ public class AdminAgendaService {
         final Agenda save = agendaRepository.save(Agenda.builder()
                 .admin(admin)
                 .university(admin.getUniversity())
-                .categoryType(request.category())
+                .categoryType(request.categoryType())
                 .title(request.title())
                 .content(request.content())
                 .startDate(request.startDate())
