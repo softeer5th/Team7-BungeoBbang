@@ -24,7 +24,7 @@ public class AdminAgendaController {
         return ResponseEntity.ok(adminAgendaService.createAgenda(accessor.id(), request));
     }
 
-    @PatchMapping("/{agendaId}/end")
+    @PatchMapping("/{agendaId}/close")
     public ResponseEntity<Void> endAgenda(@AdminAuth Accessor accessor,
                                           @PathVariable Long agendaId) {
         adminAgendaService.endAgenda(agendaId);
