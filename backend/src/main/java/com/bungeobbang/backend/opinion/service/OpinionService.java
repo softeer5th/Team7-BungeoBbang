@@ -3,13 +3,11 @@ package com.bungeobbang.backend.opinion.service;
 import com.bungeobbang.backend.common.exception.ErrorCode;
 import com.bungeobbang.backend.common.exception.MemberException;
 import com.bungeobbang.backend.common.exception.OpinionException;
-import com.bungeobbang.backend.common.type.CategoryType;
 import com.bungeobbang.backend.member.domain.Member;
 import com.bungeobbang.backend.member.domain.repository.MemberRepository;
 import com.bungeobbang.backend.opinion.domain.Opinion;
 import com.bungeobbang.backend.opinion.domain.OpinionChat;
 import com.bungeobbang.backend.opinion.domain.OpinionLastRead;
-import com.bungeobbang.backend.opinion.domain.OpinionType;
 import com.bungeobbang.backend.opinion.domain.repository.OpinionChatRepository;
 import com.bungeobbang.backend.opinion.domain.repository.OpinionLastReadRepository;
 import com.bungeobbang.backend.opinion.domain.repository.OpinionRepository;
@@ -129,14 +127,14 @@ public class OpinionService {
      */
     private Opinion createOpinionEntity(OpinionCreationRequest creationRequest, Member member) {
         final University university = member.getUniversity();
-        return new Opinion(
-                university,
-                OpinionType.fromString(creationRequest.type()),
-                CategoryType.fromString(creationRequest.category()),
-                member,
-                false,
-                1
-        );
+        return Opinion.builder()
+                .university(university)
+                .opinionType(creationRequest.opinionType())
+                .categoryType(creationRequest.categoryType())
+                .member(member)
+                .isRemind(false)
+                .chatCount(1)
+                .build();
     }
 
     /**
@@ -147,13 +145,12 @@ public class OpinionService {
      * @param opinionId       말해요 채팅방 ID
      */
     private void saveOpinionChat(OpinionCreationRequest creationRequest, Member member, Long opinionId) {
-        final OpinionChat opinionChat = new OpinionChat(
-                member.getId(),
-                opinionId,
-                creationRequest.content(),
-                creationRequest.images(),
-                false
-        );
+        final OpinionChat opinionChat = OpinionChat.builder()
+                .memberId(member.getId())
+                .opinionId(opinionId)
+                .chat(creationRequest.content())
+                .images(creationRequest.images())
+                .build();
         opinionChatRepository.save(opinionChat);
     }
 
@@ -179,8 +176,8 @@ public class OpinionService {
 
                     return new MemberOpinionInfo(
                             opinion.getId(),
-                            opinion.getOpinionType().getDescription(),
-                            opinion.getCategoryType().getDescription(),
+                            opinion.getOpinionType(),
+                            opinion.getCategoryType(),
                             lastChat.getChat(),
                             lastChat.getCreatedAt(),
                             !opinionLastRead.getLastReadChatId().equals(lastChat.getId())

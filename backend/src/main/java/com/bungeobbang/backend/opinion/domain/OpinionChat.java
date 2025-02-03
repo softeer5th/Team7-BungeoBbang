@@ -1,6 +1,7 @@
 package com.bungeobbang.backend.opinion.domain;
 
 import jakarta.persistence.Id;
+import lombok.Builder;
 import lombok.Getter;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.CreatedDate;
@@ -11,6 +12,7 @@ import java.util.List;
 
 @Getter
 @Document(collection = "opinion_chat")
+@Builder
 public class OpinionChat {
 
     @Id
