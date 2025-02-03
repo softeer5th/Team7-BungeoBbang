@@ -6,4 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface AgendaMemberRepository extends JpaRepository<AgendaMember, Long> {
+    void deleteByMemberIdAndAgendaId(Long memberId, Long agendaId);
 }
