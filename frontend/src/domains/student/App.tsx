@@ -6,6 +6,7 @@ import UniversitySelection from './pages/login/univcheck';
 import AgendaPage from './pages/agenda';
 import AgendaChatPage from './pages/agenda/chat';
 import LoginSuccess from './pages/login/LoginSuccess';
+import OpinionEntryPage from './pages/opinion/entry';
 
 function StudentApp() {
   return (
@@ -19,6 +20,7 @@ function StudentApp() {
         <Route path="/agenda" element={<AgendaPage />} />
         <Route path="/agenda/chat/:roomId" element={<AgendaChatPage />} />
         <Route path="/login/success" element={<LoginSuccess />} />
+        <Route path="/opinion/entry" element={<OpinionEntryPage />} />
       </Routes>
     </BrowserRouter>
   );
