@@ -152,7 +152,7 @@ public class MemberOpinionService {
      * 마지막 읽은 채팅의 ID와 실제 마지막 채팅의 ID를 비교하여 isNew 값을 설정합니다.
      *
      * @param opinions 해당 학생이 개설한 말해요 채팅방 리스트
-     * @return 변환된 회원 의견 정보 리스트
+     * @return 학생의 말해요 채팅방 정보 리스트
      */
     private List<MemberOpinionInfoResponse> convertToMemberOpinionInfoList(final List<Opinion> opinions) {
         return opinions.stream()

@@ -28,7 +28,7 @@ public class AdminOpinionService {
     /**
      * 말해요의 전체 채팅방 리스트를 조회합니다.
      *
-     * @return AdminOpinionInfoListResponse 모든 말해요 채팅방 정보 리스트
+     * @return AdminOpinionInfoListResponse 모든 말해요 채팅방 목록 응답 객체
      */
     public AdminOpinionInfoListResponse findAdminOpinionList() {
         final List<Opinion> opinions = opinionRepository.findAll();
@@ -36,6 +36,13 @@ public class AdminOpinionService {
         return new AdminOpinionInfoListResponse(opinionInfos);
     }
 
+    /**
+     * Opinion 리스트를 MemberOpinionInfo 리스트로 변환합니다.
+     * 마지막 읽은 채팅의 ID와 실제 마지막 채팅의 ID를 비교하여 isNew 값을 설정합니다.
+     *
+     * @param opinions 모든 말해요 채팅방 리스트
+     * @return 모든 말해요 채팅방 정보 리스트
+     */
     private List<AdminOpinionInfoResponse> convertToAdminOpinionInfoList(final List<Opinion> opinions) {
         return opinions.stream()
                 .map(opinion -> {
