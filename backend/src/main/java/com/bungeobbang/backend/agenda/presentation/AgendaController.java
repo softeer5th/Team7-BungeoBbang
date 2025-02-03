@@ -1,8 +1,8 @@
 package com.bungeobbang.backend.agenda.presentation;
 
 import com.bungeobbang.backend.agenda.service.AgendaService;
-import com.bungeobbang.backend.auth.Auth;
 import com.bungeobbang.backend.auth.domain.Accessor;
+import com.bungeobbang.backend.auth.member.Auth;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;

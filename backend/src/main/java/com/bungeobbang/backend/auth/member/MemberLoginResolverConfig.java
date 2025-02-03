@@ -1,6 +1,5 @@
-package com.bungeobbang.backend.common.config;
+package com.bungeobbang.backend.auth.member;
 
-import com.bungeobbang.backend.auth.member.MemberLoginArgumentResolver;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -8,11 +7,11 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import java.util.List;
 
 @Configuration
-public class LoginResolverConfig implements WebMvcConfigurer {
+public class MemberLoginResolverConfig implements WebMvcConfigurer {
 
     private final MemberLoginArgumentResolver memberLoginArgumentResolver;
 
-    public LoginResolverConfig(MemberLoginArgumentResolver memberLoginArgumentResolver) {
+    public MemberLoginResolverConfig(MemberLoginArgumentResolver memberLoginArgumentResolver) {
         this.memberLoginArgumentResolver = memberLoginArgumentResolver;
     }
 

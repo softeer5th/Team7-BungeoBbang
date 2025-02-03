@@ -1,6 +1,5 @@
 package com.bungeobbang.backend.auth.member;
 
-import com.bungeobbang.backend.auth.Auth;
 import com.bungeobbang.backend.auth.BearerAuthorizationExtractor;
 import com.bungeobbang.backend.auth.JwtProvider;
 import com.bungeobbang.backend.auth.domain.Accessor;
