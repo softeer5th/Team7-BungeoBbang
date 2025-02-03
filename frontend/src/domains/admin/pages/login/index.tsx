@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+// import { useNavigate } from 'react-router-dom';
 import * as S from './styles';
 import api from '@/utils/api';
 import JWTManager from '@/utils/jwtManager';

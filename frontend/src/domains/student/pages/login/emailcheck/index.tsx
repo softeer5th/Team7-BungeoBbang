@@ -5,6 +5,7 @@ import { sendEmailVerification, confirmEmailVerification } from './auth';
 import * as S from './styles';
 import api from '@/utils/api';
 import JWTManager from '@/utils/jwtManager';
+import { Dialog } from '@/components/Dialog';
 
 type Step = 'email' | 'verification';
 
@@ -14,6 +15,7 @@ export default function SchoolEmailPage() {
   const [verificationCode, setVerificationCode] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showDialog, setShowDialog] = useState(false);
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -33,10 +35,12 @@ export default function SchoolEmailPage() {
     setError(null);
 
     try {
-      await sendEmailVerification(email);
-      setStep('verification');
+      const isEmailOkay = await sendEmailVerification(email);
+      isEmailOkay.status === 200 ? setStep('verification') : setShowDialog(true);
+      // setStep('verification');
     } catch (err) {
       setError(err instanceof Error ? err.message : '인증 코드 전송에 실패하였습니다.');
+      setShowDialog(true);
     } finally {
       setIsLoading(false);
     }
@@ -86,6 +90,14 @@ export default function SchoolEmailPage() {
 
   return (
     <S.Container>
+      {showDialog && (
+        <Dialog
+          body="대학교 이메일이 일치하지 않습니다."
+          onConfirm={() => setShowDialog(false)}
+          onDismiss={() => setShowDialog(false)}
+          confirmButton={{ text: '확인', backgroundColor: '#1F87FF' }}
+        />
+      )}
       <S.BackButton onClick={handleGoBack}>
         <ChevronLeft size={24} color="#000" />
       </S.BackButton>
