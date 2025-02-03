@@ -14,6 +14,6 @@ const isAdmin = window.location.pathname.startsWith('/admin');
 createRoot(document.getElementById('root')!).render(
   <ThemeProvider theme={theme}>
     <GlobalStyle />
-    {isAdmin ? <AdminApp /> : <StudentApp />}
+    {!isAdmin ? <AdminApp /> : <StudentApp />}
   </ThemeProvider>,
 );
