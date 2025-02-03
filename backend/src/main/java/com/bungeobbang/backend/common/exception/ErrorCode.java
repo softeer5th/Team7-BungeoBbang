@@ -5,13 +5,18 @@ import org.springframework.http.HttpStatus;
 
 @Getter
 public enum ErrorCode {
+    // Common
+    INVALID_CATEGORY_TYPE(HttpStatus.BAD_REQUEST, "잘못된 카테고리 타입입니다."),
     //Agenda
     NOT_SUPPORT_STATUS(HttpStatus.BAD_REQUEST, "지원하지 않는 안건 상태입니다."),
     INVALID_AGENDA(HttpStatus.NOT_FOUND, "존재하지 않는 답해요 안건입니다."),
     FORBIDDEN_UNIVERSITY_ACCESS(HttpStatus.FORBIDDEN, "대학교 정보 불일치로 인해 접근이 거부되었습니다."),
     // Opinion
+    INVALID_OPINION_TYPE(HttpStatus.BAD_REQUEST, "잘못된 말해요 타입입니다."),
     OPINION_COUNT_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "말해요 의견 수 카운트에 실패하였습니다."),
     INVALID_OPINION(HttpStatus.NOT_FOUND, "말해요 채팅방 조회에 실패하였습니다."),
+    INVALID_OPINION_CHAT(HttpStatus.NOT_FOUND, "말해요 채팅 조회에 실패하였습니다."),
+    INVALID_OPINION_LAST_READ(HttpStatus.NOT_FOUND, "말해요 마지막 읽은 채팅 id 조회에 실패하였습니다."),
     // Member
     INVALID_MEMBER(HttpStatus.NOT_FOUND, "존재하지 않는 사용자입니다."),
     // University

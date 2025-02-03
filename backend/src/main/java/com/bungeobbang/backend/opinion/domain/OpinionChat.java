@@ -1,8 +1,10 @@
 package com.bungeobbang.backend.opinion.domain;
 
 import jakarta.persistence.Id;
+import lombok.Builder;
 import lombok.Getter;
 import org.bson.types.ObjectId;
+import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
@@ -10,6 +12,7 @@ import java.util.List;
 
 @Getter
 @Document(collection = "opinion_chat")
+@Builder
 public class OpinionChat {
 
     @Id
@@ -25,14 +28,14 @@ public class OpinionChat {
 
     private boolean isAdmin;
 
+    @CreatedDate
     private LocalDateTime createdAt;
 
-    public OpinionChat(Long memberId, Long opinionId, String chat, List<String> images, boolean isAdmin, LocalDateTime createdAt) {
+    public OpinionChat(Long memberId, Long opinionId, String chat, List<String> images, boolean isAdmin) {
         this.memberId = memberId;
         this.opinionId = opinionId;
         this.chat = chat;
         this.images = images;
         this.isAdmin = isAdmin;
-        this.createdAt = createdAt;
     }
 }
