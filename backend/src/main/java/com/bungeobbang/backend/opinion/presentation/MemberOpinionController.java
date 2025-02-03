@@ -7,7 +7,7 @@ import com.bungeobbang.backend.opinion.dto.request.OpinionCreationRequest;
 import com.bungeobbang.backend.opinion.dto.response.MemberOpinionInfoListResponse;
 import com.bungeobbang.backend.opinion.dto.response.OpinionCreationResponse;
 import com.bungeobbang.backend.opinion.dto.response.OpinionStatisticsResponse;
-import com.bungeobbang.backend.opinion.service.OpinionService;
+import com.bungeobbang.backend.opinion.service.MemberOpinionService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -18,14 +18,14 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/student/opinion")
 public class MemberOpinionController {
 
-    private final OpinionService opinionService;
+    private final MemberOpinionService memberOpinionService;
 
     @GetMapping()
     @MemberOnly
     public ResponseEntity<OpinionStatisticsResponse> getOpinionStatistics(
             @Auth final Accessor accessor) {
         return ResponseEntity.ok()
-                .body(opinionService.computeOpinionStatistics(accessor.id()));
+                .body(memberOpinionService.computeOpinionStatistics(accessor.id()));
     }
 
     @PostMapping()
@@ -34,7 +34,7 @@ public class MemberOpinionController {
             @RequestBody @Valid final OpinionCreationRequest creationRequest,
             @Auth final Accessor accessor) {
         return ResponseEntity.ok()
-                .body(opinionService.createOpinion(creationRequest, accessor.id()));
+                .body(memberOpinionService.createOpinion(creationRequest, accessor.id()));
     }
 
     @PatchMapping("/{roomId}/remind")
@@ -42,7 +42,7 @@ public class MemberOpinionController {
     public ResponseEntity<Void> patchOpinionRemind(
             @PathVariable @Valid final Long roomId,
             @Auth final Accessor accessor) {
-        opinionService.remindOpinion(roomId);
+        memberOpinionService.remindOpinion(roomId);
         return ResponseEntity.ok().build();
     }
 
@@ -51,6 +51,6 @@ public class MemberOpinionController {
     public ResponseEntity<MemberOpinionInfoListResponse> getMemberOpinionList(
             @Auth final Accessor accessor) {
         return ResponseEntity.ok()
-                .body(opinionService.findMemberOpinionList(accessor.id()));
+                .body(memberOpinionService.findMemberOpinionList(accessor.id()));
     }
 }
