@@ -1,6 +1,8 @@
-package com.bungeobbang.backend.common.infrastructure;
+package com.bungeobbang.backend.auth.member;
 
 import com.bungeobbang.backend.auth.Auth;
+import com.bungeobbang.backend.auth.BearerAuthorizationExtractor;
+import com.bungeobbang.backend.auth.JwtProvider;
 import com.bungeobbang.backend.auth.domain.Accessor;
 import com.bungeobbang.backend.auth.domain.Authority;
 import com.bungeobbang.backend.common.exception.AuthException;
@@ -16,7 +18,7 @@ import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 @RequiredArgsConstructor
 @Component
-public class LoginArgumentResolver implements HandlerMethodArgumentResolver {
+public class MemberLoginArgumentResolver implements HandlerMethodArgumentResolver {
 
     private final JwtProvider jwtProvider;
     private final BearerAuthorizationExtractor extractor;
