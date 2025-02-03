@@ -108,8 +108,7 @@ public class OpinionService {
                 opinionId,
                 creationRequest.content(),
                 creationRequest.images(),
-                false,
-                LocalDateTime.now()
+                false
         );
         opinionChatRepository.save(opinionChat);
     }
