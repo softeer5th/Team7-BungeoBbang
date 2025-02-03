@@ -36,4 +36,13 @@ public class AgendaController {
         return ResponseEntity.ok(agendaService.getAgendasByStatus(accessor.id(), status, endDate, agendaId));
     }
 
+    @DeleteMapping("/{agendaId}")
+    public ResponseEntity<Void> exitAgenda(
+            @Auth Accessor accessor,
+            @PathVariable Long agendaId
+    ) {
+        agendaService.exitAgenda(accessor.id(), agendaId);
+        return ResponseEntity.noContent().build();
+    }
+
 }

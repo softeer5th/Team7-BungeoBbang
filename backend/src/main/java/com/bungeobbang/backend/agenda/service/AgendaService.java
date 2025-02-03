@@ -51,8 +51,13 @@ public class AgendaService {
         return finder.findAllByStatus(member.getUniversity().getId(), endDate, agendaId);
     }
 
+    public void exitAgenda(Long memberId, Long agendaId) {
+        agendaMemberRepository.deleteByMemberIdAndAgendaId(memberId, agendaId);
+    }
+
     private Member getMember(Long memberId) {
         return memberRepository.findById(memberId)
                 .orElseThrow(() -> new MemberException(ErrorCode.INVALID_MEMBER));
     }
+
 }
