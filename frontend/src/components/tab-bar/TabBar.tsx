@@ -64,6 +64,7 @@ export const TabBar: React.FC<TabBarProps> = ({
 };
 
 const TabBarContainer = styled.div`
+  width: 100%;
   display: flex;
   justify-content: center;
   align-items: center;

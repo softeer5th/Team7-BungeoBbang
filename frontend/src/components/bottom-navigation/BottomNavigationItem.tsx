@@ -47,6 +47,7 @@ export const BottomNavigationItem: React.FC<
               width="24px"
               height="24px"
               style={{ marginTop: '4px' }}
+              stroke={selected ? selectedForegroundColor : foregroundColor}
               fill={selected ? selectedForegroundColor : foregroundColor}
             />
           </React.Suspense>

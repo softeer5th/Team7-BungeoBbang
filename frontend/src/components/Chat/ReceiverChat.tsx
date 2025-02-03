@@ -38,8 +38,8 @@ export const ReceiverChat: React.FC<SenderChatProps> = ({
       </NameContainer>
       {images && (
         <ImageContainer>
-          {images.map((image) => {
-            return <ImageBox src={image} key={image} />;
+          {images.map((image, index) => {
+            return <ImageBox src={image} key={`${image}${index}`} />;
           })}
         </ImageContainer>
       )}
@@ -58,10 +58,12 @@ export const ReceiverChat: React.FC<SenderChatProps> = ({
 };
 
 const ReceiverChatContainer = styled.div`
+  width: 100%;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   justify-content: flex-start;
+  padding-left: 16px;
 `;
 
 const NameContainer = styled.div``;
@@ -82,12 +84,19 @@ const IconBox = styled.div<{
 `;
 
 const ImageContainer = styled.div`
+  width: 100%;
   display: flex;
   justify-content: flex-start;
   align-items: center;
   gap: 4px;
   margin-top: 4px;
   margin-bottom: 4px;
+  padding-right: 16px;
+  overflow-x: auto;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
 `;
 
 const ImageBox = styled.img`
