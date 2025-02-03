@@ -27,7 +27,7 @@ public class AgendaService {
                 .orElseThrow(() -> new AgendaException(ErrorCode.INVALID_AGENDA));
 
         if (!agenda.getUniversity().equals(member.getUniversity())) {
-            throw new AgendaException(ErrorCode.INVALID_AUTHORITY);
+            throw new AgendaException(ErrorCode.FORBIDDEN_UNIVERSITY_ACCESS);
         }
 
         agendaMemberRepository.save(AgendaMember.builder()
