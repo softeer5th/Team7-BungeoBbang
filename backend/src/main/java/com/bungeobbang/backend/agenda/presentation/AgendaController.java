@@ -3,7 +3,6 @@ package com.bungeobbang.backend.agenda.presentation;
 import com.bungeobbang.backend.agenda.dto.response.AgendaResponse;
 import com.bungeobbang.backend.agenda.service.AgendaService;
 import com.bungeobbang.backend.agenda.status.AgendaStatusType;
-import com.bungeobbang.backend.auth.admin.AdminAuth;
 import com.bungeobbang.backend.auth.domain.Accessor;
 import com.bungeobbang.backend.auth.member.Auth;
 import lombok.RequiredArgsConstructor;
@@ -29,7 +28,7 @@ public class AgendaController {
 
     @GetMapping
     public ResponseEntity<List<AgendaResponse>> getAgendasByStatus(
-            @AdminAuth Accessor accessor,
+            @Auth Accessor accessor,
             @RequestParam AgendaStatusType status,
             @RequestParam(required = false) LocalDate endDate,
             @RequestParam(required = false) Long agendaId) {
