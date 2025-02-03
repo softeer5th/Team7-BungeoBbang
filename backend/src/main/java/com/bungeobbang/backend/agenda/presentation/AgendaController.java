@@ -5,10 +5,7 @@ import com.bungeobbang.backend.auth.domain.Accessor;
 import com.bungeobbang.backend.auth.member.Auth;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/student/agenda")
@@ -21,6 +18,15 @@ public class AgendaController {
             @Auth Accessor accessor,
             @PathVariable Long agendaId) {
         agendaService.participateAgenda(accessor.id(), agendaId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/{agendaId}")
+    public ResponseEntity<Void> exitAgenda(
+            @Auth Accessor accessor,
+            @PathVariable Long agendaId
+    ) {
+        agendaService.exitAgenda(accessor.id(), agendaId);
         return ResponseEntity.noContent().build();
     }
 
