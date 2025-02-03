@@ -5,7 +5,7 @@ import EmailVerification from './pages/login/emailcheck';
 import UniversitySelection from './pages/login/univcheck';
 import AgendaPage from './pages/agenda';
 import AgendaChatPage from './pages/agenda/chat';
-import LoginSuccess from './pages/login/loginSuccess';
+import LoginSuccess from './pages/login/LoginSuccess';
 
 function StudentApp() {
   return (

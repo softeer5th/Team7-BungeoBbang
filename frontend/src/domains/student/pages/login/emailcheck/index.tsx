@@ -36,7 +36,7 @@ export default function SchoolEmailPage() {
 
     try {
       const isEmailOkay = await sendEmailVerification(email);
-      isEmailOkay === 200 ? setStep('verification') : setShowDialog(true);
+      isEmailOkay.status === 200 ? setStep('verification') : setShowDialog(true);
     } catch (err) {
       setError(err instanceof Error ? err.message : '인증 코드 전송에 실패하였습니다.');
       setShowDialog(true);
