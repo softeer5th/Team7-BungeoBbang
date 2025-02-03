@@ -83,7 +83,7 @@ const DialogContainer = styled.div<{
   border?: BorderProps;
 }>`
   position: fixed;
-  top: 263px;
+  top: 214px;
   padding: 24px 12px 12px 12px;
   width: 90%;
   max-width: 324px;
