@@ -36,8 +36,7 @@ export default function SchoolEmailPage() {
 
     try {
       const isEmailOkay = await sendEmailVerification(email);
-      isEmailOkay.status === 200 ? setStep('verification') : setShowDialog(true);
-      // setStep('verification');
+      isEmailOkay === 200 ? setStep('verification') : setShowDialog(true);
     } catch (err) {
       setError(err instanceof Error ? err.message : '인증 코드 전송에 실패하였습니다.');
       setShowDialog(true);
@@ -53,12 +52,10 @@ export default function SchoolEmailPage() {
 
     try {
       const isConfirmed = await confirmEmailVerification(email, verificationCode);
-
-      Number(isConfirmed) === 200
-        ? await patchUniversity(email)
-        : setError('인증 코드 확인에 실패하였습니다.');
+      Number(isConfirmed) === 200 ? await patchUniversity(email) : setShowDialog(true);
     } catch (err) {
       setError(err instanceof Error ? err.message : '인증 코드 확인에 실패하였습니다.');
+      setShowDialog(true);
     } finally {
       setIsLoading(false);
     }
@@ -77,7 +74,6 @@ export default function SchoolEmailPage() {
         universityId: university.id,
         email: email,
       });
-
       // navigate('/main');
     } catch (err) {
       setError(
@@ -92,7 +88,11 @@ export default function SchoolEmailPage() {
     <S.Container>
       {showDialog && (
         <Dialog
-          body="대학교 이메일이 일치하지 않습니다."
+          body={
+            step === 'email'
+              ? '대학교 이메일이 일치하지 않습니다.'
+              : '인증번호가 일치하지 않습니다.'
+          }
           onConfirm={() => setShowDialog(false)}
           onDismiss={() => setShowDialog(false)}
           confirmButton={{ text: '확인', backgroundColor: '#1F87FF' }}

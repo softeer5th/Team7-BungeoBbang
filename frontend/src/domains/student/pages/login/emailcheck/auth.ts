@@ -26,7 +26,7 @@ export const sendEmailVerification = async (email: string): Promise<EmailRespons
   try {
     const requestBody: EmailRequest = { email: email };
     const response = await api.post('/student/auth/email', requestBody);
-    return response.data;
+    return response.status;
   } catch (error) {
     const apiError = error as ApiError;
     throw new Error(apiError.response?.data?.message || '인증 코드 전송에 실패하였습니다.');
