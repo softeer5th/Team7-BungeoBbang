@@ -12,6 +12,5 @@ public interface OpinionRepository extends JpaRepository<Opinion, Long> {
 
     List<Opinion> findAllByCreatedAtBetweenAndUniversityId(LocalDateTime startDate, LocalDateTime endDate, Long universityId);
 
-    @Query("SELECT o FROM Opinion o WHERE o.member.id = :memberId AND o.id < :cursor ORDER BY o.id DESC LIMIT 9")
-    List<Opinion> findRecentOpinionsByMemberIdAndCursor(@Param("memberId") Long memberId, @Param("cursor") Long cursor);
+    List<Opinion> findAllByMemberId(Long memberId);
 }

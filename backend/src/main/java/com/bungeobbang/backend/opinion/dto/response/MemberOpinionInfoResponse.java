@@ -14,5 +14,9 @@ public record MemberOpinionInfoResponse(
         String lastChat,
         LocalDateTime lastChatTime,
         Boolean isNew
-) {
+) implements Comparable<MemberOpinionInfoResponse> {
+    @Override
+    public int compareTo(MemberOpinionInfoResponse o) {
+        return o.lastChatTime.compareTo(this.lastChatTime);
+    }
 }

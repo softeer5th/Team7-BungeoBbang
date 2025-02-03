@@ -101,20 +101,13 @@ public class OpinionService {
     /**
      * 회원의 의견 목록을 조회합니다.
      *
-     * @param cursor   이전 응답에서 반환했던 cursor(== 이전 응답에서의 마지막 opinionId)
      * @param memberId 학생 ID
      * @return MemberOpinionListResponse 학생 본인이 만들었던 말해요 채팅방 정보 리스트
      */
-    public MemberOpinionInfoListResponse findMemberOpinionList(final Long cursor, final Long memberId) {
-        List<Opinion> opinions = opinionRepository.findRecentOpinionsByMemberIdAndCursor(memberId, cursor);
-
-        boolean hasNextPage = true;
-        Long nextCursor = -1L;
-        if (opinions.size() < 9) hasNextPage = false;
-        if (hasNextPage) nextCursor = opinions.get(8).getId();
-
+    public MemberOpinionInfoListResponse findMemberOpinionList(final Long memberId) {
+        List<Opinion> opinions = opinionRepository.findAllByMemberId(memberId);
         List<MemberOpinionInfoResponse> opinionInfos = convertToMemberOpinionInfoList(opinions);
-        return new MemberOpinionInfoListResponse(opinionInfos, nextCursor, hasNextPage);
+        return new MemberOpinionInfoListResponse(opinionInfos);
     }
 
     /**
@@ -164,11 +157,9 @@ public class OpinionService {
         return opinions.stream()
                 .map(opinion -> {
                     log.debug("opinionId: {}", opinion.getId());
-
                     final OpinionLastRead opinionLastRead = opinionLastReadRepository.findByOpinionIdAndIsAdmin(opinion.getId(), false)
                             .orElseThrow(() -> new OpinionException(ErrorCode.INVALID_OPINION_LAST_READ));
                     log.debug("opinionLastReadChatId: {}", opinionLastRead.getLastReadChatId());
-
                     final OpinionChat lastChat = opinionChatRepository.findTopByOpinionIdOrderByCreatedAtDesc(opinion.getId())
                             .orElseThrow(() -> new OpinionException(ErrorCode.INVALID_OPINION_CHAT));
                     log.debug("lastChatId: " + lastChat.getId());
@@ -182,6 +173,7 @@ public class OpinionService {
                             .isNew(!opinionLastRead.getLastReadChatId().equals(lastChat.getId()))
                             .build();
                 })
-                .collect(Collectors.toList());
+                .sorted()
+                .toList();
     }
 }

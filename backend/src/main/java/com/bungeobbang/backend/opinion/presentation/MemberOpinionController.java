@@ -43,9 +43,8 @@ public class MemberOpinionController {
 
     @GetMapping("/my")
     public ResponseEntity<MemberOpinionInfoListResponse> getMemberOpinionList(
-            @RequestParam(defaultValue = "#{T(java.lang.Long).MAX_VALUE}") final Long cursor,
             @Auth final Accessor accessor) {
         return ResponseEntity.ok()
-                .body(opinionService.findMemberOpinionList(cursor, accessor.id()));
+                .body(opinionService.findMemberOpinionList(accessor.id()));
     }
 }
