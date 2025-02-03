@@ -68,7 +68,7 @@ public class OpinionService {
      *
      * @param creationRequest 의견 생성 요청 객체
      * @param memberId        학생 ID
-     * @return OpinionCreationResponse roomId(==opinionId)
+     * @return OpinionCreationResponse opinionId
      * @throws MemberException 학생 정보를 조회할 수 없는 경우 예외 발생
      */
     public OpinionCreationResponse createOpinion(
@@ -88,12 +88,12 @@ public class OpinionService {
     /**
      * 학생의 리마인드를 처리합니다.
      *
-     * @param roomId 채팅방ID(==opinionId)
+     * @param opinionId 채팅방ID(==opinionId)
      * @throws OpinionException 말해요 채팅방을 조회할 수 없는 경우 예외 발생
      */
     @Transactional
-    public void remindOpinion(final Long roomId) {
-        final Opinion opinion = opinionRepository.findById(roomId)
+    public void remindOpinion(final Long opinionId) {
+        final Opinion opinion = opinionRepository.findById(opinionId)
                 .orElseThrow(() -> new OpinionException(ErrorCode.INVALID_OPINION));
         opinion.editIsRemind(true);
     }
