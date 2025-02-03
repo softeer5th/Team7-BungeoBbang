@@ -3,6 +3,7 @@ import Typography from '../../styles/Typography';
 
 interface SenderChatProps {
   message: string;
+  images?: string[];
   timeText: string;
   backgroundColor?: string;
   textColor?: string;
@@ -11,6 +12,7 @@ interface SenderChatProps {
 
 export const SenderChat: React.FC<SenderChatProps> = ({
   message,
+  images,
   timeText,
   backgroundColor = '#1F87FF',
   textColor = '#FFFFFF',
@@ -18,23 +20,66 @@ export const SenderChat: React.FC<SenderChatProps> = ({
 }) => {
   return (
     <SenderChatContainer>
-      <TimeText variant="caption3" timeTextColor={timeTextColor}>
-        {timeText}
-      </TimeText>
-      <ChatContainer backgroundColor={backgroundColor}>
-        <ChatMessageText variant="body1" textColor={textColor}>
-          {message}
-        </ChatMessageText>
-      </ChatContainer>
+      {images && (
+        <ImageContainer>
+          {images.map((image, index) => {
+            return <ImageBox src={image} key={`${image}${index}`} />;
+          })}
+        </ImageContainer>
+      )}
+      <MessageContainer>
+        <TimeText variant="caption3" timeTextColor={timeTextColor}>
+          {timeText}
+        </TimeText>
+        <ChatContainer backgroundColor={backgroundColor}>
+          <ChatMessageText variant="body1" textColor={textColor}>
+            {message}
+          </ChatMessageText>
+        </ChatContainer>
+      </MessageContainer>
     </SenderChatContainer>
   );
 };
 
 const SenderChatContainer = styled.div`
+  width: 100%;
   display: flex;
+  flex-direction: column;
   align-items: flex-end;
   justify-content: flex-end;
   gap: 4px;
+  padding-right: 16px;
+`;
+
+const ImageContainer = styled.div`
+  width: 100%;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 4px;
+  margin-top: 4px;
+  margin-bottom: 4px;
+  padding-left: 16px;
+  overflow-x: auto;
+  direction: rtl;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+`;
+
+const ImageBox = styled.img`
+  width: 164px;
+  height: 230px;
+  border-radius: 16px;
+`;
+
+const MessageContainer = styled.div`
+  display: flex;
+  justify-content: flex-start;
+  align-items: flex-end;
+  gap: 4px;
+  margin-top: 4px;
 `;
 
 const TimeText = styled(Typography)<{
