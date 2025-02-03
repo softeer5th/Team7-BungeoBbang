@@ -6,6 +6,7 @@ import com.bungeobbang.backend.opinion.domain.OpinionType;
 import java.time.LocalDateTime;
 
 public record MemberOpinionInfo(
+public record MemberOpinionInfoResponse(
         Long opinionId,
         OpinionType opinionType,
         CategoryType categoryType,

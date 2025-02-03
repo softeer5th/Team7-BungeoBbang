@@ -2,8 +2,8 @@ package com.bungeobbang.backend.opinion.dto.response;
 
 import java.util.List;
 
-public record MemberOpinionListResponse(
-        List<MemberOpinionInfo> opinions,
+public record MemberOpinionInfoListResponse(
+        List<MemberOpinionInfoResponse> opinions,
         Long cursor,
         boolean hasNextPage
 ) {
