@@ -74,7 +74,7 @@ export default function SchoolEmailPage() {
         universityId: university.id,
         email: email,
       });
-      // navigate('/main');
+      navigate('/login/success');
     } catch (err) {
       setError(
         err instanceof Error
