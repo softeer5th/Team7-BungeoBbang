@@ -6,11 +6,13 @@ import com.bungeobbang.backend.common.type.CategoryType;
 import com.bungeobbang.backend.university.domain.University;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 import static jakarta.persistence.EnumType.STRING;
 import static jakarta.persistence.FetchType.LAZY;
@@ -54,5 +56,25 @@ public class Agenda extends BaseTimeEntity {
     private int count;
 
     @OneToMany(mappedBy = "agenda")
-    private Set<AgendaImage> imageList;
+    private List<AgendaImage> images = new ArrayList<>();
+
+    @Builder
+    public Agenda(Long id, CategoryType categoryType, University university, Admin admin, String title, LocalDate startDate, LocalDate endDate, String content, boolean isEnd, int count, List<AgendaImage> images) {
+        this.id = id;
+        this.categoryType = categoryType;
+        this.university = university;
+        this.admin = admin;
+        this.title = title;
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.content = content;
+        this.isEnd = isEnd;
+        this.count = count;
+        this.images = images;
+    }
+
+    public void end() {
+        this.endDate = LocalDate.now();
+        this.isEnd = true;
+    }
 }
