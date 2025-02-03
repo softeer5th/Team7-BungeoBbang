@@ -21,7 +21,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * 말해요 서비스 로직을 처리하는 클래스.
@@ -108,47 +107,6 @@ public class OpinionService {
         final List<Opinion> opinions = opinionRepository.findAllByMemberId(memberId);
         final List<MemberOpinionInfoResponse> opinionInfos = convertToMemberOpinionInfoList(opinions);
         return new MemberOpinionInfoListResponse(opinionInfos);
-    }
-
-//    public AdminOpinionListResponse findAdminOpinionList(Long cursor) {
-//        List<Opinion> opinions = opinionRepository.findTop9ByCursorOrderByIsRemindDescIdDesc(cursor);
-//
-//        boolean hasNextPage = true;
-//        Long nextCursor = -1L;
-//        if (opinions.size() < 9) hasNextPage = false;
-//        if (hasNextPage) nextCursor = opinions.get(8).getId();
-//
-//        List<AdminOpinionInfo> opinionInfos = convertToAdminOpinionInfoList(opinions);
-//        return new AdminOpinionListResponse(opinionInfos, nextCursor, hasNextPage);
-//
-//        // isRemind==true 가 먼저 조회,
-//        // 1순위 : 리마인드 여부, 2순위 : 시간
-//    }
-
-    private List<AdminOpinionInfoResponse> convertToAdminOpinionInfoList(final List<Opinion> opinions) {
-        return opinions.stream()
-                .map(opinion -> {
-                    log.debug("opinionId: {}", opinion.getId());
-
-                    final OpinionLastRead opinionLastRead = opinionLastReadRepository.findByOpinionIdAndIsAdmin(opinion.getId(), false)
-                            .orElseThrow(() -> new OpinionException(ErrorCode.INVALID_OPINION_LAST_READ));
-                    log.debug("opinionLastReadChatId: {}", opinionLastRead.getLastReadChatId());
-
-                    final OpinionChat lastChat = opinionChatRepository.findTopByOpinionIdOrderByCreatedAtDesc(opinion.getId())
-                            .orElseThrow(() -> new OpinionException(ErrorCode.INVALID_OPINION_CHAT));
-                    log.debug("lastChatId: " + lastChat.getId());
-
-                    return AdminOpinionInfoResponse.builder()
-                            .opinionId(opinion.getId())
-                            .opinionType(opinion.getOpinionType())
-                            .categoryType(opinion.getCategoryType())
-                            .lastChat(lastChat.getChat())
-                            .lastChatCreatedAt(lastChat.getCreatedAt())
-                            .isNew(!opinionLastRead.getLastReadChatId().equals(lastChat.getId()))
-                            .isRemind(opinion.isRemind())
-                            .build();
-                })
-                .collect(Collectors.toList());
     }
 
     /**
