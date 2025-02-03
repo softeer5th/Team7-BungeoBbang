@@ -105,8 +105,8 @@ public class OpinionService {
      * @return MemberOpinionListResponse 학생 본인이 만들었던 말해요 채팅방 정보 리스트
      */
     public MemberOpinionInfoListResponse findMemberOpinionList(final Long memberId) {
-        List<Opinion> opinions = opinionRepository.findAllByMemberId(memberId);
-        List<MemberOpinionInfoResponse> opinionInfos = convertToMemberOpinionInfoList(opinions);
+        final List<Opinion> opinions = opinionRepository.findAllByMemberId(memberId);
+        final List<MemberOpinionInfoResponse> opinionInfos = convertToMemberOpinionInfoList(opinions);
         return new MemberOpinionInfoListResponse(opinionInfos);
     }
 
@@ -117,7 +117,7 @@ public class OpinionService {
      * @param member          회원 객체
      * @return Opinion 생성된 의견 엔티티
      */
-    private Opinion createOpinionEntity(OpinionCreationRequest creationRequest, Member member) {
+    private Opinion createOpinionEntity(final OpinionCreationRequest creationRequest, final Member member) {
         final University university = member.getUniversity();
         return Opinion.builder()
                 .university(university)
@@ -136,7 +136,9 @@ public class OpinionService {
      * @param member          학생 객체
      * @param opinionId       말해요 채팅방 ID
      */
-    private void saveOpinionChat(OpinionCreationRequest creationRequest, Member member, Long opinionId) {
+    private void saveOpinionChat(final OpinionCreationRequest creationRequest,
+                                 final Member member,
+                                 final Long opinionId) {
         final OpinionChat opinionChat = OpinionChat.builder()
                 .memberId(member.getId())
                 .opinionId(opinionId)
@@ -153,7 +155,7 @@ public class OpinionService {
      * @param opinions Opinion 리스트
      * @return List<MemberOpinionInfo> 변환된 회원 의견 정보 리스트
      */
-    private List<MemberOpinionInfoResponse> convertToMemberOpinionInfoList(List<Opinion> opinions) {
+    private List<MemberOpinionInfoResponse> convertToMemberOpinionInfoList(final List<Opinion> opinions) {
         return opinions.stream()
                 .map(opinion -> {
                     log.debug("opinionId: {}", opinion.getId());
