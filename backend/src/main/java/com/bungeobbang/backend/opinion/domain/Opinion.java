@@ -50,7 +50,7 @@ public class Opinion extends BaseTimeEntity {
         this.chatCount = chatCount;
     }
 
-    public void editIsRemind(boolean isRemind) {
-        this.isRemind = isRemind;
+    public void setRemind() {
+        this.isRemind = true;
     }
 }
