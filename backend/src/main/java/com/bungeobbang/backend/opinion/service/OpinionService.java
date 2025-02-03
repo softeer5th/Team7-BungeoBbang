@@ -54,12 +54,12 @@ public class OpinionService {
                 .map(Opinion::getId)
                 .toList();
 
-        final List<OpinionChat> opinionChats = opinionChatRepository.findDistinctOpinionIdByIsAdminTrue(opinionIds);
+        final List<Long> opinionChats = opinionChatRepository.findDistinctOpinionIdByIsAdminTrue(opinionIds);
+
         final int opinionCount = opinions.size();
         final int responseCount = opinionChats.size();
-        final double rawRate = (double) opinionCount / responseCount;
-        final int adminResponseRate = (int) Math.round(rawRate * 10) / 10;
-
+        final double rawRate = (double) responseCount / opinionCount;
+        final int adminResponseRate = (int) Math.round(rawRate * 100);
         return new OpinionStatisticsResponse(opinionCount, adminResponseRate);
     }
 
