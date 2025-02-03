@@ -14,7 +14,7 @@ public record AgendaCreationRequest(
         String title,
 
         @NotNull(message = "카테고리는 필수 입력입니다.")
-        CategoryType category,
+        CategoryType categoryType,
 
         @NotNull(message = "시작 날짜는 필수 입력입니다.")
         LocalDate startDate,
