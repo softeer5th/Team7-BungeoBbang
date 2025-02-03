@@ -3,7 +3,7 @@ package com.bungeobbang.backend.opinion.presentation;
 import com.bungeobbang.backend.auth.domain.Accessor;
 import com.bungeobbang.backend.auth.Auth;
 import com.bungeobbang.backend.opinion.dto.request.OpinionCreationRequest;
-import com.bungeobbang.backend.opinion.dto.response.MemberOpinionListResponse;
+import com.bungeobbang.backend.opinion.dto.response.MemberOpinionInfoListResponse;
 import com.bungeobbang.backend.opinion.dto.response.OpinionCreationResponse;
 import com.bungeobbang.backend.opinion.dto.response.OpinionStatisticsResponse;
 import com.bungeobbang.backend.opinion.service.OpinionService;
@@ -42,7 +42,7 @@ public class MemberOpinionController {
     }
 
     @GetMapping("/my")
-    public ResponseEntity<MemberOpinionListResponse> getMemberOpinionList(
+    public ResponseEntity<MemberOpinionInfoListResponse> getMemberOpinionList(
             @RequestParam(defaultValue = "#{T(java.lang.Long).MAX_VALUE}") final Long cursor,
             @Auth final Accessor accessor) {
         return ResponseEntity.ok()
