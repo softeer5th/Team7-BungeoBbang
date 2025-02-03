@@ -169,7 +169,7 @@ public class OpinionService {
                             .opinionType(opinion.getOpinionType())
                             .categoryType(opinion.getCategoryType())
                             .lastChat(lastChat.getChat())
-                            .lastChatTime(lastChat.getCreatedAt())
+                            .lastChatCreatedAt(lastChat.getCreatedAt())
                             .isNew(!opinionLastRead.getLastReadChatId().equals(lastChat.getId()))
                             .build();
                 })
