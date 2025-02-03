@@ -8,6 +8,7 @@ public enum ErrorCode {
     //Agenda
     NOT_SUPPORT_STATUS(HttpStatus.BAD_REQUEST, "지원하지 않는 안건 상태입니다."),
     INVALID_AGENDA(HttpStatus.NOT_FOUND, "존재하지 않는 답해요 안건입니다."),
+    FORBIDDEN_UNIVERSITY_ACCESS(HttpStatus.FORBIDDEN, "대학교 정보 불일치로 인해 접근이 거부되었습니다."),
     // Opinion
     OPINION_COUNT_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "말해요 의견 수 카운트에 실패하였습니다."),
     INVALID_OPINION(HttpStatus.NOT_FOUND, "말해요 채팅방 조회에 실패하였습니다."),
