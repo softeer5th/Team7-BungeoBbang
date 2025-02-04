@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @Tag(name = "학생&학생회 말해요 관련 API", description = "말해요 채팅방의 채팅 내역을 관리하는 API")
-@RequestMapping("/api/opinion")
+@RequestMapping("/api/opinions")
 public interface OpinionChatApi {
 
     @Operation(
@@ -27,6 +27,12 @@ public interface OpinionChatApi {
             description = """
                     특정 말해요 채팅방(opinionId)의 채팅 내역을 조회합니다. 
                     - `lastChatId`를 전달하면 해당 채팅 시점 이후의 메시지를 가져옵니다.
+                    
+                    **✅ 사용 예시**
+                    ```
+                    GET /api/opinions\n
+                    GET /api/opinions?lastChatId=67a04c4a6d8394488027b840
+                    ```
                     """
     )
     @ApiResponses({
@@ -40,7 +46,7 @@ public interface OpinionChatApi {
             @Parameter(description = "조회할 말해요 ID", example = "2")
             @PathVariable @Valid Long opinionId,
 
-            @Parameter(description = "마지막으로 본 채팅 ID (선택 사항, 없으면 최신 메시지부터 조회)", example = "65a3f8e2b93e4c23dc8e3a90")
+            @Parameter(description = "마지막으로 본 채팅 ID (선택 사항, 없으면 최신 메시지부터 조회)", example = "67a04c4a6d8394488027b840")
             @RequestParam(required = false) ObjectId lastChatId,
 
             @Parameter(description = "사용자 인증 정보", hidden = true)

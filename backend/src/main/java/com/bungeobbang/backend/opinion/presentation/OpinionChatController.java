@@ -15,7 +15,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/opinion")
+@RequestMapping("/api/opinions")
 public class OpinionChatController implements OpinionChatApi {
 
     private final OpinionService opinionService;
