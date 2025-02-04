@@ -9,6 +9,10 @@ import com.bungeobbang.backend.agenda.domain.repository.AgendaRepository;
 import com.bungeobbang.backend.agenda.dto.request.AgendaCreationRequest;
 import com.bungeobbang.backend.agenda.dto.request.AgendaEditRequest;
 import com.bungeobbang.backend.agenda.dto.response.AgendaCreationResponse;
+import com.bungeobbang.backend.agenda.dto.response.AgendaResponse;
+import com.bungeobbang.backend.agenda.service.strategies.AgendaFinder;
+import com.bungeobbang.backend.agenda.service.strategies.AgendaFinders;
+import com.bungeobbang.backend.agenda.status.AgendaStatusType;
 import com.bungeobbang.backend.common.exception.AdminException;
 import com.bungeobbang.backend.common.exception.AgendaException;
 import com.bungeobbang.backend.common.exception.ErrorCode;
@@ -16,8 +20,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.List;
 
+import static com.bungeobbang.backend.common.exception.ErrorCode.INVALID_ADMIN;
 import static com.bungeobbang.backend.common.exception.ErrorCode.INVALID_AGENDA;
 
 /**
@@ -34,6 +40,38 @@ public class AdminAgendaService {
     private final AgendaRepository agendaRepository;
     private final AgendaImageRepository agendaImageRepository;
     private final AdminRepository adminRepository;
+    private final AgendaFinders agendaFinders;
+
+    /**
+     * 특정 관리자(Admin)가 속한 대학교의 안건(Agenda)을 상태별로 조회합니다.
+     *
+     * <h3>기능 설명:</h3>
+     * <ul>
+     *   <li>관리자 ID(adminId)를 이용하여 관리자 정보를 검증합니다.</li>
+     *   <li>주어진 상태(status)에 따라 적절한 조회 전략을 선택합니다.</li>
+     *   <li>선택된 조회 전략(AgendaFinder)을 사용하여 상태별 안건 목록을 조회합니다.</li>
+     * </ul>
+     *
+     * <h3>예외 발생:</h3>
+     * <ul>
+     *   <li>{@code AdminException} - 관리자 정보가 존재하지 않을 경우</li>
+     * </ul>
+     *
+     * @param adminId  조회를 요청한 관리자 ID
+     * @param status   조회할 안건 상태 (진행 전, 진행 중, 완료 등)
+     * @param endDate  마지막으로 조회된 안건의 종료 날짜 (무한 스크롤 시 사용)
+     * @param agendaId 마지막으로 조회된 안건의 ID (무한 스크롤 시 사용 중복)
+     * @return 상태에 맞는 안건 목록 (List of {@link AgendaResponse})
+     * @throws AdminException 관리자 정보가 존재하지 않을 경우 발생
+     */
+    public List<AgendaResponse> getAgendasByStatus(Long adminId, AgendaStatusType status, LocalDate endDate, Long agendaId) {
+        final Admin admin = adminRepository.findById(adminId)
+                .orElseThrow(() -> new AdminException(INVALID_ADMIN));
+        final AgendaFinder finder = agendaFinders.mapping(status);
+        return finder.findAllByStatus(admin.getUniversity().getId(), endDate, agendaId);
+    }
+
+
 
     /**
      * ✅ 새로운 "답해요" 채팅방을 생성합니다.
@@ -144,7 +182,7 @@ public class AdminAgendaService {
      *
      * @param oldImages 기존 이미지 리스트
      * @param imageName 새로운 이미지 파일명
-     * @param agenda 수정할 "답해요" 게시글
+     * @param agenda    수정할 "답해요" 게시글
      * @return 업데이트된 AgendaImage 객체
      */
     private AgendaImage makeUpdatedImages(final List<AgendaImage> oldImages, final String imageName, final Agenda agenda) {
@@ -203,4 +241,5 @@ public class AdminAgendaService {
                                 .build())
                 .toList();
     }
+
 }
