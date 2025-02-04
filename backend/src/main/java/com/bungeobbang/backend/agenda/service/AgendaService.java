@@ -52,7 +52,7 @@ public class AgendaService {
     private final MemberRepository memberRepository;
     private final AgendaFinders agendaFinders;
 
-    private final static ObjectId DEFAULT_OBJECT_ID = new ObjectId("000000000000000000000000");
+    private final static ObjectId MIN_OBJECT_ID = new ObjectId(0, 0);
 
     /**
      * <h3>답해요에 사용자 참여</h3>
@@ -65,14 +65,12 @@ public class AgendaService {
      */
     public void participateAgenda(final Long memberId, final Long agendaId) {
         final Member member = getMember(memberId);
-
         final Agenda agenda = agendaRepository.findById(agendaId)
                 .orElseThrow(() -> new AgendaException(ErrorCode.INVALID_AGENDA));
 
         if (!agenda.getUniversity().equals(member.getUniversity())) {
             throw new AgendaException(ErrorCode.FORBIDDEN_UNIVERSITY_ACCESS);
         }
-
         if (agendaMemberRepository.existsByMemberIdAndAgendaId(memberId, agendaId)) {
             throw new AgendaException(ErrorCode.ALREADY_PARTICIPATED);
         }
@@ -86,7 +84,7 @@ public class AgendaService {
         // 현재 시점에서의 마지막 채팅을 마지막 읽은 채팅으로 저장
         // todo 비동기 고려
         final LastChat lastChat = customAgendaChatRepository.findLastChat(agendaId, memberId);
-        ObjectId lastChatId = lastChat == null ? DEFAULT_OBJECT_ID : lastChat.chatId();
+        ObjectId lastChatId = lastChat == null ? MIN_OBJECT_ID : lastChat.chatId();
         customAgendaChatRepository.saveLastReadChat(agendaId, memberId, lastChatId);
     }
 
