@@ -1,6 +1,6 @@
 import styled, { useTheme } from 'styled-components';
 import Typography from '@/styles/Typography.tsx';
-import React, { Suspense, useMemo } from 'react';
+import React, { Suspense } from 'react';
 
 import ArrowRightIcon from '/src/assets/icons/arrow-right.svg?react';
 import ArrowDownIcon from '/src/assets/icons/arrow-down.svg?react';
