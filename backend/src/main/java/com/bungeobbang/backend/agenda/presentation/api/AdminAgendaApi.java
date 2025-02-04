@@ -4,6 +4,7 @@ import com.bungeobbang.backend.agenda.dto.request.AgendaCreationRequest;
 import com.bungeobbang.backend.agenda.dto.request.AgendaEditRequest;
 import com.bungeobbang.backend.agenda.dto.response.AgendaChatResponse;
 import com.bungeobbang.backend.agenda.dto.response.AgendaCreationResponse;
+import com.bungeobbang.backend.agenda.dto.response.AgendaDetailResponse;
 import com.bungeobbang.backend.agenda.dto.response.AgendaResponse;
 import com.bungeobbang.backend.agenda.status.AgendaStatusType;
 import com.bungeobbang.backend.auth.admin.AdminAuth;
@@ -48,6 +49,15 @@ public interface AdminAgendaApi {
             @RequestParam(required = false) LocalDate endDate,
             @RequestParam(required = false) Long agendaId
     );
+
+    @Operation(
+            summary = "답해요 상세 조회",
+            description = "특정 agendaId에 대한 상세 정보를 조회합니다."
+    )
+    @GetMapping("/{agendaId}")
+    ResponseEntity<AgendaDetailResponse> getAgendaDetail(
+            @Parameter(hidden = true) @AdminAuth Accessor accessor,
+            @Parameter(description = "조회할 아젠다 ID", example = "123") Long agendaId);
 
     @Operation(
             summary = "답해요 안건 생성",
@@ -125,7 +135,7 @@ public interface AdminAgendaApi {
             @Parameter(description = "조회할 답해요 ID", example = "123")
             @PathVariable Long agendaId,
 
-            @Parameter(description = "마지막으로 본 채팅 ID (선택 사항, 없으면 최신 메시지부터 조회)", example = "65a3f8e2b93e4c23dc8e3a90", required = false)
+            @Parameter(description = "마지막으로 본 채팅 ID (선택 사항, 없으면 최신 메시지부터 조회)", example = "65a3f8e2b93e4c23dc8e3a90")
             @RequestParam(required = false) ObjectId chatId
     );
 }

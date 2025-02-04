@@ -1,6 +1,7 @@
 package com.bungeobbang.backend.agenda.presentation.api;
 
 import com.bungeobbang.backend.agenda.dto.response.AgendaChatResponse;
+import com.bungeobbang.backend.agenda.dto.response.AgendaDetailResponse;
 import com.bungeobbang.backend.agenda.dto.response.AgendaResponse;
 import com.bungeobbang.backend.agenda.dto.response.MyAgendaResponse;
 import com.bungeobbang.backend.agenda.status.AgendaStatusType;
@@ -50,6 +51,17 @@ public interface AgendaApi {
             @Parameter(description = "조회할 답해요 상태") @RequestParam AgendaStatusType status,
             @Parameter(description = "마지막 조회된 답해요 마감일 (선택)") @RequestParam(required = false) LocalDate endDate,
             @Parameter(description = "마지막 조회된 답해요 ID (선택)") @RequestParam(required = false) Long agendaId
+    );
+
+    @Operation(
+            summary = "답해요 상세 조회",
+            description = "특정 agendaId에 대한 상세 정보를 조회합니다."
+    )
+    @GetMapping("/{agendaId}")
+    ResponseEntity<AgendaDetailResponse> getAgendaDetail(
+            @Parameter(hidden = true) @Auth Accessor accessor,
+            @Parameter(description = "조회할 아젠다 ID", example = "123")
+            @PathVariable Long agendaId
     );
 
     @Operation(summary = "내가 참여한 답해요 리스트 조회(카카오톡 채팅방)", description = "사용자가 참여 중인 답해요 목록을 조회합니다.")

@@ -4,6 +4,7 @@ import com.bungeobbang.backend.agenda.dto.request.AgendaCreationRequest;
 import com.bungeobbang.backend.agenda.dto.request.AgendaEditRequest;
 import com.bungeobbang.backend.agenda.dto.response.AgendaChatResponse;
 import com.bungeobbang.backend.agenda.dto.response.AgendaCreationResponse;
+import com.bungeobbang.backend.agenda.dto.response.AgendaDetailResponse;
 import com.bungeobbang.backend.agenda.dto.response.AgendaResponse;
 import com.bungeobbang.backend.agenda.presentation.api.AdminAgendaApi;
 import com.bungeobbang.backend.agenda.service.AdminAgendaChatService;
@@ -35,6 +36,14 @@ public class AdminAgendaController implements AdminAgendaApi {
             @RequestParam(required = false) LocalDate endDate,
             @RequestParam(required = false) Long agendaId) {
         return ResponseEntity.ok(adminAgendaService.getAgendasByStatus(accessor.id(), status, endDate, agendaId));
+    }
+
+    @Override
+    @GetMapping("/{agendaId}")
+    public ResponseEntity<AgendaDetailResponse> getAgendaDetail(
+            @AdminAuth Accessor accessor,
+            @PathVariable Long agendaId) {
+        return ResponseEntity.ok(adminAgendaService.getAgendaDetail(accessor.id(), agendaId));
     }
 
     @Override

@@ -5,6 +5,7 @@ import com.bungeobbang.backend.agenda.domain.AgendaMember;
 import com.bungeobbang.backend.agenda.domain.repository.AgendaMemberRepository;
 import com.bungeobbang.backend.agenda.domain.repository.AgendaRepository;
 import com.bungeobbang.backend.agenda.domain.repository.CustomAgendaChatRepository;
+import com.bungeobbang.backend.agenda.dto.response.AgendaDetailResponse;
 import com.bungeobbang.backend.agenda.dto.response.AgendaResponse;
 import com.bungeobbang.backend.agenda.dto.response.LastChat;
 import com.bungeobbang.backend.agenda.dto.response.MyAgendaResponse;
@@ -101,6 +102,18 @@ public class AgendaService {
         final Member member = getMember(memberId);
         final AgendaFinder finder = agendaFinders.mapping(status);
         return finder.findAllByStatus(member.getUniversity().getId(), endDate, agendaId);
+    }
+
+    public AgendaDetailResponse getAgendaDetail(final Long memberId, final Long agendaId) {
+        final Member member = getMember(memberId);
+        final Agenda agenda = agendaRepository.findById(agendaId)
+                .orElseThrow(() -> new AgendaException(ErrorCode.INVALID_AGENDA));
+
+        if (!agenda.getUniversity().equals(member.getUniversity())) {
+            throw new AgendaException(ErrorCode.FORBIDDEN_UNIVERSITY_ACCESS);
+        }
+
+        return AgendaDetailResponse.from(agenda);
     }
 
     /**
