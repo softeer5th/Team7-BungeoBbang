@@ -25,10 +25,10 @@ public class OpinionChatController implements OpinionChatApi {
     @GetMapping("/{opinionId}")
     public ResponseEntity<List<OpinionChatResponse>> getOpinionChat(
             @PathVariable @Valid final Long opinionId,
-            @RequestParam(required = false) final LocalDateTime endDateTime,
+            @RequestParam(required = false) final ObjectId lastChatId,
             @Auth final Accessor accessor) {
         return ResponseEntity.ok().body(opinionService.findOpinionChat(
-                opinionId, endDateTime, accessor
+                opinionId, lastChatId, accessor
         ));
     }
 }

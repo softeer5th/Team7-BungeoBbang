@@ -11,10 +11,13 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.bson.types.ObjectId;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Tag(name = "말해요 채팅 API", description = "말해요 채팅방의 채팅 내역을 관리하는 API")
@@ -34,7 +37,7 @@ public interface OpinionChatApi {
     @GetMapping("/{opinionId}")
     ResponseEntity<List<OpinionChatResponse>> getOpinionChat(
             @PathVariable @Valid Long opinionId,
-            @RequestParam(required = false) LocalDateTime endDateTime,
+            @RequestParam(required = false) ObjectId lastChatId,
             @Auth Accessor accessor
     );
 }

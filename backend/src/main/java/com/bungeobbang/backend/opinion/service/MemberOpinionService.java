@@ -21,7 +21,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 
 /**
@@ -150,7 +152,7 @@ public class MemberOpinionService {
 
     /**
      * Opinion 리스트를 MemberOpinionInfo 리스트로 변환합니다.
-     * 마지막 읽은 채팅의 ID와 실제 마지막 채팅의 ID를 비교하여 isNew 값을 설정합니다.
+     * 마지막 읽은 채팅의 ID와 실제 마지막 채팅의 ID를 비교하여 hasNewChat 값을 설정합니다.
      *
      * @param opinions 해당 학생이 개설한 말해요 채팅방 리스트
      * @return 학생의 말해요 채팅방 정보 리스트
@@ -160,15 +162,18 @@ public class MemberOpinionService {
                 .map(opinion -> {
                     final OpinionLastRead opinionLastRead = opinionLastReadRepository.findByOpinionIdAndIsAdmin(opinion.getId(), false)
                             .orElseThrow(() -> new OpinionException(ErrorCode.INVALID_OPINION_LAST_READ));
-                    final OpinionChat lastChat = opinionChatRepository.findTopByOpinionIdOrderByCreatedAtDesc(opinion.getId())
+                    final OpinionChat lastChat = opinionChatRepository.findTopByOpinionIdOrderByIdDesc(opinion.getId())
                             .orElseThrow(() -> new OpinionException(ErrorCode.INVALID_OPINION_CHAT));
                     return MemberOpinionInfoResponse.builder()
                             .opinionId(opinion.getId())
                             .opinionType(opinion.getOpinionType())
                             .categoryType(opinion.getCategoryType())
+                            .lastChatId(lastChat.getId())
                             .lastChat(lastChat.getChat())
-                            .lastChatCreatedAt(lastChat.getCreatedAt())
-                            .isNew(!opinionLastRead.getLastReadChatId().equals(lastChat.getId()))
+                            .lastChatCreatedAt(LocalDateTime.ofInstant(
+                                    Instant.ofEpochSecond(lastChat.getId().getTimestamp()),
+                                    ZoneId.of("Asia/Seoul")))
+                            .hasNewChat(!opinionLastRead.getLastReadChatId().equals(lastChat.getId()))
                             .build();
                 })
                 .sorted()
