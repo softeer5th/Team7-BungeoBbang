@@ -49,8 +49,8 @@ export const TabBar: React.FC<TabBarProps> = ({
           selectedTextColor={selectedTextColor}
           selected={item.itemId === selectedItem}
           onItemClick={(itemId) => {
-            setSelectedItem(item.itemId);
-            onItemClick(item.itemId);
+            setSelectedItem(itemId);
+            onItemClick(itemId);
           }}
         />
       ))}

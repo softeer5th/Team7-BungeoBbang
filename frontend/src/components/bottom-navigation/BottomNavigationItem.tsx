@@ -32,7 +32,7 @@ export const BottomNavigationItem: React.FC<
   hasAlarm = false,
 }) => {
   const Icon = useMemo(() => {
-    return React.lazy(() => import(`${iconSrc}?react`));
+    return React.lazy(() => /* @vite-ignore */ import(`${iconSrc}?react`));
   }, [iconSrc]);
 
   return (
