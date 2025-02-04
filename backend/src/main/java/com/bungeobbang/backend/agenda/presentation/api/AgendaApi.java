@@ -1,5 +1,6 @@
 package com.bungeobbang.backend.agenda.presentation.api;
 
+import com.bungeobbang.backend.agenda.dto.response.AgendaChatResponse;
 import com.bungeobbang.backend.agenda.dto.response.AgendaResponse;
 import com.bungeobbang.backend.agenda.dto.response.MyAgendaResponse;
 import com.bungeobbang.backend.agenda.status.AgendaStatusType;
@@ -12,6 +13,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.bson.types.ObjectId;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -69,5 +71,17 @@ public interface AgendaApi {
     ResponseEntity<Void> exitAgenda(
             @Auth Accessor accessor,
             @Parameter(description = "탈퇴할 답해요의 ID") @PathVariable Long agendaId
+    );
+
+    @Operation(
+            summary = "채팅 목록 조회",
+            description = "특정 agendaId에 대한 채팅 목록을 조회합니다. 선택적으로 chatId를 제공하면 해당 chatId 이전의 메시지만 조회할 수 있습니다."
+    )
+    @GetMapping("/{agendaId}/chat")
+    ResponseEntity<List<AgendaChatResponse>> getChats(
+            @Parameter(hidden = true) @Auth Accessor accessor,
+            @Parameter(description = "조회할 아젠다 ID", example = "123") @PathVariable Long agendaId,
+            @Parameter(description = "특정 채팅 이후의 메시지를 가져오기 위한 chat ID", example = "65afc39b2d1e7c7a1f5b9123")
+            @RequestParam(required = false) ObjectId chatId
     );
 }
