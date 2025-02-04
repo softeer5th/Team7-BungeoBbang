@@ -36,7 +36,7 @@ public class AdminOpinionService {
      * @param categoryTypes 조회를 원하는 카테고리의 목록. 없을 경우 전체 카테고리를 조회합니다.
      * @return AdminOpinionInfoResponse의 리스트로, 말해요 채팅방 목록 응답 객체.
      */
-    public List<AdminOpinionInfoResponse> findAdminOpinionList(Set<CategoryType> categoryTypes) {
+    public List<AdminOpinionInfoResponse> findAdminOpinionList(final Set<CategoryType> categoryTypes) {
         final List<Opinion> opinions = getOpinionsByCategories(categoryTypes);
         return convertToAdminOpinionInfoList(opinions);
     }
@@ -47,7 +47,7 @@ public class AdminOpinionService {
      * @param categoryTypes 조회를 원하는 카테고리의 목록. 없을 경우 전체 카테고리를 조회합니다.
      * @return 카테고리에 해당하는 말해요 채팅방 목록.
      */
-    private List<Opinion> getOpinionsByCategories(Set<CategoryType> categoryTypes) {
+    private List<Opinion> getOpinionsByCategories(final Set<CategoryType> categoryTypes) {
         if (categoryTypes == null || categoryTypes.isEmpty()) {
             return opinionRepository.findAll(); // 카테고리가 없으면 전체 조회
         }
