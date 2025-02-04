@@ -5,6 +5,7 @@ import com.bungeobbang.backend.auth.admin.AdminOnly;
 import com.bungeobbang.backend.auth.domain.Accessor;
 import com.bungeobbang.backend.common.type.CategoryType;
 import com.bungeobbang.backend.opinion.dto.response.AdminOpinionsInfoResponse;
+import com.bungeobbang.backend.opinion.presentation.api.AdminOpinionApi;
 import com.bungeobbang.backend.opinion.service.AdminOpinionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -20,7 +21,7 @@ import java.util.Set;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/admin/opinions")
-public class AdminOpinionController {
+public class AdminOpinionController implements AdminOpinionApi {
 
     private final AdminOpinionService adminOpinionService;
 

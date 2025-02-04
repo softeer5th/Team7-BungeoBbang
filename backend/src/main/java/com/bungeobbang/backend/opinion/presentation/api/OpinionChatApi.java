@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@Tag(name = "말해요 채팅 API", description = "말해요 채팅방의 채팅 내역을 관리하는 API")
+@Tag(name = "학생&학생회 말해요 관련 API", description = "말해요 채팅방의 채팅 내역을 관리하는 API")
 @RequestMapping("/api/opinion")
 public interface OpinionChatApi {
 
