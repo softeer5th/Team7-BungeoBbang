@@ -21,6 +21,7 @@ function StudentApp() {
         <Route path="/agenda/chat/:roomId" element={<AgendaChatPage />} />
         <Route path="/login/success" element={<LoginSuccess />} />
         <Route path="/opinion/entry" element={<OpinionEntryPage />} />
+        
       </Routes>
     </BrowserRouter>
   );
