@@ -4,8 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.bson.codecs.pojo.annotations.BsonProperty;
 
-import java.time.LocalDateTime;
-
 import static lombok.AccessLevel.PROTECTED;
 
 @AllArgsConstructor(access = PROTECTED)
@@ -25,7 +23,4 @@ public class AgendaChat {
 
     @BsonProperty("isAdmin")
     private boolean isAdmin;
-
-    @BsonProperty("createdAt")
-    private LocalDateTime createdAt;
 }
