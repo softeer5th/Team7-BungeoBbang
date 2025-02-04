@@ -26,6 +26,8 @@ export const TabBarItem: React.FC<TabBarItemProps & TabBarItemOnlyProps> = ({
   selected = false,
   onItemClick = () => {},
 }) => {
+  // console.log('title', title, itemId);
+
   return (
     <TabBarItemContainer
       $backgroundColor={selected ? selectedBackroundColor : backgroundColor}

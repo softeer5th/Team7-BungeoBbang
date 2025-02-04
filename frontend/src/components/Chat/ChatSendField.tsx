@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import styled from 'styled-components';
 import CameraIcon from '/src/assets/icons/camera.svg?react';
 import ArrowUpIcon from '/src/assets/icons/full-arrow-up.svg?react';
@@ -10,7 +10,7 @@ interface ChatSendFieldProps {
   placeholder?: string;
   disabledPlaceHolder?: string;
   maxLength?: number;
-  text?: string;
+  initialText?: string;
   backgroundColor?: string;
   textFieldBackgroundColor?: string;
   textFieldDisabledBackgroundColor?: string;
@@ -42,7 +42,7 @@ export const ChatSendField: React.FC<ChatSendFieldProps> = ({
   placeholder = '메시지를 입력하세요...',
   disabledPlaceHolder = '텍스트를 입력할 수 없습니다.',
   maxLength = 500,
-  text = '',
+  initialText = '',
   backgroundColor = '#FFFFFF',
   textFieldBackgroundColor = '#FFFFFF',
   textFieldDisabledBackgroundColor = '#F4F4F4',
@@ -74,6 +74,8 @@ export const ChatSendField: React.FC<ChatSendFieldProps> = ({
   textDisabled = false,
   sendDisabled = false,
 }) => {
+  const [message, setMessage] = useState(initialText);
+
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
 
   let maxTextInputHeight = 174;
@@ -86,6 +88,7 @@ export const ChatSendField: React.FC<ChatSendFieldProps> = ({
     if (newMessage.length >= maxLength) {
       newValue = newMessage.slice(0, maxLength);
     }
+    setMessage(newValue);
     onChange(newValue);
   };
 
@@ -102,8 +105,8 @@ export const ChatSendField: React.FC<ChatSendFieldProps> = ({
   };
 
   const handleSend = () => {
-    if (text.trim()) {
-      onSendMessage(text, images);
+    if (message.trim()) {
+      onSendMessage(message, images);
     }
   };
 
@@ -141,7 +144,7 @@ export const ChatSendField: React.FC<ChatSendFieldProps> = ({
 
       <TextFieldContainer>
         <CountText variant="caption2">
-          {textDisabled ? 0 : text.length}/{maxLength}
+          {textDisabled ? 0 : message.length}/{maxLength}
         </CountText>
         <TextFieldBox
           backgroundColor={
@@ -167,7 +170,7 @@ export const ChatSendField: React.FC<ChatSendFieldProps> = ({
               rows={1}
               ref={textAreaRef}
               variant="body3"
-              value={textDisabled ? '' : text}
+              value={textDisabled ? '' : message}
               textColor={textDisabled ? disabledTextColor : textColor}
               placeholder={textDisabled ? disabledPlaceHolder : placeholder}
               placeholderColor={textDisabled ? disabledPlaceholderColor : placeholderColor}
@@ -203,8 +206,6 @@ const ChatSendContainer = styled.div<{
   bcakgroundColor: string;
 }>`
   width: 100%;
-  position: sticky;
-  bottom: 0px;
   display: flex;
   align-items: flex-end;
   padding: 8px 16px 8px 16px;
