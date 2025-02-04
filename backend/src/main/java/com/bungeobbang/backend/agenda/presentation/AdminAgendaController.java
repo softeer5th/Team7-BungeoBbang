@@ -70,6 +70,7 @@ public class AdminAgendaController implements AdminAgendaApi {
         return ResponseEntity.noContent().build();
     }
 
+    @Override
     @GetMapping("/{agendaId}/chat")
     public ResponseEntity<List<AgendaChatResponse>> getAgendaChat(
             @AdminAuth Accessor accessor,
