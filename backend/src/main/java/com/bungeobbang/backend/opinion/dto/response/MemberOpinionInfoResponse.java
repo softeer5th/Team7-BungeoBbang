@@ -12,7 +12,11 @@ public record MemberOpinionInfoResponse(
         OpinionType opinionType,
         CategoryType categoryType,
         String lastChat,
-        LocalDateTime lastChatTime,
+        LocalDateTime lastChatCreatedAt,
         Boolean isNew
-) {
+) implements Comparable<MemberOpinionInfoResponse> {
+    @Override
+    public int compareTo(MemberOpinionInfoResponse o) {
+        return o.lastChatCreatedAt.compareTo(this.lastChatCreatedAt);
+    }
 }

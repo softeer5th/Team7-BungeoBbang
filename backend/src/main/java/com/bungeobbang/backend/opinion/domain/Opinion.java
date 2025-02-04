@@ -11,10 +11,8 @@ import static jakarta.persistence.EnumType.STRING;
 import static jakarta.persistence.GenerationType.IDENTITY;
 
 @Entity
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
-@Builder
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Opinion extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = IDENTITY)
@@ -42,7 +40,17 @@ public class Opinion extends BaseTimeEntity {
     @Column(name = "chat_count", nullable = false)
     private int chatCount;
 
-    public void editIsRemind(boolean isRemind) {
+    @Builder
+    public Opinion(University university, OpinionType opinionType, CategoryType categoryType, Member member, boolean isRemind, int chatCount) {
+        this.university = university;
+        this.opinionType = opinionType;
+        this.categoryType = categoryType;
+        this.member = member;
         this.isRemind = isRemind;
+        this.chatCount = chatCount;
+    }
+
+    public void setRemind() {
+        this.isRemind = true;
     }
 }

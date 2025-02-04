@@ -2,6 +2,7 @@ package com.bungeobbang.backend.opinion.presentation;
 
 import com.bungeobbang.backend.auth.domain.Accessor;
 import com.bungeobbang.backend.auth.member.Auth;
+import com.bungeobbang.backend.auth.member.MemberOnly;
 import com.bungeobbang.backend.opinion.dto.request.OpinionCreationRequest;
 import com.bungeobbang.backend.opinion.dto.response.MemberOpinionInfoListResponse;
 import com.bungeobbang.backend.opinion.dto.response.OpinionCreationResponse;
@@ -20,6 +21,7 @@ public class MemberOpinionController {
     private final OpinionService opinionService;
 
     @GetMapping()
+    @MemberOnly
     public ResponseEntity<OpinionStatisticsResponse> getOpinionStatistics(
             @Auth final Accessor accessor) {
         return ResponseEntity.ok()
@@ -27,6 +29,7 @@ public class MemberOpinionController {
     }
 
     @PostMapping()
+    @MemberOnly
     public ResponseEntity<OpinionCreationResponse> suggestOpinion(
             @RequestBody @Valid final OpinionCreationRequest creationRequest,
             @Auth final Accessor accessor) {
@@ -35,17 +38,19 @@ public class MemberOpinionController {
     }
 
     @PatchMapping("/{roomId}/remind")
+    @MemberOnly
     public ResponseEntity<Void> patchOpinionRemind(
-            @PathVariable @Valid final Long roomId) {
+            @PathVariable @Valid final Long roomId,
+            @Auth final Accessor accessor) {
         opinionService.remindOpinion(roomId);
         return ResponseEntity.ok().build();
     }
 
     @GetMapping("/my")
+    @MemberOnly
     public ResponseEntity<MemberOpinionInfoListResponse> getMemberOpinionList(
-            @RequestParam(defaultValue = "#{T(java.lang.Long).MAX_VALUE}") final Long cursor,
             @Auth final Accessor accessor) {
         return ResponseEntity.ok()
-                .body(opinionService.findMemberOpinionList(cursor, accessor.id()));
+                .body(opinionService.findMemberOpinionList(accessor.id()));
     }
 }

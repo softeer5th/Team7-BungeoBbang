@@ -21,7 +21,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * 말해요 서비스 로직을 처리하는 클래스.
@@ -50,12 +49,17 @@ public class OpinionService {
                 LocalDateTime.now().minusMonths(1L),
                 LocalDateTime.now(),
                 member.getUniversity().getId());
-        List<Long> opinionIds = opinions.stream()
+        final List<Long> opinionIds = opinions.stream()
                 .map(Opinion::getId)
                 .toList();
 
-        final List<OpinionChat> opinionChats = opinionChatRepository.findDistinctOpinionIdByIsAdminTrue(opinionIds);
-        return new OpinionStatisticsResponse(Long.valueOf(opinions.size()), Long.valueOf(opinionChats.size()));
+        final List<Long> opinionChats = opinionChatRepository.findDistinctOpinionIdByIsAdminTrue(opinionIds);
+
+        final int opinionCount = opinions.size();
+        final int responseCount = opinionChats.size();
+        final double rawRate = (double) responseCount / opinionCount;
+        final int adminResponseRate = (int) Math.round(rawRate * 100);
+        return new OpinionStatisticsResponse(opinionCount, adminResponseRate);
     }
 
     /**
@@ -63,7 +67,7 @@ public class OpinionService {
      *
      * @param creationRequest 의견 생성 요청 객체
      * @param memberId        학생 ID
-     * @return OpinionCreationResponse roomId(==opinionId)
+     * @return OpinionCreationResponse opinionId
      * @throws MemberException 학생 정보를 조회할 수 없는 경우 예외 발생
      */
     public OpinionCreationResponse createOpinion(
@@ -83,33 +87,26 @@ public class OpinionService {
     /**
      * 학생의 리마인드를 처리합니다.
      *
-     * @param roomId 채팅방ID(==opinionId)
+     * @param opinionId 채팅방ID(==opinionId)
      * @throws OpinionException 말해요 채팅방을 조회할 수 없는 경우 예외 발생
      */
     @Transactional
-    public void remindOpinion(final Long roomId) {
-        final Opinion opinion = opinionRepository.findById(roomId)
+    public void remindOpinion(final Long opinionId) {
+        final Opinion opinion = opinionRepository.findById(opinionId)
                 .orElseThrow(() -> new OpinionException(ErrorCode.INVALID_OPINION));
-        opinion.editIsRemind(true);
+        opinion.setRemind();
     }
 
     /**
      * 회원의 의견 목록을 조회합니다.
      *
-     * @param cursor   이전 응답에서 반환했던 cursor(== 이전 응답에서의 마지막 opinionId)
      * @param memberId 학생 ID
      * @return MemberOpinionListResponse 학생 본인이 만들었던 말해요 채팅방 정보 리스트
      */
-    public MemberOpinionInfoListResponse findMemberOpinionList(final Long cursor, final Long memberId) {
-        List<Opinion> opinions = opinionRepository.findRecentOpinionsByMemberIdAndCursor(memberId, cursor);
-
-        boolean hasNextPage = true;
-        Long nextCursor = -1L;
-        if (opinions.size() < 9) hasNextPage = false;
-        if (hasNextPage) nextCursor = opinions.get(8).getId();
-
-        List<MemberOpinionInfoResponse> opinionInfos = convertToMemberOpinionInfoList(opinions);
-        return new MemberOpinionInfoListResponse(opinionInfos, nextCursor, hasNextPage);
+    public MemberOpinionInfoListResponse findMemberOpinionList(final Long memberId) {
+        final List<Opinion> opinions = opinionRepository.findAllByMemberId(memberId);
+        final List<MemberOpinionInfoResponse> opinionInfos = convertToMemberOpinionInfoList(opinions);
+        return new MemberOpinionInfoListResponse(opinionInfos);
     }
 
     /**
@@ -119,7 +116,7 @@ public class OpinionService {
      * @param member          회원 객체
      * @return Opinion 생성된 의견 엔티티
      */
-    private Opinion createOpinionEntity(OpinionCreationRequest creationRequest, Member member) {
+    private Opinion createOpinionEntity(final OpinionCreationRequest creationRequest, final Member member) {
         final University university = member.getUniversity();
         return Opinion.builder()
                 .university(university)
@@ -138,7 +135,9 @@ public class OpinionService {
      * @param member          학생 객체
      * @param opinionId       말해요 채팅방 ID
      */
-    private void saveOpinionChat(OpinionCreationRequest creationRequest, Member member, Long opinionId) {
+    private void saveOpinionChat(final OpinionCreationRequest creationRequest,
+                                 final Member member,
+                                 final Long opinionId) {
         final OpinionChat opinionChat = OpinionChat.builder()
                 .memberId(member.getId())
                 .opinionId(opinionId)
@@ -155,15 +154,13 @@ public class OpinionService {
      * @param opinions Opinion 리스트
      * @return List<MemberOpinionInfo> 변환된 회원 의견 정보 리스트
      */
-    private List<MemberOpinionInfoResponse> convertToMemberOpinionInfoList(List<Opinion> opinions) {
+    private List<MemberOpinionInfoResponse> convertToMemberOpinionInfoList(final List<Opinion> opinions) {
         return opinions.stream()
                 .map(opinion -> {
                     log.debug("opinionId: {}", opinion.getId());
-
                     final OpinionLastRead opinionLastRead = opinionLastReadRepository.findByOpinionIdAndIsAdmin(opinion.getId(), false)
                             .orElseThrow(() -> new OpinionException(ErrorCode.INVALID_OPINION_LAST_READ));
                     log.debug("opinionLastReadChatId: {}", opinionLastRead.getLastReadChatId());
-
                     final OpinionChat lastChat = opinionChatRepository.findTopByOpinionIdOrderByCreatedAtDesc(opinion.getId())
                             .orElseThrow(() -> new OpinionException(ErrorCode.INVALID_OPINION_CHAT));
                     log.debug("lastChatId: " + lastChat.getId());
@@ -173,10 +170,11 @@ public class OpinionService {
                             .opinionType(opinion.getOpinionType())
                             .categoryType(opinion.getCategoryType())
                             .lastChat(lastChat.getChat())
-                            .lastChatTime(lastChat.getCreatedAt())
+                            .lastChatCreatedAt(lastChat.getCreatedAt())
                             .isNew(!opinionLastRead.getLastReadChatId().equals(lastChat.getId()))
                             .build();
                 })
-                .collect(Collectors.toList());
+                .sorted()
+                .toList();
     }
 }
