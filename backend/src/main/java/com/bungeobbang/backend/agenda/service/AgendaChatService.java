@@ -1,7 +1,10 @@
 package com.bungeobbang.backend.agenda.service;
 
 import com.bungeobbang.backend.agenda.domain.repository.AgendaChatRepository;
+import com.bungeobbang.backend.agenda.domain.repository.AgendaMemberRepository;
 import com.bungeobbang.backend.agenda.dto.response.AgendaChatResponse;
+import com.bungeobbang.backend.common.exception.AgendaException;
+import com.bungeobbang.backend.common.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
 import org.springframework.data.domain.PageRequest;
@@ -18,6 +21,7 @@ import java.util.List;
 public class AgendaChatService {
     private final int CHAT_SIZE = 10;
     private final AgendaChatRepository agendaChatRepository;
+    private final AgendaMemberRepository agendaMemberRepository;
 
     /**
      * ✅ 답해요 채팅 내역 조회 (무한 스크롤 방식)
@@ -30,6 +34,9 @@ public class AgendaChatService {
      */
     public List<AgendaChatResponse> getChats(Long memberId, Long agendaId, ObjectId chatId) {
         Pageable pageable = PageRequest.of(0, CHAT_SIZE);
+        if (!agendaMemberRepository.existsByMemberIdAndAgendaId(memberId, agendaId)) {
+            throw new AgendaException(ErrorCode.NOT_PARTICIPATED);
+        }
 
         if (chatId == null) {
             return agendaChatRepository.findChatsByAgendaIdAndMemberId(agendaId, memberId, pageable)
