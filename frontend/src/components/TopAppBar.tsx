@@ -28,11 +28,19 @@ export const TopAppBar: React.FC<TopAppBarProps> = ({
   border,
 }) => {
   const LeftIcon = useMemo(() => {
-    return React.lazy(() => import(`${leftIconSrc}?react`));
+    if (leftIconSrc) {
+      return React.lazy(() => /* @vite-ignore */ import(`${leftIconSrc}?react`));
+    } else {
+      return null;
+    }
   }, [leftIconSrc]);
 
   const RightIcon = useMemo(() => {
-    return React.lazy(() => import(`${rightIconSrc}?react`));
+    if (rightIconSrc) {
+      return React.lazy(() => /* @vite-ignore */ import(`${rightIconSrc}?react`));
+    } else {
+      return null;
+    }
   }, [rightIconSrc]);
 
   return (

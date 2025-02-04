@@ -8,7 +8,11 @@ interface CategoryStepProps {
   selectedOpinion: string;
 }
 
-export const CategoryStep = ({ categories, onCategorySelect, selectedOpinion }: CategoryStepProps) => {
+export const CategoryStep = ({
+  categories,
+  onCategorySelect,
+  selectedOpinion,
+}: CategoryStepProps) => {
   return (
     <S.Content>
       <S.TitleWrapper>
@@ -37,4 +41,4 @@ export const CategoryStep = ({ categories, onCategorySelect, selectedOpinion }: 
       </S.ChipListWrapper>
     </S.Content>
   );
-}; 
+};

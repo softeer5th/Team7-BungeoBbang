@@ -95,7 +95,7 @@ const OpinionCategoryPage: React.FC = () => {
       {currentStep}
 
       <ChatSendField
-        text={message}
+        initialText={message}
         onChange={setMessage}
         onSendMessage={handleSendMessage}
         images={images}

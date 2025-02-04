@@ -11,7 +11,7 @@ interface MoreChatButtonProps {
 const MoreChatButton = ({ text, iconSrc, onClick }: MoreChatButtonProps) => {
   const theme = useTheme();
   const Icon = useMemo(() => {
-    return React.lazy(() => import(`${iconSrc}?react`));
+    return React.lazy(() => /* @vite-ignore */ import(`${iconSrc}?react`));
   }, [iconSrc]);
 
   return (
