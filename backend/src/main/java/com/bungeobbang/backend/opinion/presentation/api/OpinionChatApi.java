@@ -37,9 +37,9 @@ public interface OpinionChatApi {
     )
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "채팅 조회 성공", content = @Content(schema = @Schema(implementation = OpinionChatResponse.class))),
-            @ApiResponse(responseCode = "400", description = "잘못된 요청 데이터"),
-            @ApiResponse(responseCode = "401", description = "인증되지 않은 사용자", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-            @ApiResponse(responseCode = "500", description = "서버 오류", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+            @ApiResponse(responseCode = "400", description = "잘못된 요청 데이터", content = @Content),
+            @ApiResponse(responseCode = "401", description = "인증되지 않은 사용자", content = @Content),
+            @ApiResponse(responseCode = "500", description = "서버 오류", content = @Content)
     })
     @GetMapping("/{opinionId}")
     ResponseEntity<List<OpinionChatResponse>> getOpinionChat(

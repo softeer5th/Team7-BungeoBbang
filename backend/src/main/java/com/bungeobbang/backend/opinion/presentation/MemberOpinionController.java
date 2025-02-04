@@ -7,6 +7,7 @@ import com.bungeobbang.backend.opinion.dto.request.OpinionCreationRequest;
 import com.bungeobbang.backend.opinion.dto.response.MemberOpinionsInfoResponse;
 import com.bungeobbang.backend.opinion.dto.response.OpinionCreationResponse;
 import com.bungeobbang.backend.opinion.dto.response.OpinionStatisticsResponse;
+import com.bungeobbang.backend.opinion.presentation.api.MemberOpinionApi;
 import com.bungeobbang.backend.opinion.service.MemberOpinionService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +19,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/student/opinions")
-public class MemberOpinionController {
+public class MemberOpinionController implements MemberOpinionApi {
 
     private final MemberOpinionService memberOpinionService;
 
