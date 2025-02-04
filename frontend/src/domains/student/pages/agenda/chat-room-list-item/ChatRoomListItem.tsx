@@ -1,14 +1,14 @@
 import { ChatListCardData } from '../ChatRoomListCardData.tsx';
 import * as S from './styles.ts';
 
-interface ChatRoomListItemProps{
-  room : ChatListCardData;
+interface ChatRoomListItemProps {
+  room: ChatListCardData;
   onCardClick: () => void;
-};
+}
 
-export const ChatRoomListItem = ({ room , onCardClick = () => {}}: ChatRoomListItemProps) => {
+export const ChatRoomListItem = ({ room, onCardClick = () => {} }: ChatRoomListItemProps) => {
   return (
-    <S.ChatRoomListItem key={room.roomId} onClick = {() => onCardClick()}>
+    <S.ChatRoomListItem key={room.roomId} onClick={() => onCardClick()}>
       <S.DDayTextContainer>
         <S.DDayText variant="heading2" isInProgress={room.isInProgress}>
           {room.dday}

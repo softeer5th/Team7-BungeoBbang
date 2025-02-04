@@ -21,7 +21,7 @@ export interface InfoChatData extends Chat {
   message: string;
 }
 
-export interface MoreChatData extends Chat{
+export interface MoreChatData extends Chat {
   text: string;
   iconSrc: string;
   onMoreClick: () => void;
