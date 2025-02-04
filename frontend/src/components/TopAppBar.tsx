@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import React from 'react';
+import React, { useMemo } from 'react';
 import { BorderProps } from './BorderProps';
 import { IconLoadingBox } from './IconLoadingBox';
 import Typography from '../styles/Typography';
@@ -27,8 +27,13 @@ export const TopAppBar: React.FC<TopAppBarProps> = ({
   titleColor,
   border,
 }) => {
-  const LeftIcon = leftIconSrc ? React.lazy(() => import(`${leftIconSrc}?react`)) : null;
-  const RightIcon = rightIconSrc ? React.lazy(() => import(`${rightIconSrc}?react`)) : null;
+  const LeftIcon = useMemo(() => {
+    return React.lazy(() => import(`${leftIconSrc}?react`));
+  }, [leftIconSrc]);
+
+  const RightIcon = useMemo(() => {
+    return React.lazy(() => import(`${rightIconSrc}?react`));
+  }, [rightIconSrc]);
 
   return (
     <TopAppBarContainer backgroundColor={backgroundColor} border={border}>

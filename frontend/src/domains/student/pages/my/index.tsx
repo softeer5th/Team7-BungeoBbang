@@ -9,7 +9,7 @@ import { TabBar } from '@/components/tab-bar/TabBar';
 import { TabBarItemProps } from '@/components/tab-bar/TabBarItem';
 import EmptyIcon from '/src/assets/imgs/message.png';
 import { ChatOpinionType, ChatCategoryType, ChatPreviewData } from './ChatPreviewData';
-import { ChatPreviewItem } from './\bchat-preview/ChatPreviewItem';
+import { ChatPreviewItem } from './chat-preview/ChatPreviewItem.tsx';
 
 const MyPage = () => {
   const theme = useTheme();
