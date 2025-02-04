@@ -16,12 +16,13 @@ import java.util.List;
 @RequiredArgsConstructor
 public class OpinionService {
 
-    public static final String MIN_OBJECT_ID = "000000000000000000000000";
+    public static final String MAX_OBJECT_ID = "ffffffffffffffffffffffff";
+
     private final OpinionChatRepository opinionChatRepository;
 
 
     public List<OpinionChatResponse> findOpinionChat(Long opinionId, ObjectId lastChatId, Accessor accessor) {
-        if (lastChatId == null) lastChatId = new ObjectId(MIN_OBJECT_ID);
+        if (lastChatId == null) lastChatId = new ObjectId(MAX_OBJECT_ID);
 
         return opinionChatRepository.findByOpinionIdAndLastChatId(opinionId, lastChatId)
                 .stream()

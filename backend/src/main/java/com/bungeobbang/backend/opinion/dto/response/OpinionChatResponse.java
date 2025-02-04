@@ -1,6 +1,8 @@
 package com.bungeobbang.backend.opinion.dto.response;
 
+import com.bungeobbang.backend.common.infrastructure.ObjectIdToStringSerializer;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.Builder;
 import org.bson.types.ObjectId;
 
@@ -9,6 +11,7 @@ import java.util.List;
 
 @Builder
 public record OpinionChatResponse(
+        @JsonSerialize(using = ObjectIdToStringSerializer.class)
         ObjectId chatId,
         Long memberId,
         Long opinionId,
