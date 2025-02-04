@@ -1,15 +1,13 @@
 package com.bungeobbang.backend.opinion.service;
 
 import com.bungeobbang.backend.auth.domain.Accessor;
+import com.bungeobbang.backend.common.util.ObjectIdTimestampConverter;
 import com.bungeobbang.backend.opinion.domain.repository.OpinionChatRepository;
 import com.bungeobbang.backend.opinion.dto.response.OpinionChatResponse;
 import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
 import org.springframework.stereotype.Service;
 
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.List;
 
 @Service
@@ -19,7 +17,6 @@ public class OpinionService {
     public static final String MAX_OBJECT_ID = "ffffffffffffffffffffffff";
 
     private final OpinionChatRepository opinionChatRepository;
-
 
     public List<OpinionChatResponse> findOpinionChat(Long opinionId, ObjectId lastChatId, Accessor accessor) {
         if (lastChatId == null) lastChatId = new ObjectId(MAX_OBJECT_ID);
@@ -33,10 +30,7 @@ public class OpinionService {
                         opinionChat.getChat(),
                         opinionChat.isAdmin(),
                         opinionChat.getImages(),
-                        LocalDateTime.ofInstant(
-                                Instant.ofEpochSecond(opinionChat.getId().getTimestamp()),
-                                ZoneId.of("Asia/Seoul") // 한국 시간으로 변환
-                        )
+                        ObjectIdTimestampConverter.getLocalDateTimeFromObjectId(opinionChat.getId())
                 ))
                 .toList();
     }

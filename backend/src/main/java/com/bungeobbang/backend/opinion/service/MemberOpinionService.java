@@ -3,6 +3,7 @@ package com.bungeobbang.backend.opinion.service;
 import com.bungeobbang.backend.common.exception.ErrorCode;
 import com.bungeobbang.backend.common.exception.MemberException;
 import com.bungeobbang.backend.common.exception.OpinionException;
+import com.bungeobbang.backend.common.util.ObjectIdTimestampConverter;
 import com.bungeobbang.backend.member.domain.Member;
 import com.bungeobbang.backend.member.domain.repository.MemberRepository;
 import com.bungeobbang.backend.opinion.domain.Opinion;
@@ -21,9 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Instant;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.List;
 
 /**
@@ -170,9 +169,7 @@ public class MemberOpinionService {
                             .categoryType(opinion.getCategoryType())
                             .lastChatId(lastChat.getId())
                             .lastChat(lastChat.getChat())
-                            .lastChatCreatedAt(LocalDateTime.ofInstant(
-                                    Instant.ofEpochSecond(lastChat.getId().getTimestamp()),
-                                    ZoneId.of("Asia/Seoul")))
+                            .lastChatCreatedAt(ObjectIdTimestampConverter.getLocalDateTimeFromObjectId(lastChat.getId()))
                             .hasNewChat(!opinionLastRead.getLastReadChatId().equals(lastChat.getId()))
                             .build();
                 })

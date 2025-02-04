@@ -3,6 +3,7 @@ package com.bungeobbang.backend.opinion.service;
 import com.bungeobbang.backend.common.exception.ErrorCode;
 import com.bungeobbang.backend.common.exception.OpinionException;
 import com.bungeobbang.backend.common.type.CategoryType;
+import com.bungeobbang.backend.common.util.ObjectIdTimestampConverter;
 import com.bungeobbang.backend.opinion.domain.Opinion;
 import com.bungeobbang.backend.opinion.domain.OpinionChat;
 import com.bungeobbang.backend.opinion.domain.OpinionLastRead;
@@ -81,9 +82,7 @@ public class AdminOpinionService {
                             .categoryType(opinion.getCategoryType()) // 카테고리 타입
                             .lastChatId(lastChat.getId()) // 마지막 채팅 ID -> 정렬하기 위함.
                             .lastChat(lastChat.getChat()) // 최신 채팅 내용
-                            .lastChatCreatedAt(LocalDateTime.ofInstant(
-                                            Instant.ofEpochSecond(lastChat.getId().getTimestamp()),
-                                            ZoneId.of("Asia/Seoul"))) // 최신 채팅 생성 시간
+                            .lastChatCreatedAt(ObjectIdTimestampConverter.getLocalDateTimeFromObjectId(lastChat.getId())) // 최신 채팅 생성 시간
                             .hasNewChat(!opinionLastRead.getLastReadChatId().equals(lastChat.getId())) // 새로운 채팅 여부
                             .isRemind(opinion.isRemind()) // 리마인드 여부
                             .build();
