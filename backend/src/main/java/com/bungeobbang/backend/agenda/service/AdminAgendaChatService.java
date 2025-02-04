@@ -22,7 +22,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class AdminAgendaChatService {
-    private final int CHAT_SIZE = 10;
+    private static final int CHAT_SIZE = 10;
     private final AgendaChatRepository agendaChatRepository;
 
     /**
@@ -34,7 +34,8 @@ public class AdminAgendaChatService {
      *                 - `chatId`가 존재하면 해당 ID 이전의 데이터 10개 조회
      * @return `AgendaChatResponse` 리스트 (최대 10개)
      */
-    public List<AgendaChatResponse> getChats(Long memberId, Long agendaId, ObjectId chatId) {
+    public List<AgendaChatResponse> getChats(Long adminId, Long agendaId, ObjectId chatId) {
+
         Pageable pageable = PageRequest.of(0, CHAT_SIZE);
 
         // ✅ 최신 채팅 10개 조회 (첫 페이지)
