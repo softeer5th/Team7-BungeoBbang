@@ -4,8 +4,8 @@ import com.bungeobbang.backend.agenda.domain.repository.CustomAgendaChatReposito
 import com.bungeobbang.backend.agenda.dto.response.LastChat;
 import com.bungeobbang.backend.agenda.dto.response.LastReadChat;
 import lombok.RequiredArgsConstructor;
+import org.bson.Document;
 import org.bson.types.ObjectId;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.*;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -63,19 +63,30 @@ public class CustomAgendaChatRepositoryImpl implements CustomAgendaChatRepositor
                 .and("lastChat.chat").as("content")
                 .and("lastChat.createdAt").as("createdAt");
 
-        // 최종 정렬 - lastChat._id 기준 정렬
-        SortOperation finalSortStage = Aggregation.sort(Sort.Direction.DESC, "chatId");
-
         // Aggregation 실행
         Aggregation aggregation = Aggregation.newAggregation(
                 matchStage,
                 sortStage,
                 groupStage,
-                projectStage,
-                finalSortStage
+                projectStage
         );
+        final Document plan = getAggregationExecutionPlan(AGENDA_COLLECTION, aggregation);
+        System.out.println(plan.toJson());
 
         return mongoTemplate.aggregate(aggregation, AGENDA_COLLECTION, LastChat.class).getMappedResults();
+    }
+
+    public Document getAggregationExecutionPlan(String collectionName, Aggregation aggregation) {
+        // Aggregation 파이프라인을 BSON 문서로 변환
+        List<Document> pipeline = aggregation.toPipeline(Aggregation.DEFAULT_CONTEXT);
+
+        // 실행 계획을 요청하는 명령어 생성
+        Document command = new Document("aggregate", collectionName)
+                .append("pipeline", pipeline)
+                .append("explain", true);  // 실행 계획 조회 활성화
+
+        // MongoDB 실행
+        return mongoTemplate.getDb().runCommand(command);
     }
 
     @Override

@@ -17,7 +17,7 @@ public class AgendaMember {
     @GeneratedValue(strategy = IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "agenda_id")
     private Agenda agenda;
 
