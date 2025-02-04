@@ -14,6 +14,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Set;
 
@@ -69,16 +72,19 @@ public class AdminOpinionService {
                     final OpinionLastRead opinionLastRead = opinionLastReadRepository.findByOpinionIdAndIsAdmin(opinion.getId(), true)
                             .orElseThrow(() -> new OpinionException(ErrorCode.INVALID_OPINION_LAST_READ));
                     // 최신 채팅 정보 조회
-                    final OpinionChat lastChat = opinionChatRepository.findTopByOpinionIdOrderByCreatedAtDesc(opinion.getId())
+                    final OpinionChat lastChat = opinionChatRepository.findTopByOpinionIdOrderByIdDesc(opinion.getId())
                             .orElseThrow(() -> new OpinionException(ErrorCode.INVALID_OPINION_CHAT));
                     // 응답 객체 생성
                     return AdminOpinionInfoResponse.builder()
                             .opinionId(opinion.getId()) // 말해요 채팅방 ID
                             .opinionType(opinion.getOpinionType()) // 말해요 타입
                             .categoryType(opinion.getCategoryType()) // 카테고리 타입
+                            .lastChatId(lastChat.getId()) // 마지막 채팅 ID -> 정렬하기 위함.
                             .lastChat(lastChat.getChat()) // 최신 채팅 내용
-                            .lastChatCreatedAt(lastChat.getCreatedAt()) // 최신 채팅 생성 시간
-                            .isNew(!opinionLastRead.getLastReadChatId().equals(lastChat.getId())) // 새로운 채팅 여부
+                            .lastChatCreatedAt(LocalDateTime.ofInstant(
+                                            Instant.ofEpochSecond(lastChat.getId().getTimestamp()),
+                                            ZoneId.of("Asia/Seoul"))) // 최신 채팅 생성 시간
+                            .hasNewChat(!opinionLastRead.getLastReadChatId().equals(lastChat.getId())) // 새로운 채팅 여부
                             .isRemind(opinion.isRemind()) // 리마인드 여부
                             .build();
                 })
