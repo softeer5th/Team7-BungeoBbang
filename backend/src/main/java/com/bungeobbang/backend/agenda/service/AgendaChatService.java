@@ -19,7 +19,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class AgendaChatService {
-    private final int CHAT_SIZE = 10;
+    private final static int CHAT_SIZE = 10;
     private final AgendaChatRepository agendaChatRepository;
     private final AgendaMemberRepository agendaMemberRepository;
 
