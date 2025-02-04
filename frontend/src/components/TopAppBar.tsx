@@ -1,8 +1,17 @@
 import styled from 'styled-components';
-import React, { useMemo } from 'react';
+import React from 'react';
 import { BorderProps } from './BorderProps';
-import { IconLoadingBox } from './IconLoadingBox';
 import Typography from '../styles/Typography';
+
+import ArrowLeftIcon from '/src/assets/icons/arrow-left.svg?react';
+import LogoIcon from '/src/assets/icons/logo.svg?react';
+import LogoutIcon from '/src/assets/icons/logout.svg?react';
+
+const IconComponents: { [key: string]: React.FC<React.SVGProps<SVGSVGElement>> } = {
+  '/src/assets/icons/arrow-left.svg': ArrowLeftIcon,
+  '/src/assets/icons/logo.svg': LogoIcon,
+  '/src/assets/icons/logout.svg': LogoutIcon,
+};
 
 interface TopAppBarProps {
   leftIconSrc?: string;
@@ -27,34 +36,19 @@ export const TopAppBar: React.FC<TopAppBarProps> = ({
   titleColor,
   border,
 }) => {
-  const LeftIcon = useMemo(() => {
-    if (leftIconSrc) {
-      return React.lazy(() => /* @vite-ignore */ import(`${leftIconSrc}?react`));
-    } else {
-      return null;
-    }
-  }, [leftIconSrc]);
-
-  const RightIcon = useMemo(() => {
-    if (rightIconSrc) {
-      return React.lazy(() => /* @vite-ignore */ import(`${rightIconSrc}?react`));
-    } else {
-      return null;
-    }
-  }, [rightIconSrc]);
+  const LeftIconComponent = leftIconSrc ? IconComponents[leftIconSrc] : null;
+  const RightIconComponent = rightIconSrc ? IconComponents[rightIconSrc] : null;
 
   return (
     <TopAppBarContainer backgroundColor={backgroundColor} border={border}>
-      {LeftIcon && (
-        <React.Suspense fallback={<IconLoadingBox width="24px" height="24px" />}>
-          <IconWrapper onClick={onLeftIconClick}>
-            <LeftIcon
-              height="24px"
-              stroke={titleColor ?? foregroundColor}
-              fill={titleColor ?? foregroundColor}
-            />
-          </IconWrapper>
-        </React.Suspense>
+      {LeftIconComponent && (
+        <IconWrapper onClick={onLeftIconClick}>
+          <LeftIconComponent
+            height="24px"
+            stroke={titleColor ?? foregroundColor}
+            fill={titleColor ?? foregroundColor}
+          />
+        </IconWrapper>
       )}
 
       <TitleText
@@ -65,12 +59,15 @@ export const TopAppBar: React.FC<TopAppBarProps> = ({
         {title}
       </TitleText>
 
-      {RightIcon && (
-        <React.Suspense fallback={<IconLoadingBox width="24px" height="24px" />}>
-          <IconWrapper onClick={onRightIconClick}>
-            <RightIcon width="24px" height="24px" stroke={foregroundColor} fill={foregroundColor} />
-          </IconWrapper>
-        </React.Suspense>
+      {RightIconComponent && (
+        <IconWrapper onClick={onRightIconClick}>
+          <RightIconComponent
+            width="24px"
+            height="24px"
+            stroke={foregroundColor}
+            fill={foregroundColor}
+          />
+        </IconWrapper>
       )}
     </TopAppBarContainer>
   );
