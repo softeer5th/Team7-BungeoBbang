@@ -1,6 +1,7 @@
 package com.bungeobbang.backend.agenda.presentation;
 
 import com.bungeobbang.backend.agenda.dto.response.AgendaResponse;
+import com.bungeobbang.backend.agenda.dto.response.MyAgendaResponse;
 import com.bungeobbang.backend.agenda.service.AgendaService;
 import com.bungeobbang.backend.agenda.status.AgendaStatusType;
 import com.bungeobbang.backend.auth.domain.Accessor;
@@ -33,6 +34,13 @@ public class AgendaController {
             @RequestParam(required = false) LocalDate endDate,
             @RequestParam(required = false) Long agendaId) {
         return ResponseEntity.ok(agendaService.getAgendasByStatus(accessor.id(), status, endDate, agendaId));
+    }
+
+    @GetMapping("/my")
+    public ResponseEntity<List<MyAgendaResponse>> getMyAgendas(
+            @Auth Accessor accessor
+    ) {
+        return ResponseEntity.ok(agendaService.getMyAgenda(accessor.id()));
     }
 
     @DeleteMapping("/{agendaId}")
