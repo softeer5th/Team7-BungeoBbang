@@ -21,7 +21,7 @@ const AgendaPage = () => {
     {
       roomId: '1',
       dday: 'D-2',
-      iconSrc: '/src/assets/icons/school.svg',
+      iconSrc: '/assets/icons/school.svg',
       iconBackgroundColor: theme?.colors.icnGreen,
       title: '2025학년도 1학기 수강 신청 수요 조사',
       numOfJoin: 0,
@@ -30,7 +30,7 @@ const AgendaPage = () => {
     {
       roomId: '11',
       dday: 'D-2',
-      iconSrc: '/src/assets/icons/school.svg',
+      iconSrc: '/assets/icons/school.svg',
       iconBackgroundColor: theme?.colors.icnGreen,
       title: '2025학년도 1학기 수강 신청 수요 조사',
       numOfJoin: 0,
@@ -39,7 +39,7 @@ const AgendaPage = () => {
     {
       roomId: '12',
       dday: 'D-2',
-      iconSrc: '/src/assets/icons/school.svg',
+      iconSrc: '/assets/icons/school.svg',
       iconBackgroundColor: theme?.colors.icnGreen,
       title: '2025학년도 1학기 수강 신청 수요 조사',
       numOfJoin: 0,
@@ -48,7 +48,7 @@ const AgendaPage = () => {
     {
       roomId: '2',
       dday: 'D-7',
-      iconSrc: '/src/assets/icons/school.svg',
+      iconSrc: '/assets/icons/school.svg',
       iconBackgroundColor: theme.colors.icnGreen,
       title: '2025학년도 1학기 수강 신청 수요 조사',
       numOfJoin: 0,
@@ -57,7 +57,7 @@ const AgendaPage = () => {
     {
       roomId: '3',
       dday: 'D+2',
-      iconSrc: '/src/assets/icons/school.svg',
+      iconSrc: '/assets/icons/school.svg',
       iconBackgroundColor: theme.colors.icnGreen,
       title: '2025학년도 1학기 수강 신청 수요 조사',
       numOfJoin: 2,
@@ -66,7 +66,7 @@ const AgendaPage = () => {
     {
       roomId: '4',
       dday: 'D+2',
-      iconSrc: '/src/assets/icons/school.svg',
+      iconSrc: '/assets/icons/school.svg',
       iconBackgroundColor: theme.colors.icnGreen,
       title: '2025학년도 1학기 수강 신청 수요 조사',
       numOfJoin: 5,
@@ -75,7 +75,7 @@ const AgendaPage = () => {
     {
       roomId: '5',
       dday: 'D+2',
-      iconSrc: '/src/assets/icons/school.svg',
+      iconSrc: '/assets/icons/school.svg',
       iconBackgroundColor: theme.colors.icnGreen,
       title: '2025학년도 1학기 수강 신청 수요 조사',
       numOfJoin: 21,
@@ -90,17 +90,17 @@ const AgendaPage = () => {
   const bottomItems: BottomNavigationItemProps[] = [
     {
       itemId: 'agenda',
-      iconSrc: '/src/assets/icons/message.svg',
+      iconSrc: '/assets/icons/message.svg',
       title: '답해요',
     },
     {
       itemId: 'opinion',
-      iconSrc: '/src/assets/icons/home.svg',
+      iconSrc: '/assets/icons/home.svg',
       title: '말해요',
     },
     {
       itemId: 'my',
-      iconSrc: '/src/assets/icons/profile.svg',
+      iconSrc: '/assets/icons/profile.svg',
       title: '내 의견',
     },
   ];
@@ -108,8 +108,8 @@ const AgendaPage = () => {
   return (
     <S.Container>
       <TopAppBar
-        leftIconSrc="/src/assets/icons/logo.svg"
-        rightIconSrc="/src/assets/icons/logout.svg"
+        leftIconSrc="/assets/icons/logo.svg"
+        rightIconSrc="/assets/icons/logout.svg"
         titleColor={theme.colors.sementicMain}
         backgroundColor={theme.colors.grayScale10}
         onRightIconClick={() => {}}
