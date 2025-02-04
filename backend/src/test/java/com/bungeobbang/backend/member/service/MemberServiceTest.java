@@ -76,7 +76,7 @@ class MemberServiceTest {
         when(memberRepository.findById(Mockito.anyLong()))
                 .thenReturn(Optional.of(member));
         when(universityRepository.findById(Mockito.anyLong()))
-                .thenReturn(Optional.of(new University("테스트 대학교", "test.ac.kr")));
+                .thenReturn(Optional.of(new University(1L, "테스트 대학교", "test.ac.kr")));
 
         memberService.updateUniversityInfo(request);
     }
@@ -90,7 +90,7 @@ class MemberServiceTest {
         when(memberRepository.findById(Mockito.anyLong()))
                 .thenReturn(Optional.of(member));
         when(universityRepository.findById(Mockito.anyLong()))
-                .thenReturn(Optional.of(new University("테스트 대학교", "test.ac.kr")));
+                .thenReturn(Optional.of(new University(1L, "테스트 대학교", "test.ac.kr")));
 
         // when & then
         assertThatThrownBy(() -> memberService.updateUniversityInfo(request))
