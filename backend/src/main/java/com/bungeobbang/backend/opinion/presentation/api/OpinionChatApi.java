@@ -5,6 +5,7 @@ import com.bungeobbang.backend.auth.member.Auth;
 import com.bungeobbang.backend.common.exception.response.ErrorResponse;
 import com.bungeobbang.backend.opinion.dto.response.OpinionChatResponse;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -13,20 +14,20 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.bson.types.ObjectId;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @Tag(name = "말해요 채팅 API", description = "말해요 채팅방의 채팅 내역을 관리하는 API")
-@RequestMapping("/api/opinions")
+@RequestMapping("/api/opinion")
 public interface OpinionChatApi {
 
     @Operation(
             summary = "말해요 채팅 내역 조회",
-            description = "특정 말해요 채팅방(opinionId)에 대한 채팅 내역을 조회합니다."
+            description = """
+                    특정 말해요 채팅방(opinionId)의 채팅 내역을 조회합니다. 
+                    - `lastChatId`를 전달하면 해당 채팅 시점 이후의 메시지를 가져옵니다.
+                    """
     )
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "채팅 조회 성공", content = @Content(schema = @Schema(implementation = OpinionChatResponse.class))),
@@ -36,8 +37,13 @@ public interface OpinionChatApi {
     })
     @GetMapping("/{opinionId}")
     ResponseEntity<List<OpinionChatResponse>> getOpinionChat(
+            @Parameter(description = "조회할 말해요 ID", example = "2")
             @PathVariable @Valid Long opinionId,
+
+            @Parameter(description = "마지막으로 본 채팅 ID (선택 사항, 없으면 최신 메시지부터 조회)", example = "65a3f8e2b93e4c23dc8e3a90")
             @RequestParam(required = false) ObjectId lastChatId,
+
+            @Parameter(description = "사용자 인증 정보", hidden = true)
             @Auth Accessor accessor
     );
 }
