@@ -67,6 +67,11 @@ public class AgendaService {
             throw new AgendaException(ErrorCode.FORBIDDEN_UNIVERSITY_ACCESS);
         }
 
+        if (agendaMemberRepository.existsByMemberIdAndAgendaId(memberId, agendaId)) {
+            throw new AgendaException(ErrorCode.ALREADY_PARTICIPATED);
+        }
+
+
         agendaMemberRepository.save(AgendaMember.builder()
                 .agenda(agenda)
                 .member(member)

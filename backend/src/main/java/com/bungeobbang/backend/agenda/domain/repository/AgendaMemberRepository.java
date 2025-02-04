@@ -9,6 +9,7 @@ import java.util.List;
 
 @Repository
 public interface AgendaMemberRepository extends JpaRepository<AgendaMember, Long> {
+    boolean existsByMemberIdAndAgendaId(Long memberId, Long agendaId);
     void deleteByMemberIdAndAgendaId(Long memberId, Long agendaId);
 
     List<AgendaMember> findAllByMember(Member member);
