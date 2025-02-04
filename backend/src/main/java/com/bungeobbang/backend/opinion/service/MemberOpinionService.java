@@ -163,15 +163,7 @@ public class MemberOpinionService {
                             .orElseThrow(() -> new OpinionException(ErrorCode.INVALID_OPINION_LAST_READ));
                     final OpinionChat lastChat = opinionChatRepository.findTopByOpinionIdOrderByIdDesc(opinion.getId())
                             .orElseThrow(() -> new OpinionException(ErrorCode.INVALID_OPINION_CHAT));
-                    return MemberOpinionInfoResponse.builder()
-                            .opinionId(opinion.getId())
-                            .opinionType(opinion.getOpinionType())
-                            .categoryType(opinion.getCategoryType())
-                            .lastChatId(lastChat.getId())
-                            .lastChat(lastChat.getChat())
-                            .lastChatCreatedAt(ObjectIdTimestampConverter.getLocalDateTimeFromObjectId(lastChat.getId()))
-                            .hasNewChat(!opinionLastRead.getLastReadChatId().equals(lastChat.getId()))
-                            .build();
+                    return MemberOpinionInfoResponse.of(opinion, lastChat, opinionLastRead);
                 })
                 .sorted()
                 .toList();

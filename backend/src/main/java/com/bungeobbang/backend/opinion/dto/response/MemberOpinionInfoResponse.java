@@ -1,29 +1,50 @@
 package com.bungeobbang.backend.opinion.dto.response;
 
 import com.bungeobbang.backend.common.type.CategoryType;
-import com.bungeobbang.backend.common.util.ObjectIdSerializer;
+import com.bungeobbang.backend.common.util.ObjectIdTimestampConverter;
+import com.bungeobbang.backend.opinion.domain.Opinion;
+import com.bungeobbang.backend.opinion.domain.OpinionChat;
+import com.bungeobbang.backend.opinion.domain.OpinionLastRead;
 import com.bungeobbang.backend.opinion.domain.OpinionType;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import lombok.Builder;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.bson.types.ObjectId;
 
 import java.time.LocalDateTime;
 
-@Builder
+
 public record MemberOpinionInfoResponse(
-        Long opinionId,
-        OpinionType opinionType,
-        CategoryType categoryType,
-        @JsonSerialize(using = ObjectIdSerializer.class)
-        ObjectId lastChatId,
-        String lastChat,
-        @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-        LocalDateTime lastChatCreatedAt,
-        Boolean hasNewChat
+        OpinionInfo opinion,
+        OpinionLastChatInfo lastChat,
+        boolean hasNewChat
 ) implements Comparable<MemberOpinionInfoResponse> {
+
+    public static MemberOpinionInfoResponse of(Opinion opinion, OpinionChat lastChat, OpinionLastRead lastRead) {
+        return new MemberOpinionInfoResponse(
+                new OpinionInfo(opinion.getId(), opinion.getOpinionType(), opinion.getCategoryType()),
+                new OpinionLastChatInfo(lastChat.getId(), lastChat.getChat(), ObjectIdTimestampConverter.getLocalDateTimeFromObjectId(lastChat.getId())),
+                !lastRead.getLastReadChatId().equals(lastChat.getId())
+        );
+    }
+
+    private record OpinionInfo(
+            Long id,
+            OpinionType opinionType,
+            CategoryType categoryType
+    ) {
+    }
+
+    private record OpinionLastChatInfo(
+            @JsonIgnore
+            ObjectId chatId,
+            String content,
+            @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+            LocalDateTime createdAt
+    ){
+    }
+
     @Override
     public int compareTo(MemberOpinionInfoResponse o) {
-        return o.lastChatId.compareTo(this.lastChatId);
+        return o.lastChat.chatId().compareTo(this.lastChat.chatId());
     }
 }
