@@ -12,7 +12,9 @@ import com.bungeobbang.backend.opinion.domain.repository.OpinionChatRepository;
 import com.bungeobbang.backend.opinion.domain.repository.OpinionLastReadRepository;
 import com.bungeobbang.backend.opinion.domain.repository.OpinionRepository;
 import com.bungeobbang.backend.opinion.dto.request.OpinionCreationRequest;
-import com.bungeobbang.backend.opinion.dto.response.*;
+import com.bungeobbang.backend.opinion.dto.response.MemberOpinionInfoResponse;
+import com.bungeobbang.backend.opinion.dto.response.OpinionCreationResponse;
+import com.bungeobbang.backend.opinion.dto.response.OpinionStatisticsResponse;
 import com.bungeobbang.backend.university.domain.University;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -156,14 +158,10 @@ public class MemberOpinionService {
     private List<MemberOpinionInfoResponse> convertToMemberOpinionInfoList(final List<Opinion> opinions) {
         return opinions.stream()
                 .map(opinion -> {
-                    log.debug("opinionId: {}", opinion.getId());
                     final OpinionLastRead opinionLastRead = opinionLastReadRepository.findByOpinionIdAndIsAdmin(opinion.getId(), false)
                             .orElseThrow(() -> new OpinionException(ErrorCode.INVALID_OPINION_LAST_READ));
-                    log.debug("opinionLastReadChatId: {}", opinionLastRead.getLastReadChatId());
                     final OpinionChat lastChat = opinionChatRepository.findTopByOpinionIdOrderByCreatedAtDesc(opinion.getId())
                             .orElseThrow(() -> new OpinionException(ErrorCode.INVALID_OPINION_CHAT));
-                    log.debug("lastChatId: " + lastChat.getId());
-
                     return MemberOpinionInfoResponse.builder()
                             .opinionId(opinion.getId())
                             .opinionType(opinion.getOpinionType())

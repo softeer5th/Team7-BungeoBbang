@@ -65,18 +65,12 @@ public class AdminOpinionService {
     private List<AdminOpinionInfoResponse> convertToAdminOpinionInfoList(final List<Opinion> opinions) {
         return opinions.stream()
                 .map(opinion -> {
-                    log.debug("opinionId: {}", opinion.getId());
-
                     // 마지막 읽은 채팅 정보 조회
-                    final OpinionLastRead opinionLastRead = opinionLastReadRepository.findByOpinionIdAndIsAdmin(opinion.getId(), false)
+                    final OpinionLastRead opinionLastRead = opinionLastReadRepository.findByOpinionIdAndIsAdmin(opinion.getId(), true)
                             .orElseThrow(() -> new OpinionException(ErrorCode.INVALID_OPINION_LAST_READ));
-                    log.debug("opinionLastReadChatId: {}", opinionLastRead.getLastReadChatId());
-
                     // 최신 채팅 정보 조회
                     final OpinionChat lastChat = opinionChatRepository.findTopByOpinionIdOrderByCreatedAtDesc(opinion.getId())
                             .orElseThrow(() -> new OpinionException(ErrorCode.INVALID_OPINION_CHAT));
-                    log.debug("lastChatId: " + lastChat.getId());
-
                     // 응답 객체 생성
                     return AdminOpinionInfoResponse.builder()
                             .opinionId(opinion.getId()) // 말해요 채팅방 ID
