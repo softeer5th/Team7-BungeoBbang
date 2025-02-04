@@ -3,6 +3,8 @@ package com.bungeobbang.backend.agenda.presentation.api;
 import com.bungeobbang.backend.agenda.dto.request.AgendaCreationRequest;
 import com.bungeobbang.backend.agenda.dto.request.AgendaEditRequest;
 import com.bungeobbang.backend.agenda.dto.response.AgendaCreationResponse;
+import com.bungeobbang.backend.agenda.dto.response.AgendaResponse;
+import com.bungeobbang.backend.agenda.status.AgendaStatusType;
 import com.bungeobbang.backend.auth.admin.AdminAuth;
 import com.bungeobbang.backend.auth.domain.Accessor;
 import com.bungeobbang.backend.common.exception.response.ErrorResponse;
@@ -16,9 +18,33 @@ import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+import java.util.List;
+
 @Tag(name = "학생회 답해요 관련 API", description = "학생회가 답해요 안건을 관리하는 API")
-@RequestMapping("/admin/agenda")
+@RequestMapping("/admin/agendas")
 public interface AdminAgendaApi {
+
+    @Operation(
+            summary = "안건 상태별 조회",
+            description = "관리자가 특정 상태(진행 전, 진행 중, 완료)에 해당하는 안건 목록을 조회합니다."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "성공적으로 안건 목록을 반환",
+                    content = @Content(schema = @Schema(implementation = AgendaResponse.class))),
+            @ApiResponse(responseCode = "400", description = "잘못된 요청 파라미터", content = @Content),
+            @ApiResponse(responseCode = "401", description = "인증되지 않은 요청", content = @Content),
+            @ApiResponse(responseCode = "403", description = "권한 없음", content = @Content),
+            @ApiResponse(responseCode = "500", description = "서버 오류 발생", content = @Content)
+    })
+
+    @GetMapping
+    ResponseEntity<List<AgendaResponse>> getAgendasByStatus(
+            @AdminAuth Accessor accessor,
+            @RequestParam AgendaStatusType status,
+            @RequestParam(required = false) LocalDate endDate,
+            @RequestParam(required = false) Long agendaId
+    );
 
     @Operation(
             summary = "답해요 안건 생성",
