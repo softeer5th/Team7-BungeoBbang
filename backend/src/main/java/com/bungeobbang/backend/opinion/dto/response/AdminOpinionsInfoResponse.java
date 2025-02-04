@@ -11,7 +11,7 @@ import org.bson.types.ObjectId;
 import java.time.LocalDateTime;
 
 @Builder
-public record AdminOpinionInfoResponse(
+public record AdminOpinionsInfoResponse(
         Long opinionId,
         OpinionType opinionType,
         CategoryType categoryType,
@@ -22,9 +22,9 @@ public record AdminOpinionInfoResponse(
         LocalDateTime lastChatCreatedAt,
         Boolean hasNewChat,
         Boolean isRemind
-) implements Comparable<AdminOpinionInfoResponse> {
+) implements Comparable<AdminOpinionsInfoResponse> {
     @Override
-    public int compareTo(AdminOpinionInfoResponse o) {
+    public int compareTo(AdminOpinionsInfoResponse o) {
         return o.lastChatId.compareTo(this.lastChatId);
     }
 }

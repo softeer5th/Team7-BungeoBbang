@@ -4,7 +4,7 @@ import com.bungeobbang.backend.auth.admin.AdminAuth;
 import com.bungeobbang.backend.auth.admin.AdminOnly;
 import com.bungeobbang.backend.auth.domain.Accessor;
 import com.bungeobbang.backend.common.type.CategoryType;
-import com.bungeobbang.backend.opinion.dto.response.AdminOpinionInfoResponse;
+import com.bungeobbang.backend.opinion.dto.response.AdminOpinionsInfoResponse;
 import com.bungeobbang.backend.opinion.service.AdminOpinionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -26,7 +26,7 @@ public class AdminOpinionController {
 
     @GetMapping()
     @AdminOnly
-    public ResponseEntity<List<AdminOpinionInfoResponse>> getAdminOpinionList(
+    public ResponseEntity<List<AdminOpinionsInfoResponse>> getAdminOpinionList(
             final @AdminAuth Accessor accessor,
             @RequestParam(required = false) Set<CategoryType> categoryTypes) {
         return ResponseEntity.ok()

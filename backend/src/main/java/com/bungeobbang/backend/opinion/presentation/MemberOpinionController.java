@@ -4,7 +4,7 @@ import com.bungeobbang.backend.auth.domain.Accessor;
 import com.bungeobbang.backend.auth.member.Auth;
 import com.bungeobbang.backend.auth.member.MemberOnly;
 import com.bungeobbang.backend.opinion.dto.request.OpinionCreationRequest;
-import com.bungeobbang.backend.opinion.dto.response.MemberOpinionInfoResponse;
+import com.bungeobbang.backend.opinion.dto.response.MemberOpinionsInfoResponse;
 import com.bungeobbang.backend.opinion.dto.response.OpinionCreationResponse;
 import com.bungeobbang.backend.opinion.dto.response.OpinionStatisticsResponse;
 import com.bungeobbang.backend.opinion.service.MemberOpinionService;
@@ -50,7 +50,7 @@ public class MemberOpinionController {
 
     @GetMapping("/my")
     @MemberOnly
-    public ResponseEntity<List<MemberOpinionInfoResponse>> getMemberOpinionList(
+    public ResponseEntity<List<MemberOpinionsInfoResponse>> getMemberOpinionList(
             @Auth final Accessor accessor) {
         return ResponseEntity.ok()
                 .body(memberOpinionService.findMemberOpinionList(accessor.id()));

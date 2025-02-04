@@ -3,7 +3,6 @@ package com.bungeobbang.backend.opinion.service;
 import com.bungeobbang.backend.common.exception.ErrorCode;
 import com.bungeobbang.backend.common.exception.MemberException;
 import com.bungeobbang.backend.common.exception.OpinionException;
-import com.bungeobbang.backend.common.util.ObjectIdTimestampConverter;
 import com.bungeobbang.backend.member.domain.Member;
 import com.bungeobbang.backend.member.domain.repository.MemberRepository;
 import com.bungeobbang.backend.opinion.domain.Opinion;
@@ -13,7 +12,7 @@ import com.bungeobbang.backend.opinion.domain.repository.OpinionChatRepository;
 import com.bungeobbang.backend.opinion.domain.repository.OpinionLastReadRepository;
 import com.bungeobbang.backend.opinion.domain.repository.OpinionRepository;
 import com.bungeobbang.backend.opinion.dto.request.OpinionCreationRequest;
-import com.bungeobbang.backend.opinion.dto.response.MemberOpinionInfoResponse;
+import com.bungeobbang.backend.opinion.dto.response.MemberOpinionsInfoResponse;
 import com.bungeobbang.backend.opinion.dto.response.OpinionCreationResponse;
 import com.bungeobbang.backend.opinion.dto.response.OpinionStatisticsResponse;
 import com.bungeobbang.backend.university.domain.University;
@@ -106,7 +105,7 @@ public class MemberOpinionService {
      * @param memberId 학생 ID
      * @return MemberOpinionListResponse 학생이 생성한 말해요 채팅방 목록 응답 객체
      */
-    public List<MemberOpinionInfoResponse> findMemberOpinionList(final Long memberId) {
+    public List<MemberOpinionsInfoResponse> findMemberOpinionList(final Long memberId) {
         final List<Opinion> opinions = opinionRepository.findAllByMemberId(memberId);
         return convertToMemberOpinionInfoList(opinions);
     }
@@ -156,14 +155,14 @@ public class MemberOpinionService {
      * @param opinions 해당 학생이 개설한 말해요 채팅방 리스트
      * @return 학생의 말해요 채팅방 정보 리스트
      */
-    private List<MemberOpinionInfoResponse> convertToMemberOpinionInfoList(final List<Opinion> opinions) {
+    private List<MemberOpinionsInfoResponse> convertToMemberOpinionInfoList(final List<Opinion> opinions) {
         return opinions.stream()
                 .map(opinion -> {
                     final OpinionLastRead opinionLastRead = opinionLastReadRepository.findByOpinionIdAndIsAdmin(opinion.getId(), false)
                             .orElseThrow(() -> new OpinionException(ErrorCode.INVALID_OPINION_LAST_READ));
                     final OpinionChat lastChat = opinionChatRepository.findTopByOpinionIdOrderByIdDesc(opinion.getId())
                             .orElseThrow(() -> new OpinionException(ErrorCode.INVALID_OPINION_CHAT));
-                    return MemberOpinionInfoResponse.of(opinion, lastChat, opinionLastRead);
+                    return MemberOpinionsInfoResponse.of(opinion, lastChat, opinionLastRead);
                 })
                 .sorted()
                 .toList();

@@ -13,14 +13,14 @@ import org.bson.types.ObjectId;
 import java.time.LocalDateTime;
 
 
-public record MemberOpinionInfoResponse(
+public record MemberOpinionsInfoResponse(
         OpinionInfo opinion,
         OpinionLastChatInfo lastChat,
         boolean hasNewChat
-) implements Comparable<MemberOpinionInfoResponse> {
+) implements Comparable<MemberOpinionsInfoResponse> {
 
-    public static MemberOpinionInfoResponse of(Opinion opinion, OpinionChat lastChat, OpinionLastRead lastRead) {
-        return new MemberOpinionInfoResponse(
+    public static MemberOpinionsInfoResponse of(Opinion opinion, OpinionChat lastChat, OpinionLastRead lastRead) {
+        return new MemberOpinionsInfoResponse(
                 new OpinionInfo(opinion.getId(), opinion.getOpinionType(), opinion.getCategoryType()),
                 new OpinionLastChatInfo(lastChat.getId(), lastChat.getChat(), ObjectIdTimestampConverter.getLocalDateTimeFromObjectId(lastChat.getId())),
                 !lastRead.getLastReadChatId().equals(lastChat.getId())
@@ -44,7 +44,7 @@ public record MemberOpinionInfoResponse(
     }
 
     @Override
-    public int compareTo(MemberOpinionInfoResponse o) {
+    public int compareTo(MemberOpinionsInfoResponse o) {
         return o.lastChat.chatId().compareTo(this.lastChat.chatId());
     }
 }

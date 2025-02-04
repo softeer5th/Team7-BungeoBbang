@@ -10,14 +10,11 @@ import com.bungeobbang.backend.opinion.domain.OpinionLastRead;
 import com.bungeobbang.backend.opinion.domain.repository.OpinionChatRepository;
 import com.bungeobbang.backend.opinion.domain.repository.OpinionLastReadRepository;
 import com.bungeobbang.backend.opinion.domain.repository.OpinionRepository;
-import com.bungeobbang.backend.opinion.dto.response.AdminOpinionInfoResponse;
+import com.bungeobbang.backend.opinion.dto.response.AdminOpinionsInfoResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.List;
 import java.util.Set;
 
@@ -40,7 +37,7 @@ public class AdminOpinionService {
      * @param categoryTypes 조회를 원하는 카테고리의 목록. 없을 경우 전체 카테고리를 조회합니다.
      * @return AdminOpinionInfoResponse의 리스트로, 말해요 채팅방 목록 응답 객체.
      */
-    public List<AdminOpinionInfoResponse> findAdminOpinionList(final Set<CategoryType> categoryTypes) {
+    public List<AdminOpinionsInfoResponse> findAdminOpinionList(final Set<CategoryType> categoryTypes) {
         final List<Opinion> opinions = getOpinionsByCategories(categoryTypes);
         return convertToAdminOpinionInfoList(opinions);
     }
@@ -66,7 +63,7 @@ public class AdminOpinionService {
      * @return AdminOpinionInfoResponse의 리스트로, 각 채팅방의 정보가 포함된 응답 객체.
      * @throws OpinionException 말해요 채팅방의 마지막 읽은 채팅 또는 최신 채팅 조회 실패 시 발생.
      */
-    private List<AdminOpinionInfoResponse> convertToAdminOpinionInfoList(final List<Opinion> opinions) {
+    private List<AdminOpinionsInfoResponse> convertToAdminOpinionInfoList(final List<Opinion> opinions) {
         return opinions.stream()
                 .map(opinion -> {
                     // 마지막 읽은 채팅 정보 조회
@@ -76,7 +73,7 @@ public class AdminOpinionService {
                     final OpinionChat lastChat = opinionChatRepository.findTopByOpinionIdOrderByIdDesc(opinion.getId())
                             .orElseThrow(() -> new OpinionException(ErrorCode.INVALID_OPINION_CHAT));
                     // 응답 객체 생성
-                    return AdminOpinionInfoResponse.builder()
+                    return AdminOpinionsInfoResponse.builder()
                             .opinionId(opinion.getId()) // 말해요 채팅방 ID
                             .opinionType(opinion.getOpinionType()) // 말해요 타입
                             .categoryType(opinion.getCategoryType()) // 카테고리 타입
