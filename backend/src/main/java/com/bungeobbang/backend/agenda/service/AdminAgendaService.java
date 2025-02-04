@@ -9,6 +9,7 @@ import com.bungeobbang.backend.agenda.domain.repository.AgendaRepository;
 import com.bungeobbang.backend.agenda.dto.request.AgendaCreationRequest;
 import com.bungeobbang.backend.agenda.dto.request.AgendaEditRequest;
 import com.bungeobbang.backend.agenda.dto.response.AgendaCreationResponse;
+import com.bungeobbang.backend.agenda.dto.response.AgendaDetailResponse;
 import com.bungeobbang.backend.agenda.dto.response.AgendaResponse;
 import com.bungeobbang.backend.agenda.service.strategies.AgendaFinder;
 import com.bungeobbang.backend.agenda.service.strategies.AgendaFinders;
@@ -23,8 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.util.List;
 
-import static com.bungeobbang.backend.common.exception.ErrorCode.INVALID_ADMIN;
-import static com.bungeobbang.backend.common.exception.ErrorCode.INVALID_AGENDA;
+import static com.bungeobbang.backend.common.exception.ErrorCode.*;
 
 /**
  * 🔹 관리자 "답해요" 서비스
@@ -65,13 +65,27 @@ public class AdminAgendaService {
      * @throws AdminException 관리자 정보가 존재하지 않을 경우 발생
      */
     public List<AgendaResponse> getAgendasByStatus(Long adminId, AgendaStatusType status, LocalDate endDate, Long agendaId) {
-        final Admin admin = adminRepository.findById(adminId)
-                .orElseThrow(() -> new AdminException(INVALID_ADMIN));
+        final Admin admin = getAdmin(adminId);
         final AgendaFinder finder = agendaFinders.mapping(status);
         return finder.findAllByStatus(admin.getUniversity().getId(), endDate, agendaId);
     }
 
+    private Admin getAdmin(Long adminId) {
+        return adminRepository.findById(adminId)
+                .orElseThrow(() -> new AdminException(INVALID_ADMIN));
+    }
 
+    public AgendaDetailResponse getAgendaDetail(Long adminId, Long agendaId) {
+        final Admin admin = getAdmin(adminId);
+        final Agenda agenda = agendaRepository.findById(agendaId)
+                .orElseThrow(() -> new AgendaException(INVALID_AGENDA));
+
+        if (!admin.getUniversity().equals(agenda.getUniversity())) {
+            throw new AgendaException(FORBIDDEN_UNIVERSITY_ACCESS);
+        }
+
+        return AgendaDetailResponse.from(agenda);
+    }
 
     /**
      * ✅ 새로운 "답해요" 채팅방을 생성합니다.
@@ -241,5 +255,4 @@ public class AdminAgendaService {
                                 .build())
                 .toList();
     }
-
 }

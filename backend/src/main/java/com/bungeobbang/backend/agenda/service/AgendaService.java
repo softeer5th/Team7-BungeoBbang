@@ -5,6 +5,7 @@ import com.bungeobbang.backend.agenda.domain.AgendaMember;
 import com.bungeobbang.backend.agenda.domain.repository.AgendaMemberRepository;
 import com.bungeobbang.backend.agenda.domain.repository.AgendaRepository;
 import com.bungeobbang.backend.agenda.domain.repository.CustomAgendaChatRepository;
+import com.bungeobbang.backend.agenda.dto.response.AgendaDetailResponse;
 import com.bungeobbang.backend.agenda.dto.response.AgendaResponse;
 import com.bungeobbang.backend.agenda.dto.response.LastChat;
 import com.bungeobbang.backend.agenda.dto.response.MyAgendaResponse;
@@ -14,16 +15,15 @@ import com.bungeobbang.backend.agenda.status.AgendaStatusType;
 import com.bungeobbang.backend.common.exception.AgendaException;
 import com.bungeobbang.backend.common.exception.ErrorCode;
 import com.bungeobbang.backend.common.exception.MemberException;
+import com.bungeobbang.backend.common.util.ObjectIdTimestampConverter;
 import com.bungeobbang.backend.member.domain.Member;
 import com.bungeobbang.backend.member.domain.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
 import org.springframework.stereotype.Service;
 
-import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -104,6 +104,18 @@ public class AgendaService {
         return finder.findAllByStatus(member.getUniversity().getId(), endDate, agendaId);
     }
 
+    public AgendaDetailResponse getAgendaDetail(final Long memberId, final Long agendaId) {
+        final Member member = getMember(memberId);
+        final Agenda agenda = agendaRepository.findById(agendaId)
+                .orElseThrow(() -> new AgendaException(ErrorCode.INVALID_AGENDA));
+
+        if (!agenda.getUniversity().equals(member.getUniversity())) {
+            throw new AgendaException(ErrorCode.FORBIDDEN_UNIVERSITY_ACCESS);
+        }
+
+        return AgendaDetailResponse.from(agenda);
+    }
+
     /**
      * <h3>내가 참여한 답해요 조회</h3>
      * <p>사용자가 참여한 모든 답해요를 조회하며, 각 답해요의 최신 채팅 및 읽음 여부를 포함합니다.</p>
@@ -141,7 +153,7 @@ public class AgendaService {
                     final boolean hasNew = hasNewMessage(lastChat.chatId(), lastReadChat);
 
                     final LocalDateTime createdAt = lastChat.chatId() == null ? null :
-                            LocalDateTime.ofInstant(Instant.ofEpochSecond(lastChat.chatId().getTimestamp()), ZoneId.of("Asia/Seoul"));
+                            ObjectIdTimestampConverter.getLocalDateTimeFromObjectId(lastChat.chatId());
 
                     return MyAgendaResponse.builder()
                             .title(agenda.getTitle())
