@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import React from 'react';
+import React, { useMemo } from 'react';
 import { BorderProps } from './BorderProps';
 import { IconLoadingBox } from './IconLoadingBox';
 import Typography from '../styles/Typography';
@@ -27,15 +27,32 @@ export const TopAppBar: React.FC<TopAppBarProps> = ({
   titleColor,
   border,
 }) => {
-  const LeftIcon = leftIconSrc ? React.lazy(() => import(`${leftIconSrc}?react`)) : null;
-  const RightIcon = rightIconSrc ? React.lazy(() => import(`${rightIconSrc}?react`)) : null;
+  const LeftIcon = useMemo(() => {
+    if (leftIconSrc) {
+      return React.lazy(() => /* @vite-ignore */ import(`${leftIconSrc}?react`));
+    } else {
+      return null;
+    }
+  }, [leftIconSrc]);
+
+  const RightIcon = useMemo(() => {
+    if (rightIconSrc) {
+      return React.lazy(() => /* @vite-ignore */ import(`${rightIconSrc}?react`));
+    } else {
+      return null;
+    }
+  }, [rightIconSrc]);
 
   return (
     <TopAppBarContainer backgroundColor={backgroundColor} border={border}>
       {LeftIcon && (
         <React.Suspense fallback={<IconLoadingBox width="24px" height="24px" />}>
           <IconWrapper onClick={onLeftIconClick}>
-            <LeftIcon height="24px" stroke={titleColor || foregroundColor} />
+            <LeftIcon
+              height="24px"
+              stroke={titleColor ?? foregroundColor}
+              fill={titleColor ?? foregroundColor}
+            />
           </IconWrapper>
         </React.Suspense>
       )}
@@ -43,7 +60,7 @@ export const TopAppBar: React.FC<TopAppBarProps> = ({
       <TitleText
         variant="heading3"
         titleCentered={!!leftIconSrc}
-        titleColor={titleColor || foregroundColor}
+        titleColor={titleColor ?? foregroundColor}
       >
         {title}
       </TitleText>
@@ -67,6 +84,9 @@ const TopAppBarContainer = styled.div<{
     borderRadius?: string;
   };
 }>`
+  width: 100%;
+  position: sticky;
+  top: 0px;
   display: flex;
   align-items: center;
   justify-content: center;

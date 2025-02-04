@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { TabBarItem, TabBarItemProps } from './TabBarItem';
 
 interface TabBarProps {
-  startDestination: string;
+  currentDestination: string;
   items: TabBarItemProps[];
   backgroundColor?: string;
   selectedItembackgroundColor?: string;
@@ -14,7 +14,7 @@ interface TabBarProps {
 }
 
 export const TabBar: React.FC<TabBarProps> = ({
-  startDestination,
+  currentDestination,
   items,
   backgroundColor = '#FFFFFF',
   selectedItembackgroundColor = '#FFFFFF',
@@ -23,7 +23,7 @@ export const TabBar: React.FC<TabBarProps> = ({
   selectedTextColor = '#1F87FF',
   onItemClick = () => {},
 }) => {
-  const [selectedItem, setSelectedItem] = useState(startDestination);
+  const [selectedItem, setSelectedItem] = useState(currentDestination);
 
   const selectedIndex = items.findIndex((item) => item.itemId === selectedItem);
 
@@ -64,6 +64,7 @@ export const TabBar: React.FC<TabBarProps> = ({
 };
 
 const TabBarContainer = styled.div`
+  width: 100%;
   display: flex;
   justify-content: center;
   align-items: center;

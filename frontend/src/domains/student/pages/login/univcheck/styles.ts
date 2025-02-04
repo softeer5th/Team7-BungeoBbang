@@ -7,6 +7,16 @@ export const Title = C.Title;
 export const Subtitle = C.Subtitle;
 export const SubmitButton = C.SubmitButton;
 
+export const Overlay = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.32);
+  z-index: 10;
+`;
+
 export const SelectButton = styled.button`
   width: calc(100% - 40px);
   margin: 20px;
@@ -21,6 +31,11 @@ export const SelectButton = styled.button`
   justify-content: space-between;
   align-items: center;
 
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  -webkit-tap-highlight-color: transparent;
+
   &::after {
     content: '▼';
     font-size: 12px;
@@ -28,6 +43,7 @@ export const SelectButton = styled.button`
 `;
 
 export const BottomSheet = styled.div<{ isOpen: boolean }>`
+  padding: 24px 16px;
   position: fixed;
   bottom: 0;
   left: 0;
@@ -41,8 +57,7 @@ export const BottomSheet = styled.div<{ isOpen: boolean }>`
 `;
 
 export const BottomSheetHeader = styled.div`
-  padding: 16px;
-  border-bottom: 1px solid #e5e5ea;
+  margin-bottom: 20px;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -65,14 +80,14 @@ export const UniversityList = styled.div`
   overflow-y: auto;
 `;
 
-export const UniversityItem = styled.button`
+export const UniversityItem = styled.button<{ selected: boolean }>`
   width: 100%;
-  padding: 16px;
-  background: none;
+  padding: 16px 10px;
+  border-radius: 12px;
+  background-color: ${({ selected }) => (selected ? '#F4F4F4' : '#FFFFFF')};
   border: none;
   text-align: left;
   font-size: 16px;
-  border-bottom: 1px solid #e5e5ea;
 
   &:last-child {
     border-bottom: none;

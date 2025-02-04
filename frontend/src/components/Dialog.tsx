@@ -3,6 +3,7 @@ import { BorderProps } from './BorderProps';
 import { Button, ButtonProps } from './Button';
 import parse from 'html-react-parser';
 import Typography from '../styles/Typography';
+import { createPortal } from 'react-dom';
 
 interface DialogProps {
   title?: string;
@@ -31,37 +32,61 @@ export const Dialog: React.FC<DialogProps> = ({
   dissmissButton,
   border,
 }) => {
-  return (
-    <DialogContainer backgroundColor={backgroundColor} border={border}>
-      {title && (
-        <TitleContainer titleBackgroundColor={titleBackgroundColor}>
-          <TitleText variant="body2" titleTextColor={titleTextColor}>
-            {title}
-          </TitleText>
-        </TitleContainer>
-      )}
-      <BodyText variant="body1" bodyTextColor={bodyTextColor}>
-        {parse(body)}
-      </BodyText>
-      <ButtonContainer>
-        {dissmissButton && (
-          <Button {...dissmissButton} onClick={() => onDismiss()}>
-            {dissmissButton?.text}
-          </Button>
+  const portalRoot = document.getElementById('portal-root');
+  if (!portalRoot) {
+    return null;
+  }
+
+  const dialog = (
+    <DialogOverlay onClick={onDismiss}>
+      <DialogContainer backgroundColor={backgroundColor} border={border}>
+        {title && (
+          <TitleContainer titleBackgroundColor={titleBackgroundColor}>
+            <TitleText variant="body2" titleTextColor={titleTextColor}>
+              {title}
+            </TitleText>
+          </TitleContainer>
         )}
-        <Button {...confirmButton} onClick={() => onConfirm()}>
-          {confirmButton?.text}
-        </Button>
-      </ButtonContainer>
-    </DialogContainer>
+        <BodyText variant="body1" bodyTextColor={bodyTextColor}>
+          {parse(body)}
+        </BodyText>
+        <ButtonContainer>
+          {dissmissButton && (
+            <Button {...dissmissButton} onClick={() => onDismiss()}>
+              {dissmissButton?.text}
+            </Button>
+          )}
+          <Button {...confirmButton} onClick={() => onConfirm()}>
+            {confirmButton?.text}
+          </Button>
+        </ButtonContainer>
+      </DialogContainer>
+    </DialogOverlay>
   );
+  return createPortal(dialog, portalRoot);
 };
+
+const DialogOverlay = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.3);
+  z-index: 9999;
+  display: flex;
+  justify-content: center;
+`;
 
 const DialogContainer = styled.div<{
   backgroundColor: string;
   border?: BorderProps;
 }>`
+  position: fixed;
+  top: 214px;
   padding: 24px 12px 12px 12px;
+  width: 90%;
+  max-width: 324px;
   background-color: ${(props) => props.backgroundColor};
   border: ${(props) =>
     props.border

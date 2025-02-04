@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import React from 'react';
+import React, { useMemo } from 'react';
 import { IconLoadingBox } from '../IconLoadingBox';
 import Typography from '../../styles/Typography';
 
@@ -31,7 +31,9 @@ export const BottomNavigationItem: React.FC<
   selected = false,
   hasAlarm = false,
 }) => {
-  const Icon = iconSrc ? React.lazy(() => import(`${iconSrc}?react`)) : null;
+  const Icon = useMemo(() => {
+    return React.lazy(() => /* @vite-ignore */ import(`${iconSrc}?react`));
+  }, [iconSrc]);
 
   return (
     <BottomNavigationItemWrapper
@@ -47,6 +49,7 @@ export const BottomNavigationItem: React.FC<
               width="24px"
               height="24px"
               style={{ marginTop: '4px' }}
+              stroke={selected ? selectedForegroundColor : foregroundColor}
               fill={selected ? selectedForegroundColor : foregroundColor}
             />
           </React.Suspense>
