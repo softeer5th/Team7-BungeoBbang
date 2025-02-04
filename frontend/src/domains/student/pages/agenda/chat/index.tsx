@@ -27,7 +27,7 @@ const AgendaChatPage = () => {
     {
       type: ChatType.MORE,
       text: '이전 답변',
-      iconSrc: '/src/assets/icons/arrow-up.svg',
+      iconSrc: '/assets/icons/arrow-up.svg',
       onMoreClick: () => {},
     },
     {
