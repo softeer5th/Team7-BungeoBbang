@@ -46,7 +46,7 @@ const OpinionEntryPage = () => {
         <S.SubTitle>여러분의 의견에 대해 빠른 시일에 답변드리겠습니다.</S.SubTitle>
         <S.InputContainer
           onClick={() => {
-            navigate('/opinion/select');
+            navigate('/opinion/category');
           }}
         >
           <S.Input />

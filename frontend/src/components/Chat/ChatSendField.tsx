@@ -31,6 +31,7 @@ interface ChatSendFieldProps {
   onSendMessage?: (message: string, images: string[]) => void;
   images?: string[];
   onImageDelete?: (imageId: number) => void;
+  onImageUpload?: (files: FileList) => void;
   maxLengthOfImages?: number;
   imageDisabled?: boolean;
   textDisabled?: boolean;
@@ -67,6 +68,7 @@ export const ChatSendField: React.FC<ChatSendFieldProps> = ({
   onSendMessage = () => {},
   images = [],
   onImageDelete = () => {},
+  onImageUpload = () => {},
   maxLengthOfImages = 5,
   imageDisabled = false,
   textDisabled = false,
@@ -108,15 +110,13 @@ export const ChatSendField: React.FC<ChatSendFieldProps> = ({
     }
   };
 
-  // const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-  //   if (event.target.files) {
-  //     const uploadedImages = Array.from(event.target.files).map((file) =>
-  //       URL.createObjectURL(file),
-  //     );
-  //     // setImages([...images, ...uploadedImages]);
-  //     setImageList([...images, ...uploadedImages]);
-  //   }
-  // };
+  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files && event.target.files.length > 0) {
+      onImageUpload(event.target.files);
+      // 파일 입력 초기화
+      event.target.value = '';
+    }
+  };
 
   const isImageDisabled = images.length >= maxLengthOfImages || imageDisabled;
 
@@ -133,7 +133,13 @@ export const ChatSendField: React.FC<ChatSendFieldProps> = ({
           fill={isImageDisabled ? imageButtonDisabledIconColor : imageButtonIconColor}
           stroke={isImageDisabled ? imageButtonDisabledIconColor : imageButtonIconColor}
         />
-        <HiddenFileInput type="file" accept="image/*" multiple onChange={() => {}} />
+        <HiddenFileInput
+          type="file"
+          accept="image/*"
+          multiple
+          onChange={handleImageUpload}
+          disabled={isImageDisabled}
+        />
       </ImageUploadBox>
 
       <TextFieldContainer>
@@ -214,10 +220,17 @@ const ImageUploadBox = styled.div<{ backgroundColor: string }>`
   display: flex;
   justify-content: center;
   align-items: center;
+  position: relative;
 `;
 
 const HiddenFileInput = styled.input`
-  display: none;
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  opacity: 0;
+  cursor: pointer;
 `;
 
 const TextFieldContainer = styled.div`
