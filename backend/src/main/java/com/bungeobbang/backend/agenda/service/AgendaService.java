@@ -14,16 +14,15 @@ import com.bungeobbang.backend.agenda.status.AgendaStatusType;
 import com.bungeobbang.backend.common.exception.AgendaException;
 import com.bungeobbang.backend.common.exception.ErrorCode;
 import com.bungeobbang.backend.common.exception.MemberException;
+import com.bungeobbang.backend.common.util.ObjectIdTimestampConverter;
 import com.bungeobbang.backend.member.domain.Member;
 import com.bungeobbang.backend.member.domain.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
 import org.springframework.stereotype.Service;
 
-import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -141,7 +140,7 @@ public class AgendaService {
                     final boolean hasNew = hasNewMessage(lastChat.chatId(), lastReadChat);
 
                     final LocalDateTime createdAt = lastChat.chatId() == null ? null :
-                            LocalDateTime.ofInstant(Instant.ofEpochSecond(lastChat.chatId().getTimestamp()), ZoneId.of("Asia/Seoul"));
+                            ObjectIdTimestampConverter.getLocalDateTimeFromObjectId(lastChat.chatId());
 
                     return MyAgendaResponse.builder()
                             .title(agenda.getTitle())
