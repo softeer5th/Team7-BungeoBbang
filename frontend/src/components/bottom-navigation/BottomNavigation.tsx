@@ -50,6 +50,10 @@ const BottomNavigationWrapper = styled.div<{
   backgroundColor: string;
   border?: BorderProps;
 }>`
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
   display: flex;
   align-items: center;
   justify-content: center;
