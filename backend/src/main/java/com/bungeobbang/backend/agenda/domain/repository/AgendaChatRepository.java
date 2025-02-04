@@ -16,4 +16,11 @@ public interface AgendaChatRepository extends MongoRepository<AgendaChat, String
 
     @Query(value = "{ 'agendaId' : ?0}", sort = "{ _id : -1 }")
     List<AgendaChat> findAllByAgendaId(Long agendaId, Boolean admin, Pageable pageable);
+
+    @Query(value = "{ 'agendaId' : ?0, $or: [ { 'memberId': ?1 }, { 'isAdmin': true } ] }", sort = "{ '_id' : -1 }")
+    List<AgendaChat> findChatsByAgendaIdAndMemberId(Long agendaId, Long memberId, Pageable pageable);
+
+    @Query(value = "{ 'agendaId' : ?0, $or: [ { 'memberId': ?1 }, { 'isAdmin': true } ] ,_id : { $lt :  ?2 }}", sort = "{ '_id' : -1 }")
+    List<AgendaChat> findChatsByAgendaIdAndMemberIdAndIdLessThan(Long agendaId, Long memberId, ObjectId id, Pageable pageable);
+
 }

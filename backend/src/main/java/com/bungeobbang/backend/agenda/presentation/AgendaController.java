@@ -1,13 +1,16 @@
 package com.bungeobbang.backend.agenda.presentation;
 
+import com.bungeobbang.backend.agenda.dto.response.AgendaChatResponse;
 import com.bungeobbang.backend.agenda.dto.response.AgendaResponse;
 import com.bungeobbang.backend.agenda.dto.response.MyAgendaResponse;
 import com.bungeobbang.backend.agenda.presentation.api.AgendaApi;
+import com.bungeobbang.backend.agenda.service.AgendaChatService;
 import com.bungeobbang.backend.agenda.service.AgendaService;
 import com.bungeobbang.backend.agenda.status.AgendaStatusType;
 import com.bungeobbang.backend.auth.domain.Accessor;
 import com.bungeobbang.backend.auth.member.Auth;
 import lombok.RequiredArgsConstructor;
+import org.bson.types.ObjectId;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,6 +22,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class AgendaController implements AgendaApi {
     private final AgendaService agendaService;
+    private final AgendaChatService agendaChatService;
 
     @PostMapping("/{agendaId}")
     public ResponseEntity<Void> participateAgenda(
@@ -51,6 +55,15 @@ public class AgendaController implements AgendaApi {
     ) {
         agendaService.exitAgenda(accessor.id(), agendaId);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/{agendaId}/chat")
+    public ResponseEntity<List<AgendaChatResponse>> getChats(
+            @Auth Accessor accessor,
+            @PathVariable Long agendaId,
+            @RequestParam(required = false) ObjectId chatId
+    ) {
+        return ResponseEntity.ok(agendaChatService.getChats(accessor.id(), agendaId, chatId));
     }
 
 }
