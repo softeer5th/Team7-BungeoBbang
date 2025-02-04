@@ -1,6 +1,14 @@
 import styled, { useTheme } from 'styled-components';
 import Typography from '@/styles/Typography.tsx';
-import React, { Suspense, useMemo } from 'react';
+import React, { Suspense } from 'react';
+
+import ArrowRightIcon from '/src/assets/icons/arrow-right.svg?react';
+import ArrowDownIcon from '/src/assets/icons/arrow-down.svg?react';
+
+const IconComponents: { [key: string]: React.FC<React.SVGProps<SVGSVGElement>> } = {
+  '/src/assets/icons/arrow-right.svg': ArrowRightIcon,
+  '/src/assets/icons/arrow-down.svg': ArrowDownIcon,
+};
 
 interface MoreChatButtonProps {
   text: string;
@@ -10,15 +18,15 @@ interface MoreChatButtonProps {
 
 const MoreChatButton = ({ text, iconSrc, onClick }: MoreChatButtonProps) => {
   const theme = useTheme();
-  const Icon = useMemo(() => {
-    return React.lazy(() => /* @vite-ignore */ import(`${iconSrc}?react`));
-  }, [iconSrc]);
+  const IconComponent = iconSrc ? IconComponents[iconSrc] : null;
 
   return (
     <Container onClick={() => onClick()}>
       <Text variant="caption2">{text}</Text>
       <Suspense>
-        <Icon width="16px" height="16px" stroke={theme.colors.grayScaleWhite} />
+        {IconComponent && (
+          <IconComponent width="16px" height="16px" stroke={theme.colors.grayScaleWhite} />
+        )}
       </Suspense>
     </Container>
   );

@@ -1,7 +1,17 @@
 import styled from 'styled-components';
-import React, { useMemo } from 'react';
+import React from 'react';
 import { IconLoadingBox } from '../IconLoadingBox';
 import Typography from '../../styles/Typography';
+
+import MessageIcon from '/src/assets/icons/message.svg?react';
+import HomeIcon from '/src/assets/icons/home.svg?react';
+import ProfileIcon from '/src/assets/icons/profile.svg?react';
+
+const IconComponents: { [key: string]: React.FC<React.SVGProps<SVGSVGElement>> } = {
+  '/src/assets/icons/message.svg': MessageIcon,
+  '/src/assets/icons/home.svg': HomeIcon,
+  '/src/assets/icons/profile.svg': ProfileIcon,
+};
 
 export interface BottomNavigationItemProps {
   itemId: string;
@@ -31,9 +41,7 @@ export const BottomNavigationItem: React.FC<
   selected = false,
   hasAlarm = false,
 }) => {
-  const Icon = useMemo(() => {
-    return React.lazy(() => /* @vite-ignore */ import(`${iconSrc}?react`));
-  }, [iconSrc]);
+  const IconComponent = iconSrc ? IconComponents[iconSrc] : null;
 
   return (
     <BottomNavigationItemWrapper
@@ -43,9 +51,9 @@ export const BottomNavigationItem: React.FC<
     >
       <BottomNavigationItemContainer>
         {hasAlarm && <AlarmIcon color={alarmColor} />}
-        {Icon && (
+        {IconComponent && (
           <React.Suspense fallback={<IconLoadingBox width="24px" height="24px" />}>
-            <Icon
+            <IconComponent
               width="24px"
               height="24px"
               style={{ marginTop: '4px' }}
