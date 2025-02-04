@@ -8,7 +8,6 @@ import com.bungeobbang.backend.opinion.domain.OpinionLastRead;
 import com.bungeobbang.backend.opinion.domain.repository.OpinionChatRepository;
 import com.bungeobbang.backend.opinion.domain.repository.OpinionLastReadRepository;
 import com.bungeobbang.backend.opinion.domain.repository.OpinionRepository;
-import com.bungeobbang.backend.opinion.dto.response.AdminOpinionInfoListResponse;
 import com.bungeobbang.backend.opinion.dto.response.AdminOpinionInfoResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,10 +29,9 @@ public class AdminOpinionService {
      *
      * @return AdminOpinionInfoListResponse 모든 말해요 채팅방 목록 응답 객체
      */
-    public AdminOpinionInfoListResponse findAdminOpinionList() {
-        final List<Opinion> opinions = opinionRepository.findAll();
-        final List<AdminOpinionInfoResponse> opinionInfos = convertToAdminOpinionInfoList(opinions);
-        return new AdminOpinionInfoListResponse(opinionInfos);
+    public List<AdminOpinionInfoResponse> findAdminOpinionList(List<CategoryType> categoryTypes) {
+        final List<Opinion> opinions = opinionRepository.findAllByCategoryTypeIn(categoryTypes);
+        return convertToAdminOpinionInfoList(opinions);
     }
 
     /**

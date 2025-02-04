@@ -103,10 +103,9 @@ public class MemberOpinionService {
      * @param memberId 학생 ID
      * @return MemberOpinionListResponse 학생이 생성한 말해요 채팅방 목록 응답 객체
      */
-    public MemberOpinionInfoListResponse findMemberOpinionList(final Long memberId) {
+    public List<MemberOpinionInfoResponse> findMemberOpinionList(final Long memberId) {
         final List<Opinion> opinions = opinionRepository.findAllByMemberId(memberId);
-        final List<MemberOpinionInfoResponse> opinionInfos = convertToMemberOpinionInfoList(opinions);
-        return new MemberOpinionInfoListResponse(opinionInfos);
+        return convertToMemberOpinionInfoList(opinions);
     }
 
     /**
