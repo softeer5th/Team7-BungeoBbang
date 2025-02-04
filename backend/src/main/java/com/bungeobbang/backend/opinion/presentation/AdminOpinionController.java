@@ -19,7 +19,7 @@ import java.util.Set;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/admin/opinion")
+@RequestMapping("/admin/opinions")
 public class AdminOpinionController {
 
     private final AdminOpinionService adminOpinionService;
