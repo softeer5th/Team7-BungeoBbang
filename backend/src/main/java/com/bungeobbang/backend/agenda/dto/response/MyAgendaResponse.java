@@ -13,7 +13,7 @@ public record MyAgendaResponse(
         @JsonIgnore
         ObjectId lastChatId,
         LastChat lastChat,
-        boolean hasNew
+        boolean hasNewChat
 ) {
     @Builder
     public static MyAgendaResponse of(ObjectId lastChatId, Long agendaId, String title, CategoryType categoryType, int count, boolean isEnd, String lastChat, LocalDateTime createdAt, boolean hasNew) {
