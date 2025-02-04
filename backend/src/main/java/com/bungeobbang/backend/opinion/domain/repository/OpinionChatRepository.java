@@ -5,11 +5,19 @@ import org.springframework.data.mongodb.repository.Aggregation;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
 @Repository
 public interface OpinionChatRepository extends MongoRepository<OpinionChat, String> {
+
+    @Aggregation(pipeline = {
+            "{ $match: { opinionId: ?0, createdAt: { $lt: ?1 } } }",
+            "{ $sort: { createdAt: -1 } }",
+            "{ $limit: 10 }"
+    })
+    List<OpinionChat> findByOpinionIdAndCreatedAt(Long opinionId, LocalDateTime endTime);
 
     @Aggregation(pipeline = {
             "{ $match: { isAdmin: true, opinionId: { $in: ?0 } } }",

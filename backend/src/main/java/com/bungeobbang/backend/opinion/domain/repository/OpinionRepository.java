@@ -1,5 +1,6 @@
 package com.bungeobbang.backend.opinion.domain.repository;
 
+import com.bungeobbang.backend.common.type.CategoryType;
 import com.bungeobbang.backend.opinion.domain.Opinion;
 import org.springframework.data.jpa.repository.JpaRepository;
 
