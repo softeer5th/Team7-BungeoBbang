@@ -15,6 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Set;
 
 @Slf4j
 @Service
@@ -30,9 +31,16 @@ public class AdminOpinionService {
      *
      * @return AdminOpinionInfoListResponse 모든 말해요 채팅방 목록 응답 객체
      */
-    public List<AdminOpinionInfoResponse> findAdminOpinionList(List<CategoryType> categoryTypes) {
-        final List<Opinion> opinions = opinionRepository.findAllByCategoryTypeIn(categoryTypes);
+    public List<AdminOpinionInfoResponse> findAdminOpinionList(Set<CategoryType> categoryTypes) {
+        final List<Opinion> opinions = getOpinionsByCategories(categoryTypes);
         return convertToAdminOpinionInfoList(opinions);
+    }
+
+    private List<Opinion> getOpinionsByCategories(Set<CategoryType> categoryTypes) {
+        if (categoryTypes == null || categoryTypes.isEmpty()) {
+            return opinionRepository.findAll();
+        }
+        return opinionRepository.findAllByCategoryTypeIn(categoryTypes);
     }
 
     /**

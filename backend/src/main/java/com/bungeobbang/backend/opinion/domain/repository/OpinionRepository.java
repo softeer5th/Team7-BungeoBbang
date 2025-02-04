@@ -6,12 +6,13 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 
 public interface OpinionRepository extends JpaRepository<Opinion, Long> {
 
     List<Opinion> findAllByCreatedAtBetweenAndUniversityId(LocalDateTime startDate, LocalDateTime endDate, Long universityId);
 
-    List<Opinion> findAllByCategoryTypeIn(List<CategoryType> categoryTypes);
+    List<Opinion> findAllByCategoryTypeIn(Set<CategoryType> categoryTypes);
 
     List<Opinion> findAllByMemberId(Long memberId);
 }

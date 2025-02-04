@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Set;
 
 
 @RestController
@@ -27,7 +28,7 @@ public class AdminOpinionController {
     @AdminOnly
     public ResponseEntity<List<AdminOpinionInfoResponse>> getAdminOpinionList(
             final @AdminAuth Accessor accessor,
-            @RequestParam List<CategoryType> categoryTypes) {
+            @RequestParam(required = false) Set<CategoryType> categoryTypes) {
         return ResponseEntity.ok()
                 .body(adminOpinionService.findAdminOpinionList(categoryTypes));
     }
