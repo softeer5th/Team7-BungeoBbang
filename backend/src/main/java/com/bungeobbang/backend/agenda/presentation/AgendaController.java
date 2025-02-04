@@ -2,6 +2,7 @@ package com.bungeobbang.backend.agenda.presentation;
 
 import com.bungeobbang.backend.agenda.dto.response.AgendaResponse;
 import com.bungeobbang.backend.agenda.dto.response.MyAgendaResponse;
+import com.bungeobbang.backend.agenda.presentation.api.AgendaApi;
 import com.bungeobbang.backend.agenda.service.AgendaService;
 import com.bungeobbang.backend.agenda.status.AgendaStatusType;
 import com.bungeobbang.backend.auth.domain.Accessor;
@@ -16,7 +17,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/student/agendas")
 @RequiredArgsConstructor
-public class AgendaController {
+public class AgendaController implements AgendaApi {
     private final AgendaService agendaService;
 
     @PostMapping("/{agendaId}")

@@ -12,10 +12,7 @@ import com.bungeobbang.backend.auth.domain.Accessor;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -27,6 +24,7 @@ public class AdminAgendaController implements AdminAgendaApi {
     private final AdminAgendaService adminAgendaService;
 
     @Override
+    @GetMapping
     public ResponseEntity<List<AgendaResponse>> getAgendasByStatus(
             @AdminAuth Accessor accessor,
             @RequestParam AgendaStatusType status,
@@ -36,6 +34,7 @@ public class AdminAgendaController implements AdminAgendaApi {
     }
 
     @Override
+    @PostMapping
     public ResponseEntity<AgendaCreationResponse> createAgenda(
             @AdminAuth Accessor accessor,
             @RequestBody @Valid AgendaCreationRequest request) {
@@ -43,6 +42,7 @@ public class AdminAgendaController implements AdminAgendaApi {
     }
 
     @Override
+    @PatchMapping("/{agendaId}/close")
     public ResponseEntity<Void> endAgenda(@AdminAuth Accessor accessor,
                                           @PathVariable Long agendaId) {
         adminAgendaService.endAgenda(agendaId);
@@ -50,6 +50,7 @@ public class AdminAgendaController implements AdminAgendaApi {
     }
 
     @Override
+    @DeleteMapping("/{agendaId}")
     public ResponseEntity<Void> deleteAgenda(@AdminAuth Accessor accessor,
                                              @PathVariable Long agendaId) {
         adminAgendaService.deleteAgenda(agendaId);
@@ -57,6 +58,7 @@ public class AdminAgendaController implements AdminAgendaApi {
     }
 
     @Override
+    @PatchMapping("/{agendaId}")
     public ResponseEntity<Void> editAgenda(@AdminAuth Accessor accessor,
                                            @PathVariable Long agendaId,
                                            @RequestBody AgendaEditRequest request) {
