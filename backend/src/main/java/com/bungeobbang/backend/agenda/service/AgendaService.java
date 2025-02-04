@@ -122,11 +122,6 @@ public class AgendaService {
         // 각 Agenda의 최신 채팅 조회
         final List<LastChat> lastChats = customAgendaChatRepository.findLastChats(
                 new ArrayList<>(agendaMap.keySet()), memberId);
-        System.out.println("====");
-        for (LastChat lastChat : lastChats) {
-            System.out.println(lastChat.agendaId());
-        }
-        System.out.println("==========");
         // 최신 채팅과 마지막 읽은 채팅 비교 후 hasNew 여부 계산
         return lastChats.stream()
                 .map(lastChat -> {
