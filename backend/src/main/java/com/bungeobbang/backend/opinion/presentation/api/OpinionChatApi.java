@@ -18,7 +18,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Tag(name = "말해요 채팅 API", description = "말해요 채팅방의 채팅 내역을 관리하는 API")
-@RequestMapping("/api/opinion")
+@RequestMapping("/api/opinions")
 public interface OpinionChatApi {
 
     @Operation(
