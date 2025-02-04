@@ -1,7 +1,6 @@
 // import React from 'react';
 import { BottomNavigation } from '@/components/bottom-navigation/BottomNavigation';
 import * as S from './styles';
-import BannerImg from '@/assets/imgs/school_banner.png';
 import { TopAppBar } from '@/components/TopAppBar';
 import { BottomNavigationItemProps } from '@/components/bottom-navigation/BottomNavigationItem';
 import { useTheme } from 'styled-components';
@@ -9,6 +8,7 @@ import { useEffect, useState } from 'react';
 import { ChatListCardData } from './ChatRoomListCardData.tsx';
 import { ChatRoomListItem } from './chat-room-list-item/ChatRoomListItem.tsx';
 import { useNavigate } from 'react-router-dom';
+import { BannerContainer } from './Banner.tsx';
 
 const AgendaPage = () => {
   const theme = useTheme();
@@ -20,6 +20,24 @@ const AgendaPage = () => {
   const mockData = [
     {
       roomId: '1',
+      dday: 'D-2',
+      iconSrc: '/src/assets/icons/school.svg',
+      iconBackgroundColor: theme?.colors.icnGreen,
+      title: '2025학년도 1학기 수강 신청 수요 조사',
+      numOfJoin: 0,
+      isInProgress: true,
+    },
+    {
+      roomId: '11',
+      dday: 'D-2',
+      iconSrc: '/src/assets/icons/school.svg',
+      iconBackgroundColor: theme?.colors.icnGreen,
+      title: '2025학년도 1학기 수강 신청 수요 조사',
+      numOfJoin: 0,
+      isInProgress: true,
+    },
+    {
+      roomId: '12',
       dday: 'D-2',
       iconSrc: '/src/assets/icons/school.svg',
       iconBackgroundColor: theme?.colors.icnGreen,
@@ -96,15 +114,8 @@ const AgendaPage = () => {
         backgroundColor={theme.colors.grayScale10}
         onRightIconClick={() => {}}
       />
-      <S.ContentContainer>
-        <S.BannerContainer>
-          <S.TextContainer>
-            <S.TitleText variant="heading1">함께 만들어 나가요</S.TitleText>
-            <S.SubText variant="body3">학생회의 답변을 확인할 수 있어요.</S.SubText>
-          </S.TextContainer>
-          <S.BannerImage src={BannerImg} />
-        </S.BannerContainer>
-
+      <S.BodyContainer>
+        <BannerContainer />
         <S.ChatRoomList>
           {chatRooms && chatRooms.length > 0 ? (
             chatRooms.map((room) => (
@@ -121,9 +132,9 @@ const AgendaPage = () => {
             </S.EmptyTextWrapper>
           )}
         </S.ChatRoomList>
-      </S.ContentContainer>
+      </S.BodyContainer>
 
-      <BottomNavigation startDestination="option" destinations={bottomItems} />
+      <BottomNavigation startDestination="agenda" destinations={bottomItems} />
     </S.Container>
   );
 };
