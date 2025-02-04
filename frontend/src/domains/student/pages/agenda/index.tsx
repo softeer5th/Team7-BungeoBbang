@@ -114,7 +114,7 @@ const AgendaPage = () => {
         backgroundColor={theme.colors.grayScale10}
         onRightIconClick={() => {}}
       />
-      <S.ContentContainer>
+      <S.BodyContainer>
         <BannerContainer />
         <S.ChatRoomList>
           {chatRooms && chatRooms.length > 0 ? (
@@ -128,15 +128,11 @@ const AgendaPage = () => {
             ))
           ) : (
             <S.EmptyTextWrapper>
-              <textarea
-                style={{ width: '100%' }}
-                value="안녕하세요안녕하세요안녕하세요안녕하세요안녕하세요안녕하세요안녕하세요안녕하세요안녕하세요안녕하세요안녕하세요안녕하세요안녕하세요안녕하세요안녕하세요안녕하세요안녕하세요안녕하세요"
-              />
-              {/* <S.EmptyText variant="heading4">현재 개설된 채팅방이 없습니다.</S.EmptyText> */}
+              <S.EmptyText variant="heading4">현재 개설된 채팅방이 없습니다.</S.EmptyText>
             </S.EmptyTextWrapper>
           )}
         </S.ChatRoomList>
-      </S.ContentContainer>
+      </S.BodyContainer>
 
       <BottomNavigation startDestination="agenda" destinations={bottomItems} />
     </S.Container>

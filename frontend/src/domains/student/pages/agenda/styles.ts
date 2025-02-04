@@ -11,7 +11,7 @@ export const Container = styled.div`
   overflow: hidden;
 `;
 
-export const ContentContainer = styled.div`
+export const BodyContainer = styled.div`
   flex-grow: 1;
   overflow: auto;
   display: flex;

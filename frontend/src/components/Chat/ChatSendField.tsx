@@ -200,8 +200,6 @@ const ChatSendContainer = styled.div<{
   bcakgroundColor: string;
 }>`
   width: 100%;
-  position: sticky;
-  bottom: 0px;
   display: flex;
   align-items: flex-end;
   padding: 8px 16px 8px 16px;
