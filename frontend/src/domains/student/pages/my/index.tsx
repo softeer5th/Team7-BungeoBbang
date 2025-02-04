@@ -120,26 +120,20 @@ const MyPage = () => {
 
   const handleTouchEnd = (e: React.TouchEvent) => {
     const width = containerRef.current?.offsetWidth || 375;
-    const threshold = width / 3;
+    const threshold = width / 2;
 
-    console.log('e!!', e);
     const deltaX = e.changedTouches[0].clientX - startX;
 
-    if (Math.abs(deltaX) > 20) {
-      console.log('over threshold', deltaX);
-      if (deltaX < 0 && activeIndex < tabItems.length - 1) {
-        setActiveIndex((a) => a + 1);
-        setTranslateX(activeIndex * -width);
-      } else if (deltaX > 0 && activeIndex > 0) {
-        setActiveIndex((a) => a - 1);
-        setTranslateX(activeIndex * -width);
-      }
-    } else {
-      console.log('translateX', deltaX);
-      setTranslateX(activeIndex * -width);
-    }
+    let newIndex = activeIndex;
 
-    console.log('trans', translateX);
+    if (Math.abs(deltaX) > threshold) {
+      if (deltaX < 0 && activeIndex < tabItems.length - 1) {
+        newIndex = activeIndex + 1;
+      } else if (deltaX > 0 && activeIndex > 0) {
+        newIndex = activeIndex - 1;
+      }
+    }
+    setActiveIndex(newIndex);
   };
 
   useEffect(() => {
@@ -147,9 +141,11 @@ const MyPage = () => {
   }, []);
 
   useEffect(() => {
+    const scrollLeft = containerRef.current?.scrollLeft || 0;
+
     const width = containerRef.current?.offsetWidth || 375;
-    setTranslateX(-activeIndex * width);
-    console.log('itemClick', translateX);
+
+    setTranslateX(scrollLeft + -activeIndex * width);
   }, [activeIndex]);
 
   const bottomItems: BottomNavigationItemProps[] = [

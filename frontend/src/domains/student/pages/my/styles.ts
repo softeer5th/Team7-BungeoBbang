@@ -13,7 +13,7 @@ export const Container = styled.div`
 export const TabContentContainer = styled.div`
   flex: 1;
   display: flex;
-  overflow: auto;
+  overflow: hidden;
 
   &::-webkit-scrollbar {
     display: none;
