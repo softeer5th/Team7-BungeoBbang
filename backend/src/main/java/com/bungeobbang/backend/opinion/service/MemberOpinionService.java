@@ -107,10 +107,10 @@ public class MemberOpinionService {
      * @throws OpinionException opinion을 찾을 수 없는 경우 예외 발생
      */
     @Transactional
-    public void remindOpinion(final Long opinionId, final Accessor accessor) {
+    public void remindOpinion(final Long opinionId, final Long memberId) {
         final Opinion opinion = opinionRepository.findById(opinionId)
                 .orElseThrow(() -> new OpinionException(ErrorCode.INVALID_OPINION));
-        if (!opinion.getMember().getId().equals(accessor.id())) {
+        if (!opinion.getMember().getId().equals(memberId)) {
             throw new OpinionException(ErrorCode.UNAUTHORIZED_OPINION_ACCESS);
         }
         opinion.setRemind();
