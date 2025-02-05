@@ -50,7 +50,8 @@ const BottomNavigationWrapper = styled.div<{
   backgroundColor: string;
   border?: BorderProps;
 }>`
-  position: fixed;
+  width: 100%;
+  position: sticky;
   bottom: 0;
   left: 0;
   right: 0;

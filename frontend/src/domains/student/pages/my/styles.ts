@@ -33,6 +33,7 @@ export const TabContent = styled.div<{
 export const ChatPreviewList = styled.div`
   width: 100%;
   height: 100%;
+  overflow: auto;
   padding: 25px 16px 25px 16px;
   display: flex;
   flex-direction: column;

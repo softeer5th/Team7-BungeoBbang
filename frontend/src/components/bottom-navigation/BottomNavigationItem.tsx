@@ -6,11 +6,13 @@ import Typography from '../../styles/Typography';
 import MessageIcon from '/src/assets/icons/message.svg?react';
 import HomeIcon from '/src/assets/icons/home.svg?react';
 import ProfileIcon from '/src/assets/icons/profile.svg?react';
+import StatisticsIcon from '/src/assets/icons/statistics.svg?react';
 
 const IconComponents: { [key: string]: React.FC<React.SVGProps<SVGSVGElement>> } = {
   '/src/assets/icons/message.svg': MessageIcon,
   '/src/assets/icons/home.svg': HomeIcon,
   '/src/assets/icons/profile.svg': ProfileIcon,
+  '/src/assets/icons/statistics.svg': StatisticsIcon,
 };
 
 export interface BottomNavigationItemProps {

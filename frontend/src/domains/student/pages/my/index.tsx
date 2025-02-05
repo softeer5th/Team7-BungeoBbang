@@ -7,9 +7,11 @@ import { useTheme } from 'styled-components';
 import { useEffect, useRef, useState } from 'react';
 import { TabBar } from '@/components/tab-bar/TabBar';
 import { TabBarItemProps } from '@/components/tab-bar/TabBarItem';
-import EmptyIcon from '/src/assets/imgs/message.png';
-import { ChatOpinionType, ChatCategoryType, ChatPreviewData } from './ChatPreviewData';
+import { ChatPreviewData } from './ChatPreviewData';
 import { ChatPreviewItem } from './chat-preview/ChatPreviewItem.tsx';
+import { ChatOpinionType } from '@/types/ChatOpinionType.tsx';
+import { ChatCategoryType } from '@/types/ChatCategoryType.tsx';
+import { EmptyContent } from '@/components/EmptyContent.tsx';
 
 const MyPage = () => {
   const theme = useTheme();
@@ -111,6 +113,26 @@ const MyPage = () => {
         isInProgress: true,
         isUnread: true,
       },
+      {
+        roomId: '9',
+        roomName: '학생 의견 수렴',
+        categoryType: ChatCategoryType.OTHER,
+        lastSendTime: 'Jan 13',
+        lastMessage: '졸업 관련 절차에 대해 문의하고 싶습니다.',
+        numOfJoin: 21,
+        isInProgress: true,
+        isUnread: true,
+      },
+      {
+        roomId: '10',
+        roomName: '학생 의견 수렴',
+        categoryType: ChatCategoryType.OTHER,
+        lastSendTime: 'Jan 13',
+        lastMessage: '졸업 관련 절차에 대해 문의하고 싶습니다.',
+        numOfJoin: 21,
+        isInProgress: true,
+        isUnread: true,
+      },
     ],
   };
 
@@ -197,10 +219,7 @@ const MyPage = () => {
                   ))}
                 </S.ChatPreviewList>
               ) : (
-                <S.EmptyTextWrapper>
-                  <S.EmpytIcon src={EmptyIcon} />
-                  <S.EmptyText variant="heading4">현재 개설된 채팅방이 없습니다.</S.EmptyText>
-                </S.EmptyTextWrapper>
+                <EmptyContent showIcon={true} text={'현재 개설된 채팅방이 없습니다.'} />
               )}
             </S.TabContent>
           );
