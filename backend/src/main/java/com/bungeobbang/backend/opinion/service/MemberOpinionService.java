@@ -124,7 +124,7 @@ public class MemberOpinionService {
     }
 
     /**
-     * Opinion 엔티티를 생성합니다.
+     * Opinion(말해요) 엔티티를 생성합니다.
      *
      * @param creationRequest 의견 생성 요청 객체
      * @param member          회원 객체
@@ -143,7 +143,7 @@ public class MemberOpinionService {
     }
 
     /**
-     * OpinionChat 엔티티를 저장합니다.
+     * OpinionChat(말해요 채팅) 엔티티를 저장합니다.
      *
      * @param creationRequest 말해요 채팅방 생성 요청 객체
      * @param member          학생 객체
@@ -162,7 +162,7 @@ public class MemberOpinionService {
     }
 
     /**
-     * Opinion 리스트를 MemberOpinionInfo 리스트로 변환합니다.
+     * Opinion 리스트를 MemberOpinionInfoResponse 리스트로 변환합니다.
      * 마지막 읽은 채팅의 ID와 실제 마지막 채팅의 ID를 비교하여 hasNewChat 값을 설정합니다.
      *
      * @param opinions 해당 학생이 개설한 말해요 채팅방 리스트
