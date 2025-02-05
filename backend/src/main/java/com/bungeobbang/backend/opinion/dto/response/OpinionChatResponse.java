@@ -1,15 +1,15 @@
 package com.bungeobbang.backend.opinion.dto.response;
 
 import com.bungeobbang.backend.common.util.ObjectIdSerializer;
+import com.bungeobbang.backend.common.util.ObjectIdTimestampConverter;
+import com.bungeobbang.backend.opinion.domain.OpinionChat;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import lombok.Builder;
 import org.bson.types.ObjectId;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Builder
 public record OpinionChatResponse(
         @JsonSerialize(using = ObjectIdSerializer.class)
         ObjectId chatId,
@@ -21,4 +21,15 @@ public record OpinionChatResponse(
         @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
         LocalDateTime createdAt
 ) {
+        public static OpinionChatResponse of(OpinionChat opinionChat, Long userId, Long opinionId) {
+                return new OpinionChatResponse(
+                        opinionChat.getId(),
+                        userId,
+                        opinionId,
+                        opinionChat.getChat(),
+                        opinionChat.isAdmin(),
+                        opinionChat.getImages(),
+                        ObjectIdTimestampConverter.getLocalDateTimeFromObjectId(opinionChat.getId())
+                );
+        }
 }
