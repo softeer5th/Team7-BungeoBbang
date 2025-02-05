@@ -29,6 +29,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static com.bungeobbang.backend.common.exception.ErrorCode.AGENDA_PARTICIPATION_NOT_FOUND;
+
 /**
  * <h2>AgendaService</h2>
  * <p>사용자가 참여하는 답해요(Agenda) 관련 비즈니스 로직을 처리하는 서비스 클래스</p>
@@ -180,6 +182,9 @@ public class AgendaService {
      * @param agendaId 탈퇴할 답해요 ID
      */
     public void exitAgenda(final Long memberId, final Long agendaId) {
+        if (!agendaMemberRepository.existsByMemberIdAndAgendaId(memberId, agendaId)) {
+            throw new AgendaException(AGENDA_PARTICIPATION_NOT_FOUND);
+        }
         agendaMemberRepository.deleteByMemberIdAndAgendaId(memberId, agendaId);
     }
 
