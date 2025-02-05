@@ -40,7 +40,7 @@ public class MemberOpinionService {
     private final MemberRepository memberRepository;
     private final OpinionLastReadRepository opinionLastReadRepository;
     private final OpinionValidator validator;
-    private static final String MAX_OBJECT_ID = "ffffffffffffffffffffffff";
+    private static final String MIN_OBJECT_ID = "000000000000000000000000";
 
     /**
      * 1개월 동안의 의견 통계 정보를 계산합니다.
@@ -96,7 +96,7 @@ public class MemberOpinionService {
         opinionLastReadRepository.save(memberLastRead);
 
         // 학생회의 마지막 읽은 채팅 ID는 ObjectId의 최댓값. (== 아무것도 읽지 않았다는 뜻, isNew를 띄우기 위함.)
-        OpinionLastRead adminLastRead = new OpinionLastRead(opinionId, true, new ObjectId(MAX_OBJECT_ID));
+        OpinionLastRead adminLastRead = new OpinionLastRead(opinionId, true, new ObjectId(MIN_OBJECT_ID));
         opinionLastReadRepository.save(adminLastRead);
 
         return new OpinionCreationResponse(opinionId);
