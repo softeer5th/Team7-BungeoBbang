@@ -69,8 +69,7 @@ public class AgendaService {
      */
     public void participateAgenda(final Long memberId, final Long agendaId) {
         final Member member = getMember(memberId);
-        final Agenda agenda = agendaRepository.findById(agendaId)
-                .orElseThrow(() -> new AgendaException(ErrorCode.INVALID_AGENDA));
+        final Agenda agenda = getAgenda(agendaId);
 
         if (!agenda.getUniversity().equals(member.getUniversity())) {
             throw new AgendaException(ErrorCode.FORBIDDEN_UNIVERSITY_ACCESS);
@@ -109,8 +108,7 @@ public class AgendaService {
 
     public AgendaDetailResponse getAgendaDetail(final Long memberId, final Long agendaId) {
         final Member member = getMember(memberId);
-        final Agenda agenda = agendaRepository.findById(agendaId)
-                .orElseThrow(() -> new AgendaException(ErrorCode.INVALID_AGENDA));
+        final Agenda agenda = getAgenda(agendaId);
 
         if (!agenda.getUniversity().equals(member.getUniversity())) {
             throw new AgendaException(ErrorCode.FORBIDDEN_UNIVERSITY_ACCESS);
@@ -198,7 +196,13 @@ public class AgendaService {
      * @return 마지막으로 읽은 채팅의 ObjectId (없으면 null)
      */
     private ObjectId getLastReadChat(final Long agendaId, final Long memberId) {
-        return agendaLastReadChatRepository.findByMemberIdAndAgendaId(memberId, agendaId).getLastReadChatId();
+        return agendaLastReadChatRepository.findByMemberIdAndAgendaId(memberId, agendaId)
+                .getLastReadChatId();
+    }
+
+    private Agenda getAgenda(Long agendaId) {
+        return agendaRepository.findById(agendaId)
+                .orElseThrow(() -> new AgendaException(ErrorCode.INVALID_AGENDA));
     }
 
     /**
