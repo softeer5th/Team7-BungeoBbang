@@ -181,6 +181,8 @@ public class AdminAgendaService {
                 .count(agenda.getCount())
                 .images(updateImages(agenda.getImages(), request.images(), agenda))
                 .build();
+
+        agendaRepository.save(updateAgenda);
         // todo 반환값 추가 필요
     }
 

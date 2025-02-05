@@ -66,7 +66,7 @@ public class AdminAgendaController implements AdminAgendaApi {
     @DeleteMapping("/{agendaId}")
     public ResponseEntity<Void> deleteAgenda(@AdminAuth Accessor accessor,
                                              @PathVariable Long agendaId) {
-        adminAgendaService.deleteAgenda(agendaId);
+        adminAgendaService.deleteAgenda(accessor.id(), agendaId);
         return ResponseEntity.noContent().build();
     }
 
@@ -75,7 +75,7 @@ public class AdminAgendaController implements AdminAgendaApi {
     public ResponseEntity<Void> editAgenda(@AdminAuth Accessor accessor,
                                            @PathVariable Long agendaId,
                                            @RequestBody AgendaEditRequest request) {
-        adminAgendaService.editAgenda(agendaId, request);
+        adminAgendaService.editAgenda(accessor.id(), agendaId, request);
         return ResponseEntity.noContent().build();
     }
 
