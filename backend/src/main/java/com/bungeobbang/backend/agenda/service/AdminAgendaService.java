@@ -70,21 +70,9 @@ public class AdminAgendaService {
         return finder.findAllByStatus(admin.getUniversity().getId(), endDate, agendaId);
     }
 
-    private Admin getAdmin(Long adminId) {
-        return adminRepository.findById(adminId)
-                .orElseThrow(() -> new AdminException(INVALID_ADMIN));
-    }
-
-    public AgendaDetailResponse getAgendaDetail(Long adminId, Long agendaId) {
-        final Admin admin = getAdmin(adminId);
-        final Agenda agenda = agendaRepository.findById(agendaId)
-                .orElseThrow(() -> new AgendaException(INVALID_AGENDA));
-
-        if (!admin.getUniversity().equals(agenda.getUniversity())) {
+    private static void validAdminWithAgenda(final Admin admin, final Agenda agenda) {
+        if (!admin.getUniversity().equals(agenda.getUniversity()))
             throw new AgendaException(FORBIDDEN_UNIVERSITY_ACCESS);
-        }
-
-        return AgendaDetailResponse.from(agenda);
     }
 
     /**
@@ -116,10 +104,19 @@ public class AdminAgendaService {
         return AgendaCreationResponse.from(save);
     }
 
+    public AgendaDetailResponse getAgendaDetail(Long adminId, Long agendaId) {
+        final Admin admin = getAdmin(adminId);
+        final Agenda agenda = getAgenda(agendaId);
+
+        validAdminWithAgenda(admin, agenda);
+
+        return AgendaDetailResponse.from(agenda);
+    }
+
     /**
      * ✅ 특정 "답해요" 채팅방을 종료합니다.
      *
-     * @param adminId 관리자
+     * @param adminId  관리자
      * @param agendaId 종료할 "답해요" ID
      * @throws AgendaException 게시글을 찾을 수 없는 경우
      * @throws AgendaException 대학이 일치하지 않는 경우
@@ -127,11 +124,9 @@ public class AdminAgendaService {
     @Transactional
     public void endAgenda(Long adminId, final Long agendaId) {
         final Admin admin = getAdmin(adminId);
-        final Agenda agenda = agendaRepository.findById(agendaId)
-                .orElseThrow(() -> new AgendaException(INVALID_AGENDA));
+        final Agenda agenda = getAgenda(agendaId);
 
-        if (admin.getUniversity().equals(agenda.getUniversity()))
-            throw new AgendaException(FORBIDDEN_UNIVERSITY_ACCESS);
+        validAdminWithAgenda(admin, agenda);
 
         agenda.end();
     }
@@ -141,12 +136,19 @@ public class AdminAgendaService {
      * <p>
      * - 해당 게시글과 관련된 모든 데이터를 삭제합니다.
      * - 향후 "답해요" 관련 채팅 내역 삭제 기능 추가 예정.
-     * </p>
      *
+     * @param adminId 관리자 ID
      * @param agendaId 삭제할 "답해요" ID
+     * @throws AgendaException 대학이 일치하지 않는 경우
+     *                         </p>
      */
     @Transactional
-    public void deleteAgenda(final Long agendaId) {
+    public void deleteAgenda(Long adminId, final Long agendaId) {
+        final Admin admin = getAdmin(adminId);
+        final Agenda agenda = getAgenda(agendaId);
+
+        validAdminWithAgenda(admin, agenda);
+
         agendaRepository.deleteById(agendaId);
 
         // TODO: Async로 "답해요" 관련 채팅 내역 삭제 로직 추가 필요
@@ -155,14 +157,17 @@ public class AdminAgendaService {
     /**
      * ✅ 기존 "답해요" 채팅방을 수정합니다.
      *
+     * @param adminId 관리자 ID
      * @param agendaId 수정할 "답해요" ID
      * @param request  수정 요청 DTO
      * @throws AgendaException 게시글을 찾을 수 없는 경우
      */
     @Transactional
-    public void editAgenda(final Long agendaId, final AgendaEditRequest request) {
-        final Agenda agenda = agendaRepository.findById(agendaId)
-                .orElseThrow(() -> new AgendaException(INVALID_AGENDA));
+    public void editAgenda(Long adminId, final Long agendaId, final AgendaEditRequest request) {
+        Admin admin = getAdmin(adminId);
+        Agenda agenda = getAgenda(agendaId);
+
+        validAdminWithAgenda(admin, agenda);
 
         final Agenda updateAgenda = Agenda.builder()
                 .categoryType(request.categoryType())
@@ -177,6 +182,16 @@ public class AdminAgendaService {
                 .images(updateImages(agenda.getImages(), request.images(), agenda))
                 .build();
         // todo 반환값 추가 필요
+    }
+
+    private Admin getAdmin(Long adminId) {
+        return adminRepository.findById(adminId)
+                .orElseThrow(() -> new AdminException(INVALID_ADMIN));
+    }
+
+    private Agenda getAgenda(Long agendaId) {
+        return agendaRepository.findById(agendaId)
+                .orElseThrow(() -> new AgendaException(INVALID_AGENDA));
     }
 
     /**
