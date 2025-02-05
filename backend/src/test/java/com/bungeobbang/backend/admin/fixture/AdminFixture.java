@@ -15,7 +15,7 @@ public class AdminFixture {
     );
 
     public static Admin KAKAO_ADMIN = new Admin(
-            1L,
+            2L,
             "loginId",
             "password",
             "카카오 학생회",
