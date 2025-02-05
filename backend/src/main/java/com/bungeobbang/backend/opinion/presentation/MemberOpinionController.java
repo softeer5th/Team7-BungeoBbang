@@ -45,7 +45,7 @@ public class MemberOpinionController implements MemberOpinionApi {
     public ResponseEntity<Void> patchOpinionRemind(
             @PathVariable @Valid final Long roomId,
             @Auth final Accessor accessor) {
-        memberOpinionService.remindOpinion(roomId);
+        memberOpinionService.remindOpinion(roomId, accessor);
         return ResponseEntity.ok().build();
     }
 

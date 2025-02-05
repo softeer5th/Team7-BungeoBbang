@@ -1,5 +1,6 @@
 package com.bungeobbang.backend.opinion.service;
 
+import com.bungeobbang.backend.auth.domain.Accessor;
 import com.bungeobbang.backend.common.exception.ErrorCode;
 import com.bungeobbang.backend.common.exception.MemberException;
 import com.bungeobbang.backend.common.exception.OpinionException;
@@ -15,6 +16,7 @@ import com.bungeobbang.backend.opinion.dto.request.OpinionCreationRequest;
 import com.bungeobbang.backend.opinion.dto.response.MemberOpinionsInfoResponse;
 import com.bungeobbang.backend.opinion.dto.response.OpinionCreationResponse;
 import com.bungeobbang.backend.opinion.dto.response.OpinionStatisticsResponse;
+import com.bungeobbang.backend.opinion.validator.OpinionValidator;
 import com.bungeobbang.backend.university.domain.University;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -37,6 +39,7 @@ public class MemberOpinionService {
     private final OpinionChatRepository opinionChatRepository;
     private final MemberRepository memberRepository;
     private final OpinionLastReadRepository opinionLastReadRepository;
+    private final OpinionValidator validator;
     private static final String MAX_OBJECT_ID = "ffffffffffffffffffffffff";
 
     /**
@@ -106,9 +109,10 @@ public class MemberOpinionService {
      * @throws OpinionException opinion을 찾을 수 없는 경우 예외 발생
      */
     @Transactional
-    public void remindOpinion(final Long opinionId) {
+    public void remindOpinion(final Long opinionId, final Accessor accessor) {
         final Opinion opinion = opinionRepository.findById(opinionId)
                 .orElseThrow(() -> new OpinionException(ErrorCode.INVALID_OPINION));
+        validator.validateAuthor(opinion, accessor);
         opinion.setRemind();
     }
 
