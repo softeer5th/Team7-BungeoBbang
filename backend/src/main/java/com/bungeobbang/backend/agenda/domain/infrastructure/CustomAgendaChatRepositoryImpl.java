@@ -26,6 +26,11 @@ import java.util.List;
 public class CustomAgendaChatRepositoryImpl implements CustomAgendaChatRepository {
     private final static String AGENDA_COLLECTION = "agenda_chat";
     private final static String AGENDA_LAST_READ_COLLECTION = "agenda_last_read_chat";
+    private final static String AGENDA_ID = "agendaId";
+    private final static String MEMBER_ID = "memberId";
+    private static final String IS_ADMIN = "isAdmin";
+    private static final String LAST_CHAT = "lastChat";
+
     private final MongoTemplate mongoTemplate;
 
     /**
@@ -40,10 +45,10 @@ public class CustomAgendaChatRepositoryImpl implements CustomAgendaChatRepositor
     public List<LastChat> findLastChats(List<Long> agendaIdList, Long memberId) {
         // Match - 주어진 agendaId 리스트와 memberId 필터링
         MatchOperation matchStage = Aggregation.match(
-                new Criteria("agendaId").in(agendaIdList)
+                new Criteria(AGENDA_ID).in(agendaIdList)
                         .orOperator(
-                                Criteria.where("memberId").is(memberId),
-                                Criteria.where("isAdmin").is(true)
+                                Criteria.where(MEMBER_ID).is(memberId),
+                                Criteria.where(IS_ADMIN).is(true)
                         )
         );
 
@@ -51,15 +56,15 @@ public class CustomAgendaChatRepositoryImpl implements CustomAgendaChatRepositor
         SortOperation sortStage = Aggregation.sort(org.springframework.data.domain.Sort.Direction.DESC, "_id");
 
         // Group - 각 채팅방(agendaId)별 최신 메시지 1개만 가져오기
-        GroupOperation groupStage = Aggregation.group("agendaId")
-                .first("$$ROOT").as("lastChat");
+        GroupOperation groupStage = Aggregation.group(AGENDA_ID)
+                .first("$$ROOT").as(LAST_CHAT);
 
         // Project - lastChat에서 _id, chat, createdAt만 유지
         ProjectionOperation projectStage = Aggregation.project()
-                .and("_id").as("agendaId")  // 원래 _id를 agendaId로 매핑
-                .and("lastChat._id").as("chatId")
-                .and("lastChat.chat").as("content")
-                .and("lastChat.createdAt").as("createdAt");
+                .and("_id").as(LastChat.AGENDA_ID)  // 원래 _id를 agendaId로 매핑
+                .and("lastChat._id").as(LastChat.CHAT_ID)
+                .and("lastChat.chat").as(LastChat.CONTENT)
+                .and("lastChat.createdAt").as(LastChat.CREATED_AT);
 
         // Aggregation 실행
         Aggregation aggregation = Aggregation.newAggregation(
@@ -76,10 +81,10 @@ public class CustomAgendaChatRepositoryImpl implements CustomAgendaChatRepositor
     public LastChat findLastChat(Long agendaId, Long memberId) {
         // Match - 주어진 agendaId 리스트와 memberId 필터링
         MatchOperation matchStage = Aggregation.match(
-                new Criteria("agendaId").in(agendaId)
+                new Criteria(AGENDA_ID).in(agendaId)
                         .orOperator(
-                                Criteria.where("memberId").is(memberId),
-                                Criteria.where("isAdmin").is(true)
+                                Criteria.where(MEMBER_ID).is(memberId),
+                                Criteria.where(IS_ADMIN).is(true)
                         )
         );
 
@@ -87,16 +92,16 @@ public class CustomAgendaChatRepositoryImpl implements CustomAgendaChatRepositor
         SortOperation sortStage = Aggregation.sort(org.springframework.data.domain.Sort.Direction.DESC, "_id");
 
         // Group - 각 채팅방(agendaId)별 최신 메시지 1개만 가져오기
-        GroupOperation groupStage = Aggregation.group("agendaId")
-                .first("$$ROOT").as("lastChat");
+        GroupOperation groupStage = Aggregation.group(AGENDA_ID)
+                .first("$$ROOT").as(LAST_CHAT);
 
 
         // Project - lastChat에서 _id, chat, createdAt만 유지
         ProjectionOperation projectStage = Aggregation.project()
-                .and("_id").as("agendaId")  // 원래 _id를 agendaId로 매핑
-                .and("lastChat._id").as("chatId")
-                .and("lastChat.chat").as("content")
-                .and("lastChat.createdAt").as("createdAt");
+                .and("_id").as(LastChat.AGENDA_ID)  // 원래 _id를 agendaId로 매핑
+                .and("lastChat._id").as(LastChat.CHAT_ID)
+                .and("lastChat.chat").as(LastChat.CONTENT)
+                .and("lastChat.createdAt").as(LastChat.CREATED_AT);
 
 
         // Aggregation 실행
@@ -125,13 +130,13 @@ public class CustomAgendaChatRepositoryImpl implements CustomAgendaChatRepositor
     @Override
     public void upsertLastReadChat(Long agendaId, Long memberId, ObjectId lastChatId) {
         Query query = new Query();
-        query.addCriteria(Criteria.where("memberId").is(memberId)
-                .and("agendaId").is(agendaId));
+        query.addCriteria(Criteria.where(MEMBER_ID).is(memberId)
+                .and(AGENDA_ID).is(agendaId));
 
         Update update = new Update();
         update.set("lastReadChatId", lastChatId);
-        update.setOnInsert("memberId", memberId); // 삽입될 경우 기본값 설정
-        update.setOnInsert("agendaId", agendaId);
+        update.setOnInsert(MEMBER_ID, memberId); // 삽입될 경우 기본값 설정
+        update.setOnInsert(AGENDA_ID, agendaId);
 
         mongoTemplate.upsert(query, update, AGENDA_LAST_READ_COLLECTION); // upsert 사용
     }
