@@ -5,6 +5,7 @@ import ArrowUpIcon from '/src/assets/icons/full-arrow-up.svg?react';
 import CloseIcon from '/src/assets/icons/close-2.svg?react';
 import Typography from '../../styles/Typography';
 import { BorderProps } from '../BorderProps';
+import { ImagePreview } from './ImagePreview';
 
 interface ChatSendFieldProps {
   placeholder?: string;
@@ -75,6 +76,7 @@ export const ChatSendField: React.FC<ChatSendFieldProps> = ({
   sendDisabled = false,
 }) => {
   const [message, setMessage] = useState(initialText);
+  const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
 
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -121,84 +123,99 @@ export const ChatSendField: React.FC<ChatSendFieldProps> = ({
   const isImageDisabled = images.length >= maxLengthOfImages || imageDisabled;
 
   return (
-    <ChatSendContainer bcakgroundColor={backgroundColor}>
-      <ImageUploadBox
-        backgroundColor={
-          isImageDisabled ? imageButtonDisabledBackgroundColor : imageButtonBackgroundColor
-        }
-      >
-        <CameraIcon
-          width="20px"
-          height="20px"
-          fill={isImageDisabled ? imageButtonDisabledIconColor : imageButtonIconColor}
-          stroke={isImageDisabled ? imageButtonDisabledIconColor : imageButtonIconColor}
-        />
-        <HiddenFileInput
-          type="file"
-          accept="image/*"
-          multiple
-          onChange={handleImageUpload}
-          disabled={isImageDisabled}
-        />
-      </ImageUploadBox>
-
-      <TextFieldContainer>
-        <CountText variant="caption2">
-          {textDisabled ? 0 : message.length}/{maxLength}
-        </CountText>
-        <TextFieldBox
+    <>
+      <ChatSendContainer bcakgroundColor={backgroundColor}>
+        <ImageUploadBox
           backgroundColor={
-            textDisabled ? textFieldDisabledBackgroundColor : textFieldBackgroundColor
+            isImageDisabled ? imageButtonDisabledBackgroundColor : imageButtonBackgroundColor
           }
-          border={textFieldBorder}
         >
-          {images && images.length > 0 && !textDisabled && (
-            <ImageList>
-              {images.map((image, index) => (
-                <ImageListItem key={index}>
-                  <DeleteButtonBox onClick={() => onImageDelete(index)}>
-                    <CloseIcon width="16px" height="16px" stroke="white" />
-                  </DeleteButtonBox>
-                  <ImageBox src={image} />
-                </ImageListItem>
-              ))}
-            </ImageList>
-          )}
+          <CameraIcon
+            width="20px"
+            height="20px"
+            fill={isImageDisabled ? imageButtonDisabledIconColor : imageButtonIconColor}
+            stroke={isImageDisabled ? imageButtonDisabledIconColor : imageButtonIconColor}
+          />
+          <HiddenFileInput
+            type="file"
+            accept="image/*"
+            multiple
+            onChange={handleImageUpload}
+            disabled={isImageDisabled}
+          />
+        </ImageUploadBox>
 
-          <TextFieldInputWrapper>
-            <TextFieldInput
-              rows={1}
-              ref={textAreaRef}
-              variant="body3"
-              value={textDisabled ? '' : message}
-              textColor={textDisabled ? disabledTextColor : textColor}
-              placeholder={textDisabled ? disabledPlaceHolder : placeholder}
-              placeholderColor={textDisabled ? disabledPlaceholderColor : placeholderColor}
-              onChange={(e) => {
-                handleTextInput(e.target.value);
-              }}
-              disabled={textDisabled}
-            />
-
-            <SendButtonWrapper />
-          </TextFieldInputWrapper>
-
-          <SendButtonBox
-            onClick={handleSend}
+        <TextFieldContainer>
+          <CountText variant="caption2">
+            {textDisabled ? 0 : message.length}/{maxLength}
+          </CountText>
+          <TextFieldBox
             backgroundColor={
-              sendDisabled ? sendButtonDisabledBackgroundColor : sendButtonBackgroundColor
+              textDisabled ? textFieldDisabledBackgroundColor : textFieldBackgroundColor
             }
+            border={textFieldBorder}
           >
-            <ArrowUpIcon
-              width="24px"
-              height="24px"
-              fill={sendDisabled ? sendButtonDisabledIconColor : sendButtonIconColor}
-              stroke={sendDisabled ? sendButtonDisabledIconColor : sendButtonIconColor}
-            />
-          </SendButtonBox>
-        </TextFieldBox>
-      </TextFieldContainer>
-    </ChatSendContainer>
+            {images && images.length > 0 && !textDisabled && (
+              <ImageList>
+                {images.map((image, index) => (
+                  <ImageListItem key={index}>
+                    <DeleteButtonBox onClick={() => onImageDelete(index)}>
+                      <CloseIcon width="16px" height="16px" stroke="white" />
+                    </DeleteButtonBox>
+                    <ImageBox
+                      src={image}
+                      onClick={() => {
+                        setSelectedImageIndex(index);
+                      }}
+                    />
+                  </ImageListItem>
+                ))}
+              </ImageList>
+            )}
+
+            <TextFieldInputWrapper>
+              <TextFieldInput
+                rows={1}
+                ref={textAreaRef}
+                variant="body3"
+                value={textDisabled ? '' : message}
+                textColor={textDisabled ? disabledTextColor : textColor}
+                placeholder={textDisabled ? disabledPlaceHolder : placeholder}
+                placeholderColor={textDisabled ? disabledPlaceholderColor : placeholderColor}
+                onChange={(e) => {
+                  handleTextInput(e.target.value);
+                }}
+                disabled={textDisabled}
+              />
+
+              <SendButtonWrapper />
+            </TextFieldInputWrapper>
+
+            <SendButtonBox
+              onClick={handleSend}
+              backgroundColor={
+                sendDisabled ? sendButtonDisabledBackgroundColor : sendButtonBackgroundColor
+              }
+            >
+              <ArrowUpIcon
+                width="24px"
+                height="24px"
+                fill={sendDisabled ? sendButtonDisabledIconColor : sendButtonIconColor}
+                stroke={sendDisabled ? sendButtonDisabledIconColor : sendButtonIconColor}
+              />
+            </SendButtonBox>
+          </TextFieldBox>
+        </TextFieldContainer>
+      </ChatSendContainer>
+      {selectedImageIndex !== null && (
+        <ImagePreview
+          imageUrl={images[selectedImageIndex]}
+          onClose={() => setSelectedImageIndex(null)}
+          currentIndex={selectedImageIndex}
+          totalImages={images.length}
+        />
+      )}
+    </>
   );
 };
 

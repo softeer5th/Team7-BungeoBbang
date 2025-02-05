@@ -2,7 +2,7 @@
 import { createRoot } from 'react-dom/client';
 import './index.css';
 import { theme } from './styles/theme.ts';
-import { GlobalStyle } from './styles/GlobalStyles.ts';
+// import { GlobalStyle } from './styles/GlobalStyles.ts';
 import { ThemeProvider } from 'styled-components';
 import '@/styles/fonts.css';
 import '@/styles/reset.css';
@@ -13,7 +13,7 @@ const isAdmin = window.location.pathname.startsWith('/admin');
 
 createRoot(document.getElementById('root')!).render(
   <ThemeProvider theme={theme}>
-    <GlobalStyle />
+    {/* <GlobalStyle /> */}
     {isAdmin ? <AdminApp /> : <StudentApp />}
   </ThemeProvider>,
 );
