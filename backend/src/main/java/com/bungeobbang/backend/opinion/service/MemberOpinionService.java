@@ -16,7 +16,6 @@ import com.bungeobbang.backend.opinion.dto.request.OpinionCreationRequest;
 import com.bungeobbang.backend.opinion.dto.response.MemberOpinionsInfoResponse;
 import com.bungeobbang.backend.opinion.dto.response.OpinionCreationResponse;
 import com.bungeobbang.backend.opinion.dto.response.OpinionStatisticsResponse;
-import com.bungeobbang.backend.opinion.validator.OpinionValidator;
 import com.bungeobbang.backend.university.domain.University;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -39,7 +38,6 @@ public class MemberOpinionService {
     private final OpinionChatRepository opinionChatRepository;
     private final MemberRepository memberRepository;
     private final OpinionLastReadRepository opinionLastReadRepository;
-    private final OpinionValidator validator;
     private static final String MIN_OBJECT_ID = "000000000000000000000000";
 
     /**
@@ -112,7 +110,9 @@ public class MemberOpinionService {
     public void remindOpinion(final Long opinionId, final Accessor accessor) {
         final Opinion opinion = opinionRepository.findById(opinionId)
                 .orElseThrow(() -> new OpinionException(ErrorCode.INVALID_OPINION));
-        validator.validateAuthor(opinion, accessor);
+        if (!opinion.getMember().getId().equals(accessor.id())) {
+            throw new OpinionException(ErrorCode.UNAUTHORIZED_OPINION_ACCESS);
+        }
         opinion.setRemind();
     }
 
