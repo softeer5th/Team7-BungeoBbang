@@ -67,22 +67,13 @@ public class AdminOpinionService {
         return opinions.stream()
                 .map(opinion -> {
                     // 마지막 읽은 채팅 정보 조회
-                    final OpinionLastRead opinionLastRead = opinionLastReadRepository.findByOpinionIdAndIsAdmin(opinion.getId(), true)
+                    final OpinionLastRead lastRead = opinionLastReadRepository.findByOpinionIdAndIsAdmin(opinion.getId(), true)
                             .orElseThrow(() -> new OpinionException(ErrorCode.INVALID_OPINION_LAST_READ));
                     // 최신 채팅 정보 조회
                     final OpinionChat lastChat = opinionChatRepository.findTopByOpinionIdOrderByIdDesc(opinion.getId())
                             .orElseThrow(() -> new OpinionException(ErrorCode.INVALID_OPINION_CHAT));
                     // 응답 객체 생성
-                    return AdminOpinionsInfoResponse.builder()
-                            .opinionId(opinion.getId()) // 말해요 채팅방 ID
-                            .opinionType(opinion.getOpinionType()) // 말해요 타입
-                            .categoryType(opinion.getCategoryType()) // 카테고리 타입
-                            .lastChatId(lastChat.getId()) // 마지막 채팅 ID -> 정렬하기 위함.
-                            .lastChat(lastChat.getChat()) // 최신 채팅 내용
-                            .lastChatCreatedAt(ObjectIdTimestampConverter.getLocalDateTimeFromObjectId(lastChat.getId())) // 최신 채팅 생성 시간
-                            .hasNewChat(!opinionLastRead.getLastReadChatId().equals(lastChat.getId())) // 새로운 채팅 여부
-                            .isRemind(opinion.isRemind()) // 리마인드 여부
-                            .build();
+                    return AdminOpinionsInfoResponse.of(opinion, lastChat, lastRead);
                 })
                 .sorted()
                 .toList();
