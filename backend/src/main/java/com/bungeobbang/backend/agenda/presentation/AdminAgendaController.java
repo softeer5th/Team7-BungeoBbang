@@ -74,7 +74,7 @@ public class AdminAgendaController implements AdminAgendaApi {
     @PatchMapping("/{agendaId}")
     public ResponseEntity<Void> editAgenda(@AdminAuth Accessor accessor,
                                            @PathVariable Long agendaId,
-                                           @RequestBody AgendaEditRequest request) {
+                                           @RequestBody @Valid AgendaEditRequest request) {
         adminAgendaService.editAgenda(accessor.id(), agendaId, request);
         return ResponseEntity.noContent().build();
     }
