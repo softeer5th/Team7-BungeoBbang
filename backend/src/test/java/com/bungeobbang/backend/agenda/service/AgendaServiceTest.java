@@ -1,12 +1,19 @@
 package com.bungeobbang.backend.agenda.service;
 
 import com.bungeobbang.backend.agenda.domain.Agenda;
+import com.bungeobbang.backend.agenda.domain.AgendaLastReadChat;
+import com.bungeobbang.backend.agenda.domain.AgendaMember;
+import com.bungeobbang.backend.agenda.domain.repository.AgendaLastReadChatRepository;
 import com.bungeobbang.backend.agenda.domain.repository.AgendaMemberRepository;
 import com.bungeobbang.backend.agenda.domain.repository.AgendaRepository;
 import com.bungeobbang.backend.agenda.domain.repository.CustomAgendaChatRepository;
+import com.bungeobbang.backend.agenda.dto.response.AgendaDetailResponse;
+import com.bungeobbang.backend.agenda.dto.response.LastChat;
+import com.bungeobbang.backend.agenda.dto.response.MyAgendaResponse;
 import com.bungeobbang.backend.common.exception.AgendaException;
 import com.bungeobbang.backend.member.domain.Member;
 import com.bungeobbang.backend.member.domain.repository.MemberRepository;
+import org.bson.types.ObjectId;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -15,14 +22,18 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 import static com.bungeobbang.backend.agenda.fixture.AgendaFixture.NAVER_AGENDA;
+import static com.bungeobbang.backend.agenda.fixture.AgendaFixture.NAVER_AGENDA_2;
 import static com.bungeobbang.backend.common.exception.ErrorCode.*;
 import static com.bungeobbang.backend.member.fixture.MemberFixture.KAKAO_MEMBER;
 import static com.bungeobbang.backend.member.fixture.MemberFixture.NAVER_MEMBER;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -37,6 +48,9 @@ class AgendaServiceTest {
     private AgendaMemberRepository agendaMemberRepository;
     @Mock
     private CustomAgendaChatRepository customAgendaChatRepository;
+
+    @Mock
+    private AgendaLastReadChatRepository agendaLastReadChatRepository;
     @Mock
     private AgendaRepository agendaRepository;
     @Mock
@@ -117,6 +131,26 @@ class AgendaServiceTest {
     }
 
     @Test
+    @DisplayName("답해요를 조회한다.")
+    void getAgendaDetail() {
+        Member member = NAVER_MEMBER;
+        Agenda agenda = NAVER_AGENDA;
+        when(agendaRepository.findById(anyLong()))
+                .thenReturn(Optional.of(agenda));
+        when(memberRepository.findById(anyLong()))
+                .thenReturn(Optional.of(member));
+
+        AgendaDetailResponse expected = AgendaDetailResponse.from(agenda);
+
+        // when
+        final AgendaDetailResponse actual = agendaService.getAgendaDetail(member.getId(), agenda.getId());
+
+        // then
+        assertThat(actual).usingRecursiveComparison().isEqualTo(expected);
+
+    }
+
+    @Test
     @DisplayName("참여 내역이 없는 답해요에서 나가면 에러가 발생한다.")
     void exitAgenda_participationNotFound() {
         // given
@@ -147,6 +181,34 @@ class AgendaServiceTest {
 
         // then
         verify(agendaMemberRepository, Mockito.times(1)).deleteByMemberIdAndAgendaId(member.getId(), agenda.getId());
+    }
+
+    @Test
+    @DisplayName("내가 참가한 답해요 목록을 조회한다.")
+    void getMyAgendas() {
+        Member member = NAVER_MEMBER;
+        Agenda agenda = NAVER_AGENDA;
+        Agenda agenda2 = NAVER_AGENDA_2;
+        when(memberRepository.findById(anyLong()))
+                .thenReturn(Optional.of(member));
+        when(agendaMemberRepository.findAllByMember(member))
+                .thenReturn(List.of(new AgendaMember(1L, agenda, member), new AgendaMember(1L, agenda2, member)));
+        when(customAgendaChatRepository.findLastChats(List.of(1L, 2L), member.getId()))
+                .thenReturn(
+                        List.of(
+                                new LastChat(1L, new ObjectId(0, 0), "1번 마지막 채팅", LocalDateTime.now())
+                        ));
+        when(agendaLastReadChatRepository.findByMemberIdAndAgendaId(anyLong(), anyLong()))
+                .thenReturn(new AgendaLastReadChat(new ObjectId(0, 0), member.getId(), agenda.getId(), new ObjectId(0, 0)));
+
+        // when
+        final List<MyAgendaResponse> myAgenda = agendaService.getMyAgenda(member.getId());
+        // then
+        assertThat(myAgenda).hasSize(2);
+
+        final List<String> contents = myAgenda.stream()
+                .map(response -> response.lastChat().content()).toList();
+        assertThat(contents).containsExactly("1번 마지막 채팅", null);
     }
 
 }
