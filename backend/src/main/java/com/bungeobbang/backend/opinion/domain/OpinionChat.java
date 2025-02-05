@@ -4,10 +4,8 @@ import jakarta.persistence.Id;
 import lombok.Builder;
 import lombok.Getter;
 import org.bson.types.ObjectId;
-import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
@@ -26,9 +24,6 @@ public class OpinionChat {
     private List<String> images;
 
     private boolean isAdmin;
-
-    @CreatedDate
-    private LocalDateTime createdAt;
 
     @Builder
     public OpinionChat(Long memberId, Long opinionId, String chat, List<String> images, boolean isAdmin) {
