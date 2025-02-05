@@ -51,6 +51,7 @@ export const CategoryStep = ({
               selectedBorderColor: '#1F87FF',
               borderRadius: '100px',
             }}
+            sidePadding="43px"
           />
         </S.ChipListWrapper>
       </motion.div>

@@ -12,6 +12,7 @@ interface ChipListProps {
   itemBorder?: BorderProps;
   onChipClick: (chipId: string) => void;
   items: (ChipListItemProps & { itemId: string })[]; // 🔥 `itemId` 추가
+  sidePadding?: string;
 }
 
 export const ChipList: React.FC<ChipListProps> = ({
@@ -23,11 +24,12 @@ export const ChipList: React.FC<ChipListProps> = ({
   itemBorder,
   onChipClick = () => {},
   items,
+  sidePadding = '0px',
 }) => {
   const [selectedItem, setSelectedItem] = useState<string | null>(null);
 
   return (
-    <ChipListContainer backgroundColor={backgroundColor}>
+    <ChipListContainer backgroundColor={backgroundColor} sidePadding={sidePadding}>
       {items.map((item) => (
         <ChipListItem
           key={item.itemId}
@@ -51,9 +53,10 @@ export const ChipList: React.FC<ChipListProps> = ({
 
 const ChipListContainer = styled.div<{
   backgroundColor: string;
+  sidePadding: string;
 }>`
   background-color: ${(props) => props.backgroundColor};
-  padding: 0px 43px 0px 43px;
+  padding: 0px ${(props) => props.sidePadding} 0px ${(props) => props.sidePadding};
   overflow: scroll;
   display: flex;
   align-items: center;
