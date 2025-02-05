@@ -90,17 +90,17 @@ const AgendaPage = () => {
   const bottomItems: BottomNavigationItemProps[] = [
     {
       itemId: 'agenda',
-      iconSrc: '/assets/icons/message.svg',
+      iconSrc: '/src/assets/icons/message.svg',
       title: '답해요',
     },
     {
       itemId: 'opinion',
-      iconSrc: '/assets/icons/home.svg',
+      iconSrc: '/src/assets/icons/home.svg',
       title: '말해요',
     },
     {
       itemId: 'my',
-      iconSrc: '/assets/icons/profile.svg',
+      iconSrc: '/src/assets/icons/profile.svg',
       title: '내 의견',
     },
   ];
