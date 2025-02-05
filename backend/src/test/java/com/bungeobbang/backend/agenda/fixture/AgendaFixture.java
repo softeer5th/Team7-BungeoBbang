@@ -22,4 +22,14 @@ public class AgendaFixture {
             .images(List.of(new AgendaImage(1L, null, "image1")))
             .build();
 
+    public static Agenda NAVER_AGENDA_2 = Agenda.builder()
+            .id(2L)
+            .admin(NAVER_ADMIN)
+            .university(NAVER_UNIVERSITY)
+            .isEnd(false)
+            .startDate(LocalDate.now())
+            .endDate(LocalDate.now().plusDays(5))
+            .categoryType(ACADEMICS)
+            .images(List.of(new AgendaImage(1L, null, "image1")))
+            .build();
 }
