@@ -58,7 +58,7 @@ public class AdminAgendaController implements AdminAgendaApi {
     @PatchMapping("/{agendaId}/close")
     public ResponseEntity<Void> endAgenda(@AdminAuth Accessor accessor,
                                           @PathVariable Long agendaId) {
-        adminAgendaService.endAgenda(agendaId);
+        adminAgendaService.endAgenda(accessor.id(), agendaId);
         return ResponseEntity.noContent().build();
     }
 

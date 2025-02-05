@@ -119,13 +119,19 @@ public class AdminAgendaService {
     /**
      * ✅ 특정 "답해요" 채팅방을 종료합니다.
      *
+     * @param adminId 관리자
      * @param agendaId 종료할 "답해요" ID
      * @throws AgendaException 게시글을 찾을 수 없는 경우
+     * @throws AgendaException 대학이 일치하지 않는 경우
      */
     @Transactional
-    public void endAgenda(final Long agendaId) {
+    public void endAgenda(Long adminId, final Long agendaId) {
+        final Admin admin = getAdmin(adminId);
         final Agenda agenda = agendaRepository.findById(agendaId)
                 .orElseThrow(() -> new AgendaException(INVALID_AGENDA));
+
+        if (admin.getUniversity().equals(agenda.getUniversity()))
+            throw new AgendaException(FORBIDDEN_UNIVERSITY_ACCESS);
 
         agenda.end();
     }
