@@ -14,7 +14,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class OpinionService {
 
-    public static final String MAX_OBJECT_ID = "ffffffffffffffffffffffff";
+    private static final String MAX_OBJECT_ID = "ffffffffffffffffffffffff";
 
     private final OpinionChatRepository opinionChatRepository;
 

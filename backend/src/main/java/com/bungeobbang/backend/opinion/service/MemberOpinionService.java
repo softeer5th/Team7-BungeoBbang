@@ -18,6 +18,7 @@ import com.bungeobbang.backend.opinion.dto.response.OpinionStatisticsResponse;
 import com.bungeobbang.backend.university.domain.University;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.bson.types.ObjectId;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,6 +37,7 @@ public class MemberOpinionService {
     private final OpinionChatRepository opinionChatRepository;
     private final MemberRepository memberRepository;
     private final OpinionLastReadRepository opinionLastReadRepository;
+    private static final String MAX_OBJECT_ID = "ffffffffffffffffffffffff";
 
     /**
      * 1개월 동안의 의견 통계 정보를 계산합니다.
@@ -66,6 +68,9 @@ public class MemberOpinionService {
 
     /**
      * 새로운 의견(채팅방)을 생성합니다.
+     * 생성 이후 opinion_last_read 테이블에 새로 등록합니다.
+     * opinionId={}, isAdmin=true lastReadChatId = ObjectId.MAX
+     * opinionId={}, isAdmin=false lastReadChatId = 등록한 chatId
      *
      * @param creationRequest 말해요 채팅방 생성 요청 객체
      * @param memberId        학생 ID
@@ -81,7 +86,15 @@ public class MemberOpinionService {
 
         final Opinion opinion = createOpinionEntity(creationRequest, member);
         final Long opinionId = opinionRepository.save(opinion).getId();
-        saveOpinionChat(creationRequest, member, opinionId);
+        ObjectId savedChatId = saveOpinionChat(creationRequest, member, opinionId);
+
+        // 학생의 마지막 읽은 채팅 ID는 현재 저장한 채팅의 ID
+        OpinionLastRead memberLastRead = new OpinionLastRead(opinionId, false, savedChatId);
+        opinionLastReadRepository.save(memberLastRead);
+
+        // 학생회의 마지막 읽은 채팅 ID는 ObjectId의 최댓값. (== 아무것도 읽지 않았다는 뜻, isNew를 띄우기 위함.)
+        OpinionLastRead adminLastRead = new OpinionLastRead(opinionId, true, new ObjectId(MAX_OBJECT_ID));
+        opinionLastReadRepository.save(adminLastRead);
 
         return new OpinionCreationResponse(opinionId);
     }
@@ -136,16 +149,16 @@ public class MemberOpinionService {
      * @param member          학생 객체
      * @param opinionId       생성된 말해요 채팅방 ID
      */
-    private void saveOpinionChat(final OpinionCreationRequest creationRequest,
-                                 final Member member,
-                                 final Long opinionId) {
+    private ObjectId saveOpinionChat(final OpinionCreationRequest creationRequest,
+                                     final Member member,
+                                     final Long opinionId) {
         final OpinionChat opinionChat = OpinionChat.builder()
                 .memberId(member.getId())
                 .opinionId(opinionId)
                 .chat(creationRequest.content())
                 .images(creationRequest.images())
                 .build();
-        opinionChatRepository.save(opinionChat);
+        return opinionChatRepository.save(opinionChat).getId();
     }
 
     /**
