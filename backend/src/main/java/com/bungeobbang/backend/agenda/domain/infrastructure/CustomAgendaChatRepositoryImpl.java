@@ -2,7 +2,6 @@ package com.bungeobbang.backend.agenda.domain.infrastructure;
 
 import com.bungeobbang.backend.agenda.domain.repository.CustomAgendaChatRepository;
 import com.bungeobbang.backend.agenda.dto.response.LastChat;
-import com.bungeobbang.backend.agenda.dto.response.LastReadChat;
 import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -26,7 +25,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class CustomAgendaChatRepositoryImpl implements CustomAgendaChatRepository {
     private final static String AGENDA_COLLECTION = "agenda_chat";
-    private final static String AGENDA_LAST_READ_COLLECTION = "agenda_chat_last_read";
+    private final static String AGENDA_LAST_READ_COLLECTION = "agenda_last_read_chat";
     private final MongoTemplate mongoTemplate;
 
     /**
@@ -112,40 +111,6 @@ public class CustomAgendaChatRepositoryImpl implements CustomAgendaChatRepositor
     }
 
     /**
-     * <h3>MongoDB에서 특정 사용자의 마지막 읽은 채팅 ID 조회</h3>
-     * <p>특정 채팅방(agendaId)에서 사용자가 마지막으로 읽은 메시지 ID를 조회합니다.</p>
-     *
-     * @param agendaId 조회할 채팅방의 ID
-     * @param memberId 사용자 ID
-     * @return 마지막으로 읽은 채팅 ID (없으면 null 반환)
-     */
-    @Override
-    public ObjectId findLastReadChat(Long agendaId, Long memberId) {
-        // Match - 특정 agendaId와 memberId 필터링
-        MatchOperation matchStage = Aggregation.match(
-                Criteria.where("agendaId").is(agendaId)
-                        .and("memberId").is(memberId)
-        );
-
-        // Project - 필요한 필드만 선택
-        ProjectionOperation projectStage = Aggregation.project()
-                .and("lastReadChatId").as("chatId");
-
-        // Aggregation 실행
-        Aggregation aggregation = Aggregation.newAggregation(
-                matchStage,
-                projectStage
-        );
-
-        final LastReadChat lastReadChat = mongoTemplate.aggregate(aggregation, AGENDA_LAST_READ_COLLECTION, LastReadChat.class).getUniqueMappedResult();
-
-        // 값이 없으면 null 반환
-        System.out.println(lastReadChat == null);
-        return lastReadChat != null ? lastReadChat.chatId() : null;
-    }
-
-
-    /**
      * 특정 멤버가 특정 아젠다에서 마지막으로 읽은 채팅 ID를 업데이트하거나, 문서가 없으면 새로 생성합니다.
      *
      * <p>이 메서드는 {@code agenda_chat_last_read} 컬렉션에서
@@ -158,7 +123,7 @@ public class CustomAgendaChatRepositoryImpl implements CustomAgendaChatRepositor
      * @param lastChatId 마지막으로 읽은 채팅 메시지의 ObjectId
      */
     @Override
-    public void saveLastReadChat(Long agendaId, Long memberId, ObjectId lastChatId) {
+    public void upsertLastReadChat(Long agendaId, Long memberId, ObjectId lastChatId) {
         Query query = new Query();
         query.addCriteria(Criteria.where("memberId").is(memberId)
                 .and("agendaId").is(agendaId));
@@ -168,6 +133,6 @@ public class CustomAgendaChatRepositoryImpl implements CustomAgendaChatRepositor
         update.setOnInsert("memberId", memberId); // 삽입될 경우 기본값 설정
         update.setOnInsert("agendaId", agendaId);
 
-        mongoTemplate.upsert(query, update, "agenda_chat_last_read"); // upsert 사용
+        mongoTemplate.upsert(query, update, AGENDA_LAST_READ_COLLECTION); // upsert 사용
     }
 }

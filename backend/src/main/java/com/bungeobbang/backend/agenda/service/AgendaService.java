@@ -2,6 +2,7 @@ package com.bungeobbang.backend.agenda.service;
 
 import com.bungeobbang.backend.agenda.domain.Agenda;
 import com.bungeobbang.backend.agenda.domain.AgendaMember;
+import com.bungeobbang.backend.agenda.domain.repository.AgendaLastReadChatRepository;
 import com.bungeobbang.backend.agenda.domain.repository.AgendaMemberRepository;
 import com.bungeobbang.backend.agenda.domain.repository.AgendaRepository;
 import com.bungeobbang.backend.agenda.domain.repository.CustomAgendaChatRepository;
@@ -49,6 +50,7 @@ import static com.bungeobbang.backend.common.exception.ErrorCode.AGENDA_PARTICIP
 public class AgendaService {
 
     private final AgendaMemberRepository agendaMemberRepository;
+    private final AgendaLastReadChatRepository agendaLastReadChatRepository;
     private final CustomAgendaChatRepository customAgendaChatRepository;
     private final AgendaRepository agendaRepository;
     private final MemberRepository memberRepository;
@@ -84,10 +86,9 @@ public class AgendaService {
         );
 
         // 현재 시점에서의 마지막 채팅을 마지막 읽은 채팅으로 저장
-        // todo 비동기 고려
         final LastChat lastChat = customAgendaChatRepository.findLastChat(agendaId, memberId);
         ObjectId lastChatId = lastChat == null ? MIN_OBJECT_ID : lastChat.chatId();
-        customAgendaChatRepository.saveLastReadChat(agendaId, memberId, lastChatId);
+        customAgendaChatRepository.upsertLastReadChat(agendaId, memberId, lastChatId);
     }
 
     /**
@@ -197,7 +198,7 @@ public class AgendaService {
      * @return 마지막으로 읽은 채팅의 ObjectId (없으면 null)
      */
     private ObjectId getLastReadChat(final Long agendaId, final Long memberId) {
-        return customAgendaChatRepository.findLastReadChat(agendaId, memberId);
+        return agendaLastReadChatRepository.findByMemberIdAndAgendaId(memberId, agendaId).getLastReadChatId();
     }
 
     /**
