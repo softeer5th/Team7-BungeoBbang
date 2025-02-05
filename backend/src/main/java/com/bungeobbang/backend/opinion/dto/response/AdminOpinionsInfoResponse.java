@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 public record AdminOpinionsInfoResponse(
         OpinionInfo opinion,
         OpinionLastChatInfo lastChat,
-        boolean hasNew
+        boolean hasNewChat
 ) implements Comparable<AdminOpinionsInfoResponse> {
     public static AdminOpinionsInfoResponse of(Opinion opinion, OpinionChat lastChat, OpinionLastRead lastRead) {
         return new AdminOpinionsInfoResponse(

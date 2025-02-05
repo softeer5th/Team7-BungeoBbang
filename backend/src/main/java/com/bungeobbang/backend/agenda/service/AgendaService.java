@@ -148,7 +148,7 @@ public class AgendaService {
                     final Agenda agenda = agendaMap.get(agendaId);
                     final LastChat lastChat = lastChatMap.getOrDefault(agendaId, new LastChat(agendaId, null, null, null));
 
-                    // 마지막 읽은 채팅 조회 및 비교하여 hasNew 여부 확인
+                    // 마지막 읽은 채팅 조회 및 비교하여 hasNewChat 여부 확인
                     final ObjectId lastReadChat = getLastReadChat(agendaId, memberId);
                     final boolean hasNew = hasNewMessage(lastChat.chatId(), lastReadChat);
 
