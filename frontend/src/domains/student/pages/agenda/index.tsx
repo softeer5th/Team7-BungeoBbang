@@ -11,7 +11,6 @@ import { ButtonProps } from '@/components/Button';
 import { useNavigate } from 'react-router-dom';
 import { Dialog } from '@/components/Dialog/Dialog';
 import api from '@/utils/api';
-import axios from 'axios';
 import { bottomItems } from '../\bdestinations';
 import JWTManager from '@/utils/jwtManager';
 
@@ -24,106 +23,84 @@ const AgendaPage = () => {
 
   const [chatRooms, setChatRooms] = useState<ChatListCardData[]>([]);
 
-  const mockData = [
-    {
-      roomId: '1',
-      dday: 'D-2',
-      iconSrc: '/assets/icons/school.svg',
-      iconBackgroundColor: theme?.colors.icnGreen,
-      title: '2025학년도 1학기 수강 신청 수요 조사',
-      numOfJoin: 0,
-      isInProgress: true,
-    },
-    {
-      roomId: '11',
-      dday: 'D-2',
-      iconSrc: '/assets/icons/school.svg',
-      iconBackgroundColor: theme?.colors.icnGreen,
-      title: '2025학년도 1학기 수강 신청 수요 조사',
-      numOfJoin: 0,
-      isInProgress: true,
-    },
-    {
-      roomId: '12',
-      dday: 'D-2',
-      iconSrc: '/assets/icons/school.svg',
-      iconBackgroundColor: theme?.colors.icnGreen,
-      title: '2025학년도 1학기 수강 신청 수요 조사',
-      numOfJoin: 0,
-      isInProgress: true,
-    },
-    {
-      roomId: '2',
-      dday: 'D-7',
-      iconSrc: '/assets/icons/school.svg',
-      iconBackgroundColor: theme.colors.icnGreen,
-      title: '2025학년도 1학기 수강 신청 수요 조사',
-      numOfJoin: 0,
-      isInProgress: true,
-    },
-    {
-      roomId: '3',
-      dday: 'D+2',
-      iconSrc: '/assets/icons/school.svg',
-      iconBackgroundColor: theme.colors.icnGreen,
-      title: '2025학년도 1학기 수강 신청 수요 조사',
-      numOfJoin: 2,
-      isInProgress: false,
-    },
-    {
-      roomId: '4',
-      dday: 'D+2',
-      iconSrc: '/assets/icons/school.svg',
-      iconBackgroundColor: theme.colors.icnGreen,
-      title: '2025학년도 1학기 수강 신청 수요 조사',
-      numOfJoin: 5,
-      isInProgress: false,
-    },
-    {
-      roomId: '5',
-      dday: 'D+2',
-      iconSrc: '/assets/icons/school.svg',
-      iconBackgroundColor: theme.colors.icnGreen,
-      title: '2025학년도 1학기 수강 신청 수요 조사',
-      numOfJoin: 21,
-      isInProgress: false,
-    },
-  ];
-
-  async function getChats(status: string) {
-    // const accessor = {
-    //   id: 3,
-    //   authority: 'MEMBER',
-    //   member: true,
-    //   admin: false,
-    // };
-
-    const response = await api.get('/student/agendas', {
-      params: {
-        // accessor: accessor,
-        status: status,
-      },
-    });
-    console.log(response);
-    return response;
-  }
-
+  // const mockData = [
+  //   {
+  //     roomId: '1',
+  //     dday: 'D-2',
+  //     iconSrc: '/assets/icons/school.svg',
+  //     iconBackgroundColor: theme?.colors.icnGreen,
+  //     title: '2025학년도 1학기 수강 신청 수요 조사',
+  //     numOfJoin: 0,
+  //     isInProgress: true,
+  //   },
+  //   {
+  //     roomId: '11',
+  //     dday: 'D-2',
+  //     iconSrc: '/assets/icons/school.svg',
+  //     iconBackgroundColor: theme?.colors.icnGreen,
+  //     title: '2025학년도 1학기 수강 신청 수요 조사',
+  //     numOfJoin: 0,
+  //     isInProgress: true,
+  //   },
+  //   {
+  //     roomId: '12',
+  //     dday: 'D-2',
+  //     iconSrc: '/assets/icons/school.svg',
+  //     iconBackgroundColor: theme?.colors.icnGreen,
+  //     title: '2025학년도 1학기 수강 신청 수요 조사',
+  //     numOfJoin: 0,
+  //     isInProgress: true,
+  //   },
+  //   {
+  //     roomId: '2',
+  //     dday: 'D-7',
+  //     iconSrc: '/assets/icons/school.svg',
+  //     iconBackgroundColor: theme.colors.icnGreen,
+  //     title: '2025학년도 1학기 수강 신청 수요 조사',
+  //     numOfJoin: 0,
+  //     isInProgress: true,
+  //   },
+  //   {
+  //     roomId: '3',
+  //     dday: 'D+2',
+  //     iconSrc: '/assets/icons/school.svg',
+  //     iconBackgroundColor: theme.colors.icnGreen,
+  //     title: '2025학년도 1학기 수강 신청 수요 조사',
+  //     numOfJoin: 2,
+  //     isInProgress: false,
+  //   },
+  //   {
+  //     roomId: '4',
+  //     dday: 'D+2',
+  //     iconSrc: '/assets/icons/school.svg',
+  //     iconBackgroundColor: theme.colors.icnGreen,
+  //     title: '2025학년도 1학기 수강 신청 수요 조사',
+  //     numOfJoin: 5,
+  //     isInProgress: false,
+  //   },
+  //   {
+  //     roomId: '5',
+  //     dday: 'D+2',
+  //     iconSrc: '/assets/icons/school.svg',
+  //     iconBackgroundColor: theme.colors.icnGreen,
+  //     title: '2025학년도 1학기 수강 신청 수요 조사',
+  //     numOfJoin: 21,
+  //     isInProgress: false,
+  //   },
+  // ];
   useEffect(() => {
-    JWTManager.getAccessToken().then((id) => {
-      console.log('token', id);
-    });
-
-    axios.all([getChats('ACTIVE'), getChats('CLOSED')]).then(
-      axios.spread(function (active, closed) {
-        console.log('active', active.data);
-        console.log('closed', closed.data);
-      }),
-    );
-  }, []);
-
-  useEffect(() => {
-    // api.get'/student/agendas/my',{
-    // }
+    const getChatRooms = async () => {
+      try {
+        console.log(await JWTManager.getMemberId());
+        console.log(await JWTManager.getAccessToken());
+        console.log(await JWTManager.getRefreshToken());
+        const response = await api.get('/student/agendas');
+        setChatRooms(response.data);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    getChatRooms();
   }, []);
 
   return (
