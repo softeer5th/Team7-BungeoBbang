@@ -10,6 +10,7 @@ import api from '@/utils/api';
 
 const OpinionCategoryPage: React.FC = () => {
   const navigate = useNavigate();
+
   const [selectedOpinion, setSelectedOpinion] = useState<string>('');
   const [selectedCategory, setSelectedCategory] = useState<string>('');
   const [message, setMessage] = useState('');
@@ -41,6 +42,7 @@ const OpinionCategoryPage: React.FC = () => {
     try {
       const response = await api.post('/student/opinions', messageData);
       console.log('메시지 전송 결과', response);
+      response.status === 200 && navigate('/student/opinion/chatroom');
     } catch (error) {
       console.error('메시지 전송 실패', error);
     }
