@@ -31,10 +31,8 @@ export const TitleContainer = styled.div`
 export const IconBox = styled.div<{
   backgroundColor: string;
 }>`
-  min-width: 30px;
-  min-height: 30px;
-  max-width: 30px;
-  max-height: 30px;
+  width: 30px;
+  height: 30px;
   background-color: ${(props) => props.backgroundColor};
   border-radius: 50%;
   display: flex;
