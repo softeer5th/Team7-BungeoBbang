@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 // import { useNavigate } from 'react-router-dom';
 import * as S from './styles';
 import { TopAppBar } from '@/components/TopAppBar';
@@ -15,8 +15,14 @@ import { ChatCategoryType } from '@/types/ChatCategoryType';
 const AgendaPage: React.FC = () => {
   const theme = useTheme();
 
-  const [currentItem, setCurrentItem] = useState(0);
+  const bottomNavRef = useRef<HTMLDivElement>(null);
+  const [bottomPx, setBottomPx] = useState(0);
+
+  const [activeIndex, setActiveIndex] = useState(0);
   const [tabContents, setTabContents] = useState<Record<string, ChatRoomListCardData[]>>({});
+
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [translateX, setTranslateX] = useState(0);
 
   const tabItems: TabBarItemProps[] = [
     {
@@ -94,7 +100,7 @@ const AgendaPage: React.FC = () => {
         endDate: '2024-01-15',
       },
       {
-        roomId: 'room6',
+        roomId: 'room7',
         hasNew: false,
         isInProgress: false,
         numOfJoin: 10,
@@ -104,7 +110,7 @@ const AgendaPage: React.FC = () => {
         endDate: '2024-01-15',
       },
       {
-        roomId: 'room6',
+        roomId: 'room8',
         hasNew: false,
         isInProgress: false,
         numOfJoin: 10,
@@ -114,7 +120,7 @@ const AgendaPage: React.FC = () => {
         endDate: '2024-01-15',
       },
       {
-        roomId: 'room6',
+        roomId: 'room9',
         hasNew: false,
         isInProgress: false,
         numOfJoin: 10,
@@ -124,7 +130,7 @@ const AgendaPage: React.FC = () => {
         endDate: '2024-01-15',
       },
       {
-        roomId: 'room6',
+        roomId: 'room10',
         hasNew: false,
         isInProgress: false,
         numOfJoin: 10,
@@ -138,7 +144,18 @@ const AgendaPage: React.FC = () => {
 
   useEffect(() => {
     setTabContents(mockData);
+    if (bottomNavRef) {
+      setBottomPx(bottomNavRef.current?.offsetHeight || 17);
+    }
   }, []);
+
+  useEffect(() => {
+    const scrollLeft = containerRef.current?.scrollLeft || 0;
+
+    const width = containerRef.current?.offsetWidth || 375;
+
+    setTranslateX(scrollLeft + -activeIndex * width);
+  }, [activeIndex]);
 
   return (
     <S.Container>
@@ -147,25 +164,21 @@ const AgendaPage: React.FC = () => {
         rightIconSrc="/src/assets/icons/logout.svg"
         titleColor={theme.colors.sementicMain}
       />
-
       <TabBar
-        currentDestination={tabItems[currentItem].itemId}
+        currentDestination={tabItems[activeIndex].itemId}
         items={tabItems}
         onItemClick={(itemId) =>
-          setCurrentItem(tabItems.findIndex((item) => item.itemId === itemId))
+          setActiveIndex(tabItems.findIndex((item) => item.itemId === itemId))
         }
       />
-
-      <S.TabContainer>
+      <S.TabContainer ref={containerRef}>
         {tabItems.map((tab) => {
           const content = tabContents[tab.itemId] || [];
-          console.log('content', tab, content);
           return (
-            <S.TabContent key={tab.itemId}>
+            <S.TabContent key={tab.itemId} transX={translateX}>
               {content.length > 0 ? (
                 <S.ChatPreviewList>
                   {content.map((c) => (
-                    // <div>{c.title}</div>
                     <ChatRoomListItem key={c.roomId} cardData={c} />
                   ))}
                 </S.ChatPreviewList>
@@ -183,8 +196,15 @@ const AgendaPage: React.FC = () => {
             </S.TabContent>
           );
         })}
+        <S.FloatingActionButton bottom={bottomPx}>
+          <img src="/src/assets/icons/plus.svg" />
+        </S.FloatingActionButton>
       </S.TabContainer>
-      <BottomNavigation startDestination={bottomItems[0].itemId} destinations={bottomItems} />
+      <BottomNavigation
+        ref={bottomNavRef}
+        startDestination={bottomItems[0].itemId}
+        destinations={bottomItems}
+      />
     </S.Container>
   );
 };

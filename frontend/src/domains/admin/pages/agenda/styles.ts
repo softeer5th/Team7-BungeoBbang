@@ -18,11 +18,17 @@ export const TabContainer = styled.div`
   &::-webkit-scrollbar {
     display: none;
   }
+  position: relative;
 `;
 
-export const TabContent = styled.div`
+export const TabContent = styled.div<{
+  transX: number;
+}>`
   min-width: 100%;
   max-width: 100%;
+
+  transform: translateX(${(props) => props.transX}px);
+  transition: transform 0.3s ease;
 `;
 
 export const ChatPreviewList = styled.div`
@@ -34,4 +40,20 @@ export const ChatPreviewList = styled.div`
   grid-auto-rows: min-content;
   gap: 15px;
   overflow: auto;
+`;
+
+export const FloatingActionButton = styled.div<{
+  bottom: number;
+}>`
+  width: 64px;
+  height: 64px;
+  position: fixed;
+  bottom: calc(${(props) => props.bottom}px + 17px);
+  right: 16px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: ${(props) => props.theme.colors.sementicMain};
+  border-radius: 50%;
+  box-shadow: 0px 0px 20px #00000033;
 `;

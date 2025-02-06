@@ -1,6 +1,8 @@
 import styled, { useTheme } from 'styled-components';
 import { ChatRoomListCardData } from './ChatRoomCardData';
 import Typography from '@/styles/Typography';
+import { CategoryIcon } from '@/components/CategoryIcon';
+import { useState } from 'react';
 
 interface ChatRoomListItemProps {
   cardData: ChatRoomListCardData;
@@ -8,6 +10,8 @@ interface ChatRoomListItemProps {
 
 export const ChatRoomListItem = ({ cardData }: ChatRoomListItemProps) => {
   const theme = useTheme();
+
+  const [isMoreContentVisible, setMoreContentVisible] = useState(false);
 
   const alarmColor = cardData.isInProgress
     ? cardData.hasNew
@@ -29,10 +33,33 @@ export const ChatRoomListItem = ({ cardData }: ChatRoomListItemProps) => {
           </AlarmText>
         </AlarmContainer>
 
-        <MoreIcon src="/src/assets/icons/dot-vertical.svg" />
+        <MoreIcon
+          src="/src/assets/icons/dot-vertical.svg"
+          onClick={() => setMoreContentVisible((v) => !v)}
+        />
+        <MoreContent visible={isMoreContentVisible}>
+          <MoreContentItem>
+            <ItemIcon src="/src/assets/icons/edit.svg" />
+            <ItemText variant="body1" textColor={theme.colors.grayScale90}>
+              수정
+            </ItemText>
+          </MoreContentItem>
+          <MoreContentItem>
+            <ItemIcon src="/src/assets/icons/trash.svg" />
+            <ItemText variant="body1" textColor={theme.colors.red}>
+              종료
+            </ItemText>
+          </MoreContentItem>
+          <MoreContentItem>
+            <ItemIcon src="/src/assets/icons/power.svg" />
+            <ItemText variant="body1" textColor={theme.colors.red}>
+              삭제
+            </ItemText>
+          </MoreContentItem>
+        </MoreContent>
       </HeaderContainer>
       <BodyContainer>
-        <IconBox></IconBox>
+        <CategoryIcon type={cardData.chatCategoryType} iconWidth={17} padding={6} />
         <TitleText variant="heading3">{cardData.title}</TitleText>
         <DateContainer>
           <DateIcon src="/src/assets/icons/calendar.svg" />
@@ -60,6 +87,7 @@ const HeaderContainer = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
+  position: relative;
 `;
 
 const AlarmContainer = styled.div`
@@ -87,6 +115,57 @@ const AlarmText = styled(Typography)<{
 const MoreIcon = styled.img`
   width: 20px;
   height: 20px;
+`;
+
+const MoreContent = styled.div<{
+  visible: boolean;
+}>`
+  display: ${(props) => (props.visible ? 'flex' : 'none')};
+  position: absolute;
+  top: 38px;
+  right: 0px;
+  padding: 4px 8px 4px 8px;
+  background-color: ${(props) => props.theme.colors.grayScaleWhite};
+  border-radius: 13px;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0px 0px 8px #0000001a;
+
+  & > * + * {
+    /* 첫 번째 요소를 제외한 모든 요소 앞에 적용 */
+    position: relative;
+  }
+
+  & > * + *::before {
+    content: '';
+    height: 1px; /* Divider 크기 */
+    width: 100%;
+    background-color: ${(props) => props.theme.colors.grayScale10};
+    position: absolute;
+    top: 0;
+    left: 0;
+  }
+`;
+
+const MoreContentItem = styled.div`
+  width: 100%;
+  padding: 8px 12px 8px 12px;
+  display: flex;
+  gap: 10px;
+  justify-content: space-between;
+  align-items: center;
+`;
+
+const ItemIcon = styled.img`
+  width: 16px;
+  height: 16px;
+`;
+
+const ItemText = styled(Typography)<{
+  textColor: string;
+}>`
+  color: ${(props) => props.textColor};
 `;
 
 const BodyContainer = styled.div`
