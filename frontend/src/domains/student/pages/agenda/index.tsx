@@ -10,10 +10,7 @@ import { LogoutDialog } from '@/components/Dialog/LogoutDialog';
 import { ButtonProps } from '@/components/Button';
 import { useNavigate } from 'react-router-dom';
 import { Dialog } from '@/components/Dialog/Dialog';
-import api from '@/utils/api';
-import axios from 'axios';
 import { bottomItems } from '../\bdestinations';
-import JWTManager from '@/utils/jwtManager';
 
 const AgendaPage = () => {
   const theme = useTheme();
@@ -26,7 +23,7 @@ const AgendaPage = () => {
 
   const mockData = [
     {
-      roomId: '1',
+      roomId: 1,
       dday: 'D-2',
       iconSrc: '/assets/icons/school.svg',
       iconBackgroundColor: theme?.colors.icnGreen,
@@ -35,7 +32,7 @@ const AgendaPage = () => {
       isInProgress: true,
     },
     {
-      roomId: '11',
+      roomId: 11,
       dday: 'D-2',
       iconSrc: '/assets/icons/school.svg',
       iconBackgroundColor: theme?.colors.icnGreen,
@@ -44,7 +41,7 @@ const AgendaPage = () => {
       isInProgress: true,
     },
     {
-      roomId: '12',
+      roomId: 12,
       dday: 'D-2',
       iconSrc: '/assets/icons/school.svg',
       iconBackgroundColor: theme?.colors.icnGreen,
@@ -53,7 +50,7 @@ const AgendaPage = () => {
       isInProgress: true,
     },
     {
-      roomId: '2',
+      roomId: 2,
       dday: 'D-7',
       iconSrc: '/assets/icons/school.svg',
       iconBackgroundColor: theme.colors.icnGreen,
@@ -62,7 +59,7 @@ const AgendaPage = () => {
       isInProgress: true,
     },
     {
-      roomId: '3',
+      roomId: 3,
       dday: 'D+2',
       iconSrc: '/assets/icons/school.svg',
       iconBackgroundColor: theme.colors.icnGreen,
@@ -71,7 +68,7 @@ const AgendaPage = () => {
       isInProgress: false,
     },
     {
-      roomId: '4',
+      roomId: 4,
       dday: 'D+2',
       iconSrc: '/assets/icons/school.svg',
       iconBackgroundColor: theme.colors.icnGreen,
@@ -80,7 +77,7 @@ const AgendaPage = () => {
       isInProgress: false,
     },
     {
-      roomId: '5',
+      roomId: 5,
       dday: 'D+2',
       iconSrc: '/assets/icons/school.svg',
       iconBackgroundColor: theme.colors.icnGreen,
