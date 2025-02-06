@@ -57,6 +57,8 @@ class JWTManager {
       );
       this.accessToken = data.accessToken;
     } catch (error) {
+      console.log(error);
+      console.log('this erreoe');
       await this.clearTokens();
       throw error;
     }

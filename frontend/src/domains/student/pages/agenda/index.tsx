@@ -10,12 +10,10 @@ import { LogoutDialog } from '@/components/Dialog/LogoutDialog';
 import { ButtonProps } from '@/components/Button';
 import { useNavigate } from 'react-router-dom';
 import { Dialog } from '@/components/Dialog/Dialog';
-// import api from '@/utils/api';
+import api from '@/utils/api';
 import axios from 'axios';
 import { bottomItems } from '../\bdestinations';
 import JWTManager from '@/utils/jwtManager';
-
-const BASE_URL = 'http://api.onu-univ.site:8080';
 
 const AgendaPage = () => {
   const theme = useTheme();
@@ -92,25 +90,27 @@ const AgendaPage = () => {
     },
   ];
 
-  function getChats(status: string) {
-    const accessor = {
-      id: 9007199254740991,
-      authority: 'MEMBER',
-      member: true,
-      admin: false,
-    };
+  async function getChats(status: string) {
+    // const accessor = {
+    //   id: 3,
+    //   authority: 'MEMBER',
+    //   member: true,
+    //   admin: false,
+    // };
 
-    return axios.get(`${BASE_URL}/student/agendas`, {
+    const response = await api.get('/student/agendas', {
       params: {
-        accessor: accessor,
+        // accessor: accessor,
         status: status,
       },
     });
+    console.log(response);
+    return response;
   }
 
   useEffect(() => {
-    JWTManager.getMemberId().then((id) => {
-      console.log('memberId', id);
+    JWTManager.getAccessToken().then((id) => {
+      console.log('token', id);
     });
 
     axios.all([getChats('ACTIVE'), getChats('CLOSED')]).then(

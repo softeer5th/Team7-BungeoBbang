@@ -7,7 +7,7 @@ import { OpinionStep } from './components/OpinionStep';
 import { CategoryStep } from './components/CategoryStep';
 import { ChatStep } from './components/ChatStep';
 import api from '@/utils/api';
-import { Dialog } from '@/components/Dialog';
+import { Dialog } from '@/components/Dialog/Dialog';
 
 const OpinionCategoryPage: React.FC = () => {
   const navigate = useNavigate();
