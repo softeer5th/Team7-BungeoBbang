@@ -7,6 +7,7 @@ import { OpinionStep } from './components/OpinionStep';
 import { CategoryStep } from './components/CategoryStep';
 import { ChatStep } from './components/ChatStep';
 import api from '@/utils/api';
+import { Dialog } from '@/components/Dialog';
 
 const OpinionCategoryPage: React.FC = () => {
   const navigate = useNavigate();
@@ -15,6 +16,9 @@ const OpinionCategoryPage: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>('');
   const [message, setMessage] = useState('');
   const [images, setImages] = useState<string[]>([]);
+  const [showDialog, setShowDialog] = useState(false);
+
+  const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB in bytes
 
   const handleBack = () => {
     !selectedOpinion ? navigate(-1) : setSelectedOpinion('');
@@ -42,7 +46,8 @@ const OpinionCategoryPage: React.FC = () => {
     try {
       const response = await api.post('/student/opinions', messageData);
       console.log('메시지 전송 결과', response);
-      response.status === 200 && navigate('/student/opinion/chatroom');
+      const opinionId = response.data.opinionId;
+      response.status === 200 && navigate('/opinion/chat/' + opinionId);
     } catch (error) {
       console.error('메시지 전송 실패', error);
     }
@@ -53,9 +58,16 @@ const OpinionCategoryPage: React.FC = () => {
   };
 
   const handleImageUpload = (files: FileList) => {
+    // 파일 크기 체크
+    const oversizedFiles = Array.from(files).filter((file) => file.size > MAX_FILE_SIZE);
+
+    if (oversizedFiles.length > 0) {
+      setShowDialog(true);
+      return;
+    }
+
     const newImages = Array.from(files).map((file) => URL.createObjectURL(file));
     setImages((prev) => {
-      // 최대 5개까지만 허용
       const combined = [...prev, ...newImages];
       return combined.slice(0, 5);
     });
@@ -94,6 +106,19 @@ const OpinionCategoryPage: React.FC = () => {
         textDisabled={!selectedCategory}
         imageDisabled={!selectedCategory}
       />
+      {showDialog && (
+        <Dialog
+          body="10MB 이하의 이미지만 업로드할 수 있습니다."
+          onConfirm={() => setShowDialog(false)}
+          onDismiss={() => setShowDialog(false)}
+          confirmButton={{
+            text: '확인',
+            children: '확인',
+            backgroundColor: '#1F87FF',
+            textColor: '#FFFFFF',
+          }}
+        />
+      )}
     </S.Container>
   );
 };
