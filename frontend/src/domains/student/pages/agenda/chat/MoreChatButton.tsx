@@ -2,11 +2,11 @@ import styled, { useTheme } from 'styled-components';
 import Typography from '@/styles/Typography.tsx';
 import React, { Suspense } from 'react';
 
-import ArrowRightIcon from '/src/assets/icons/arrow-right.svg?react';
+import ArrowRightIcon from '/src/assets/icons/arrow-up.svg?react';
 import ArrowDownIcon from '/src/assets/icons/arrow-down.svg?react';
 
 const IconComponents: { [key: string]: React.FC<React.SVGProps<SVGSVGElement>> } = {
-  '/src/assets/icons/arrow-right.svg': ArrowRightIcon,
+  '/src/assets/icons/arrow-up.svg': ArrowRightIcon,
   '/src/assets/icons/arrow-down.svg': ArrowDownIcon,
 };
 

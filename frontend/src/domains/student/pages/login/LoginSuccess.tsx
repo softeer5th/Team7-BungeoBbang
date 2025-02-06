@@ -20,7 +20,7 @@ const LoginSuccess = () => {
         <ChevronLeft size={24} color="#000" />
       </BackButton>
       <TitleWrapper>
-        <Icon src="/src/assets/icons/blue-check.svg"></Icon>
+        <Icon src="/assets/icons/blue-check.svg"></Icon>
         <Title>가입 완료 됐어요</Title>
       </TitleWrapper>
 
