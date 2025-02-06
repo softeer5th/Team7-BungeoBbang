@@ -1,0 +1,74 @@
+spring:
+  sql:
+  init:
+    mode: never
+  datasource:
+    url: jdbc:h2:mem:testdb  # 테스트용 H2 인메모리 DB
+    driverClassName: org.h2.Driver
+    username: sa
+    password:
+  jpa:
+    hibernate:
+      ddl-auto: create-drop  # 테스트 실행 시 DB 테이블 자동 생성 후 제거
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
+        format_sql: true
+    show-sql: true
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+      settings:
+        web-allow-others: false  # 외부 접근 차단
+
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      password: onuredis
+      username:
+      lettuce:
+        pool:
+          enabled: false
+    mongodb:
+      database: local
+      port: 0
+      host: localhost
+
+
+    host: smtp.test.com
+    port: 587
+    username: test@example.com
+    password: testpassword
+    properties:
+      mail:
+        transport:
+          protocol: smtp
+        smtp:
+          auth: false  # SMTP 인증 비활성화
+          timeout: 5000
+          starttls:
+            enable: false  # TLS 비활성화
+
+security:
+  jwt:
+    secret-key: 928E2MWLh7X_97Bhu_OnAFdfzvpA2jFqfg4VP8tPp6s # 테스트용 키
+    access-expiration-time: 60000  # 1분 (테스트 시 짧게 설정)
+    refresh-expiration-time: 3600000  # 1시간 (테스트용)
+
+oauth2:
+  provider:
+    kakao:
+      client_id: test-client-id
+      client_secret: test-client-secret
+      redirect-uri: http://localhost:3000/kakao/redirect
+      request-token-uri: https://kauth.kakao.com/oauth/token
+      request-user-info-uri: https://kapi.kakao.com/v2/user/me
+    google:
+      client-id: test-google-client-id
+      client-secret: test-google-client-secret
+      redirect-uri: http://localhost:3000/google/redirect
+      request-token-uri: https://oauth2.googleapis.com/token
+      request-user-info-uri: https://www.googleapis.com/userinfo/v2/me
+
