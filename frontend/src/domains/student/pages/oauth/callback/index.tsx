@@ -30,8 +30,9 @@ const OAuthCallback = () => {
         }
 
         await JWTManager.setTokens(refreshToken, accessToken, memberID);
-        response.data.isEmailVerified ? navigate('/main') : navigate('/email');
-        navigate('/univ');
+        console.log(await JWTManager.getMemberId());
+        console.log(response.data.isEmailVerified);
+        response.data.isEmailVerified ? navigate('/opinion/entry') : navigate('/univ');
       } catch (error) {
         console.error('OAuth callback error:', error);
         navigate('/');

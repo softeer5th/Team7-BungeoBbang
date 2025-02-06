@@ -41,7 +41,7 @@ const PreviewOverlay = styled.div`
   background-color: black;
   display: flex;
   flex-direction: column;
-  z-index: 1000;
+  z-index: 20000;
 `;
 
 const Header = styled.div`
