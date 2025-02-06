@@ -1,5 +1,4 @@
 import styled from 'styled-components';
-import { motion } from 'framer-motion';
 
 export const Container = styled.div`
   display: flex;
@@ -8,14 +7,14 @@ export const Container = styled.div`
   background-color: #ffffff;
 `;
 
-export const Content = styled(motion.div)`
+export const Content = styled.div`
   flex: 1;
   padding: 20px;
   display: flex;
   flex-direction: column;
 `;
 
-export const TitleWrapper = styled(motion.div)`
+export const TitleWrapper = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;

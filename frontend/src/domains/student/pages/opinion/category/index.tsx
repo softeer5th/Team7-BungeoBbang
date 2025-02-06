@@ -50,6 +50,7 @@ const OpinionCategoryPage: React.FC = () => {
       response.status === 200 && navigate('/opinion/chat/' + opinionId);
     } catch (error) {
       console.error('메시지 전송 실패', error);
+      navigate('/opinion/chat/' + opinionId);
     }
   };
 
