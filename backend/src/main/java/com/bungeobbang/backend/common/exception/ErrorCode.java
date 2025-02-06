@@ -10,6 +10,7 @@ public enum ErrorCode {
     //Agenda
     NOT_SUPPORT_STATUS(HttpStatus.BAD_REQUEST, "지원하지 않는 안건 상태입니다."),
     INVALID_AGENDA(HttpStatus.NOT_FOUND, "존재하지 않는 답해요 안건입니다."),
+    AGENDA_PARTICIPATION_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 답해요 안건에 대해 참여 내역이 없습니다."),
     FORBIDDEN_UNIVERSITY_ACCESS(HttpStatus.FORBIDDEN, "대학교 정보 불일치로 인해 접근이 거부되었습니다."),
     ALREADY_PARTICIPATED(HttpStatus.BAD_REQUEST, "이미 참여한 답해요 안건입니다."),
     NOT_PARTICIPATED(HttpStatus.BAD_REQUEST, "참여하지 않은 답해요 안건입니다."),

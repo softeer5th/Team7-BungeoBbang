@@ -1,10 +1,9 @@
 package com.bungeobbang.backend.common.config;
 
-
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.mongodb.config.EnableMongoAuditing;
+import org.springframework.scheduling.annotation.EnableAsync;
 
 @Configuration
-@EnableMongoAuditing
-public class MongoConfig {
+@EnableAsync
+public class AsyncConfig {
 }

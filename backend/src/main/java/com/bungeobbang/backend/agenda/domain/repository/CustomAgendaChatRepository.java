@@ -11,8 +11,5 @@ public interface CustomAgendaChatRepository {
 
     LastChat findLastChat(Long agendaId, Long memberId);
 
-    // 마지막으로 읽은 채팅 조회
-    ObjectId findLastReadChat(Long agendaId, Long memberId);
-
-    void saveLastReadChat(Long agendaId, Long memberId, ObjectId lastChatId);
+    void upsertLastReadChat(Long agendaId, Long memberId, ObjectId lastChatId);
 }

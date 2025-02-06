@@ -20,6 +20,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Optional;
 
+import static com.bungeobbang.backend.admin.fixture.AdminFixture.NAVER_ADMIN;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -56,7 +57,7 @@ class AdminLoginServiceTest {
     @DisplayName("비밀번호가 일치하지 않으면 에러가 발생한다.")
     void login_mismatch_password() {
         // given
-        Admin admin = new Admin(1L, "admin", "admin");
+        Admin admin = NAVER_ADMIN;
         when(adminRepository.findByLoginId(Mockito.anyString()))
                 .thenReturn(Optional.of(admin));
         final AdminLoginRequest request = new AdminLoginRequest("admin", "invalid_password");
@@ -73,7 +74,7 @@ class AdminLoginServiceTest {
     @DisplayName("로그인에 성공하면 어세스토큰과 리프레시 토큰을 발급한다.")
     void login_success() {
         // given
-        Admin admin = new Admin(1L, "admin", "admin");
+        Admin admin = NAVER_ADMIN;
         when(adminRepository.findByLoginId(Mockito.anyString()))
                 .thenReturn(Optional.of(admin));
         final AdminLoginRequest request = new AdminLoginRequest("admin", "invalid_password");
