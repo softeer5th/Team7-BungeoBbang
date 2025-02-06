@@ -1,9 +1,9 @@
 import styled from 'styled-components';
-import { BorderProps } from './BorderProps';
-import { Button, ButtonProps } from './Button';
 import parse from 'html-react-parser';
-import Typography from '../styles/Typography';
 import { createPortal } from 'react-dom';
+import { Button, ButtonProps } from '../Button';
+import { BorderProps } from '../BorderProps';
+import Typography from '@/styles/Typography';
 
 interface DialogProps {
   title?: string;

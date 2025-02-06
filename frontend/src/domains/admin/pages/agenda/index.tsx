@@ -7,8 +7,8 @@ import { BottomNavigation } from '@/components/bottom-navigation/BottomNavigatio
 import { bottomItems } from '../destinations';
 import { TabBar } from '@/components/tab-bar/TabBar';
 import { TabBarItemProps } from '@/components/tab-bar/TabBarItem';
-import { ChatRoomListCardData, ProgressState } from './chat-room-list/ChatRoomCardData';
-import { ChatRoomListItem } from './chat-room-list/ChatRoomListItem';
+import { ChatRoomListCardData, ProgressState } from './components/ChatRoomCardData';
+import { ChatRoomListItem } from './components/ChatRoomListItem';
 import { EmptyContent } from '@/components/EmptyContent';
 import { ChatCategoryType } from '@/types/ChatCategoryType';
 

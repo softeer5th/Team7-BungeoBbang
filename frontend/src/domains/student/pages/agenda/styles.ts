@@ -28,6 +28,7 @@ export const ChatRoomList = styled.div`
   min-width: 0;
   position: relative;
   top: -33px;
+  overflow: auto;
   padding: 17px 16px 17px 16px;
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -37,7 +38,7 @@ export const ChatRoomList = styled.div`
 
 export const EmptyTextWrapper = styled.div`
   width: 100%;
-  height: 100%;
+  flex: 1;
   display: flex;
   justify-content: center;
   align-items: center;

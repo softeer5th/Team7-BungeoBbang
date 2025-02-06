@@ -1,6 +1,6 @@
 import React from 'react';
 import * as S from './styles';
-import { ChatPreviewData } from '../ChatPreviewData';
+import { ChatPreviewData } from '../data/ChatPreviewData';
 
 interface ChatPreviewItemProps {
   chatData: ChatPreviewData;
