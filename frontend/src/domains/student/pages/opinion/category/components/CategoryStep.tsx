@@ -2,18 +2,14 @@ import Typography from '@/styles/Typography';
 import { ChipList } from '@/components/Chip/ChipList';
 import * as S from '../styles';
 import { motion } from 'framer-motion';
+import { ChatCategoryType } from '@/types/ChatCategoryType';
 
 interface CategoryStepProps {
-  categories: Array<{ itemId: string; text: string }>;
   onCategorySelect: (chipId: string) => void;
   selectedOpinion: string;
 }
 
-export const CategoryStep = ({
-  categories,
-  onCategorySelect,
-  selectedOpinion,
-}: CategoryStepProps) => {
+export const CategoryStep = ({ onCategorySelect, selectedOpinion }: CategoryStepProps) => {
   return (
     <S.Content>
       <motion.div
@@ -38,7 +34,10 @@ export const CategoryStep = ({
         <S.ChipListWrapper>
           <ChipList
             key={selectedOpinion}
-            items={categories}
+            items={Object.entries(ChatCategoryType).map(([itemId, { label }]) => ({
+              itemId,
+              text: label,
+            }))}
             onChipClick={onCategorySelect}
             backgroundColor="#FFFFFF"
             itemBackgroundColor="#F5F5F5"

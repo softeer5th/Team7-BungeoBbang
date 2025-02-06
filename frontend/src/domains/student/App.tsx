@@ -9,6 +9,7 @@ import MyPage from './pages/my';
 import LoginSuccess from './pages/login/LoginSuccess';
 import OpinionEntryPage from './pages/opinion/entry';
 import OpinionCategoryPage from './pages/opinion/category';
+import OpinionChatPage from './pages/opinion/chatroom';
 
 function StudentApp() {
   return (
@@ -25,6 +26,7 @@ function StudentApp() {
         <Route path="/login/success" element={<LoginSuccess />} />
         <Route path="/opinion/entry" element={<OpinionEntryPage />} />
         <Route path="/opinion/category" element={<OpinionCategoryPage />} />
+        <Route path="/opinion/chat/:roomId" element={<OpinionChatPage />} />
       </Routes>
     </BrowserRouter>
   );

@@ -2,13 +2,13 @@ import Typography from '@/styles/Typography';
 import { ChipList } from '@/components/Chip/ChipList';
 import * as S from '../styles';
 import { motion, AnimatePresence } from 'framer-motion';
+import { ChatOpinionType } from '@/types/ChatOpinionType';
 
 interface OpinionStepProps {
-  opinions: Array<{ itemId: string; text: string }>;
   onOpinionSelect: (chipId: string) => void;
 }
 
-export const OpinionStep = ({ opinions, onOpinionSelect }: OpinionStepProps) => {
+export const OpinionStep = ({ onOpinionSelect }: OpinionStepProps) => {
   return (
     <S.Content>
       <AnimatePresence>
@@ -33,7 +33,10 @@ export const OpinionStep = ({ opinions, onOpinionSelect }: OpinionStepProps) => 
         >
           <S.ChipListWrapper>
             <ChipList
-              items={opinions}
+              items={Object.entries(ChatOpinionType).map(([itemId, text]) => ({
+                itemId,
+                text,
+              }))}
               onChipClick={onOpinionSelect}
               backgroundColor="#FFFFFF"
               itemBackgroundColor="#F5F5F5"

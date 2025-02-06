@@ -12,7 +12,7 @@ export const SubmitButton = C.SubmitButton;
 const LoginSuccess = () => {
   const navigate = useNavigate();
   const handleNext = () => {
-    navigate('/main');
+    navigate('/opinion/entry');
   };
   return (
     <Container>
