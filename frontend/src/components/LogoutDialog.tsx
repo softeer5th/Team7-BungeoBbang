@@ -1,5 +1,4 @@
 import { Dialog } from '@/components/Dialog';
-import { useNavigate } from 'react-router-dom';
 import JWTmanager from '@/utils/jwtManager';
 
 interface LogoutProps {
