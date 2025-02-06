@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 public enum ErrorCode {
     // Common
     INVALID_CATEGORY_TYPE(HttpStatus.BAD_REQUEST, "잘못된 카테고리 타입입니다."),
+    BADWORD_INCLUDED(HttpStatus.BAD_REQUEST, "금칙어가 포함되어있습니다."),
     //Agenda
     NOT_SUPPORT_STATUS(HttpStatus.BAD_REQUEST, "지원하지 않는 안건 상태입니다."),
     INVALID_AGENDA(HttpStatus.NOT_FOUND, "존재하지 않는 답해요 안건입니다."),
