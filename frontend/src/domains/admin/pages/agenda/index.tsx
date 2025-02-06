@@ -50,6 +50,16 @@ const AgendaPage: React.FC = () => {
       {
         roomId: 'room2',
         hasNew: false,
+        progressState: ProgressState.IN_PROGRESS,
+        numOfJoin: 3,
+        chatCategoryType: ChatCategoryType.BUDGET,
+        title: '진행 중인 채팅방 3',
+        startDate: '2024-02-05',
+        endDate: '2024-02-20',
+      },
+      {
+        roomId: 'room2',
+        hasNew: false,
         progressState: ProgressState.BEFORE,
         numOfJoin: 3,
         chatCategoryType: ChatCategoryType.BUDGET,

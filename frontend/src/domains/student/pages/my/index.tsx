@@ -2,7 +2,6 @@
 import { BottomNavigation } from '@/components/bottom-navigation/BottomNavigation';
 import * as S from './styles';
 import { TopAppBar } from '@/components/TopAppBar';
-import { BottomNavigationItemProps } from '@/components/bottom-navigation/BottomNavigationItem';
 import { useTheme } from 'styled-components';
 import { useEffect, useRef, useState } from 'react';
 import { TabBar } from '@/components/tab-bar/TabBar';

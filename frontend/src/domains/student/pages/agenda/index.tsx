@@ -7,13 +7,10 @@ import { useTheme } from 'styled-components';
 import { useEffect, useState } from 'react';
 import { ChatListCardData } from './ChatRoomListCardData.tsx';
 import { ChatRoomListItem } from './chat-room-list-item/ChatRoomListItem.tsx';
-import { useNavigate } from 'react-router-dom';
 import { BannerContainer } from './Banner.tsx';
 
 const AgendaPage = () => {
   const theme = useTheme();
-
-  const navigate = useNavigate();
 
   const [chatRooms, setChatRooms] = useState<ChatListCardData[]>([]);
 
