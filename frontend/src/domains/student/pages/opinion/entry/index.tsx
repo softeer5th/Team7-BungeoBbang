@@ -9,8 +9,7 @@ import { useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import api from '@/utils/api';
 import { motion } from 'framer-motion';
-import { Logout } from '@/components/LogoutDialog';
-import JWTManager from '@/utils/jwtManager';
+import { LogoutDialog as Logout } from '@/components/Dialog/LogoutDialog';
 
 const OpinionEntryPage = () => {
   const destinations = [
@@ -38,10 +37,6 @@ const OpinionEntryPage = () => {
   const [showLogoutDialog, setShowLogoutDialog] = useState(false);
 
   useEffect(() => {
-    JWTManager.getMemberId().then((id) => {
-      console.log('memberId', id);
-    });
-
     const getStatistic = async () => {
       try {
         const response = await api.get('/student/opinions');
@@ -134,7 +129,12 @@ const OpinionEntryPage = () => {
         )}
       </S.OpinionEntryContainer>
       <BottomNavigation startDestination="home" destinations={destinations} />
-      {showLogoutDialog && <Logout onClose={() => setShowLogoutDialog(false)} />}
+      {showLogoutDialog && (
+        <Logout
+          onDismiss={() => setShowLogoutDialog(false)}
+          onConfirm={() => setShowLogoutDialog(true)}
+        />
+      )}
     </>
   );
 };

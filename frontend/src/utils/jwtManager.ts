@@ -1,64 +1,87 @@
 import axios from 'axios';
 import { AUTH_CONFIG } from '@/config/auth';
-
 class JWTManager {
   private static instance: JWTManager;
   private accessToken: string | null = null;
   private memberId: number | null = null;
-  private readonly REFRESH_TOKEN_KEY = 'refresh-token';
+  private readonly REFRESH_TOKEN_KEY = 'refresh_token';
+  private readonly ACCESS_TOKEN_KEY = 'access_token';
+  private readonly MEMBER_ID_KEY = 'member_id';
 
   private constructor() {
-    // 초기화 시 localStorage에서 refresh token 복원
-    const savedRefreshToken = localStorage.getItem(this.REFRESH_TOKEN_KEY);
-    if (savedRefreshToken) {
-      this.refreshAccessToken(savedRefreshToken);
-    }
+    this.accessToken = localStorage.getItem(this.ACCESS_TOKEN_KEY);
+    const storedMemberId = localStorage.getItem(this.MEMBER_ID_KEY);
+    this.memberId = storedMemberId ? Number(storedMemberId) : null;
   }
 
-  public static getInstance(): JWTManager {
+  static getInstance(): JWTManager {
     if (!JWTManager.instance) {
       JWTManager.instance = new JWTManager();
     }
     return JWTManager.instance;
   }
 
-  async setTokens(refreshToken: string, accessToken: string, memberID: number): Promise<void> {
+  async setTokens(refreshToken: string, accessToken: string, memberId: number): Promise<void> {
     this.accessToken = accessToken;
-    this.memberId = memberID;
-    // refresh token을 localStorage에 저장
+    this.memberId = memberId;
     localStorage.setItem(this.REFRESH_TOKEN_KEY, refreshToken);
+    localStorage.setItem(this.ACCESS_TOKEN_KEY, accessToken);
+    localStorage.setItem(this.MEMBER_ID_KEY, memberId.toString());
   }
 
   async getAccessToken(): Promise<string | null> {
     if (!this.accessToken) {
-      // access token이 없으면 refresh token으로 재발급 시도
-      const refreshToken = localStorage.getItem(this.REFRESH_TOKEN_KEY);
-      if (refreshToken) {
-        await this.refreshAccessToken(refreshToken);
+      this.accessToken = localStorage.getItem(this.ACCESS_TOKEN_KEY);
+      if (!this.accessToken) {
+        const refreshToken = localStorage.getItem(this.REFRESH_TOKEN_KEY);
+        if (refreshToken) {
+          await this.refreshAccessToken(refreshToken);
+        } else {
+          await this.clearTokens();
+        }
       }
     }
     return this.accessToken;
   }
 
   async getRefreshToken(): Promise<string | null> {
-    return localStorage.getItem(this.REFRESH_TOKEN_KEY);
+    const refresh = localStorage.getItem(this.REFRESH_TOKEN_KEY);
+    if (!refresh) {
+      await this.clearTokens();
+      return null;
+    } else {
+      return refresh;
+    }
   }
 
   async getMemberId(): Promise<number | null> {
+    if (!this.memberId) {
+      const storedMemberId = localStorage.getItem(this.MEMBER_ID_KEY);
+      this.memberId = storedMemberId ? Number(storedMemberId) : null;
+    }
     return this.memberId;
   }
 
   private async refreshAccessToken(refreshToken: string): Promise<void> {
     try {
-      const { data } = await axios.post(
-        `${AUTH_CONFIG.API.BASE_URL}/auth/refresh`,
-        { refresh: refreshToken },
-        { withCredentials: true },
+      const response = await axios.post(
+        `${AUTH_CONFIG.API.BASE_URL}/student/auth/login/extend`,
+        {},
+        {
+          withCredentials: true,
+          headers: {
+            Authorization: `Bearer ${this.accessToken}`,
+            'refresh-token': refreshToken,
+          },
+        },
       );
-      this.accessToken = data.accessToken;
+
+      if (response.data?.accessToken) {
+        this.accessToken = response.data.accessToken;
+        localStorage.setItem(this.ACCESS_TOKEN_KEY, response.data.accessToken);
+      }
     } catch (error) {
-      console.log(error);
-      console.log('this erreoe');
+      console.error('Token refresh failed:', error);
       await this.clearTokens();
       throw error;
     }
@@ -68,6 +91,8 @@ class JWTManager {
     this.accessToken = null;
     this.memberId = null;
     localStorage.removeItem(this.REFRESH_TOKEN_KEY);
+    localStorage.removeItem(this.ACCESS_TOKEN_KEY);
+    localStorage.removeItem(this.MEMBER_ID_KEY);
     window.location.href = '/';
   }
 }

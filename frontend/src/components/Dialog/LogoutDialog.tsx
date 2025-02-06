@@ -1,5 +1,6 @@
 import { useTheme } from 'styled-components';
 import { Dialog } from './Dialog';
+import JWTmanager from '@/utils/jwtManager';
 
 interface LogoutDialogProps {
   onConfirm: () => void;
@@ -15,7 +16,10 @@ export const LogoutDialog: React.FC<LogoutDialogProps> = ({
   return (
     <Dialog
       body="로그아웃 하시겠어요?"
-      onConfirm={onConfirm}
+      onConfirm={() => {
+        onConfirm();
+        JWTmanager.clearTokens();
+      }}
       onDismiss={onDismiss}
       confirmButton={{
         text: '로그아웃',
