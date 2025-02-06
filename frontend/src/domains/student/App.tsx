@@ -4,7 +4,7 @@ import OAuthCallback from './pages/oauth/callback';
 import EmailVerification from './pages/login/emailcheck';
 import UniversitySelection from './pages/login/univcheck';
 import AgendaPage from './pages/agenda';
-import AgendaChatPage from './pages/agenda/chat';
+import AgendaChatPage from '../../components/ChatPage';
 import MyPage from './pages/my';
 import LoginSuccess from './pages/login/LoginSuccess';
 import OpinionEntryPage from './pages/opinion/entry';

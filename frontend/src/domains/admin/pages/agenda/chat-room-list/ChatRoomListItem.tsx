@@ -1,8 +1,9 @@
 import styled, { useTheme } from 'styled-components';
-import { ChatRoomListCardData } from './ChatRoomCardData';
+import { ChatRoomListCardData, ProgressState } from './ChatRoomCardData';
 import Typography from '@/styles/Typography';
 import { CategoryIcon } from '@/components/CategoryIcon';
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 interface ChatRoomListItemProps {
   cardData: ChatRoomListCardData;
@@ -11,26 +12,33 @@ interface ChatRoomListItemProps {
 export const ChatRoomListItem = ({ cardData }: ChatRoomListItemProps) => {
   const theme = useTheme();
 
+  const navigate = useNavigate();
+
   const [isMoreContentVisible, setMoreContentVisible] = useState(false);
 
-  const alarmColor = cardData.isInProgress
-    ? cardData.hasNew
-      ? theme.colors.sementicMain
-      : theme.colors.grayScale50
-    : theme.colors.grayScale50;
+  const alarmColor =
+    cardData.progressState != 1
+      ? cardData.hasNew
+        ? theme.colors.sementicMain
+        : theme.colors.grayScale50
+      : theme.colors.grayScale50;
 
   return (
-    <CardContainer>
+    <CardContainer isBeforeProgress={cardData.progressState === ProgressState.BEFORE}>
       <HeaderContainer>
         <AlarmContainer>
-          <AlarmBox backgroundColor={alarmColor} />
-          <AlarmText variant="caption1" textColor={alarmColor}>
-            {cardData.isInProgress
-              ? cardData.hasNew
-                ? '새 의견'
-                : '진행 전'
-              : `${cardData.numOfJoin || 0}명 참여`}
-          </AlarmText>
+          {!(cardData.progressState === ProgressState.IN_PROGRESS && !cardData.hasNew) && (
+            <>
+              <AlarmBox backgroundColor={alarmColor} />
+              <AlarmText variant="caption1" textColor={alarmColor}>
+                {cardData.progressState === ProgressState.FINISHED
+                  ? `${cardData.numOfJoin || 0}명 참여`
+                  : cardData.progressState === ProgressState.BEFORE
+                    ? '진행 전'
+                    : '새 의견'}
+              </AlarmText>
+            </>
+          )}
         </AlarmContainer>
 
         <MoreIcon
@@ -58,7 +66,7 @@ export const ChatRoomListItem = ({ cardData }: ChatRoomListItemProps) => {
           </MoreContentItem>
         </MoreContent>
       </HeaderContainer>
-      <BodyContainer>
+      <BodyContainer onClick={() => navigate(`/agenda/chat/${cardData.roomId}`)}>
         <CategoryIcon type={cardData.chatCategoryType} iconWidth={17} padding={6} />
         <TitleText variant="heading3">{cardData.title}</TitleText>
         <DateContainer>
@@ -72,7 +80,10 @@ export const ChatRoomListItem = ({ cardData }: ChatRoomListItemProps) => {
   );
 };
 
-const CardContainer = styled.div`
+const CardContainer = styled.div<{
+  isBeforeProgress: boolean;
+}>`
+  opacity: ${(props) => (props.isBeforeProgress ? 0.6 : 1)};
   background-color: ${(props) => props.theme.colors.grayScaleWhite};
   border-radius: 20px;
   width: 100%;
@@ -168,20 +179,16 @@ const ItemText = styled(Typography)<{
   color: ${(props) => props.textColor};
 `;
 
-const BodyContainer = styled.div`
+const BodyContainer = styled.div<{
+  isBeforeProgress: boolean;
+}>`
   flex: 1;
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
   align-items: flex-start;
   gap: 6px;
-`;
-
-const IconBox = styled.div`
-  width: 30px;
-  height: 30px;
-  background-color: blue;
-  border-radius: 50%;
+  pointer-events: ${(props) => (props.isBeforeProgress ? 'none' : 'auto')};
 `;
 
 const TitleText = styled(Typography)`

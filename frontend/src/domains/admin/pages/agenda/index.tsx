@@ -7,7 +7,7 @@ import { BottomNavigation } from '@/components/bottom-navigation/BottomNavigatio
 import { bottomItems } from '../destinations';
 import { TabBar } from '@/components/tab-bar/TabBar';
 import { TabBarItemProps } from '@/components/tab-bar/TabBarItem';
-import { ChatRoomListCardData } from './chat-room-list/ChatRoomCardData';
+import { ChatRoomListCardData, ProgressState } from './chat-room-list/ChatRoomCardData';
 import { ChatRoomListItem } from './chat-room-list/ChatRoomListItem';
 import { EmptyContent } from '@/components/EmptyContent';
 import { ChatCategoryType } from '@/types/ChatCategoryType';
@@ -40,7 +40,7 @@ const AgendaPage: React.FC = () => {
       {
         roomId: 'room1',
         hasNew: true,
-        isInProgress: true,
+        progressState: ProgressState.IN_PROGRESS,
         numOfJoin: 5,
         chatCategoryType: ChatCategoryType.ACADEMICS,
         title: '진행 중인 채팅방 1',
@@ -50,7 +50,7 @@ const AgendaPage: React.FC = () => {
       {
         roomId: 'room2',
         hasNew: false,
-        isInProgress: true,
+        progressState: ProgressState.BEFORE,
         numOfJoin: 3,
         chatCategoryType: ChatCategoryType.BUDGET,
         title: '진행 중인 채팅방 2',
@@ -62,7 +62,7 @@ const AgendaPage: React.FC = () => {
       {
         roomId: 'room3',
         hasNew: false,
-        isInProgress: false,
+        progressState: ProgressState.FINISHED,
         numOfJoin: 8,
         chatCategoryType: ChatCategoryType.CLUBS,
         title: '완료된 채팅방 1',
@@ -72,7 +72,7 @@ const AgendaPage: React.FC = () => {
       {
         roomId: 'room4',
         hasNew: false,
-        isInProgress: false,
+        progressState: ProgressState.FINISHED,
         numOfJoin: 10,
         chatCategoryType: ChatCategoryType.EVENTS,
         title: '완료된 채팅방 2',
@@ -82,7 +82,7 @@ const AgendaPage: React.FC = () => {
       {
         roomId: 'room5',
         hasNew: false,
-        isInProgress: false,
+        progressState: ProgressState.FINISHED,
         numOfJoin: 10,
         chatCategoryType: ChatCategoryType.EVENTS,
         title: '완료된 채팅방 2',
@@ -92,7 +92,7 @@ const AgendaPage: React.FC = () => {
       {
         roomId: 'room6',
         hasNew: false,
-        isInProgress: false,
+        progressState: ProgressState.FINISHED,
         numOfJoin: 10,
         chatCategoryType: ChatCategoryType.EVENTS,
         title: '완료된 채팅방 2',
@@ -102,7 +102,7 @@ const AgendaPage: React.FC = () => {
       {
         roomId: 'room7',
         hasNew: false,
-        isInProgress: false,
+        progressState: ProgressState.FINISHED,
         numOfJoin: 10,
         chatCategoryType: ChatCategoryType.EVENTS,
         title: '완료된 채팅방 2',
@@ -112,7 +112,7 @@ const AgendaPage: React.FC = () => {
       {
         roomId: 'room8',
         hasNew: false,
-        isInProgress: false,
+        progressState: ProgressState.FINISHED,
         numOfJoin: 10,
         chatCategoryType: ChatCategoryType.EVENTS,
         title: '완료된 채팅방 2',
@@ -122,7 +122,7 @@ const AgendaPage: React.FC = () => {
       {
         roomId: 'room9',
         hasNew: false,
-        isInProgress: false,
+        progressState: ProgressState.FINISHED,
         numOfJoin: 10,
         chatCategoryType: ChatCategoryType.EVENTS,
         title: '완료된 채팅방 2',
@@ -132,7 +132,7 @@ const AgendaPage: React.FC = () => {
       {
         roomId: 'room10',
         hasNew: false,
-        isInProgress: false,
+        progressState: ProgressState.FINISHED,
         numOfJoin: 10,
         chatCategoryType: ChatCategoryType.EVENTS,
         title: '완료된 채팅방 2',
@@ -203,6 +203,7 @@ const AgendaPage: React.FC = () => {
       <BottomNavigation
         ref={bottomNavRef}
         startDestination={bottomItems[0].itemId}
+        setAlarm={true}
         destinations={bottomItems}
       />
     </S.Container>

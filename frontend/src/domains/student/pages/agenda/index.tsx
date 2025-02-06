@@ -118,14 +118,7 @@ const AgendaPage = () => {
         <BannerContainer />
         <S.ChatRoomList>
           {chatRooms && chatRooms.length > 0 ? (
-            chatRooms.map((room) => (
-              <ChatRoomListItem
-                room={room}
-                onCardClick={() => {
-                  navigate(`/agenda/chat/${room.roomId}`);
-                }}
-              />
-            ))
+            chatRooms.map((room) => <ChatRoomListItem room={room} />)
           ) : (
             <S.EmptyTextWrapper>
               <S.EmptyText variant="heading4">현재 개설된 채팅방이 없습니다.</S.EmptyText>

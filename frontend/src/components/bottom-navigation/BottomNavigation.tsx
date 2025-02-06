@@ -11,7 +11,7 @@ interface BottomNavigationProps {
   selectedForegroundColor?: string;
   alarmColor?: string;
   border?: BorderProps;
-  setAlarm: boolean;
+  setAlarm?: boolean;
   onItemClick?: (itemId: string) => void;
 }
 
