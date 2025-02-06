@@ -9,7 +9,7 @@ import { useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import api from '@/utils/api';
 import { motion } from 'framer-motion';
-import { Logout } from '@/components/LogoutDialog';
+import { LogoutDialog as Logout } from '@/components/Dialog/LogoutDialog';
 import JWTManager from '@/utils/jwtManager';
 
 const OpinionEntryPage = () => {
@@ -134,7 +134,12 @@ const OpinionEntryPage = () => {
         )}
       </S.OpinionEntryContainer>
       <BottomNavigation startDestination="home" destinations={destinations} />
-      {showLogoutDialog && <Logout onClose={() => setShowLogoutDialog(false)} />}
+      {showLogoutDialog && (
+        <Logout
+          onDismiss={() => setShowLogoutDialog(false)}
+          onConfirm={() => setShowLogoutDialog(true)}
+        />
+      )}
     </>
   );
 };
