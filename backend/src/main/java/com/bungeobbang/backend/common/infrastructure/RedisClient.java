@@ -1,23 +1,20 @@
 package com.bungeobbang.backend.common.infrastructure;
 
+import io.lettuce.core.api.sync.RedisCommands;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import redis.clients.jedis.Jedis;
-import redis.clients.jedis.JedisPool;
 
 @Service
 @RequiredArgsConstructor
 public class RedisClient {
 
-    private final JedisPool jedisPool;
+    private final RedisCommands<String, String> redisCommands;
 
     public void setex(final String key, final Long seconds, final String value) {
-        Jedis jedis = jedisPool.getResource();
-        jedis.setex(key, seconds, value);
+        redisCommands.setex(key, seconds, value);
     }
 
     public String get(final String key) {
-        Jedis jedis = jedisPool.getResource();
-        return jedis.get(key);
+        return redisCommands.get(key);
     }
 }
