@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { TopAppBar } from '@/components/TopAppBar';
 import { ChatSendField } from '@/components/Chat/ChatSendField';
@@ -32,12 +32,6 @@ const OpinionCategoryPage: React.FC = () => {
     { itemId: '6', text: '정보 통신' },
   ];
 
-  useEffect(() => {
-    return () => {
-      images.forEach((url) => URL.revokeObjectURL(url));
-    };
-  }, [images]);
-
   const handleBack = () => {
     !selectedOpinion ? navigate(-1) : setSelectedOpinion('');
     setSelectedCategory('');
@@ -53,6 +47,8 @@ const OpinionCategoryPage: React.FC = () => {
   };
 
   const handleSendMessage = () => {
+    console.log('메세지:', message);
+    console.log('이미지:', images);
     // 내용들 api 로 쏘고, chatroom 으로 navigate
   };
 

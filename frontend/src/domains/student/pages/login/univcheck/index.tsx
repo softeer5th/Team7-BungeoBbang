@@ -25,7 +25,8 @@ const UniversitySelection = () => {
           (error as { response?: { data: { message: string } } }).response?.data.message ||
             '대학교 정보를 불러오는데 실패했습니다. 다시 시도해주세요.',
         );
-        navigate(-1);
+
+        navigate('/');
       }
     };
 

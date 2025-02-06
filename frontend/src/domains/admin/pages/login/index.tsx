@@ -57,6 +57,7 @@ const AdminLogin: React.FC = () => {
     setIsLoading(true);
     try {
       const response = await api.post('/admin/auth/login', form);
+      console.log('Login response:', response);
       const accessToken = response.headers['access-token'];
       const refreshToken = response.headers['refresh-token'];
       await JWTManager.setTokens(refreshToken, accessToken, -1);

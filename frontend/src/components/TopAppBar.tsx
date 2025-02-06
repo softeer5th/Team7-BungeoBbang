@@ -94,6 +94,7 @@ const TopAppBarContainer = styled.div<{
       ? `${props.border.borderWidth || '1px'} solid ${props.border.borderColor || '#000000'}`
       : 'none'};
   border-radius: ${(props) => props.border?.borderRadius || '0px'};
+  z-index: 3000;
 `;
 
 const IconWrapper = styled.div`

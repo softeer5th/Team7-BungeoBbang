@@ -11,17 +11,17 @@ const OpinionEntryPage = () => {
   const destinations = [
     {
       itemId: 'home',
-      iconSrc: '/src/assets/react.svg',
+      iconSrc: '/src/assets/icons/message.svg',
       title: '답해요',
     },
     {
       itemId: 'search',
-      iconSrc: '/src/assets/react.svg',
+      iconSrc: '/src/assets/icons/home.svg',
       title: '말해요',
     },
     {
       itemId: 'profile',
-      iconSrc: '/src/assets/react.svg',
+      iconSrc: '/src/assets/icons/profile.svg',
       title: '내의견',
       hasAlarm: true,
     },
