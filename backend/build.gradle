@@ -35,7 +35,7 @@ dependencies {
     // Mongodb
     implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
     // Redis
-    implementation group: 'io.lettuce', name: 'lettuce-core', version: '6.5.0.RELEASE'
+    implementation 'redis.clients:jedis:4.3.1'
     // mail
     implementation 'org.springframework.boot:spring-boot-starter-mail'
     // password encoder

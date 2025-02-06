@@ -11,7 +11,10 @@ import org.springframework.test.web.servlet.MockMvc;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest
+@SpringBootTest(
+        properties = "de.flapdoodle.mongodb.embedded.version=5.0.5"
+)
+
 @AutoConfigureMockMvc
 class MemberControllerIntegrationTest {
 
