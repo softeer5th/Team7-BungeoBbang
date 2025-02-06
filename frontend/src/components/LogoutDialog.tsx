@@ -7,15 +7,12 @@ interface LogoutProps {
 }
 
 export const Logout: React.FC<LogoutProps> = ({ onClose }) => {
-  const navigate = useNavigate();
-
   return (
     <Dialog
       body="로그아웃 하시겠어요?"
       onConfirm={() => {
         onClose();
         JWTmanager.clearTokens();
-        navigate('/');
       }}
       onDismiss={onClose}
       confirmButton={{
