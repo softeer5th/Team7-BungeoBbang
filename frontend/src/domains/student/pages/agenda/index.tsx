@@ -1,7 +1,6 @@
 import { BottomNavigation } from '@/components/bottom-navigation/BottomNavigation';
 import * as S from './styles';
 import { TopAppBar } from '@/components/TopAppBar';
-import { BottomNavigationItemProps } from '@/components/bottom-navigation/BottomNavigationItem';
 import { useTheme } from 'styled-components';
 import { useEffect, useState } from 'react';
 import { ChatListCardData } from './data/ChatRoomListCardData';
@@ -11,13 +10,19 @@ import { LogoutDialog } from '@/components/Dialog/LogoutDialog';
 import { ButtonProps } from '@/components/Button';
 import { useNavigate } from 'react-router-dom';
 import { Dialog } from '@/components/Dialog/Dialog';
+// import api from '@/utils/api';
+import axios from 'axios';
+import { bottomItems } from '../\bdestinations';
+import JWTManager from '@/utils/jwtManager';
+
+const BASE_URL = 'http://api.onu-univ.site:8080';
 
 const AgendaPage = () => {
   const theme = useTheme();
   const navigate = useNavigate();
 
   const [isLogoutDialogOpen, setLogoutDialogOpen] = useState(false);
-  const [selectedChatRoomEnter, setSelectedChatRoomEnter] = useState<string | null>(null);
+  const [selectedChatRoomEnter, setSelectedChatRoomEnter] = useState<number | null>(null);
 
   const [chatRooms, setChatRooms] = useState<ChatListCardData[]>([]);
 
@@ -87,27 +92,39 @@ const AgendaPage = () => {
     },
   ];
 
+  function getChats(status: string) {
+    const accessor = {
+      id: 9007199254740991,
+      authority: 'MEMBER',
+      member: true,
+      admin: false,
+    };
+
+    return axios.get(`${BASE_URL}/student/agendas`, {
+      params: {
+        accessor: accessor,
+        status: status,
+      },
+    });
+  }
+
   useEffect(() => {
-    setChatRooms(mockData);
+    JWTManager.getMemberId().then((id) => {
+      console.log('memberId', id);
+    });
+
+    axios.all([getChats('ACTIVE'), getChats('CLOSED')]).then(
+      axios.spread(function (active, closed) {
+        console.log('active', active.data);
+        console.log('closed', closed.data);
+      }),
+    );
   }, []);
 
-  const bottomItems: BottomNavigationItemProps[] = [
-    {
-      itemId: 'agenda',
-      iconSrc: '/src/assets/icons/message.svg',
-      title: '답해요',
-    },
-    {
-      itemId: 'opinion',
-      iconSrc: '/src/assets/icons/home.svg',
-      title: '말해요',
-    },
-    {
-      itemId: 'my',
-      iconSrc: '/src/assets/icons/profile.svg',
-      title: '내 의견',
-    },
-  ];
+  useEffect(() => {
+    // api.get'/student/agendas/my',{
+    // }
+  }, []);
 
   return (
     <S.Container>

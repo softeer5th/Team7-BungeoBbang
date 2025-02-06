@@ -1,5 +1,5 @@
 export interface ChatListCardData {
-  roomId: string;
+  roomId: number;
   dday: string;
   iconSrc: string;
   iconBackgroundColor: string;
