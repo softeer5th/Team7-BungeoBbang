@@ -35,11 +35,11 @@ const OpinionEntryPage = () => {
   const [statistic, setStatistic] = useState({ opinionCount: 0, adminResponseRate: 0 });
   const [showStatistic, setShowStatistic] = useState(true);
   const [showLogoutDialog, setShowLogoutDialog] = useState(false);
+
   useEffect(() => {
     const getStatistic = async () => {
       try {
         const response = await api.get('/student/opinions');
-        console.log(response.data);
         response.data.opinionCount < 4 ? setShowStatistic(false) : setStatistic(response.data);
       } catch (error) {
         setShowStatistic(false);
@@ -85,7 +85,7 @@ const OpinionEntryPage = () => {
             </S.InputContainer>
           </S.TitleInputContainer>
         </motion.div>
-        {!showStatistic && (
+        {showStatistic && (
           <S.StatisticWrapper>
             <motion.div
               initial={{ opacity: 0, y: -85 }}

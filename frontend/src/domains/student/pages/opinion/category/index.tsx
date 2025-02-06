@@ -34,32 +34,30 @@ const OpinionCategoryPage: React.FC = () => {
     setSelectedCategory(chipId);
   };
 
-  const handleSendMessage = async () => {
-    const messageData = {
-      opinionType: selectedOpinion,
-      categoryType: selectedCategory,
-      content: message,
-      images: images,
-    };
-    console.log('전송할 데이터:', messageData);
-
-    try {
-      const response = await api.post('/student/opinions', messageData);
-      console.log('메시지 전송 결과', response);
-      const opinionId = response.data.opinionId;
-      response.status === 200 && navigate('/opinion/chat/' + opinionId);
-    } catch (error) {
-      console.error('메시지 전송 실패', error);
-      navigate('/opinion/chat/' + opinionId);
-    }
-  };
-
   const handleImageDelete = (index: number) => {
     setImages((prev) => prev.filter((_, i) => i !== index));
   };
 
-  const handleImageUpload = (files: FileList) => {
-    // 파일 크기 체크
+  const uploadImages = async (files: File[]): Promise<string[]> => {
+    const formData = new FormData();
+    files.forEach((file) => {
+      formData.append('images', file);
+    });
+
+    try {
+      const response = await api.post('/api/images', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      return response.data.urls;
+    } catch (error) {
+      console.error('이미지 업로드 실패:', error);
+      return [];
+    }
+  };
+
+  const handleImageUpload = async (files: FileList) => {
     const oversizedFiles = Array.from(files).filter((file) => file.size > MAX_FILE_SIZE);
 
     if (oversizedFiles.length > 0) {
@@ -67,11 +65,30 @@ const OpinionCategoryPage: React.FC = () => {
       return;
     }
 
-    const newImages = Array.from(files).map((file) => URL.createObjectURL(file));
+    const uploadedUrls = await uploadImages(Array.from(files));
     setImages((prev) => {
-      const combined = [...prev, ...newImages];
+      const combined = [...prev, ...uploadedUrls];
       return combined.slice(0, 5);
     });
+  };
+
+  const handleSendMessage = async () => {
+    const messageData = {
+      opinionType: selectedOpinion,
+      categoryType: selectedCategory,
+      content: message,
+      images: images,
+    };
+
+    try {
+      const response = await api.post('/student/opinions', messageData);
+      console.log('메시지 전송 결과:', response);
+      if (response.status === 200) {
+        navigate('/opinion/chat/' + response.data.opinionId);
+      }
+    } catch (error) {
+      console.error('메시지 전송 실패:', error);
+    }
   };
 
   let currentStep;
