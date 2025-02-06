@@ -81,6 +81,7 @@ const OpinionCategoryPage: React.FC = () => {
     };
 
     try {
+      console.log('메시지 전송 데이터:', messageData);
       const response = await api.post('/student/opinions', messageData);
       console.log('메시지 전송 결과:', response);
       if (response.status === 200) {
