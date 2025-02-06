@@ -90,40 +90,49 @@ const AgendaPage = () => {
     },
   ];
 
-  async function getChats(status: string) {
-    // const accessor = {
-    //   id: 3,
-    //   authority: 'MEMBER',
-    //   member: true,
-    //   admin: false,
-    // };
+  // async function request() {}
+  // async function getChats(status: string) {
+  //   // const accessor = {
+  //   //   id: 3,
+  //   //   authority: 'MEMBER',
+  //   //   member: true,
+  //   //   admin: false,
+  //   // };
 
-    const response = await api.get('/student/agendas', {
-      params: {
-        // accessor: accessor,
-        status: status,
-      },
-    });
-    console.log(response);
-    return response;
-  }
+  //   const response = await api.get('/student/agendas', {
+  //     params: {
+  //       // accessor: accessor,
+  //       status: status,
+  //     },
+  //   });
+  //   console.log(response);
+  //   return response;
+  // }
 
-  useEffect(() => {
-    JWTManager.getAccessToken().then((id) => {
-      console.log('token', id);
-    });
+  // useEffect(() => {
+  //   JWTManager.getAccessToken().then((id) => {
+  //     console.log('token', id);
+  //   });
 
-    axios.all([getChats('ACTIVE'), getChats('CLOSED')]).then(
-      axios.spread(function (active, closed) {
-        console.log('active', active.data);
-        console.log('closed', closed.data);
-      }),
-    );
-  }, []);
+  //   const fetchChats = async () => {
+  //     try {
+  //       const active = await getChats('ACTIVE');
+  //       const closed = await getChats('CLOSED');
+
+  //       console.log('ACTIVE chats:', active);
+  //       console.log('CLOSED chats:', closed);
+  //     } catch (error) {
+  //       console.error('Error fetching chats:', error);
+  //     }
+  //   };
+
+  //   fetchChats();
+  // }, []);
 
   useEffect(() => {
     // api.get'/student/agendas/my',{
     // }
+    setChatRooms(mockData);
   }, []);
 
   return (

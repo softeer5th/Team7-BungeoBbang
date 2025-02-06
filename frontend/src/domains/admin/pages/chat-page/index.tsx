@@ -99,7 +99,7 @@ A동의 불편 사항에 대해 검토를 완료했으며, 현재 관련 부서�
       <TopAppBar
         leftIconSrc="/src/assets/icons/arrow-left.svg"
         title="총학생회 국제캠퍼스 생활 불편 건의함"
-        rightIconSrc="/src/assets/icons/logout.svg"
+        rightIconSrc="/src/assets/icons/information-circle-contained.svg"
         onLeftIconClick={() => {
           navigate(-1);
         }}
