@@ -9,6 +9,7 @@ import { useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import api from '@/utils/api';
 import { motion } from 'framer-motion';
+import { Logout } from '@/components/LogoutDialog';
 
 const OpinionEntryPage = () => {
   const destinations = [
@@ -33,7 +34,7 @@ const OpinionEntryPage = () => {
 
   const [statistic, setStatistic] = useState({ opinionCount: 0, adminResponseRate: 0 });
   const [showStatistic, setShowStatistic] = useState(true);
-
+  const [showLogoutDialog, setShowLogoutDialog] = useState(false);
   useEffect(() => {
     const getStatistic = async () => {
       try {
@@ -47,6 +48,7 @@ const OpinionEntryPage = () => {
     };
     getStatistic();
   }, []);
+
   return (
     <>
       <TopAppBar
@@ -54,6 +56,9 @@ const OpinionEntryPage = () => {
         rightIconSrc="/src/assets/icons/logout.svg"
         backgroundColor="#51A2FF"
         foregroundColor="#ffffff"
+        onRightIconClick={() => {
+          setShowLogoutDialog(true);
+        }}
       />
 
       <S.OpinionEntryContainer>
@@ -124,6 +129,7 @@ const OpinionEntryPage = () => {
         )}
       </S.OpinionEntryContainer>
       <BottomNavigation startDestination="home" destinations={destinations} />
+      {showLogoutDialog && <Logout onClose={() => setShowLogoutDialog(false)} />}
     </>
   );
 };
