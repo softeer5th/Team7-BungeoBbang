@@ -2,11 +2,11 @@ import Typography from '@/styles/Typography';
 import styled from 'styled-components';
 
 interface EmptyContentProps {
-  showIcon: boolean;
+  showIcon?: boolean;
   text: string;
 }
 
-export const EmptyContent = ({ showIcon, text }: EmptyContentProps) => {
+export const EmptyContent = ({ showIcon = true, text }: EmptyContentProps) => {
   return (
     <Container>
       {showIcon && <Icon src="/src/assets/imgs/message.png" />}
