@@ -11,6 +11,7 @@ interface BottomNavigationProps {
   selectedForegroundColor?: string;
   alarmColor?: string;
   border?: BorderProps;
+  setAlarm: boolean;
   onItemClick?: (itemId: string) => void;
 }
 
@@ -24,6 +25,7 @@ export const BottomNavigation = forwardRef<HTMLDivElement, BottomNavigationProps
       selectedForegroundColor = '#1F87FF',
       alarmColor = '#FF4B4B',
       border,
+      setAlarm = false,
       onItemClick = () => {},
     },
     ref,
@@ -43,6 +45,7 @@ export const BottomNavigation = forwardRef<HTMLDivElement, BottomNavigationProps
               setSelectedItem(destination.itemId);
               onItemClick(destination.itemId);
             }}
+            hasAlarm={setAlarm && destination.itemId === 'my'}
             selected={destination.itemId === selectedItem}
           />
         ))}

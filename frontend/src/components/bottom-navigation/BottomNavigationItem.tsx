@@ -19,7 +19,6 @@ export interface BottomNavigationItemProps {
   itemId: string;
   iconSrc: string;
   title?: string;
-  hasAlarm?: boolean;
 }
 
 interface BottomNavigationItemOnlyProps {
@@ -27,6 +26,7 @@ interface BottomNavigationItemOnlyProps {
   selectedForegroundColor?: string;
   alarmColor?: string;
   onItemClick?: (itemId: string) => void;
+  hasAlarm: boolean;
   selected: boolean;
 }
 
