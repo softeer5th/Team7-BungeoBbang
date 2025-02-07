@@ -1,6 +1,7 @@
 package com.bungeobbang.backend.agenda.service;
 
 import com.bungeobbang.backend.agenda.domain.Agenda;
+import com.bungeobbang.backend.agenda.domain.AgendaLastReadChat;
 import com.bungeobbang.backend.agenda.domain.AgendaMember;
 import com.bungeobbang.backend.agenda.domain.repository.AgendaLastReadChatRepository;
 import com.bungeobbang.backend.agenda.domain.repository.AgendaMemberRepository;
@@ -197,6 +198,7 @@ public class AgendaService {
      */
     private ObjectId getLastReadChat(final Long agendaId, final Long memberId) {
         return agendaLastReadChatRepository.findByMemberIdAndAgendaId(memberId, agendaId)
+                .orElse(new AgendaLastReadChat(MIN_OBJECT_ID, null, null, null))
                 .getLastReadChatId();
     }
 
