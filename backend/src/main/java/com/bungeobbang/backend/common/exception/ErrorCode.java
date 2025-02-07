@@ -5,6 +5,12 @@ import org.springframework.http.HttpStatus;
 
 @Getter
 public enum ErrorCode {
+    //IMAGE
+    EXCEED_IMAGE_LIST_SIZE(HttpStatus.BAD_REQUEST, "이미지 최대 개수를 초과하였습니다."),
+    EMPTY_IMAGE_LIST(HttpStatus.BAD_REQUEST, "이미지 리스트 비었습니다."),
+    INVALID_IMG_PATH(HttpStatus.BAD_REQUEST, "잘못된 파일 경로입니다."),
+    IMAGE_UPLOAD_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "이미지 업로드에 실패하였습니다."),
+    IMAGE_DELETE_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "이미지 삭제에 실패하였습니다."),
     // Common
     INVALID_CATEGORY_TYPE(HttpStatus.BAD_REQUEST, "잘못된 카테고리 타입입니다."),
     BADWORD_INCLUDED(HttpStatus.BAD_REQUEST, "금칙어가 포함되어있습니다."),
