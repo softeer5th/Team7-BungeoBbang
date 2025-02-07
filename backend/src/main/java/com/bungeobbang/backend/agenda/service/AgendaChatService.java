@@ -52,7 +52,7 @@ public class AgendaChatService {
         if (chatId == null) {
             // 사용자의 마지막 읽은 채팅 가져오기
             AgendaLastReadChat lastReadChat = agendaLastReadChatRepository.findByMemberIdAndAgendaId(memberId, agendaId)
-                    .orElse(new AgendaLastReadChat(MIN_OBJECT_ID, null, null, null));
+                    .orElse(new AgendaLastReadChat(null, null, null, MIN_OBJECT_ID));
             ObjectId lastReadChatId = lastReadChat.getLastReadChatId();
 
             // lastReadChatId보다 작은 채팅 가져오기

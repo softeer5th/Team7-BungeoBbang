@@ -199,7 +199,7 @@ class AgendaServiceTest {
                                 new LastChat(1L, new ObjectId(0, 0), "1번 마지막 채팅", LocalDateTime.now())
                         ));
         when(agendaLastReadChatRepository.findByMemberIdAndAgendaId(anyLong(), anyLong()))
-                .thenReturn(new AgendaLastReadChat(new ObjectId(0, 0), member.getId(), agenda.getId(), new ObjectId(0, 0)));
+                .thenReturn(Optional.of(new AgendaLastReadChat(new ObjectId(0, 0), member.getId(), agenda.getId(), new ObjectId(0, 0))));
 
         // when
         final List<MyAgendaResponse> myAgenda = agendaService.getMyAgenda(member.getId());
