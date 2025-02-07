@@ -122,7 +122,7 @@ const TimeText = styled(Typography)<{
 const ChatContainer = styled.div<{
   backgroundColor: string;
 }>`
-  width: 277px;
+  max-width: 73%;
   background-color: ${(props) => props.backgroundColor};
   border-radius: 16px;
   padding: 12px 16px 12px 16px;
