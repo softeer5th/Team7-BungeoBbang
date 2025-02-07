@@ -1,13 +1,12 @@
-// src/store/websocket/socket.ts
 import create from 'zustand';
-import { Socket } from 'socket.io-client';
+import { Socket, io } from 'socket.io-client';
+import { AUTH_CONFIG } from '@/config/auth';
 
 interface WebSocketState {
   studentSocket: Socket | null;
-  adminSocket: Socket | null;
+  adminSocket: null;
   connect: (role: 'student' | 'admin') => void;
   disconnect: (role: 'student' | 'admin') => void;
-  // 알림 상태
   hasNewOpinion: boolean;
   hasNewAgenda: boolean;
   setHasNewOpinion: (value: boolean) => void;
@@ -18,7 +17,11 @@ export const useWebSocketStore = create<WebSocketState>((set) => ({
   studentSocket: null,
   adminSocket: null,
   connect: (role) => {
-    const socket = io(process.env.REACT_APP_WS_URL || 'http://localhost:3001', {
+    const baseURL = AUTH_CONFIG.API.BASE_URL;
+    const endpoint = role === 'student' ? '/students' : '/admins';
+
+    const socket = io(baseURL, {
+      path: endpoint,
       transports: ['websocket'],
       query: { role },
     });
