@@ -19,54 +19,18 @@ import { ExitDialog } from '../../chat-page/Exitdialog.tsx';
 import api from '@/utils/api.ts';
 import { Dialog } from '@/components/Dialog/Dialog.tsx';
 import { formatChatData } from '@/utils/chat/formatChatData.ts';
+import { useImageUpload } from '@/hooks/useImageUpload.ts';
 
 const OpinionChatPage = () => {
   const [chatData, setChatData] = useState<ChatData[]>([]);
   const [isExitDialogOpen, setExitDialogOpen] = useState(false);
   const [message, setMessage] = useState('');
-  const [images, setImages] = useState<string[]>([]);
-  const [showDialog, setShowDialog] = useState(false);
+
+  const { images, showSizeDialog, handleImageDelete, handleImageUpload, closeSizeDialog } =
+    useImageUpload(10, 5);
 
   const navigate = useNavigate();
   const { roomId } = useParams();
-
-  const handleImageDelete = (index: number) => {
-    setImages((prev) => prev.filter((_, i) => i !== index));
-  };
-
-  const uploadImages = async (files: File[]): Promise<string[]> => {
-    const formData = new FormData();
-    files.forEach((file) => {
-      formData.append('images', file);
-    });
-
-    try {
-      const response = await api.post('/api/images', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
-      return response.data.urls;
-    } catch (error) {
-      console.error('이미지 업로드 실패:', error);
-      return [];
-    }
-  };
-
-  const handleImageUpload = async (files: FileList) => {
-    const oversizedFiles = Array.from(files).filter((file) => file.size > 10 * 1024 * 1024);
-
-    if (oversizedFiles.length > 0) {
-      setShowDialog(true);
-      return;
-    }
-
-    const uploadedUrls = await uploadImages(Array.from(files));
-    setImages((prev) => {
-      const combined = [...prev, ...uploadedUrls];
-      return combined.slice(0, 5);
-    });
-  };
 
   const handleSendMessage = async () => {
     // const messageData = {
@@ -166,11 +130,11 @@ const OpinionChatPage = () => {
           }}
         />
       )}
-      {showDialog && (
+      {showSizeDialog && (
         <Dialog
           body="10MB 이하의 이미지만 업로드할 수 있습니다."
-          onConfirm={() => setShowDialog(false)}
-          onDismiss={() => setShowDialog(false)}
+          onConfirm={closeSizeDialog}
+          onDismiss={closeSizeDialog}
           confirmButton={{
             text: '확인',
             children: '확인',

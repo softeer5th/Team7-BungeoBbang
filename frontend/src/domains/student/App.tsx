@@ -11,7 +11,7 @@ import OpinionCategoryPage from './pages/opinion/category';
 import OpinionChatPage from './pages/opinion/chatroom';
 import AgendaChatPage from './pages/agenda/chat';
 
-function StudentApp () {
+function StudentApp() {
   return (
     <BrowserRouter>
       <Routes>
