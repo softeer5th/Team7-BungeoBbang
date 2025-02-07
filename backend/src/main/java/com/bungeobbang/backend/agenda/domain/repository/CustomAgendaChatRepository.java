@@ -12,4 +12,6 @@ public interface CustomAgendaChatRepository {
     LastChat findLastChat(Long agendaId, Long memberId);
 
     void upsertLastReadChat(Long agendaId, Long memberId, ObjectId lastChatId);
+
+    void upsertAdminLastReadChat(Long agendaId, Long adminId, ObjectId lastChatId);
 }

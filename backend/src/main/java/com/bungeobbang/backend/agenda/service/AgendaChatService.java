@@ -1,7 +1,10 @@
 package com.bungeobbang.backend.agenda.service;
 
+import com.bungeobbang.backend.agenda.domain.AgendaChat;
 import com.bungeobbang.backend.agenda.domain.repository.AgendaChatRepository;
 import com.bungeobbang.backend.agenda.domain.repository.AgendaMemberRepository;
+import com.bungeobbang.backend.agenda.domain.repository.CustomAgendaChatRepository;
+import com.bungeobbang.backend.agenda.dto.request.AgendaChatRequest;
 import com.bungeobbang.backend.agenda.dto.response.AgendaChatResponse;
 import com.bungeobbang.backend.common.exception.AgendaException;
 import com.bungeobbang.backend.common.exception.ErrorCode;
@@ -22,6 +25,8 @@ public class AgendaChatService {
     private static final int CHAT_SIZE = 10;
     private final AgendaChatRepository agendaChatRepository;
     private final AgendaMemberRepository agendaMemberRepository;
+    private static final ObjectId MAX_OBJECT_ID = new ObjectId("ffffffffffffffffffffffff");
+    private final CustomAgendaChatRepository customAgendaChatRepository;
 
     /**
      * ✅ 답해요 채팅 내역 조회 (무한 스크롤 방식)
@@ -49,5 +54,19 @@ public class AgendaChatService {
                 .stream()
                 .map(AgendaChatResponse::from)
                 .toList();
+    }
+
+    public void saveChat(AgendaChatRequest request) {
+        agendaChatRepository.save(AgendaChat.builder()
+                .memberId(request.memberId())
+                .images(request.images())
+                .isAdmin(false)
+                .agendaId(request.agendaId())
+                .chat(request.chat())
+                .build());
+    }
+
+    public void updateLastReadToMax(Long agendaId, Long memberId) {
+        customAgendaChatRepository.upsertLastReadChat(agendaId, memberId, MAX_OBJECT_ID);
     }
 }
