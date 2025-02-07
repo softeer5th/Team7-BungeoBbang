@@ -140,4 +140,17 @@ public class CustomAgendaChatRepositoryImpl implements CustomAgendaChatRepositor
 
         mongoTemplate.upsert(query, update, AGENDA_LAST_READ_COLLECTION); // upsert 사용
     }
+
+    public void upsertAdminLastReadChat(Long agendaId, Long adminId, ObjectId lastChatId) {
+        Query query = new Query();
+        query.addCriteria(Criteria.where("adminId").is(adminId)
+                .and(AGENDA_ID).is(agendaId));
+
+        Update update = new Update();
+        update.set("lastReadChatId", lastChatId);
+        update.setOnInsert("adminId", adminId); // 삽입될 경우 기본값 설정
+        update.setOnInsert(AGENDA_ID, agendaId);
+
+        mongoTemplate.upsert(query, update, AGENDA_LAST_READ_COLLECTION);
+    }
 }
