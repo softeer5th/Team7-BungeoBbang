@@ -93,7 +93,6 @@ class JWTManager {
     localStorage.removeItem(this.REFRESH_TOKEN_KEY);
     localStorage.removeItem(this.ACCESS_TOKEN_KEY);
     localStorage.removeItem(this.MEMBER_ID_KEY);
-    window.location.href = '/';
   }
 }
 

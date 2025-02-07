@@ -19,6 +19,7 @@ export const LogoutDialog: React.FC<LogoutDialogProps> = ({
       onConfirm={() => {
         onConfirm();
         JWTmanager.clearTokens();
+        window.location.href = '/';
       }}
       onDismiss={onDismiss}
       confirmButton={{

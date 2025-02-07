@@ -31,9 +31,14 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   async (error: AxiosError) => {
+    console.log('Error:?');
     const originalRequest = error.config as CustomAxiosRequestConfig;
+    console.log(originalRequest);
 
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    if (
+      (error.response?.status === 401 || error.response?.status === 403) &&
+      !originalRequest._retry
+    ) {
       originalRequest._retry = true;
       const refreshToken = await JWTManager.getRefreshToken();
 
