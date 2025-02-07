@@ -12,7 +12,6 @@ import { useNavigate } from 'react-router-dom';
 import { Dialog } from '@/components/Dialog/Dialog';
 import api from '@/utils/api';
 import { bottomItems } from '../\bdestinations';
-import JWTManager from '@/utils/jwtManager';
 
 const AgendaPage = () => {
   const theme = useTheme();

@@ -4,12 +4,12 @@ import OAuthCallback from './pages/oauth/callback';
 import EmailVerification from './pages/login/emailcheck';
 import UniversitySelection from './pages/login/univcheck';
 import AgendaPage from './pages/agenda';
-import AgendaChatPage from '../../components/ChatPage';
 import MyPage from './pages/my';
 import LoginSuccess from './pages/login/LoginSuccess';
 import OpinionEntryPage from './pages/opinion/entry';
 import OpinionCategoryPage from './pages/opinion/category';
 import OpinionChatPage from './pages/opinion/chatroom';
+import AgendaChatPage from './pages/agenda/chat';
 
 function StudentApp() {
   return (
