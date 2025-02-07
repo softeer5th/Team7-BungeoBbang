@@ -1,11 +1,10 @@
 import * as S from './styles';
-import styled, { useTheme } from 'styled-components';
+import { useTheme } from 'styled-components';
 import { useNavigate } from 'react-router-dom';
 import ArrowLeftIcon from '/src/assets/icons/arrow-left.svg?react';
 import CameraIcon from '/src/assets/icons/camera.svg?react';
 import DeleteIcon from '/src/assets/icons/close-2.svg?react';
 import InfoIcon from '/src/assets/icons/information-circle-contained.svg?react';
-import Typography from '@/styles/Typography';
 import { CountTextField } from '@/components/text-field/CountTextField';
 import { TextField } from '@/components/text-field/TextField';
 import { ChatCategoryType } from '@/types/ChatCategoryType';
@@ -13,7 +12,8 @@ import BottomSheet from '@/components/BottomSheet';
 import { useState } from 'react';
 import api from '@/utils/api';
 import { SubTitleText } from '../components/SubTitleText';
-import { CategoryContainer, CategoryContent } from '../components/CategoryContent';
+import { CategoryContent } from '../components/CategoryContent';
+import { DurationContent } from '../components/DurationContent';
 
 interface ChatCreateData {
   title: string;
@@ -220,7 +220,7 @@ const CreateAgendaPage = () => {
             setDurationBottomSheetOpen(false);
           }}
         >
-          <CategoryContent onItemClick={() => {}} />
+          <DurationContent onDurationSelected={() => {}} />
         </BottomSheet>
       )}
     </S.Container>

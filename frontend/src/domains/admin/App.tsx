@@ -3,7 +3,7 @@ import AdminLogin from './pages/login';
 import AgendaPage from './pages/agenda';
 import AgendaChatPage from './pages/agenda/chat';
 import OpinionEntryPage from './pages/opinion/entry';
-import CreateAgendaPage from '../student/pages/agenda/create';
+import CreateAgendaPage from './pages/agenda/create';
 
 function AdminApp() {
   return (
