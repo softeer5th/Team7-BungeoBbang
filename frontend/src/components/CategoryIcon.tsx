@@ -1,6 +1,7 @@
 import styled from 'styled-components';
 import Typography from '../styles/Typography';
 import { ChatCategoryType } from '@/types/ChatCategoryType';
+import { useEffect, useRef, useState } from 'react';
 
 type TypographyVariant =
   | 'display1'
@@ -19,9 +20,9 @@ type TypographyVariant =
   | 'caption3';
 
 interface CategoryIconProps {
+  boxSize: number;
   iconWidth: number;
   textVariant?: string;
-  padding: number;
   type: ChatCategoryType;
   showText?: boolean;
   onClick?: () => void;
@@ -29,9 +30,9 @@ interface CategoryIconProps {
 }
 
 export const CategoryIcon: React.FC<CategoryIconProps> = ({
+  boxSize,
   iconWidth,
   textVariant,
-  padding,
   type,
   showText = false,
   onClick = () => {},
@@ -39,9 +40,9 @@ export const CategoryIcon: React.FC<CategoryIconProps> = ({
 }) => {
   return (
     <IconBox
+      size={boxSize}
       onClick={() => onClick()}
       selected={selected}
-      padding={padding || 0}
       backgroundColor={type.iconBackground}
     >
       <Icon iconWidth={iconWidth} src={type.iconSrc} />
@@ -53,16 +54,17 @@ export const CategoryIcon: React.FC<CategoryIconProps> = ({
 };
 
 const IconBox = styled.div<{
+  size: number;
   backgroundColor: string;
-  padding: number;
   selected: boolean;
 }>`
-  height: fit-content;
+  width: ${(props) => props.size}px;
   aspect-ratio: 1/1;
+
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: ${(props) => props.padding}px;
+  flex-direction: column;
   background-color: ${(props) => props.backgroundColor};
   border: ${(props) => (props.selected ? `3px solid ${props.theme.colors.sementicMain}` : `none`)};
   border-radius: 50%;
@@ -77,4 +79,6 @@ const Icon = styled.img<{
 
 const IconText = styled(Typography)`
   color: ${(props) => props.theme.colors.grayScale70};
+  white-space: nowrap;
+  margin-top: 4px;
 `;

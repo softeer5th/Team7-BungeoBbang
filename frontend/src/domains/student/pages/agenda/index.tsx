@@ -11,7 +11,7 @@ import { ButtonProps } from '@/components/Button';
 import { useNavigate } from 'react-router-dom';
 import { Dialog } from '@/components/Dialog/Dialog';
 import api from '@/utils/api';
-import { bottomItems } from '../\bdestinations';
+import { bottomItems } from '../destinations';
 
 const AgendaPage = () => {
   const theme = useTheme();
