@@ -12,6 +12,7 @@ import com.bungeobbang.backend.opinion.domain.repository.OpinionRepository;
 import com.bungeobbang.backend.opinion.dto.response.AdminOpinionsInfoResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.bson.types.ObjectId;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -31,6 +32,7 @@ public class AdminOpinionService {
     private final OpinionRepository opinionRepository;
     private final OpinionChatRepository opinionChatRepository;
     private final OpinionLastReadRepository opinionLastReadRepository;
+    private static final String MIN_OBJECT_ID = "000000000000000000000000";
 
     /**
      * 학생회가 말해요 채팅방 목록을 조회합니다.
@@ -88,7 +90,9 @@ public class AdminOpinionService {
                     OpinionLastRead lastRead = lastReadMap.get(opinion.getId());
                     OpinionChat lastChat = lastChatMap.get(opinion.getId());
 
-                    if (lastRead == null) throw new OpinionException(ErrorCode.INVALID_OPINION_LAST_READ);
+                    if (lastRead == null) {
+                        opinionLastReadRepository.save(new OpinionLastRead(opinion.getId(), true, new ObjectId(MIN_OBJECT_ID)));
+                    }
                     if (lastChat == null) throw new OpinionException(ErrorCode.INVALID_OPINION_CHAT);
 
                     return AdminOpinionsInfoResponse.of(opinion, lastChat, lastRead);

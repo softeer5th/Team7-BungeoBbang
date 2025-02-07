@@ -197,7 +197,9 @@ public class MemberOpinionService {
                     OpinionLastRead lastRead = lastReadMap.get(opinion.getId());
                     OpinionChat lastChat = lastChatMap.get(opinion.getId());
 
-                    if (lastRead == null) throw new OpinionException(ErrorCode.INVALID_OPINION_LAST_READ);
+                    if (lastRead == null) {
+                        opinionLastReadRepository.save(new OpinionLastRead(opinion.getId(), false, new ObjectId(MIN_OBJECT_ID)));
+                    }
                     if (lastChat == null) throw new OpinionException(ErrorCode.INVALID_OPINION_CHAT);
 
                     return MemberOpinionsInfoResponse.of(opinion, lastChat, lastRead);
