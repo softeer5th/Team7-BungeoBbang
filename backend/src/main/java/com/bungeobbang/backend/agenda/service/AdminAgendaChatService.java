@@ -1,6 +1,9 @@
 package com.bungeobbang.backend.agenda.service;
 
+import com.bungeobbang.backend.agenda.domain.AgendaChat;
 import com.bungeobbang.backend.agenda.domain.repository.AgendaChatRepository;
+import com.bungeobbang.backend.agenda.domain.repository.CustomAgendaChatRepository;
+import com.bungeobbang.backend.agenda.dto.request.AgendaChatRequest;
 import com.bungeobbang.backend.agenda.dto.response.AgendaChatResponse;
 import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
@@ -24,6 +27,8 @@ import java.util.List;
 public class AdminAgendaChatService {
     private static final int CHAT_SIZE = 10;
     private final AgendaChatRepository agendaChatRepository;
+    private static final ObjectId MAX_OBJECT_ID = new ObjectId("ffffffffffffffffffffffff");
+    private final CustomAgendaChatRepository customAgendaChatRepository;
 
     /**
      * ✅ 답해요 채팅 내역 조회 (무한 스크롤 방식)
@@ -51,5 +56,18 @@ public class AdminAgendaChatService {
                 .stream()
                 .map(AgendaChatResponse::from)
                 .toList();
+    }
+
+    public void saveChat(AgendaChatRequest request) {
+        agendaChatRepository.save(AgendaChat.builder()
+                .images(request.images())
+                .isAdmin(true)
+                .agendaId(request.agendaId())
+                .chat(request.chat())
+                .build());
+    }
+
+    public void updateLastReadToMax(Long agendaId, Long adminId) {
+        customAgendaChatRepository.upsertAdminLastReadChat(agendaId, adminId, MAX_OBJECT_ID);
     }
 }

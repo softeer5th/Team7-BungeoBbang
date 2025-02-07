@@ -1,7 +1,8 @@
-package com.bungeobbang.backend.common.config;
+package com.bungeobbang.backend.chat.config;
 
 
-import com.bungeobbang.backend.chat.handler.StudentWebSocketChatHandler;
+import com.bungeobbang.backend.chat.handler.AdminWebSocketChatHandler;
+import com.bungeobbang.backend.chat.handler.MemberWebSocketChatHandler;
 import com.bungeobbang.backend.chat.interceptor.WebSocketAuthInterceptor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
@@ -13,13 +14,14 @@ import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry
 @EnableWebSocket
 @RequiredArgsConstructor
 public class WebSocketConfig implements WebSocketConfigurer {
-    private final StudentWebSocketChatHandler webSocketChatHandler;
-
+    private final MemberWebSocketChatHandler webSocketChatHandler;
+    private final AdminWebSocketChatHandler adminWebSocketChatHandler;
     private final WebSocketAuthInterceptor webSocketAuthInterceptor;
 
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
         registry.addHandler(webSocketChatHandler, "/students")
+                .addHandler(adminWebSocketChatHandler, "/admins")
                 .addInterceptors(webSocketAuthInterceptor)
                 .setAllowedOrigins("*");
     }

@@ -1,5 +1,6 @@
 package com.bungeobbang.backend.member.service;
 
+import com.bungeobbang.backend.auth.BearerAuthorizationExtractor;
 import com.bungeobbang.backend.auth.JwtProvider;
 import com.bungeobbang.backend.common.exception.AuthException;
 import com.bungeobbang.backend.common.infrastructure.RedisClient;
@@ -7,6 +8,7 @@ import com.bungeobbang.backend.member.domain.Member;
 import com.bungeobbang.backend.member.domain.ProviderType;
 import com.bungeobbang.backend.member.domain.repository.MemberRepository;
 import com.bungeobbang.backend.member.dto.request.MemberUniversityUpdateRequest;
+import com.bungeobbang.backend.member.dto.response.AccessTokenResponse;
 import com.bungeobbang.backend.member.dto.response.MemberLoginResult;
 import com.bungeobbang.backend.member.dto.response.MemberTokens;
 import com.bungeobbang.backend.member.infrastructure.oauthprovider.OauthProvider;
@@ -29,6 +31,7 @@ public class MemberService {
     private final OauthProviders oauthProviders;
     private final MemberRepository memberRepository;
     private final UniversityRepository universityRepository;
+    private final BearerAuthorizationExtractor bearerAuthorizationExtractor;
     private final JwtProvider jwtProvider;
     private final RedisClient redisClient;
 
@@ -53,6 +56,13 @@ public class MemberService {
         }
 
         member.updateUniversity(university, request.email());
+    }
+
+    public AccessTokenResponse extend(String authorizeHeader, String refreshToken) {
+        jwtProvider.validateToken(refreshToken);
+        final String memberId = jwtProvider.getSubject(bearerAuthorizationExtractor.extractAccessToken(authorizeHeader));
+        final MemberTokens memberTokens = jwtProvider.generateLoginToken(memberId);
+        return new AccessTokenResponse(memberTokens.accessToken());
     }
 
     private MemberLoginResult getLoginResultResponse(final Member member) {
