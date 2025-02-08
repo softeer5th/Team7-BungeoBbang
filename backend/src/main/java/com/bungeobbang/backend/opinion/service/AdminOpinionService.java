@@ -1,5 +1,8 @@
 package com.bungeobbang.backend.opinion.service;
 
+import com.bungeobbang.backend.admin.domain.Admin;
+import com.bungeobbang.backend.admin.domain.repository.AdminRepository;
+import com.bungeobbang.backend.common.exception.AdminException;
 import com.bungeobbang.backend.common.exception.ErrorCode;
 import com.bungeobbang.backend.common.exception.OpinionException;
 import com.bungeobbang.backend.common.type.CategoryType;
@@ -32,6 +35,7 @@ public class AdminOpinionService {
     private final OpinionRepository opinionRepository;
     private final OpinionChatRepository opinionChatRepository;
     private final OpinionLastReadRepository opinionLastReadRepository;
+    private final AdminRepository adminRepository;
     private static final String MIN_OBJECT_ID = "000000000000000000000000";
 
     /**
@@ -41,8 +45,10 @@ public class AdminOpinionService {
      * @param categoryTypes 조회를 원하는 카테고리의 목록. 없을 경우 전체 카테고리를 조회합니다.
      * @return AdminOpinionInfoResponse의 리스트로, 말해요 채팅방 목록 응답 객체.
      */
-    public List<AdminOpinionsInfoResponse> findAdminOpinionList(final Set<CategoryType> categoryTypes) {
-        final List<Opinion> opinions = getOpinionsByCategories(categoryTypes);
+    public List<AdminOpinionsInfoResponse> findAdminOpinionList(final Set<CategoryType> categoryTypes, Long adminId) {
+        Admin admin = adminRepository.findById(adminId)
+                .orElseThrow(() -> new AdminException(ErrorCode.INVALID_ADMIN));
+        final List<Opinion> opinions = getOpinionsByCategories(categoryTypes, admin.getUniversity().getId());
         return convertToAdminOpinionInfoList(opinions);
     }
 
@@ -52,11 +58,11 @@ public class AdminOpinionService {
      * @param categoryTypes 조회를 원하는 카테고리의 목록. 없을 경우 전체 카테고리를 조회합니다.
      * @return 카테고리에 해당하는 말해요 채팅방 목록.
      */
-    private List<Opinion> getOpinionsByCategories(final Set<CategoryType> categoryTypes) {
+    private List<Opinion> getOpinionsByCategories(final Set<CategoryType> categoryTypes, Long universityId) {
         if (categoryTypes == null || categoryTypes.isEmpty()) {
-            return opinionRepository.findAll(); // 카테고리가 없으면 전체 조회
+            return opinionRepository.findAllByUniversityId(universityId); // 카테고리가 없으면 해당 대학 말해요 전체 조회
         }
-        return opinionRepository.findAllByCategoryTypeIn(categoryTypes); // 선택된 카테고리에 해당하는 목록 조회
+        return opinionRepository.findAllByCategoryTypeInAndUniversityId(categoryTypes, universityId); // 선택된 카테고리에 해당하는 목록 조회
     }
 
     /**
