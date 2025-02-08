@@ -1,6 +1,5 @@
 package com.bungeobbang.backend.opinion.presentation;
 
-import com.bungeobbang.backend.auth.JwtProvider;
 import com.bungeobbang.backend.auth.admin.AdminAuth;
 import com.bungeobbang.backend.auth.admin.AdminOnly;
 import com.bungeobbang.backend.auth.domain.Accessor;

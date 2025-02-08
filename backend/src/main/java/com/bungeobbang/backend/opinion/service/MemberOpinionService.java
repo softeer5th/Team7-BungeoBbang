@@ -1,6 +1,5 @@
 package com.bungeobbang.backend.opinion.service;
 
-import com.bungeobbang.backend.auth.domain.Accessor;
 import com.bungeobbang.backend.common.exception.ErrorCode;
 import com.bungeobbang.backend.common.exception.MemberException;
 import com.bungeobbang.backend.common.exception.OpinionException;
@@ -25,6 +24,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * 학생이 사용하는 말해요 관련 서비스 로직을 처리하는 클래스.
@@ -174,13 +176,33 @@ public class MemberOpinionService {
      * @return 학생의 말해요 채팅방 정보 리스트
      */
     private List<MemberOpinionsInfoResponse> convertToMemberOpinionInfoList(final List<Opinion> opinions) {
+        List<Long> opinionIds = opinions.stream()
+                .map(Opinion::getId)
+                .toList();
+
+        // <OpinionId, OpinionLastRead>
+        // 마지막 읽은 채팅 조회
+        Map<Long, OpinionLastRead> lastReadMap = opinionLastReadRepository.findByOpinionIdInAndIsAdmin(opinionIds, false)
+                .stream()
+                .collect(Collectors.toMap(OpinionLastRead::getOpinionId, Function.identity()));
+
+        // <OpinionId, OpinionChat>
+        // 실제 마지막 채팅 조회
+        Map<Long, OpinionChat> lastChatMap = opinionChatRepository.findLatestChatsByOpinionIds(opinionIds)
+                .stream()
+                .collect(Collectors.toMap(OpinionChat::getOpinionId, Function.identity()));
+
         return opinions.stream()
                 .map(opinion -> {
-                    final OpinionLastRead opinionLastRead = opinionLastReadRepository.findByOpinionIdAndIsAdmin(opinion.getId(), false)
-                            .orElseThrow(() -> new OpinionException(ErrorCode.INVALID_OPINION_LAST_READ));
-                    final OpinionChat lastChat = opinionChatRepository.findTopByOpinionIdOrderByIdDesc(opinion.getId())
-                            .orElseThrow(() -> new OpinionException(ErrorCode.INVALID_OPINION_CHAT));
-                    return MemberOpinionsInfoResponse.of(opinion, lastChat, opinionLastRead);
+                    OpinionLastRead lastRead = lastReadMap.get(opinion.getId());
+                    OpinionChat lastChat = lastChatMap.get(opinion.getId());
+
+                    if (lastRead == null) {
+                        opinionLastReadRepository.save(new OpinionLastRead(opinion.getId(), false, new ObjectId(MIN_OBJECT_ID)));
+                    }
+                    if (lastChat == null) throw new OpinionException(ErrorCode.INVALID_OPINION_CHAT);
+
+                    return MemberOpinionsInfoResponse.of(opinion, lastChat, lastRead);
                 })
                 .sorted()
                 .toList();
