@@ -12,10 +12,14 @@ import com.bungeobbang.backend.opinion.domain.repository.OpinionRepository;
 import com.bungeobbang.backend.opinion.dto.response.AdminOpinionsInfoResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.bson.types.ObjectId;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * 학생회에서 말해요 채팅방 목록을 관리하기 위한 서비스 클래스.
@@ -28,6 +32,7 @@ public class AdminOpinionService {
     private final OpinionRepository opinionRepository;
     private final OpinionChatRepository opinionChatRepository;
     private final OpinionLastReadRepository opinionLastReadRepository;
+    private static final String MIN_OBJECT_ID = "000000000000000000000000";
 
     /**
      * 학생회가 말해요 채팅방 목록을 조회합니다.
@@ -63,15 +68,33 @@ public class AdminOpinionService {
      * @throws OpinionException 말해요 채팅방의 마지막 읽은 채팅 또는 최신 채팅 조회 실패 시 발생.
      */
     private List<AdminOpinionsInfoResponse> convertToAdminOpinionInfoList(final List<Opinion> opinions) {
+        List<Long> opinionIds = opinions.stream()
+                .map(Opinion::getId)
+                .toList();
+
+        // <OpinionId, OpinionLastRead>
+        // 마지막 읽은 채팅 조회
+        List<OpinionLastRead> list = opinionLastReadRepository.findByOpinionIdInAndIsAdmin(opinionIds, true);
+        Map<Long, OpinionLastRead> lastReadMap = opinionLastReadRepository.findByOpinionIdInAndIsAdmin(opinionIds, true)
+                .stream()
+                .collect(Collectors.toMap(OpinionLastRead::getOpinionId, Function.identity()));
+
+        // <OpinionId, OpinionChat>
+        // 실제 마지막 채팅 조회
+        Map<Long, OpinionChat> lastChatMap = opinionChatRepository.findLatestChatsByOpinionIds(opinionIds)
+                .stream()
+                .collect(Collectors.toMap(OpinionChat::getOpinionId, Function.identity()));
+
         return opinions.stream()
                 .map(opinion -> {
-                    // 마지막 읽은 채팅 정보 조회
-                    final OpinionLastRead lastRead = opinionLastReadRepository.findByOpinionIdAndIsAdmin(opinion.getId(), true)
-                            .orElseThrow(() -> new OpinionException(ErrorCode.INVALID_OPINION_LAST_READ));
-                    // 최신 채팅 정보 조회
-                    final OpinionChat lastChat = opinionChatRepository.findTopByOpinionIdOrderByIdDesc(opinion.getId())
-                            .orElseThrow(() -> new OpinionException(ErrorCode.INVALID_OPINION_CHAT));
-                    // 응답 객체 생성
+                    OpinionLastRead lastRead = lastReadMap.get(opinion.getId());
+                    OpinionChat lastChat = lastChatMap.get(opinion.getId());
+
+                    if (lastRead == null) {
+                        opinionLastReadRepository.save(new OpinionLastRead(opinion.getId(), true, new ObjectId(MIN_OBJECT_ID)));
+                    }
+                    if (lastChat == null) throw new OpinionException(ErrorCode.INVALID_OPINION_CHAT);
+
                     return AdminOpinionsInfoResponse.of(opinion, lastChat, lastRead);
                 })
                 .sorted()
