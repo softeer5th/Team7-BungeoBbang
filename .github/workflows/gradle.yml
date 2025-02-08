@@ -57,7 +57,7 @@ jobs:
         script: |
           docker stop onu-container || true
           docker rm onu-container || true
-          docker rmi scc9811/onu || true
+          docker rmi scc9811/onu:none || true
           docker pull ${{ secrets.DOCKERHUB_USERNAME }}/onu:latest
           docker run -d -p 8080:8080 --network host --name onu-container ${{ secrets.DOCKERHUB_USERNAME }}/onu
         
