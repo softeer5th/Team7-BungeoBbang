@@ -35,6 +35,7 @@ public class AgendaEventListener {
                     event.images(),
                     event.createdAt()
             ));
+            case LEAVE -> agendaChatService.updateLastRead(event.agendaId(), event.memberId());
             case EXIT -> agendaRealTimeChatService.disconnectMemberFromAgenda(event.session(), event.agendaId());
             case PARTICIPATE -> agendaRealTimeChatService.connectMemberFromAgenda(event.session(), event.agendaId());
 
