@@ -6,4 +6,8 @@ public interface MessageQueueService {
     void publish(String channel, String message);
 
     void subscribe(WebSocketSession session, String topic);
+
+    void unsubscribe(WebSocketSession session, String topic);
+
+    void unsubscribe(String topic);
 }

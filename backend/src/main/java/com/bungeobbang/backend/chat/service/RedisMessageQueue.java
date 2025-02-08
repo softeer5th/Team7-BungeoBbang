@@ -35,13 +35,27 @@ public class RedisMessageQueue implements MessageQueueService {
 
     @Override
     public void subscribe(WebSocketSession session, String channel) {
-        channelSubscribers.computeIfAbsent(channel, k -> ConcurrentHashMap.newKeySet()).add(session);
-
         // 해당 채널이 처음 구독되면 Redis에 subscribe
-        if (channelSubscribers.get(channel).size() == 1) {
+        if (channelSubscribers.get(channel) == null) {
             asyncCommands.subscribe(channel);
             log.info("🔵 [Redis] 새로운 채널 구독: {}", channel);
         }
+
+        channelSubscribers.computeIfAbsent(channel, k -> ConcurrentHashMap.newKeySet()).add(session);
+    }
+
+    @Override
+    public void unsubscribe(WebSocketSession session, String topic) {
+        channelSubscribers.get(topic).remove(session);
+        if (channelSubscribers.get(topic).isEmpty()) {
+            asyncCommands.unsubscribe(topic);
+        }
+    }
+
+    @Override
+    public void unsubscribe(String topic) {
+        asyncCommands.unsubscribe(topic);
+        channelSubscribers.remove(topic);
     }
 
     private class RedisMessageHandler implements RedisPubSubListener<String, String> {
@@ -56,7 +70,7 @@ public class RedisMessageQueue implements MessageQueueService {
                     for (WebSocketSession session : subscribers) {
                         if (session.isOpen()) {
                             session.sendMessage(new TextMessage(message));
-                        }
+                        } else subscribers.remove(session); // 세션 종료된 경우 맵에서 삭제
                     }
                 }
             } catch (Exception e) {

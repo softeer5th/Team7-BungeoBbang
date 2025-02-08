@@ -62,7 +62,7 @@ public class AdminWebSocketChatHandler extends TextWebSocketHandler {
 
 
             switch (request.roomType()) {
-                case AGENDA -> publisher.publishEvent(AgendaAdminEvent.from(request));
+                case AGENDA -> publisher.publishEvent(AgendaAdminEvent.from(session, request));
 
             }
         } catch (AuthException e) {
