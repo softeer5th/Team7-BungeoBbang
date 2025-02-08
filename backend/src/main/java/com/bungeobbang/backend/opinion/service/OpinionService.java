@@ -1,12 +1,18 @@
 package com.bungeobbang.backend.opinion.service;
 
 import com.bungeobbang.backend.auth.domain.Accessor;
+import com.bungeobbang.backend.common.exception.ErrorCode;
+import com.bungeobbang.backend.common.exception.OpinionException;
+import com.bungeobbang.backend.opinion.domain.Opinion;
 import com.bungeobbang.backend.opinion.domain.repository.OpinionChatRepository;
+import com.bungeobbang.backend.opinion.domain.repository.OpinionRepository;
 import com.bungeobbang.backend.opinion.dto.response.OpinionChatResponse;
+import com.bungeobbang.backend.opinion.dto.response.OpinionDetailResponse;
 import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
 
 
@@ -24,6 +30,7 @@ public class OpinionService {
     private static final String MAX_OBJECT_ID = "ffffffffffffffffffffffff";
 
     private final OpinionChatRepository opinionChatRepository;
+    private final OpinionRepository opinionRepository;
 
     /**
      * 특정 말해요(opinionId)의 채팅 내역을 조회하는 메서드.
@@ -33,11 +40,20 @@ public class OpinionService {
      * @param accessor   현재 요청을 보낸 사용자의 인증 정보
      * @return OpinionChatResponse 리스트 (해당 채팅방의 메시지 목록)
      */
-    public List<OpinionChatResponse> findOpinionChat(Long opinionId, ObjectId lastChatId, Accessor accessor) {
+    public List<OpinionChatResponse> findOpinionChat(final Long opinionId, ObjectId lastChatId, final Accessor accessor) {
         if (lastChatId == null) lastChatId = new ObjectId(MAX_OBJECT_ID);
-        return opinionChatRepository.findByOpinionIdAndLastChatId(opinionId, lastChatId)
+        final List<OpinionChatResponse> opinionChatResponses = new java.util.ArrayList<>(opinionChatRepository.findByOpinionIdAndLastChatId(opinionId, lastChatId)
                 .stream()
                 .map(opinionChat -> OpinionChatResponse.of(opinionChat, accessor.id(), opinionId))
-                .toList();
+                .toList());
+        Collections.reverse(opinionChatResponses);
+
+        return opinionChatResponses;
+    }
+
+    public OpinionDetailResponse findOpinionDetail(final Long opinionId) {
+        final Opinion opinion = opinionRepository.findById(opinionId)
+                .orElseThrow(() -> new OpinionException(ErrorCode.INVALID_OPINION));
+        return new OpinionDetailResponse(opinion.getUniversity().getName());
     }
 }
