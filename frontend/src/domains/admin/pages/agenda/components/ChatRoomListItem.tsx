@@ -70,7 +70,8 @@ export const ChatRoomListItem = ({ cardData }: ChatRoomListItemProps) => {
         isBeforeProgress={cardData.progressState === ProgressState.BEFORE}
         onClick={() => navigate(`/agenda/chat/${cardData.roomId}`)}
       >
-        <CategoryIcon type={cardData.chatCategoryType} iconWidth={17} padding={6} />
+        <CategoryIcon type={cardData.chatCategoryType}
+        boxSize={30} iconWidth={17} />
         <TitleText variant="heading3">{cardData.title}</TitleText>
         <DateContainer>
           <DateIcon src="/src/assets/icons/calendar.svg" />

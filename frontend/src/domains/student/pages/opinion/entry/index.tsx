@@ -10,6 +10,7 @@ import { useState, useEffect } from 'react';
 import api from '@/utils/api';
 import { motion } from 'framer-motion';
 import { LogoutDialog as Logout } from '@/components/Dialog/LogoutDialog';
+import JwtManager from '@/utils/jwtManager';
 
 const OpinionEntryPage = () => {
   const destinations = [
@@ -39,7 +40,10 @@ const OpinionEntryPage = () => {
   useEffect(() => {
     const getStatistic = async () => {
       try {
+        const access = await JwtManager.getAccessToken();
+        console.log(access);
         const response = await api.get('/student/opinions');
+        console.log("response.data)", response.data);
         response.data.opinionCount < 4 ? setShowStatistic(false) : setStatistic(response.data);
       } catch (error) {
         setShowStatistic(false);

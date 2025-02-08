@@ -1,7 +1,7 @@
 import { ChatCategoryType } from '@/types/ChatCategoryType';
 
 export interface ChatRoomListCardData {
-  roomId: string;
+  roomId: number;
   hasNew: boolean;
   progressState: ProgressState;
   numOfJoin?: number;

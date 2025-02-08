@@ -1,6 +1,7 @@
 import React from 'react';
 import * as S from './styles';
 import { ChatPreviewData } from '../data/ChatPreviewData';
+import { CategoryIcon } from '@/components/CategoryIcon';
 
 interface ChatPreviewItemProps {
   chatData: ChatPreviewData;
@@ -12,7 +13,7 @@ export const ChatPreviewItem: React.FC<ChatPreviewItemProps> = ({
   return (
     <S.ItemBox>
       <S.HeaderContainer>
-        <S.TitleContainer>
+        <S.TitleContainer> 
           <S.IconBox backgroundColor={chatData.categoryType.iconBackground}>
             <img width="17px" height="17px" src={chatData.categoryType.iconSrc} />
           </S.IconBox>
