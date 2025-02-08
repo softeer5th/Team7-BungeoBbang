@@ -15,7 +15,8 @@ public record AgendaDetailResponse(
         LocalDate endDate,
         int count,
         String content,
-        List<String> images
+        List<String> images,
+        String adminName
 ) {
     public static AgendaDetailResponse from(Agenda agenda) {
         return new AgendaDetailResponse(
@@ -26,7 +27,8 @@ public record AgendaDetailResponse(
                 agenda.getEndDate(),
                 agenda.getCount(),
                 agenda.getContent(),
-                agenda.getImages().stream().map(AgendaImage::getName).toList()
+                agenda.getImages().stream().map(AgendaImage::getName).toList(),
+                agenda.getAdmin().getName()
         );
     }
 }
