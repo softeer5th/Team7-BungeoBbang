@@ -20,7 +20,7 @@ public class OpinionChatController implements OpinionChatApi {
 
     private final OpinionService opinionService;
 
-    @GetMapping("/{opinionId}")
+    @GetMapping("/{opinionId}/chat")
     public ResponseEntity<List<OpinionChatResponse>> getOpinionChat(
             @PathVariable @Valid final Long opinionId,
             @RequestParam(required = false) final ObjectId lastChatId,

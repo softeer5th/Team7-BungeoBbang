@@ -41,7 +41,7 @@ public interface OpinionChatApi {
             @ApiResponse(responseCode = "401", description = "인증되지 않은 사용자", content = @Content),
             @ApiResponse(responseCode = "500", description = "서버 오류", content = @Content)
     })
-    @GetMapping("/{opinionId}")
+    @GetMapping("/{opinionId}/chat")
     ResponseEntity<List<OpinionChatResponse>> getOpinionChat(
             @Parameter(description = "조회할 말해요 ID", example = "2")
             @PathVariable @Valid Long opinionId,
