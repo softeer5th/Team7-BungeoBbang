@@ -103,4 +103,9 @@ public class AdminAgendaChatService {
     public void updateLastReadToMax(Long agendaId, Long adminId) {
         customAgendaChatRepository.upsertAdminLastReadChat(agendaId, adminId, MAX_OBJECT_ID);
     }
+
+    public void updateLastRead(Long agendaId, Long adminId) {
+        final AgendaChat lastChat = customAgendaChatRepository.findLastChat(agendaId);
+        customAgendaChatRepository.upsertAdminLastReadChat(agendaId, adminId, lastChat.getId());
+    }
 }
