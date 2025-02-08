@@ -52,17 +52,18 @@ public class AdminWebSocketChatHandler extends TextWebSocketHandler {
             jwtProvider.validateToken(accessToken);
             final AdminWebsocketMessage request = objectMapper.readValue(message.getPayload(), AdminWebsocketMessage.class);
 
-            badWordService.validate(request.message());
 
-            if (request.event().equals(CHAT))
+            if (request.event().equals(CHAT)) {
+                badWordService.validate(request.message());
                 publisher.publishEvent(request);
+            }
 
             if (request.event().equals(CHAT) && request.roomType().equals(AGENDA))
                 session.sendMessage(new TextMessage(objectMapper.writeValueAsString(request)));
 
 
             switch (request.roomType()) {
-                case AGENDA -> publisher.publishEvent(AgendaAdminEvent.from(request));
+                case AGENDA -> publisher.publishEvent(AgendaAdminEvent.from(session, request));
 
             }
         } catch (AuthException e) {

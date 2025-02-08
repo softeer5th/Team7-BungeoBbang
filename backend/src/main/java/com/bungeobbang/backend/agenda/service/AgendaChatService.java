@@ -97,6 +97,7 @@ public class AgendaChatService {
                 .isAdmin(false)
                 .agendaId(request.agendaId())
                 .chat(request.chat())
+                .createdAt(request.createdAt())
                 .build());
     }
 
