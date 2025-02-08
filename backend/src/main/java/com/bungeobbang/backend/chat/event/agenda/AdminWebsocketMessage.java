@@ -2,8 +2,10 @@ package com.bungeobbang.backend.chat.event.agenda;
 
 import com.bungeobbang.backend.chat.type.RoomType;
 import com.bungeobbang.backend.chat.type.SocketEventType;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public record AdminWebsocketMessage(
@@ -20,9 +22,12 @@ public record AdminWebsocketMessage(
         @JsonInclude(JsonInclude.Include.NON_NULL)
         List<String> images,
         @JsonInclude(JsonInclude.Include.NON_NULL)
-        Long adminId
+        Long adminId,
+        @JsonInclude(JsonInclude.Include.NON_NULL)
+        @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+        LocalDateTime createdAt
 ) {
     public AdminWebsocketMessage(SocketEventType event, String message) {
-        this(null, event, null, null, message, null, null);
+        this(null, event, null, null, message, null, null, null);
     }
 }

@@ -57,7 +57,7 @@ public class MemberWebSocketChatHandler extends TextWebSocketHandler {
                 session.sendMessage(new TextMessage(objectMapper.writeValueAsString(request)));
 
             switch (request.roomType()) {
-                case AGENDA -> publisher.publishEvent(AgendaMemberEvent.from(request));
+                case AGENDA -> publisher.publishEvent(AgendaMemberEvent.from(session, request));
 
             }
         } catch (AuthException e) {

@@ -1,23 +1,29 @@
 package com.bungeobbang.backend.chat.event.agenda;
 
 import com.bungeobbang.backend.chat.type.SocketEventType;
+import org.springframework.web.socket.WebSocketSession;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public record AgendaMemberEvent(
+        WebSocketSession session,
         Long agendaId,
         SocketEventType eventType,
         Long memberId,
         String chat,
-        List<String> images
+        List<String> images,
+        LocalDateTime createdAt
 ) {
-    public static AgendaMemberEvent from(MemberWebsocketMessage message) {
+    public static AgendaMemberEvent from(WebSocketSession session, MemberWebsocketMessage message) {
         return new AgendaMemberEvent(
+                session,
                 message.agendaId(),
                 message.event(),
                 message.memberId(),
                 message.message(),
-                message.images()
+                message.images(),
+                message.createdAt()
         );
     }
 }
