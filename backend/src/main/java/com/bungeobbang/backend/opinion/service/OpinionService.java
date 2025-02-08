@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
 
 
@@ -35,9 +36,12 @@ public class OpinionService {
      */
     public List<OpinionChatResponse> findOpinionChat(Long opinionId, ObjectId lastChatId, Accessor accessor) {
         if (lastChatId == null) lastChatId = new ObjectId(MAX_OBJECT_ID);
-        return opinionChatRepository.findByOpinionIdAndLastChatId(opinionId, lastChatId)
+        List<OpinionChatResponse> opinionChatResponses = new java.util.ArrayList<>(opinionChatRepository.findByOpinionIdAndLastChatId(opinionId, lastChatId)
                 .stream()
                 .map(opinionChat -> OpinionChatResponse.of(opinionChat, accessor.id(), opinionId))
-                .toList();
+                .toList());
+        Collections.reverse(opinionChatResponses);
+
+        return opinionChatResponses;
     }
 }
