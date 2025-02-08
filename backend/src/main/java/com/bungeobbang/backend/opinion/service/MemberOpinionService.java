@@ -89,14 +89,14 @@ public class MemberOpinionService {
 
         final Opinion opinion = createOpinionEntity(creationRequest, member);
         final Long opinionId = opinionRepository.save(opinion).getId();
-        ObjectId savedChatId = saveOpinionChat(creationRequest, member, opinionId);
+        final ObjectId savedChatId = saveOpinionChat(creationRequest, member, opinionId);
 
         // 학생의 마지막 읽은 채팅 ID는 현재 저장한 채팅의 ID
-        OpinionLastRead memberLastRead = new OpinionLastRead(opinionId, false, savedChatId);
+        final OpinionLastRead memberLastRead = new OpinionLastRead(opinionId, false, savedChatId);
         opinionLastReadRepository.save(memberLastRead);
 
         // 학생회의 마지막 읽은 채팅 ID는 ObjectId의 최댓값. (== 아무것도 읽지 않았다는 뜻, isNew를 띄우기 위함.)
-        OpinionLastRead adminLastRead = new OpinionLastRead(opinionId, true, new ObjectId(MIN_OBJECT_ID));
+        final OpinionLastRead adminLastRead = new OpinionLastRead(opinionId, true, new ObjectId(MIN_OBJECT_ID));
         opinionLastReadRepository.save(adminLastRead);
 
         return new OpinionCreationResponse(opinionId);
@@ -176,19 +176,19 @@ public class MemberOpinionService {
      * @return 학생의 말해요 채팅방 정보 리스트
      */
     private List<MemberOpinionsInfoResponse> convertToMemberOpinionInfoList(final List<Opinion> opinions) {
-        List<Long> opinionIds = opinions.stream()
+        final List<Long> opinionIds = opinions.stream()
                 .map(Opinion::getId)
                 .toList();
 
         // <OpinionId, OpinionLastRead>
         // 마지막 읽은 채팅 조회
-        Map<Long, OpinionLastRead> lastReadMap = opinionLastReadRepository.findByOpinionIdInAndIsAdmin(opinionIds, false)
+        final Map<Long, OpinionLastRead> lastReadMap = opinionLastReadRepository.findByOpinionIdInAndIsAdmin(opinionIds, false)
                 .stream()
                 .collect(Collectors.toMap(OpinionLastRead::getOpinionId, Function.identity()));
 
         // <OpinionId, OpinionChat>
         // 실제 마지막 채팅 조회
-        Map<Long, OpinionChat> lastChatMap = opinionChatRepository.findLatestChatsByOpinionIds(opinionIds)
+        final Map<Long, OpinionChat> lastChatMap = opinionChatRepository.findLatestChatsByOpinionIds(opinionIds)
                 .stream()
                 .collect(Collectors.toMap(OpinionChat::getOpinionId, Function.identity()));
 

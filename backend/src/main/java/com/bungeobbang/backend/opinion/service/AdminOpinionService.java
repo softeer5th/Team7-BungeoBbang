@@ -68,20 +68,19 @@ public class AdminOpinionService {
      * @throws OpinionException 말해요 채팅방의 마지막 읽은 채팅 또는 최신 채팅 조회 실패 시 발생.
      */
     private List<AdminOpinionsInfoResponse> convertToAdminOpinionInfoList(final List<Opinion> opinions) {
-        List<Long> opinionIds = opinions.stream()
+        final List<Long> opinionIds = opinions.stream()
                 .map(Opinion::getId)
                 .toList();
 
         // <OpinionId, OpinionLastRead>
         // 마지막 읽은 채팅 조회
-        List<OpinionLastRead> list = opinionLastReadRepository.findByOpinionIdInAndIsAdmin(opinionIds, true);
-        Map<Long, OpinionLastRead> lastReadMap = opinionLastReadRepository.findByOpinionIdInAndIsAdmin(opinionIds, true)
+        final Map<Long, OpinionLastRead> lastReadMap = opinionLastReadRepository.findByOpinionIdInAndIsAdmin(opinionIds, true)
                 .stream()
                 .collect(Collectors.toMap(OpinionLastRead::getOpinionId, Function.identity()));
 
         // <OpinionId, OpinionChat>
         // 실제 마지막 채팅 조회
-        Map<Long, OpinionChat> lastChatMap = opinionChatRepository.findLatestChatsByOpinionIds(opinionIds)
+        final Map<Long, OpinionChat> lastChatMap = opinionChatRepository.findLatestChatsByOpinionIds(opinionIds)
                 .stream()
                 .collect(Collectors.toMap(OpinionChat::getOpinionId, Function.identity()));
 
