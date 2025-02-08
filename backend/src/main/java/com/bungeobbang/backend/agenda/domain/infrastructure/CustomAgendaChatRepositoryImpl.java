@@ -1,9 +1,11 @@
 package com.bungeobbang.backend.agenda.domain.infrastructure;
 
+import com.bungeobbang.backend.agenda.domain.AgendaChat;
 import com.bungeobbang.backend.agenda.domain.repository.CustomAgendaChatRepository;
 import com.bungeobbang.backend.agenda.dto.response.LastChat;
 import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.*;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -78,41 +80,38 @@ public class CustomAgendaChatRepositoryImpl implements CustomAgendaChatRepositor
     }
 
     @Override
-    public LastChat findLastChat(Long agendaId, Long memberId) {
-        // Match - 주어진 agendaId 리스트와 memberId 필터링
-        MatchOperation matchStage = Aggregation.match(
-                new Criteria(AGENDA_ID).in(agendaId)
-                        .orOperator(
-                                Criteria.where(MEMBER_ID).is(memberId),
-                                Criteria.where(IS_ADMIN).is(true)
-                        )
-        );
+    public AgendaChat findLastChatForMember(Long agendaId, Long memberId) {
+        Query query = new Query();
 
-        // Sort - 최신 메시지 순으로 정렬
-        SortOperation sortStage = Aggregation.sort(org.springframework.data.domain.Sort.Direction.DESC, "_id");
+        // 조건 설정
+        query.addCriteria(Criteria.where("agendaId").is(agendaId)
+                .orOperator(
+                        Criteria.where("memberId").is(memberId),
+                        Criteria.where("isAdmin").is(true)
+                ));
 
-        // Group - 각 채팅방(agendaId)별 최신 메시지 1개만 가져오기
-        GroupOperation groupStage = Aggregation.group(AGENDA_ID)
-                .first("$$ROOT").as(LAST_CHAT);
+        // 내림차순 정렬 (_id가 가장 큰 것)
+        query.with(Sort.by(Sort.Direction.DESC, "_id"));
 
+        // 하나의 문서만 가져오기 (limit 1)
+        query.limit(1);
 
-        // Project - lastChat에서 _id, chat, createdAt만 유지
-        ProjectionOperation projectStage = Aggregation.project()
-                .and("_id").as(LastChat.AGENDA_ID)  // 원래 _id를 agendaId로 매핑
-                .and("lastChat._id").as(LastChat.CHAT_ID)
-                .and("lastChat.chat").as(LastChat.CONTENT)
-                .and("lastChat.createdAt").as(LastChat.CREATED_AT);
+        return mongoTemplate.findOne(query, AgendaChat.class);
+    }
 
+    @Override
+    public AgendaChat findLastChat(Long agendaId) {
+        Query query = new Query();
 
-        // Aggregation 실행
-        Aggregation aggregation = Aggregation.newAggregation(
-                matchStage,
-                sortStage,
-                groupStage,
-                projectStage
-        );
+        // 조건 설정
+        query.addCriteria(Criteria.where("agendaId").is(agendaId));
+        // 내림차순 정렬 (_id가 가장 큰 것)
+        query.with(Sort.by(Sort.Direction.DESC, "_id"));
 
-        return mongoTemplate.aggregate(aggregation, AGENDA_COLLECTION, LastChat.class).getUniqueMappedResult();
+        // 하나의 문서만 가져오기 (limit 1)
+        query.limit(1);
+
+        return mongoTemplate.findOne(query, AgendaChat.class);
     }
 
     /**

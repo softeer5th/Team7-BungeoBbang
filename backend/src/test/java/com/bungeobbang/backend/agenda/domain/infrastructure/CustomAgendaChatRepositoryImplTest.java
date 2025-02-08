@@ -48,16 +48,16 @@ class CustomAgendaChatRepositoryImplTest {
 
     @Test
     @DisplayName("채팅방의 마지막 채팅을 조회한다. 학생의 마지막 채팅은 자신의 채팅이거나 학생회의 채팅이다.")
-    void findLastChat() {
+    void findLastChatForMember() {
 
-        final LastChat lastChat = customAgendaChatRepository.findLastChat(1L, 30L);
+        final AgendaChat lastChat = customAgendaChatRepository.findLastChatForMember(1L, 30L);
         assertThat(lastChat).isNotNull();
-        assertThat(lastChat.content()).isEqualTo("학생30 채팅");
+        assertThat(lastChat.getChat()).isEqualTo("학생30 채팅");
     }
 
     @Test
     @DisplayName("학생회 채팅, 자신이 전송한 채팅이 없는 경우 마지막 채팅이 존재하지 않는다.")
-    void findLastChats_sendNoChat() {
+    void findLastChats_sendNoChatForMember() {
         final List<LastChat> lastChats =
                 customAgendaChatRepository.findLastChats(List.of(1L, 2L), 1L);
 
@@ -66,7 +66,7 @@ class CustomAgendaChatRepositoryImplTest {
 
     @Test
     @DisplayName("여러 개의 채팅방에서 마지막 채팅을 조회한다.")
-    void findLastChats() {
+    void findLastChatsForMember() {
         final List<LastChat> lastChats =
                 customAgendaChatRepository.findLastChats(List.of(1L, 2L), 31L);
 
