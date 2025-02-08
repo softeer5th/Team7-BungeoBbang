@@ -2,6 +2,7 @@ package com.bungeobbang.backend.chat.event.agenda;
 
 import com.bungeobbang.backend.chat.type.RoomType;
 import com.bungeobbang.backend.chat.type.SocketEventType;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import java.time.LocalDateTime;
@@ -23,6 +24,7 @@ public record MemberWebsocketMessage(
         @JsonInclude(JsonInclude.Include.NON_NULL)
         Long memberId,
         @JsonInclude(JsonInclude.Include.NON_NULL)
+        @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
         LocalDateTime createdAt
 ) {
     public MemberWebsocketMessage(SocketEventType event, String message) {
