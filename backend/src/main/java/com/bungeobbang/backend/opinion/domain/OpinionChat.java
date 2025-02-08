@@ -6,6 +6,7 @@ import lombok.Getter;
 import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
@@ -25,12 +26,15 @@ public class OpinionChat {
 
     private boolean isAdmin;
 
+    private LocalDateTime createdAt;
+
     @Builder
-    public OpinionChat(Long memberId, Long opinionId, String chat, List<String> images, boolean isAdmin) {
+    public OpinionChat(Long memberId, Long opinionId, String chat, List<String> images, boolean isAdmin, LocalDateTime createdAt) {
         this.memberId = memberId;
         this.opinionId = opinionId;
         this.chat = chat;
         this.images = images;
         this.isAdmin = isAdmin;
+        this.createdAt = createdAt;
     }
 }
