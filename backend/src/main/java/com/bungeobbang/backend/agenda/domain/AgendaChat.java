@@ -8,6 +8,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -41,13 +42,16 @@ public class AgendaChat {
     @Field("memberId")
     private Long memberId;
 
+    private LocalDateTime createdAt;
+
     @Builder
-    public AgendaChat(ObjectId id, Long agendaId, String chat, List<String> images, boolean isAdmin, Long memberId) {
+    public AgendaChat(ObjectId id, Long agendaId, String chat, List<String> images, boolean isAdmin, Long memberId, LocalDateTime createdAt) {
         this.id = id;
         this.agendaId = agendaId;
         this.chat = chat;
         this.images = images;
         this.isAdmin = isAdmin;
         this.memberId = memberId;
+        this.createdAt = createdAt;
     }
 }
