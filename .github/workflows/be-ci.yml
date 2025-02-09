@@ -37,6 +37,9 @@ jobs:
         run: |
           echo "${{ secrets.APPLICATION_TEST_YML }}" > backend/src/test/resources/application.yml
 
+      - name: Debug application.yml
+        run: cat backend/src/test/resources/application.yml
+
       - name: Run Tests
         working-directory: backend
         run: ./gradlew clean test
