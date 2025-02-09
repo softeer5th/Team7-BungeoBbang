@@ -15,7 +15,6 @@ import org.springframework.context.annotation.Import;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.test.context.ActiveProfiles;
 
 import java.io.File;
 import java.io.IOException;
@@ -24,11 +23,7 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 
 
-@DataMongoTest(
-        properties = "de.flapdoodle.mongodb.embedded.version=5.0.5"
-)
-@ActiveProfiles("test")
-
+@DataMongoTest()
 @Import(CustomAgendaChatRepositoryImpl.class)
 class CustomAgendaChatRepositoryImplTest {
     private final ObjectMapper objectMapper = new ObjectMapper();
@@ -39,6 +34,8 @@ class CustomAgendaChatRepositoryImplTest {
 
     @BeforeEach
     void setUp() throws IOException {
+        mongoTemplate.dropCollection("agenda_chat");
+        mongoTemplate.dropCollection("agenda_last_read_chat");
         File file = new File("src/test/resources/data/agenda_chat.json");
         List<AgendaChat> agendaChatList = objectMapper.readValue(file, new TypeReference<>() {
         });
