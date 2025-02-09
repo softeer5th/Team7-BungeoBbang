@@ -71,12 +71,11 @@ public class UserSessionService {
                     log.info("📌 [Redis] Admin 세션 조회 - adminId: {}, sessionId: {}", adminId, sessionId);
 
                     // 로컬 캐시에서 WebSocketSession 확인
-                    return localSessionCache.get(ADMIN_KEY + adminId);
+                    return localSessionCache.get(String.format("%s:%s", ADMIN_KEY, adminId));
                 })
                 .filter(session -> session != null && session.isOpen()) // 유효한 세션만 필터링
                 .collect(Collectors.toList());
     }
-
 
     private WebSocketSession getSession(String hashKey, String fieldKey) {
         String cacheKey = hashKey + ":" + fieldKey;
