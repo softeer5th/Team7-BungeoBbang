@@ -40,12 +40,21 @@ public class MemberOpinionController implements MemberOpinionApi {
                 .body(memberOpinionService.createOpinion(creationRequest, accessor.id()));
     }
 
-    @PatchMapping("/{roomId}/remind")
+    @DeleteMapping("/{opinionId}")
+    @MemberOnly
+    public ResponseEntity<Void> deleteOpinion(
+            @PathVariable @Valid final Long opinionId,
+            @Auth final Accessor accessor) {
+        memberOpinionService.deleteOpinion(opinionId, accessor.id());
+        return ResponseEntity.ok().build();
+    }
+
+    @PatchMapping("/{opinionId}/remind")
     @MemberOnly
     public ResponseEntity<Void> patchOpinionRemind(
-            @PathVariable @Valid final Long roomId,
+            @PathVariable @Valid final Long opinionId,
             @Auth final Accessor accessor) {
-        memberOpinionService.remindOpinion(roomId, accessor.id());
+        memberOpinionService.remindOpinion(opinionId, accessor.id());
         return ResponseEntity.ok().build();
     }
 

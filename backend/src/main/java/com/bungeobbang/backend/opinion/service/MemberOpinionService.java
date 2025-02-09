@@ -80,6 +80,7 @@ public class MemberOpinionService {
      * @return OpinionCreationResponse 생성된 말해요 채팅방의 ID를 포함한 응답 객체
      * @throws MemberException 학생 정보를 조회할 수 없는 경우 예외 발생
      */
+    @Transactional
     public OpinionCreationResponse createOpinion(
             final OpinionCreationRequest creationRequest,
             final Long memberId
@@ -102,6 +103,14 @@ public class MemberOpinionService {
         return new OpinionCreationResponse(opinionId);
     }
 
+    @Transactional
+    public void deleteOpinion(final Long opinionId, final Long memberId) {
+        final Opinion opinion = opinionRepository.findById(opinionId)
+                .orElseThrow(() -> new OpinionException(ErrorCode.INVALID_OPINION));
+        validateOpinionAuthor(opinion, memberId);
+        opinionRepository.delete(opinion);
+    }
+
     /**
      * 학생이 특정 의견을 리마인드하도록 설정합니다.
      *
@@ -112,10 +121,13 @@ public class MemberOpinionService {
     public void remindOpinion(final Long opinionId, final Long memberId) {
         final Opinion opinion = opinionRepository.findById(opinionId)
                 .orElseThrow(() -> new OpinionException(ErrorCode.INVALID_OPINION));
-        if (!opinion.getMember().getId().equals(memberId)) {
-            throw new OpinionException(ErrorCode.UNAUTHORIZED_OPINION_ACCESS);
-        }
+        validateOpinionAuthor(opinion, memberId);
         opinion.setRemind();
+    }
+
+    private void validateOpinionAuthor(final Opinion opinion, final Long memberId) {
+        if (!opinion.getMember().getId().equals(memberId))
+            throw new OpinionException(ErrorCode.UNAUTHORIZED_OPINION_ACCESS);
     }
 
     /**
@@ -155,7 +167,8 @@ public class MemberOpinionService {
      * @param member          학생 객체
      * @param opinionId       생성된 말해요 채팅방 ID
      */
-    private ObjectId saveOpinionChat(final OpinionCreationRequest creationRequest,
+    @Transactional
+    public ObjectId saveOpinionChat(final OpinionCreationRequest creationRequest,
                                      final Member member,
                                      final Long opinionId) {
         final OpinionChat opinionChat = OpinionChat.builder()
