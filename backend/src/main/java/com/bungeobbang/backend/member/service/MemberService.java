@@ -2,8 +2,9 @@ package com.bungeobbang.backend.member.service;
 
 import com.bungeobbang.backend.auth.BearerAuthorizationExtractor;
 import com.bungeobbang.backend.auth.JwtProvider;
+import com.bungeobbang.backend.auth.domain.repository.RefreshTokenRepository;
+import com.bungeobbang.backend.auth.domain.repository.UuidRepository;
 import com.bungeobbang.backend.common.exception.AuthException;
-import com.bungeobbang.backend.common.infrastructure.RedisClient;
 import com.bungeobbang.backend.member.domain.Member;
 import com.bungeobbang.backend.member.domain.ProviderType;
 import com.bungeobbang.backend.member.domain.repository.MemberRepository;
@@ -21,27 +22,50 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.UUID;
+
+import static com.bungeobbang.backend.auth.domain.Authority.MEMBER;
 import static com.bungeobbang.backend.common.exception.ErrorCode.*;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class MemberService {
-
     private final OauthProviders oauthProviders;
+
     private final MemberRepository memberRepository;
     private final UniversityRepository universityRepository;
-    private final BearerAuthorizationExtractor bearerAuthorizationExtractor;
+
     private final JwtProvider jwtProvider;
-    private final RedisClient redisClient;
+    private static final String EMAIL_DELIMITER = "@";
+    private final UuidRepository uuidRepository;
+    private final RefreshTokenRepository refreshTokenRepository;
+    private final BearerAuthorizationExtractor bearerAuthorizationExtractor;
 
     public MemberLoginResult login(final ProviderType providerType, final String code) {
-        log.info("Login provider type: {}, code: {}", providerType, code);
         final OauthProvider oauthProvider = oauthProviders.mapping(providerType);
         final OauthUserInfo oauthUserInfo = oauthProvider.getUserInfo(code);
         final Member member = findOrCreateMember(oauthUserInfo.getSocialLoginId(), providerType);
-        log.info("member: {}", member);
-        return getLoginResultResponse(member);
+
+        Long memberId = member.getId();
+        final String uuid = UUID.randomUUID().toString();
+        // uuid 저장
+        saveUuid(String.valueOf(memberId), uuid);
+
+        // jwt 생성
+        final MemberTokens memberTokens = jwtProvider.generateLoginToken(
+                memberId.toString(),
+                MEMBER,
+                uuid);
+        // refreshToken 저장
+        saveRefreshToken(memberId, memberTokens.refreshToken());
+
+        return new MemberLoginResult(
+                memberId,
+                member.getUniversity() != null,
+                memberTokens.accessToken(),
+                memberTokens.refreshToken()
+        );
     }
 
     @Transactional
@@ -51,7 +75,7 @@ public class MemberService {
         final University university = universityRepository.findById(request.universityId())
                 .orElseThrow(() -> new AuthException(INVALID_UNIVERSITY));
 
-        if (!request.email().split("@")[1].equals(university.getDomain())) {
+        if (!request.email().split(EMAIL_DELIMITER)[1].equals(university.getDomain())) {
             throw new AuthException(UNIVERSITY_DOMAIN_MISMATCH);
         }
 
@@ -61,22 +85,28 @@ public class MemberService {
     public AccessTokenResponse extend(String authorizeHeader, String refreshToken) {
         jwtProvider.validateToken(refreshToken);
         final String memberId = jwtProvider.getSubject(bearerAuthorizationExtractor.extractAccessToken(authorizeHeader));
-        final MemberTokens memberTokens = jwtProvider.generateLoginToken(memberId);
-        return new AccessTokenResponse(memberTokens.accessToken());
+        final String savedRefreshToken = refreshTokenRepository.getRefreshToken(MEMBER, memberId);
+        validateRefreshToken(refreshToken, savedRefreshToken);
+
+        String uuid = UUID.randomUUID().toString();
+
+        saveUuid(memberId, uuid);
+
+        return new AccessTokenResponse(jwtProvider.createAccessToken(memberId, MEMBER, uuid));
     }
 
-    private MemberLoginResult getLoginResultResponse(final Member member) {
-        final MemberTokens memberTokens = jwtProvider.generateLoginToken(member.getId().toString());
-        saveRefreshToken(member, memberTokens.refreshToken());
-        return new MemberLoginResult(member.getId(),
-                member.getUniversity() != null,
-                memberTokens.accessToken(),
-                memberTokens.refreshToken());
+    private void validateRefreshToken(String actual, String expected) {
+        if (!actual.equals(expected)) {
+            throw new AuthException(REFRESH_TOKEN_MISMATCH);
+        }
     }
 
-    private void saveRefreshToken(final Member member, final String refreshToken) {
-        redisClient.setex(String.format("refreshToken%s", member.getId()), 604800L, refreshToken);
-        log.info("saved refreshToken = {}", redisClient.get(String.format("refreshToken%s", member.getId())));
+    private void saveUuid(final String memberId, final String uuid) {
+        uuidRepository.save(MEMBER, uuid, memberId);
+    }
+
+    private void saveRefreshToken(final Long memberId, final String refreshToken) {
+        refreshTokenRepository.saveRefreshToken(MEMBER, String.valueOf(memberId), refreshToken);
     }
 
     private Member findOrCreateMember(final String socialLoginId, final ProviderType providerType) {
@@ -85,8 +115,6 @@ public class MemberService {
     }
 
     private Member createMember(final String socialLoginId, final ProviderType providerType) {
-        final Member member = memberRepository.save(new Member(socialLoginId, providerType));
-        log.debug("saved member = {}", member);
-        return member;
+        return memberRepository.save(new Member(socialLoginId, providerType));
     }
 }

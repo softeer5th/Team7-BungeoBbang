@@ -2,10 +2,12 @@ package com.bungeobbang.backend.admin.service;
 
 import com.bungeobbang.backend.admin.config.PasswordEncoder;
 import com.bungeobbang.backend.admin.domain.Admin;
-import com.bungeobbang.backend.admin.domain.repository.AdminRefreshTokenRepository;
 import com.bungeobbang.backend.admin.domain.repository.AdminRepository;
 import com.bungeobbang.backend.admin.dto.request.AdminLoginRequest;
 import com.bungeobbang.backend.auth.JwtProvider;
+import com.bungeobbang.backend.auth.domain.Authority;
+import com.bungeobbang.backend.auth.domain.repository.RefreshTokenRepository;
+import com.bungeobbang.backend.auth.domain.repository.UuidRepository;
 import com.bungeobbang.backend.common.exception.AuthException;
 import com.bungeobbang.backend.common.exception.ErrorCode;
 import com.bungeobbang.backend.member.dto.response.MemberTokens;
@@ -38,7 +40,9 @@ class AdminLoginServiceTest {
     @Mock
     private JwtProvider jwtProvider;
     @Mock
-    private AdminRefreshTokenRepository adminRefreshTokenRepository;
+    private RefreshTokenRepository refreshTokenRepository;
+    @Mock
+    private UuidRepository uuidRepository;
 
     @Test
     @DisplayName("존재하지 않는 아이디로 로그인하면 에러가 발생한다")
@@ -82,9 +86,9 @@ class AdminLoginServiceTest {
                 .thenReturn(TRUE);
 
         final MemberTokens expected = new MemberTokens("access_token", "refresh_token");
-        when(jwtProvider.generateLoginToken(Mockito.anyString()))
+        when(jwtProvider.generateLoginToken(Mockito.anyString(), Mockito.any(Authority.class), Mockito.anyString()))
                 .thenReturn(expected);
-        doNothing().when(adminRefreshTokenRepository).saveRefreshToken(Mockito.anyString(), Mockito.anyString());
+        doNothing().when(refreshTokenRepository).saveRefreshToken(Mockito.any(Authority.class), Mockito.anyString(), Mockito.anyString());
 
         // when
         final MemberTokens actual = adminLoginService.login(request);

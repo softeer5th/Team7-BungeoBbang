@@ -5,7 +5,6 @@ on:
     branches:
       - be
       - dev
-
 jobs:
   test:
     name: Run Tests
@@ -14,6 +13,8 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # ✅ 전체 브랜치 및 커밋 히스토리를 가져옴
 
       - name: Set up JDK 17
         uses: actions/setup-java@v3
@@ -33,9 +34,13 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x backend/gradlew
 
+      - name: Force clean build
+        working-directory: backend
+        run: ./gradlew clean assemble --refresh-dependencies  # ✅ Gradle 캐시 정리 후 전체 빌드
+
       - name: Run Tests
         working-directory: backend
-        run: ./gradlew clean test
+        run: ./gradlew clean build test  # ✅ build + test 실행하여 모든 코드 포함
 
       - name: Upload Test Results
         if: always()
