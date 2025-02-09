@@ -29,9 +29,9 @@ public class OpinionEventListener {
             // 마지막 채팅 ID 저장
             case LEAVE -> opinionService.updateLastReadToLastChatId(event.opinionId(), false);
             // 새로 구독
-            case START -> opinionRealTimeChatService.connect(event.session(), event.opinionId());
+            case START -> opinionRealTimeChatService.subscribeToOpinion(event.session(), event.opinionId());
             // 구독 취소
-            case EXIT -> opinionRealTimeChatService.removeOpinion(event.opinionId());
+            case EXIT -> opinionRealTimeChatService.unSubscribeToOpinion(event.opinionId());
         }
     }
 

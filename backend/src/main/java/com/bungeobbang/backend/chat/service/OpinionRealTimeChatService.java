@@ -25,6 +25,7 @@ public class OpinionRealTimeChatService {
     private final MessageQueueService messageQueueService;
     private final AdminRepository adminRepository;
     private final ObjectMapper objectMapper;
+    private final UserSessionService userSessionService;
 
     @EventListener
     public void memberConnect(final MemberConnectEvent event) {
@@ -61,15 +62,23 @@ public class OpinionRealTimeChatService {
         }
     }
 
-    public void connect(final WebSocketSession session, Long opinionId) {
+    /*
+     * 새로 개설된 말해요 채팅방 구독
+     * 개설한 학생 1명, 모든 학생회 n명
+     *
+     */
+    public void subscribeToOpinion(final WebSocketSession session, Long opinionId) {
         messageQueueService.subscribe(session, OPINION_PREFIX + opinionId);
+        userSessionService.getAllAdminSessions()
+                .forEach(adminSession ->
+                        messageQueueService.subscribe(adminSession, OPINION_PREFIX + opinionId));
     }
 
     public void disconnect(final WebSocketSession session, Long opinionId) {
         messageQueueService.unsubscribe(session, OPINION_PREFIX + opinionId);
     }
 
-    public void removeOpinion(final Long opinionId) {
+    public void unSubscribeToOpinion(final Long opinionId) {
         messageQueueService.unsubscribe(OPINION_PREFIX + opinionId);
     }
 }
