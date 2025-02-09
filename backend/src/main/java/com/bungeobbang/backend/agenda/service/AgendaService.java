@@ -1,6 +1,7 @@
 package com.bungeobbang.backend.agenda.service;
 
 import com.bungeobbang.backend.agenda.domain.Agenda;
+import com.bungeobbang.backend.agenda.domain.AgendaChat;
 import com.bungeobbang.backend.agenda.domain.AgendaLastReadChat;
 import com.bungeobbang.backend.agenda.domain.AgendaMember;
 import com.bungeobbang.backend.agenda.domain.repository.AgendaLastReadChatRepository;
@@ -86,8 +87,8 @@ public class AgendaService {
         );
 
         // 현재 시점에서의 마지막 채팅을 마지막 읽은 채팅으로 저장
-        final LastChat lastChat = customAgendaChatRepository.findLastChat(agendaId, memberId);
-        ObjectId lastChatId = lastChat == null ? MIN_OBJECT_ID : lastChat.chatId();
+        final AgendaChat lastChat = customAgendaChatRepository.findLastChatForMember(agendaId, memberId);
+        ObjectId lastChatId = lastChat == null ? MIN_OBJECT_ID : lastChat.getId();
         customAgendaChatRepository.upsertLastReadChat(agendaId, memberId, lastChatId);
     }
 

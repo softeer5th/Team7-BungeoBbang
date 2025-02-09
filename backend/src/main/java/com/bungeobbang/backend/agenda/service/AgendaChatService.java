@@ -29,10 +29,12 @@ public class AgendaChatService {
     private final AgendaChatRepository agendaChatRepository;
     private final AgendaMemberRepository agendaMemberRepository;
     private final CustomAgendaChatRepository customAgendaChatRepository;
+    private final AgendaLastReadChatRepository agendaLastReadChatRepository;
+
     private static final int CHAT_SIZE = 10;
     private static final ObjectId MIN_OBJECT_ID = new ObjectId(0, 0);
     private static final ObjectId MAX_OBJECT_ID = new ObjectId("ffffffffffffffffffffffff");
-    private final AgendaLastReadChatRepository agendaLastReadChatRepository;
+
 
     /**
      * ✅ 답해요 채팅 내역 조회 (무한 스크롤 방식)
@@ -103,5 +105,10 @@ public class AgendaChatService {
 
     public void updateLastReadToMax(Long agendaId, Long memberId) {
         customAgendaChatRepository.upsertLastReadChat(agendaId, memberId, MAX_OBJECT_ID);
+    }
+
+    public void updateLastRead(Long agendaId, Long memberId) {
+        final AgendaChat lastChat = customAgendaChatRepository.findLastChatForMember(agendaId, memberId);
+        customAgendaChatRepository.upsertLastReadChat(agendaId, memberId, lastChat.getId());
     }
 }

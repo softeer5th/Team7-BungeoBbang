@@ -35,6 +35,7 @@ public class AgendaEventListener {
                     event.images(),
                     event.createdAt()
             ));
+            case LEAVE -> agendaChatService.updateLastRead(event.agendaId(), event.memberId());
             case EXIT -> agendaRealTimeChatService.disconnectMemberFromAgenda(event.session(), event.agendaId());
             case PARTICIPATE -> agendaRealTimeChatService.connectMemberFromAgenda(event.session(), event.agendaId());
 
@@ -61,6 +62,7 @@ public class AgendaEventListener {
                     event.images(),
                     event.createdAt()
             ));
+            case LEAVE -> adminAgendaChatService.updateLastRead(event.agendaId(), event.adminId());
             case START -> agendaRealTimeChatService.connectAdminFromAgenda(event.session(), event.agendaId());
             case CLOSE -> agendaRealTimeChatService.disConnectAgenda(event.agendaId());
             case DELETE -> agendaRealTimeChatService.removeAgendaConnection(event.agendaId());

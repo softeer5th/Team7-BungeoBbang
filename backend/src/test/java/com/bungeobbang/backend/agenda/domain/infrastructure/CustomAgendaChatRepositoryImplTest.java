@@ -15,7 +15,6 @@ import org.springframework.context.annotation.Import;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.test.context.ActiveProfiles;
 
 import java.io.File;
 import java.io.IOException;
@@ -24,11 +23,7 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 
 
-@DataMongoTest(
-        properties = "de.flapdoodle.mongodb.embedded.version=5.0.5"
-)
-@ActiveProfiles("test")
-
+@DataMongoTest()
 @Import(CustomAgendaChatRepositoryImpl.class)
 class CustomAgendaChatRepositoryImplTest {
     private final ObjectMapper objectMapper = new ObjectMapper();
@@ -39,6 +34,8 @@ class CustomAgendaChatRepositoryImplTest {
 
     @BeforeEach
     void setUp() throws IOException {
+        mongoTemplate.dropCollection("agenda_chat");
+        mongoTemplate.dropCollection("agenda_last_read_chat");
         File file = new File("src/test/resources/data/agenda_chat.json");
         List<AgendaChat> agendaChatList = objectMapper.readValue(file, new TypeReference<>() {
         });
@@ -48,16 +45,16 @@ class CustomAgendaChatRepositoryImplTest {
 
     @Test
     @DisplayName("채팅방의 마지막 채팅을 조회한다. 학생의 마지막 채팅은 자신의 채팅이거나 학생회의 채팅이다.")
-    void findLastChat() {
+    void findLastChatForMember() {
 
-        final LastChat lastChat = customAgendaChatRepository.findLastChat(1L, 30L);
+        final AgendaChat lastChat = customAgendaChatRepository.findLastChatForMember(1L, 30L);
         assertThat(lastChat).isNotNull();
-        assertThat(lastChat.content()).isEqualTo("학생30 채팅");
+        assertThat(lastChat.getChat()).isEqualTo("학생30 채팅");
     }
 
     @Test
     @DisplayName("학생회 채팅, 자신이 전송한 채팅이 없는 경우 마지막 채팅이 존재하지 않는다.")
-    void findLastChats_sendNoChat() {
+    void findLastChats_sendNoChatForMember() {
         final List<LastChat> lastChats =
                 customAgendaChatRepository.findLastChats(List.of(1L, 2L), 1L);
 
@@ -66,7 +63,7 @@ class CustomAgendaChatRepositoryImplTest {
 
     @Test
     @DisplayName("여러 개의 채팅방에서 마지막 채팅을 조회한다.")
-    void findLastChats() {
+    void findLastChatsForMember() {
         final List<LastChat> lastChats =
                 customAgendaChatRepository.findLastChats(List.of(1L, 2L), 31L);
 

@@ -17,6 +17,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -43,6 +44,9 @@ class AdminAgendaServiceTest {
     private AgendaImageRepository agendaImageRepository;
     @Mock
     private AdminRepository adminRepository;
+
+    @Mock
+    ApplicationEventPublisher applicationEventPublisher;
 
 
     @Test
