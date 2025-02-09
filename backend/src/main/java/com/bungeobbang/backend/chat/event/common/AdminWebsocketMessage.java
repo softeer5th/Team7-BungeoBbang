@@ -1,4 +1,4 @@
-package com.bungeobbang.backend.chat.event.agenda;
+package com.bungeobbang.backend.chat.event.common;
 
 import com.bungeobbang.backend.chat.type.RoomType;
 import com.bungeobbang.backend.chat.type.SocketEventType;

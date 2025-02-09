@@ -3,10 +3,10 @@ package com.bungeobbang.backend.chat.handler;
 
 import com.bungeobbang.backend.auth.JwtProvider;
 import com.bungeobbang.backend.badword.service.BadWordService;
-import com.bungeobbang.backend.chat.event.agenda.AdminConnectEvent;
-import com.bungeobbang.backend.chat.event.agenda.AdminWebsocketMessage;
+import com.bungeobbang.backend.chat.event.common.AdminConnectEvent;
+import com.bungeobbang.backend.chat.event.common.AdminWebsocketMessage;
 import com.bungeobbang.backend.chat.event.agenda.AgendaAdminEvent;
-import com.bungeobbang.backend.chat.event.agenda.MemberWebsocketMessage;
+import com.bungeobbang.backend.chat.event.common.MemberWebsocketMessage;
 import com.bungeobbang.backend.chat.event.opinion.OpinionAdminEvent;
 import com.bungeobbang.backend.chat.service.UserSessionService;
 import com.bungeobbang.backend.common.exception.AuthException;
@@ -23,7 +23,6 @@ import org.springframework.web.socket.handler.TextWebSocketHandler;
 
 import java.io.IOException;
 
-import static com.bungeobbang.backend.chat.type.RoomType.AGENDA;
 import static com.bungeobbang.backend.chat.type.SocketEventType.CHAT;
 import static com.bungeobbang.backend.chat.type.SocketEventType.ERROR;
 

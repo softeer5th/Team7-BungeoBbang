@@ -1,6 +1,6 @@
 package com.bungeobbang.backend.chat.event.opinion;
 
-import com.bungeobbang.backend.chat.event.agenda.AdminWebsocketMessage;
+import com.bungeobbang.backend.chat.event.common.AdminWebsocketMessage;
 import com.bungeobbang.backend.chat.type.SocketEventType;
 import org.springframework.web.socket.WebSocketSession;
 

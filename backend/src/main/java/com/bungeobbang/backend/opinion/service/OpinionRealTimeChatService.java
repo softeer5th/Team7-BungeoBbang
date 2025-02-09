@@ -1,11 +1,13 @@
-package com.bungeobbang.backend.chat.service;
+package com.bungeobbang.backend.opinion.service;
 
 import com.bungeobbang.backend.admin.domain.Admin;
 import com.bungeobbang.backend.admin.domain.repository.AdminRepository;
-import com.bungeobbang.backend.chat.event.agenda.AdminConnectEvent;
-import com.bungeobbang.backend.chat.event.agenda.AdminWebsocketMessage;
-import com.bungeobbang.backend.chat.event.agenda.MemberConnectEvent;
-import com.bungeobbang.backend.chat.event.agenda.MemberWebsocketMessage;
+import com.bungeobbang.backend.chat.event.common.AdminConnectEvent;
+import com.bungeobbang.backend.chat.event.common.AdminWebsocketMessage;
+import com.bungeobbang.backend.chat.event.common.MemberConnectEvent;
+import com.bungeobbang.backend.chat.event.common.MemberWebsocketMessage;
+import com.bungeobbang.backend.chat.service.MessageQueueService;
+import com.bungeobbang.backend.chat.service.UserSessionService;
 import com.bungeobbang.backend.common.exception.AdminException;
 import com.bungeobbang.backend.common.exception.ErrorCode;
 import com.bungeobbang.backend.common.exception.OpinionException;
@@ -78,7 +80,7 @@ public class OpinionRealTimeChatService {
         messageQueueService.unsubscribe(session, OPINION_PREFIX + opinionId);
     }
 
-    public void unSubscribeToOpinion(final Long opinionId) {
+    public void removeOpinionTopic(final Long opinionId) {
         messageQueueService.unsubscribe(OPINION_PREFIX + opinionId);
     }
 }

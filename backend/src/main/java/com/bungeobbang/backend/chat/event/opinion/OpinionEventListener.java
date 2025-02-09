@@ -1,6 +1,6 @@
 package com.bungeobbang.backend.chat.event.opinion;
 
-import com.bungeobbang.backend.chat.service.OpinionRealTimeChatService;
+import com.bungeobbang.backend.opinion.service.OpinionRealTimeChatService;
 import com.bungeobbang.backend.opinion.service.OpinionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.event.EventListener;
@@ -31,7 +31,7 @@ public class OpinionEventListener {
             // 새로 구독
             case START -> opinionRealTimeChatService.subscribeToOpinion(event.session(), event.opinionId());
             // 구독 취소
-            case EXIT -> opinionRealTimeChatService.unSubscribeToOpinion(event.opinionId());
+            case EXIT -> opinionRealTimeChatService.removeOpinionTopic(event.opinionId());
         }
     }
 

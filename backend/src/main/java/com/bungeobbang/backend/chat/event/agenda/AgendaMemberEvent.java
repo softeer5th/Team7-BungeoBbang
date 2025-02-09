@@ -1,5 +1,6 @@
 package com.bungeobbang.backend.chat.event.agenda;
 
+import com.bungeobbang.backend.chat.event.common.MemberWebsocketMessage;
 import com.bungeobbang.backend.chat.type.SocketEventType;
 import org.springframework.web.socket.WebSocketSession;
 
