@@ -53,12 +53,12 @@ public class MemberWebSocketChatHandler extends TextWebSocketHandler {
             if (request.event().equals(CHAT))
                 publisher.publishEvent(request);
 
-            if (request.event().equals(CHAT) && request.roomType().equals(AGENDA))
+            if (request.event().equals(CHAT))
                 session.sendMessage(new TextMessage(objectMapper.writeValueAsString(request)));
 
             switch (request.roomType()) {
                 case AGENDA -> publisher.publishEvent(AgendaMemberEvent.from(session, request));
-
+                case OPINION -> publisher.publishEvent(OpinionMemberEvent.from(session, request));
             }
         } catch (AuthException e) {
             session.sendMessage(new TextMessage(objectMapper.writeValueAsString(new MemberWebsocketMessage(ERROR, e.getMessage()))));

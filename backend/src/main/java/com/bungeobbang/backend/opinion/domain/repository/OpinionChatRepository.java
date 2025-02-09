@@ -6,7 +6,8 @@ import org.springframework.data.mongodb.repository.Aggregation;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface OpinionChatRepository extends MongoRepository<OpinionChat, String> {
@@ -34,4 +35,6 @@ public interface OpinionChatRepository extends MongoRepository<OpinionChat, Stri
     })
     List<OpinionChat> findLatestChatsByOpinionIds(List<Long> opinionIds);
 
+    // opinionId에 해당하는 최신 채팅 1개를 가져오는 메서드
+    Optional<OpinionChat> findTop1ByOpinionIdOrderByIdDesc(Long opinionId);
 }

@@ -95,7 +95,7 @@ public class MemberOpinionService {
         final OpinionLastRead memberLastRead = new OpinionLastRead(opinionId, false, savedChatId);
         opinionLastReadRepository.save(memberLastRead);
 
-        // 학생회의 마지막 읽은 채팅 ID는 ObjectId의 최댓값. (== 아무것도 읽지 않았다는 뜻, isNew를 띄우기 위함.)
+        // 학생회의 마지막 읽은 채팅 ID는 ObjectId의 최솟값. (== 아무것도 읽지 않았다는 뜻, isNew를 띄우기 위함.)
         final OpinionLastRead adminLastRead = new OpinionLastRead(opinionId, true, new ObjectId(MIN_OBJECT_ID));
         opinionLastReadRepository.save(adminLastRead);
 

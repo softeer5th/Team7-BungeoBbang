@@ -4,14 +4,19 @@ import com.bungeobbang.backend.auth.domain.Accessor;
 import com.bungeobbang.backend.common.exception.ErrorCode;
 import com.bungeobbang.backend.common.exception.OpinionException;
 import com.bungeobbang.backend.opinion.domain.Opinion;
+import com.bungeobbang.backend.opinion.domain.OpinionChat;
+import com.bungeobbang.backend.opinion.domain.OpinionLastRead;
 import com.bungeobbang.backend.opinion.domain.repository.OpinionChatRepository;
+import com.bungeobbang.backend.opinion.domain.repository.OpinionLastReadRepository;
 import com.bungeobbang.backend.opinion.domain.repository.OpinionRepository;
 import com.bungeobbang.backend.opinion.dto.response.OpinionChatResponse;
 import com.bungeobbang.backend.opinion.dto.response.OpinionDetailResponse;
 import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 
@@ -29,6 +34,7 @@ public class OpinionService {
      */
     private static final String MAX_OBJECT_ID = "ffffffffffffffffffffffff";
 
+    private final OpinionLastReadRepository opinionLastReadRepository;
     private final OpinionChatRepository opinionChatRepository;
     private final OpinionRepository opinionRepository;
 
@@ -55,5 +61,42 @@ public class OpinionService {
         final Opinion opinion = opinionRepository.findById(opinionId)
                 .orElseThrow(() -> new OpinionException(ErrorCode.INVALID_OPINION));
         return new OpinionDetailResponse(opinion.getUniversity().getName());
+    }
+
+    @Transactional
+    public void updateLastReadToMax(final Long opinionId, final boolean isAdmin) {
+        OpinionLastRead lastRead = opinionLastReadRepository.findByOpinionIdAndIsAdmin(opinionId, isAdmin)
+                .orElseThrow(() -> new OpinionException(ErrorCode.INVALID_OPINION_LAST_READ));
+        lastRead.updateLastReadChatId(new ObjectId(MAX_OBJECT_ID));
+        opinionLastReadRepository.save(lastRead);
+    }
+
+    @Transactional
+    public void updateLastReadToLastChatId(final Long opinionId, final boolean isAdmin) {
+        OpinionLastRead lastRead = opinionLastReadRepository.findByOpinionIdAndIsAdmin(opinionId, isAdmin)
+                .orElseThrow(() -> new OpinionException(ErrorCode.INVALID_OPINION_LAST_READ));
+
+        OpinionChat lastCHat = opinionChatRepository.findTop1ByOpinionIdOrderByIdDesc(opinionId)
+                .orElseThrow(() -> new OpinionException(ErrorCode.INVALID_OPINION_CHAT));
+
+        lastRead.updateLastReadChatId(lastCHat.getId());
+        opinionLastReadRepository.save(lastRead);
+    }
+
+    @Transactional
+    public void saveChat(
+            final Long memberId, final Long opinionId,
+            final String chat, final List<String> images,
+            final boolean isAdmin, final LocalDateTime createdAt) {
+        opinionChatRepository.save(
+                OpinionChat.builder()
+                        .memberId(memberId)
+                        .opinionId(opinionId)
+                        .chat(chat)
+                        .images(images)
+                        .isAdmin(isAdmin)
+                        .createdAt(createdAt)
+                        .build()
+        );
     }
 }

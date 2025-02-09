@@ -1,6 +1,7 @@
 package com.bungeobbang.backend.chat.interceptor;
 
 
+import com.bungeobbang.backend.auth.BearerAuthorizationExtractor;
 import com.bungeobbang.backend.auth.JwtProvider;
 import com.bungeobbang.backend.common.exception.AuthException;
 import com.bungeobbang.backend.common.exception.ErrorCode;
@@ -25,6 +26,7 @@ public class WebSocketAuthInterceptor implements HandshakeInterceptor {
     private static final String ACCESS_TOKEN = "accessToken";
     private final JwtProvider jwtProvider;
     private final MemberRepository memberRepository;
+    private final BearerAuthorizationExtractor extractor;
 
     /**
      * 웹소켓 연결 전 인터셉터
@@ -40,7 +42,7 @@ public class WebSocketAuthInterceptor implements HandshakeInterceptor {
             HttpServletRequest servletRequest = ((ServletServerHttpRequest) request).getServletRequest();
             HttpServletResponse servletResponse = ((ServletServerHttpResponse) response).getServletResponse();
 
-            final String accessToken = servletRequest.getHeader(HttpHeaders.AUTHORIZATION);
+            final String accessToken = extractor.extractAccessToken(servletRequest.getHeader(HttpHeaders.AUTHORIZATION));
             try {
                 jwtProvider.validateToken(accessToken);
                 attributes.put(ACCESS_TOKEN, accessToken);
