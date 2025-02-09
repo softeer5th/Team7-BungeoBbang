@@ -85,12 +85,12 @@ public class OpinionService {
 
     @Transactional
     public void saveChat(
-            final Long memberId, final Long opinionId,
+            final Long userId, final Long opinionId,
             final String chat, final List<String> images,
             final boolean isAdmin, final LocalDateTime createdAt) {
         opinionChatRepository.save(
                 OpinionChat.builder()
-                        .memberId(memberId)
+                        .memberId(userId)
                         .opinionId(opinionId)
                         .chat(chat)
                         .images(images)

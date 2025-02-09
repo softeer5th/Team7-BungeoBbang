@@ -16,9 +16,7 @@ public class OpinionEventListener {
     public void handleMemberOpinionEvent(OpinionMemberEvent event) {
         switch (event.eventType()) {
             // 마지막 읽은 채팅ID MAX
-            case ENTER -> opinionService.updateLastReadToMax(
-                    event.opinionId(),
-                    false);
+            case ENTER -> opinionService.updateLastReadToMax(event.opinionId(), false);
             // 채팅 저장
             case CHAT -> opinionService.saveChat(
                     event.memberId(),
@@ -29,9 +27,7 @@ public class OpinionEventListener {
                     event.createdAt()
             );
             // 마지막 채팅 ID 저장
-            case LEAVE -> opinionService.updateLastReadToLastChatId(
-                    event.opinionId(),
-                    false);
+            case LEAVE -> opinionService.updateLastReadToLastChatId(event.opinionId(), false);
             // 새로 구독
             case START -> opinionRealTimeChatService.connect(event.session(), event.opinionId());
             // 구독 취소
@@ -39,9 +35,19 @@ public class OpinionEventListener {
         }
     }
 
-    // enter, chat, leave
     @EventListener
     public void handleAdminOpinionEvent(OpinionAdminEvent event) {
-
+        switch (event.eventType()) {
+            case ENTER -> opinionService.updateLastReadToMax(event.opinionId(), true);
+            case CHAT -> opinionService.saveChat(
+                    event.adminId(),
+                    event.opinionId(),
+                    event.chat(),
+                    event.images(),
+                    true,
+                    event.createdAt()
+            );
+            case LEAVE -> opinionService.updateLastReadToLastChatId(event.adminId(), false);
+        }
     }
 }
