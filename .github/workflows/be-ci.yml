@@ -1,0 +1,36 @@
+name: onu-server-CI-test
+
+on:
+  pull_request:
+    branches:
+      - be
+      - dev
+
+jobs:
+  test:
+    name: Run Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Create application.yml
+        run: |
+          echo "${{ secrets.APPLICATION_TEST_YML }}" > backend/src/test/resources/application.yml
+
+      - name: Run Tests
+        run: ./gradlew test
+
+      - name: Upload Test Results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: target/surefire-reports/
