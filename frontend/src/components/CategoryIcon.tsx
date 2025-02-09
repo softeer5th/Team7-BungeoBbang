@@ -1,7 +1,6 @@
 import styled from 'styled-components';
 import Typography from '../styles/Typography';
 import { ChatCategoryType } from '@/types/ChatCategoryType';
-import { useEffect, useRef, useState } from 'react';
 
 type TypographyVariant =
   | 'display1'

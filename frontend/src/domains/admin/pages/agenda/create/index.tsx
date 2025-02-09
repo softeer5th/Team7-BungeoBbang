@@ -9,7 +9,7 @@ import { CountTextField } from '@/components/text-field/CountTextField';
 import { TextField } from '@/components/text-field/TextField';
 import { ChatCategoryType } from '@/types/ChatCategoryType';
 import BottomSheet from '@/components/BottomSheet';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import api from '@/utils/api';
 import { SubTitleText } from '../components/SubTitleText';
 import { CategoryContent } from '../components/CategoryContent';
@@ -18,8 +18,8 @@ import { DurationContent } from '../components/DurationContent';
 interface ChatCreateData {
   title: string;
   category: ChatCategoryType | null;
-  startDate: string | null;
-  endDate: string | null;
+  startDate: Date | null;
+  endDate: Date | null;
   description: string;
   images: string[];
 }
@@ -32,7 +32,7 @@ const CreateAgendaPage = () => {
 
   const [isCategoryBottomSheetOpen, setCategoryBottomSheetOpen] = useState(false);
   const [isDurationBottomSheetOpen, setDurationBottomSheetOpen] = useState(false);
-
+  const [isValidate, setIsValidate] = useState(false);
   const [chatValue, setChatValue] = useState<ChatCreateData>({
     title: '',
     category: null,
@@ -42,14 +42,9 @@ const CreateAgendaPage = () => {
     images: ['/src/assets/imgs/preview_img.png'],
   });
 
-  function isValidate() {
-    return (
-      chatValue.title.length > 0 &&
-      chatValue.category &&
-      chatValue.startDate &&
-      chatValue.endDate &&
-      chatValue.description
-    );
+  function checkValidation(): boolean {
+    const { title, category, startDate, endDate, description } = chatValue;
+    return !!(title && category && startDate && endDate && description);
   }
 
   const handleImageUpload = async (files: FileList) => {
@@ -62,7 +57,6 @@ const CreateAgendaPage = () => {
 
     const uploadedUrls = await uploadImages(Array.from(files));
     setChatValue((prev: ChatCreateData) => {
-      console.log('setchatvalue!!');
       return { ...prev, images: uploadedUrls };
     });
   };
@@ -86,6 +80,27 @@ const CreateAgendaPage = () => {
     }
   };
 
+  async function submitChatValue() {
+    try {
+      const body = {
+        title: chatValue.title,
+        categoryType: chatValue.category?.type,
+        startDate: chatValue.startDate?.toISOString().split('T')[0],
+        endDate: chatValue.endDate?.toISOString().split('T')[0],
+        content: chatValue.description,
+        images: [],
+      };
+
+      await api.post('/admin/agendas', body);
+    } catch (error) {
+      console.error('Failed to send data:', error);
+    }
+  }
+
+  useEffect(() => {
+    setIsValidate(checkValidation());
+  }, [chatValue]);
+
   return (
     <S.Container>
       <S.TopAppBar>
@@ -95,9 +110,11 @@ const CreateAgendaPage = () => {
         </S.TitleWrapper>
         <S.RegisterTextButton
           variant="heading3"
-          textColor={isValidate() ? theme.colors.sementicMain : theme.colors.grayScale40}
+          textColor={isValidate ? theme.colors.sementicMain : theme.colors.grayScale40}
           onClick={() => {
-            //서버에 create API
+            if (!isValidate) return;
+
+            submitChatValue();
             navigate(-1);
           }}
         >
@@ -129,7 +146,11 @@ const CreateAgendaPage = () => {
         <S.DurationContainer>
           <SubTitleText text="기간 설정" />
           <TextField
-            value={chatValue.startDate ? `${chatValue.startDate} ~ ${chatValue.endDate}` : ''}
+            value={
+              chatValue.startDate && chatValue.endDate
+                ? `${formatDate(chatValue.startDate)} - ${formatDate(chatValue.endDate)}`
+                : ''
+            }
             placeholder="기간을 선택해주세요"
             onClick={() => setDurationBottomSheetOpen(true)}
           />
@@ -220,11 +241,26 @@ const CreateAgendaPage = () => {
             setDurationBottomSheetOpen(false);
           }}
         >
-          <DurationContent onDurationSelected={() => {}} />
+          <DurationContent
+            currentDate={
+              chatValue.startDate && chatValue.endDate && [chatValue.startDate, chatValue.endDate]
+            }
+            onDurationSelected={(start: Date, end: Date) => {
+              setDurationBottomSheetOpen(false);
+              setChatValue((prev: ChatCreateData) => ({ ...prev, startDate: start, endDate: end }));
+            }}
+          />
         </BottomSheet>
       )}
     </S.Container>
   );
+};
+
+const formatDate = (date: Date): string => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}.${month}.${day}`;
 };
 
 export default CreateAgendaPage;

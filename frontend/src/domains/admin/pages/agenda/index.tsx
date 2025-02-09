@@ -1,5 +1,4 @@
 import React, { useEffect, useRef, useState } from 'react';
-// import { useNavigate } from 'react-router-dom';
 import * as S from './styles';
 import { TopAppBar } from '@/components/TopAppBar';
 import { useTheme } from 'styled-components';
@@ -10,12 +9,13 @@ import { TabBarItemProps } from '@/components/tab-bar/TabBarItem';
 import { ChatRoomListCardData } from './components/ChatRoomCardData';
 import { ChatRoomListItem } from './components/ChatRoomListItem';
 import { EmptyContent } from '@/components/EmptyContent';
-import JwtManager from '@/utils/jwtManager';
 import api from '@/utils/api';
 import { mapResponseToChatRoomListCardData } from './util/ChatRoomMapper';
+import { useNavigate } from 'react-router-dom';
 
 const AgendaPage: React.FC = () => {
   const theme = useTheme();
+  const navigate = useNavigate();
 
   const bottomNavRef = useRef<HTMLDivElement>(null);
   const [bottomPx, setBottomPx] = useState(0);
@@ -150,7 +150,8 @@ const AgendaPage: React.FC = () => {
             </S.TabContent>
           );
         })}
-        <S.FloatingActionButton bottom={bottomPx}>
+        <S.FloatingActionButton bottom={bottomPx}
+        onClick = {() => navigate("/agenda/create")}>
           <img src="/src/assets/icons/plus.svg" />
         </S.FloatingActionButton>
       </S.TabContainer>

@@ -1,7 +1,6 @@
 import React from 'react';
 import * as S from './styles';
 import { ChatPreviewData } from '../data/ChatPreviewData';
-import { CategoryIcon } from '@/components/CategoryIcon';
 
 interface ChatPreviewItemProps {
   chatData: ChatPreviewData;

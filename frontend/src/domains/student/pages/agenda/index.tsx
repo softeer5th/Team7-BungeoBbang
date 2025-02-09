@@ -11,6 +11,7 @@ import { ButtonProps } from '@/components/Button';
 import { useNavigate } from 'react-router-dom';
 import { Dialog } from '@/components/Dialog/Dialog';
 import api from '@/utils/api';
+import JWtManager from '@/utils/jwtManager';
 import { bottomItems } from '../destinations';
 
 const AgendaPage = () => {
@@ -90,9 +91,9 @@ const AgendaPage = () => {
   useEffect(() => {
     const getChatRooms = async () => {
       try {
-        console.log(await JWTManager.getMemberId());
-        console.log(await JWTManager.getAccessToken());
-        console.log(await JWTManager.getRefreshToken());
+        console.log(await JWtManager.getMemberId());
+        console.log(await JWtManager.getAccessToken());
+        console.log(await JWtManager.getRefreshToken());
         const response = await api.get('/student/agendas');
         setChatRooms(response.data);
       } catch (error) {
