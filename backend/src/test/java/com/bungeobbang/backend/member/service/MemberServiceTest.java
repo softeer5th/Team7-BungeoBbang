@@ -2,7 +2,6 @@ package com.bungeobbang.backend.member.service;
 
 import com.bungeobbang.backend.auth.JwtProvider;
 import com.bungeobbang.backend.common.exception.AuthException;
-import com.bungeobbang.backend.common.infrastructure.RedisClient;
 import com.bungeobbang.backend.member.domain.Member;
 import com.bungeobbang.backend.member.domain.repository.MemberRepository;
 import com.bungeobbang.backend.member.dto.request.MemberUniversityUpdateRequest;
@@ -27,13 +26,10 @@ import static org.mockito.Mockito.when;
 class MemberServiceTest {
     @InjectMocks
     private MemberService memberService;
-
     @Mock
     private MemberRepository memberRepository;
     @Mock
     private UniversityRepository universityRepository;
-    @Mock
-    private RedisClient redisClient;
     @Mock
     private JwtProvider jwtProvider;
 
