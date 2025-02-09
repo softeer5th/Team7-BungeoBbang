@@ -1,4 +1,4 @@
-name: Dev Branch CI/CD
+name: Be Branch CD
 
 on:
   push:
