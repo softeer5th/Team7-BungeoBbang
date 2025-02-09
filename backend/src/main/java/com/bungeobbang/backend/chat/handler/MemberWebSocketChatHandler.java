@@ -49,10 +49,11 @@ public class MemberWebSocketChatHandler extends TextWebSocketHandler {
         try {
             jwtProvider.validateToken(accessToken);
             final MemberWebsocketMessage request = objectMapper.readValue(message.getPayload(), MemberWebsocketMessage.class);
-            badWordService.validate(request.message());
 
-            if (request.event().equals(CHAT))
+            if (request.event().equals(CHAT)) {
+                badWordService.validate(request.message());
                 publisher.publishEvent(request);
+            }
 
             if (request.event().equals(CHAT))
                 session.sendMessage(new TextMessage(objectMapper.writeValueAsString(request)));
