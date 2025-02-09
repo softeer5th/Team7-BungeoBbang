@@ -21,6 +21,7 @@ import org.springframework.web.socket.handler.TextWebSocketHandler;
 
 import java.io.IOException;
 
+import static com.bungeobbang.backend.chat.type.RoomType.AGENDA;
 import static com.bungeobbang.backend.chat.type.SocketEventType.CHAT;
 import static com.bungeobbang.backend.chat.type.SocketEventType.ERROR;
 
@@ -57,7 +58,7 @@ public class MemberWebSocketChatHandler extends TextWebSocketHandler {
                 publisher.publishEvent(request);
             }
 
-            if (request.event().equals(CHAT))
+            if (request.event().equals(CHAT) && request.roomType().equals(AGENDA))
                 session.sendMessage(new TextMessage(objectMapper.writeValueAsString(request)));
 
             switch (request.roomType()) {
