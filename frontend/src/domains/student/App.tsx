@@ -1,4 +1,6 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { useEffect } from 'react';
+import { useSocketStore } from '@/store/socketStore';
 import LoginPage from './pages/login';
 import OAuthCallback from './pages/oauth/callback';
 import EmailVerification from './pages/login/emailcheck';
@@ -12,6 +14,13 @@ import OpinionChatPage from './pages/opinion/chatroom';
 import AgendaChatPage from './pages/agenda/chat';
 
 function StudentApp() {
+  const { connect, disconnect } = useSocketStore();
+  useEffect(() => {
+    connect(false);
+    return () => {
+      disconnect();
+    };
+  }, [connect, disconnect]);
   return (
     <BrowserRouter>
       <Routes>

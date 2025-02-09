@@ -1,7 +1,9 @@
+// src/domains/student/pages/opinion/chatroom/index.tsx
+
 import * as S from '@/domains/student/pages/chat-page/styles';
 import { useNavigate, useParams } from 'react-router-dom';
 import { TopAppBar } from '@/components/TopAppBar';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import {
   ChatData,
   ChatType,
@@ -20,6 +22,18 @@ import api from '@/utils/api.ts';
 import { Dialog } from '@/components/Dialog/Dialog.tsx';
 import { formatChatData } from '@/utils/chat/formatChatData.ts';
 import { useImageUpload } from '@/hooks/useImageUpload.ts';
+import { useSocketStore } from '@/store/socketStore';
+
+interface ChatMessage {
+  roomType: 'OPINION' | 'AGENDA';
+  event: 'CHAT';
+  opinionId?: number;
+  agendaId?: number;
+  message: string;
+  images: string[];
+  memberId: number;
+  createdAt: string;
+}
 
 const OpinionChatPage = () => {
   const [chatData, setChatData] = useState<ChatData[]>([]);
@@ -31,21 +45,38 @@ const OpinionChatPage = () => {
 
   const navigate = useNavigate();
   const { roomId } = useParams();
+  const { subscribe, sendMessage } = useSocketStore();
 
-  const handleSendMessage = async () => {
-    // const messageData = {
-    //   content: message,
-    //   images: images,
-    // };
+  const handleSendMessage = useCallback(
+    (message: string, images: string[] = []) => {
+      if (!roomId) return;
+      sendMessage('OPINION', Number(roomId), message, images);
+      setMessage('');
+    },
+    [roomId, sendMessage],
+  );
 
-    try {
-      //소켓으로 메세지 전송
-    } catch (error) {
-      console.error('메시지 전송 실패:', error);
-    }
-  };
+  const handleMessageReceive = useCallback(
+    (message: ChatMessage) => {
+      if (message.roomType === 'OPINION' && message.opinionId === Number(roomId)) {
+        const newChat = {
+          type: message.memberId === 1 ? ChatType.SEND : ChatType.RECEIVE, // TODO: memberId 수정
+          message: message.message,
+          time: new Date(message.createdAt).toLocaleTimeString('ko-KR', {
+            hour: '2-digit',
+            minute: '2-digit',
+          }),
+          images: message.images || [],
+        };
+        setChatData((prev) => [...prev, newChat]);
+      }
+    },
+    [roomId],
+  );
 
   useEffect(() => {
+    if (!roomId) return;
+
     const fetchData = async () => {
       try {
         const response = await api.get(`/api/opinions/${roomId}`);
@@ -57,7 +88,13 @@ const OpinionChatPage = () => {
     };
 
     fetchData();
-  }, [roomId]);
+
+    const unsubscribe = subscribe('OPINION', Number(roomId), handleMessageReceive);
+
+    return () => {
+      unsubscribe();
+    };
+  }, [roomId, subscribe, handleMessageReceive]);
 
   return (
     <S.Container>
