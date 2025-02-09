@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 
 export const OpinionEntryContainer = styled.div`
-  height: 100dvh;
+  height: calc(100svh - 110px);
   background-color: #51a2ff;
   padding: 16px;
   display: flex;
@@ -69,12 +69,11 @@ export const SendButton = styled.button`
 `;
 
 export const StatisticWrapper = styled.div`
-  height: 135px;
   display: flex;
   flex-direction: row;
   justify-content: space-between;
   margin-top: auto;
-  margin-bottom: 56px;
+  margin-bottom: 14px;
   gap: 15px;
 `;
 

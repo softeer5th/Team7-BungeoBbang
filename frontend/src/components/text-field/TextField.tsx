@@ -11,6 +11,7 @@ interface TextFieldProps {
   border?: BorderProps;
   errorText?: string;
   errorTextColor?: string;
+  isError?: boolean;
   disabled?: boolean;
 }
 
@@ -23,10 +24,9 @@ export const TextField: React.FC<TextFieldProps> = ({
   border,
   errorText,
   errorTextColor = '#FF4B4B',
+  isError = false,
   disabled = false,
 }) => {
-  const hasError = Boolean(errorText);
-
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value;
     onChange(newValue);
@@ -42,10 +42,10 @@ export const TextField: React.FC<TextFieldProps> = ({
         placeholderColor={placeholderColor}
         textColor={textColor}
         border={border}
-        hasError={hasError}
+        hasError={isError}
         disabled={disabled}
       />
-      {hasError && (
+      {isError && errorText && (
         <ErrorText variant="caption2" errorTextColor={errorTextColor}>
           {errorText}
         </ErrorText>

@@ -1,33 +1,29 @@
-import axios, {
-  AxiosError,
-  AxiosInstance,
-  AxiosRequestConfig,
-  InternalAxiosRequestConfig,
-} from 'axios';
+import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
 import { AUTH_CONFIG } from '@/config/auth';
 import JWTManager from './jwtManager';
 
-interface ExtendedAxiosRequestConfig extends InternalAxiosRequestConfig {
+interface CustomAxiosRequestConfig extends InternalAxiosRequestConfig {
   _retry?: boolean;
 }
 
-const api: AxiosInstance = axios.create({
+const api = axios.create({
   baseURL: AUTH_CONFIG.API.BASE_URL,
-  timeout: 50000,
   withCredentials: true,
 });
 
 api.interceptors.request.use(
   async (config) => {
-    try {
-      const token = await JWTManager.getAccessToken();
-      if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
-      }
-      return config;
-    } catch (error) {
-      return Promise.reject(error);
+    const accessToken = await JWTManager.getAccessToken();
+    const refreshToken = await JWTManager.getRefreshToken();
+
+    if (accessToken) {
+      config.headers.Authorization = `Bearer ${accessToken}`;
     }
+    if (refreshToken) {
+      config.headers['refresh-token'] = refreshToken;
+    }
+
+    return config;
   },
   (error) => Promise.reject(error),
 );
@@ -35,18 +31,28 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   async (error: AxiosError) => {
-    const originalRequest = error.config as ExtendedAxiosRequestConfig;
-    if (error.response?.status === 401 && originalRequest && !originalRequest._retry) {
+    console.log('Error:?');
+    const originalRequest = error.config as CustomAxiosRequestConfig;
+    console.log(originalRequest);
+
+    if (
+      (error.response?.status === 401 || error.response?.status === 403) &&
+      !originalRequest._retry
+    ) {
       originalRequest._retry = true;
-      try {
-        const token = await JWTManager.getAccessToken();
-        if (token && originalRequest.headers) {
-          originalRequest.headers.Authorization = `Bearer ${token}`;
-          return api(originalRequest as AxiosRequestConfig);
+      const refreshToken = await JWTManager.getRefreshToken();
+
+      if (refreshToken) {
+        try {
+          const accessToken = await JWTManager.getAccessToken();
+          if (accessToken && originalRequest.headers) {
+            originalRequest.headers.Authorization = `Bearer ${accessToken}`;
+            return api(originalRequest);
+          }
+        } catch (refreshError) {
+          console.log('Token refresh failed:', refreshError);
+          await JWTManager.clearTokens();
         }
-      } catch (refreshError) {
-        console.log('Refresh token error:', refreshError);
-        await JWTManager.clearTokens();
       }
     }
     return Promise.reject(error);

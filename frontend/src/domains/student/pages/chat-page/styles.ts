@@ -8,9 +8,12 @@ export const Container = styled.div`
   flex-direction: column;
   justify-content: flex-start;
   min-height: 100dvh;
+  max-height: 100dvh;
+  overflow: hidden;
 `;
 
 export const ChatList = styled.div`
+  flex: 1;
   height: 100%;
   width: 100%;
   overflow-x: scroll;
@@ -21,4 +24,5 @@ export const ChatList = styled.div`
   flex-direction: column;
   justify-content: flex-start;
   align-items: center;
+  overflow: auto;
 `;

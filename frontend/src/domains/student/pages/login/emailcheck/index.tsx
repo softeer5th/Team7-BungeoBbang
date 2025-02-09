@@ -5,7 +5,7 @@ import { sendEmailVerification, confirmEmailVerification } from './auth';
 import * as S from './styles';
 import api from '@/utils/api';
 import JWTManager from '@/utils/jwtManager';
-import { Dialog } from '@/components/Dialog';
+import { Dialog } from '@/components/Dialog/Dialog';
 
 type Step = 'email' | 'verification';
 

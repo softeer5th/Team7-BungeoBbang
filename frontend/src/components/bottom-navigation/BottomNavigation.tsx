@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import React, { useState } from 'react';
+import { useState, forwardRef } from 'react';
 import { BottomNavigationItem, BottomNavigationItemProps } from './BottomNavigationItem';
 import { BorderProps } from '../BorderProps';
 
@@ -11,46 +11,55 @@ interface BottomNavigationProps {
   selectedForegroundColor?: string;
   alarmColor?: string;
   border?: BorderProps;
+  setAlarm?: boolean;
   onItemClick?: (itemId: string) => void;
 }
 
-export const BottomNavigation: React.FC<BottomNavigationProps> = ({
-  startDestination,
-  destinations,
-  backgroundColor = '#FFFFFF',
-  foregroundColor = '#C6C6C6',
-  selectedForegroundColor = '#1F87FF',
-  alarmColor = '#FF4B4B',
-  border,
-  onItemClick = () => {},
-}) => {
-  const [selectedItem, setSelectedItem] = useState(startDestination);
+export const BottomNavigation = forwardRef<HTMLDivElement, BottomNavigationProps>(
+  (
+    {
+      startDestination,
+      destinations,
+      backgroundColor = '#FFFFFF',
+      foregroundColor = '#C6C6C6',
+      selectedForegroundColor = '#1F87FF',
+      alarmColor = '#FF4B4B',
+      border,
+      setAlarm = false,
+      onItemClick = () => {},
+    },
+    ref,
+  ) => {
+    const [selectedItem, setSelectedItem] = useState(startDestination);
 
-  return (
-    <BottomNavigationWrapper backgroundColor={backgroundColor} border={border}>
-      {destinations.map((destination) => (
-        <BottomNavigationItem
-          key={destination.itemId}
-          {...destination}
-          foregroundColor={foregroundColor}
-          selectedForegroundColor={selectedForegroundColor}
-          alarmColor={alarmColor}
-          onItemClick={() => {
-            setSelectedItem(destination.itemId);
-            onItemClick(destination.itemId);
-          }}
-          selected={destination.itemId === selectedItem}
-        />
-      ))}
-    </BottomNavigationWrapper>
-  );
-};
+    return (
+      <BottomNavigationWrapper ref={ref} backgroundColor={backgroundColor} border={border}>
+        {destinations.map((destination) => (
+          <BottomNavigationItem
+            key={destination.itemId}
+            {...destination}
+            foregroundColor={foregroundColor}
+            selectedForegroundColor={selectedForegroundColor}
+            alarmColor={alarmColor}
+            onItemClick={() => {
+              setSelectedItem(destination.itemId);
+              onItemClick(destination.itemId);
+            }}
+            hasAlarm={setAlarm && destination.itemId === 'my'}
+            selected={destination.itemId === selectedItem}
+          />
+        ))}
+      </BottomNavigationWrapper>
+    );
+  },
+);
 
 const BottomNavigationWrapper = styled.div<{
   backgroundColor: string;
   border?: BorderProps;
 }>`
-  position: fixed;
+  width: 100%;
+  position: sticky;
   bottom: 0;
   left: 0;
   right: 0;
