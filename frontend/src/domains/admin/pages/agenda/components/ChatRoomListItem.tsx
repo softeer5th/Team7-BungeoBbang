@@ -9,9 +9,10 @@ import api from '@/utils/api';
 
 interface ChatRoomListItemProps {
   cardData: ChatRoomListCardData;
+  onCardChanged: () => void;
 }
 
-export const ChatRoomListItem = ({ cardData }: ChatRoomListItemProps) => {
+export const ChatRoomListItem = ({ cardData, onCardChanged = () => {} }: ChatRoomListItemProps) => {
   const theme = useTheme();
 
   const navigate = useNavigate();
@@ -27,9 +28,8 @@ export const ChatRoomListItem = ({ cardData }: ChatRoomListItemProps) => {
 
   const handleDeleteRoom = async () => {
     try {
-      const result = await api.delete(`/admin/agendas/${cardData.roomId}`);
-
-      console.log('result', result.data);
+      await api.delete(`/admin/agendas/${cardData.roomId}`);
+      onCardChanged();
     } catch (error) {
       console.error('채팅방 삭제 실패', error);
     }

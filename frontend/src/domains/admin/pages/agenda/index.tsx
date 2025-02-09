@@ -76,36 +76,68 @@ const AgendaPage: React.FC = () => {
   }, [activeIndex]);
 
   useEffect(() => {
-    const getChatRooms = async () => {
-      const result: Record<string, ChatRoomListCardData[]> = {
-        inProgress: [],
-        complete: [],
-      };
-
-      try {
-        const [active, upcoming, closed] = await Promise.all([
-          api.get('/admin/agendas', { params: { status: 'ACTIVE' } }),
-          api.get('/admin/agendas', { params: { status: 'UPCOMING' } }),
-          api.get('/admin/agendas', { params: { status: 'CLOSED' } }),
-        ]);
-
-        result.inProgress = [
-          ...active.data.map((data: any) => mapResponseToChatRoomListCardData(data)),
-
-          ...upcoming.data.map((data: any) => mapResponseToChatRoomListCardData(data)),
-        ];
-
-        result.complete = [
-          ...closed.data.map((data: any) => mapResponseToChatRoomListCardData(data)),
-        ];
-
-        setTabContents(result);
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      }
-    };
-    getChatRooms();
+    getAllChatRooms();
   }, []);
+  
+  const getAllChatRooms = async () => {
+    const result: Record<string, ChatRoomListCardData[]> = {
+      inProgress: [],
+      complete: [],
+    };
+
+    try {
+      const [active, upcoming, closed] = await Promise.all([
+        api.get('/admin/agendas', { params: { status: 'ACTIVE' } }),
+        api.get('/admin/agendas', { params: { status: 'UPCOMING' } }),
+        api.get('/admin/agendas', { params: { status: 'CLOSED' } }),
+      ]);
+
+      result.inProgress = [
+        ...active.data.map((data: any) => mapResponseToChatRoomListCardData(data)),
+        ...upcoming.data.map((data: any) => mapResponseToChatRoomListCardData(data)),
+      ];
+
+      result.complete = [
+        ...closed.data.map((data: any) => mapResponseToChatRoomListCardData(data)),
+      ];
+
+      setTabContents(result);
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
+  };
+
+  const getProgressChatRooms = async () => {
+    try {
+      const [active, upcoming] = await Promise.all([
+        api.get('/admin/agendas', { params: { status: 'ACTIVE' } }),
+        api.get('/admin/agendas', { params: { status: 'UPCOMING' } }),
+      ]);
+
+      setTabContents((prev) => ({
+        ...prev,
+        inProgress: [
+          ...active.data.map(mapResponseToChatRoomListCardData),
+          ...upcoming.data.map(mapResponseToChatRoomListCardData),
+        ],
+      }));
+    } catch (error) {
+      console.error('Error fetching progress chat rooms:', error);
+    }
+  };
+
+  const getCompleteChatRooms = async () => {
+    try {
+      const closed = await api.get('/admin/agendas', { params: { status: 'CLOSED' } });
+
+      setTabContents((prev) => ({
+        ...prev,
+        complete: closed.data.map(mapResponseToChatRoomListCardData),
+      }));
+    } catch (error) {
+      console.error('Error fetching complete chat rooms:', error);
+    }
+  };
 
   return (
     <S.Container>
@@ -133,7 +165,15 @@ const AgendaPage: React.FC = () => {
               {content.length > 0 ? (
                 <S.ChatPreviewList>
                   {content.map((c) => (
-                    <ChatRoomListItem key={c.roomId} cardData={c} />
+                    <ChatRoomListItem
+                      key={c.roomId}
+                      cardData={c}
+                      onCardChanged={() =>
+                        tab.itemId === 'inProgress'
+                          ? getProgressChatRooms()
+                          : getCompleteChatRooms()
+                      }
+                    />
                   ))}
                 </S.ChatPreviewList>
               ) : (
@@ -150,8 +190,7 @@ const AgendaPage: React.FC = () => {
             </S.TabContent>
           );
         })}
-        <S.FloatingActionButton bottom={bottomPx}
-        onClick = {() => navigate("/agenda/create")}>
+        <S.FloatingActionButton bottom={bottomPx} onClick={() => navigate('/agenda/create')}>
           <img src="/src/assets/icons/plus.svg" />
         </S.FloatingActionButton>
       </S.TabContainer>
