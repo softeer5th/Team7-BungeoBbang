@@ -104,7 +104,7 @@ const CreateAgendaPage = () => {
   return (
     <S.Container>
       <S.TopAppBar>
-        <ArrowLeftIcon stroke={theme.colors.grayScale90} width="24px" height="24px" />
+        <ArrowLeftIcon stroke={theme.colors.grayScale90} width="24px" height="24px" onClick = {() => navigate(-1)}/>
         <S.TitleWrapper>
           <S.TitleText variant="heading3">새 채팅방</S.TitleText>
         </S.TitleWrapper>

@@ -5,14 +5,20 @@ import { CategoryIcon } from '@/components/CategoryIcon';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MoreContent } from './MoreContent';
-import api from '@/utils/api';
 
 interface ChatRoomListItemProps {
   cardData: ChatRoomListCardData;
-  onCardChanged: () => void;
+  onCardEdit: () => void;
+  onCardEnd: () => void;
+  onCardDelete: () => void;
 }
 
-export const ChatRoomListItem = ({ cardData, onCardChanged = () => {} }: ChatRoomListItemProps) => {
+export const ChatRoomListItem = ({
+  cardData,
+  onCardEdit = () => {},
+  onCardEnd = () => {},
+  onCardDelete = () => {},
+}: ChatRoomListItemProps) => {
   const theme = useTheme();
 
   const navigate = useNavigate();
@@ -25,15 +31,6 @@ export const ChatRoomListItem = ({ cardData, onCardChanged = () => {} }: ChatRoo
         ? theme.colors.sementicMain
         : theme.colors.grayScale50
       : theme.colors.grayScale50;
-
-  const handleDeleteRoom = async () => {
-    try {
-      await api.delete(`/admin/agendas/${cardData.roomId}`);
-      onCardChanged();
-    } catch (error) {
-      console.error('채팅방 삭제 실패', error);
-    }
-  };
 
   return (
     <CardWrapper>
@@ -74,9 +71,10 @@ export const ChatRoomListItem = ({ cardData, onCardChanged = () => {} }: ChatRoo
       </CardContainer>
       {isMoreContentVisible && (
         <MoreContent
-          onEditClick={() => {}}
-          onEndClick={() => {}}
-          onDeleteClick={handleDeleteRoom}
+          progressState={cardData.progressState}
+          onEditClick={onCardEdit}
+          onEndClick={onCardEnd}
+          onDeleteClick={onCardDelete}
         />
       )}
     </CardWrapper>

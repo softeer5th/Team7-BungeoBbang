@@ -12,6 +12,7 @@ import { EmptyContent } from '@/components/EmptyContent';
 import api from '@/utils/api';
 import { mapResponseToChatRoomListCardData } from './util/ChatRoomMapper';
 import { useNavigate } from 'react-router-dom';
+import { Dialog } from '@/components/Dialog/Dialog';
 
 const AgendaPage: React.FC = () => {
   const theme = useTheme();
@@ -27,6 +28,10 @@ const AgendaPage: React.FC = () => {
   const [translateX, setTranslateX] = useState(0);
 
   const [tabContents, setTabContents] = useState<Record<string, ChatRoomListCardData[]>>({});
+
+  const [isDeleteDialogShow, setDeleteDialogShow] = useState(false);
+  const [isEndDialogShow, setEndDialogShow] = useState(false);
+  const [selectedCardData, setSelectedCardData] = useState<ChatRoomListCardData | null>(null);
 
   const tabItems: TabBarItemProps[] = [
     {
@@ -78,7 +83,7 @@ const AgendaPage: React.FC = () => {
   useEffect(() => {
     getAllChatRooms();
   }, []);
-  
+
   const getAllChatRooms = async () => {
     const result: Record<string, ChatRoomListCardData[]> = {
       inProgress: [],
@@ -139,6 +144,28 @@ const AgendaPage: React.FC = () => {
     }
   };
 
+  const handleEndRoom = async () => {
+    try {
+      if (!selectedCardData) return;
+
+      await api.patch(`/admin/agendas/${selectedCardData?.roomId}/close`);
+      getAllChatRooms();
+    } catch (error) {
+      console.error('채팅방 삭제 실패', error);
+    }
+  };
+
+  const handleDeleteRoom = async () => {
+    try {
+      if (!selectedCardData) return;
+
+      await api.delete(`/admin/agendas/${selectedCardData?.roomId}`);
+      activeIndex === 0 ? getProgressChatRooms() : getCompleteChatRooms();
+    } catch (error) {
+      console.error('채팅방 삭제 실패', error);
+    }
+  };
+
   return (
     <S.Container>
       <TopAppBar
@@ -168,11 +195,15 @@ const AgendaPage: React.FC = () => {
                     <ChatRoomListItem
                       key={c.roomId}
                       cardData={c}
-                      onCardChanged={() =>
-                        tab.itemId === 'inProgress'
-                          ? getProgressChatRooms()
-                          : getCompleteChatRooms()
-                      }
+                      onCardEdit={() => {}}
+                      onCardEnd={() => {
+                        setSelectedCardData(c);
+                        setEndDialogShow(true);
+                      }}
+                      onCardDelete={() => {
+                        setSelectedCardData(c);
+                        setDeleteDialogShow(true);
+                      }}
                     />
                   ))}
                 </S.ChatPreviewList>
@@ -200,6 +231,54 @@ const AgendaPage: React.FC = () => {
         setAlarm={true}
         destinations={bottomItems}
       />
+      {isEndDialogShow && (
+        <Dialog
+          title={selectedCardData?.title}
+          body="
+       채팅방을 종료하시나요?<br />
+        종료된 채팅방은 종료 페이지로 이동되며,<br />
+        다시 개설되지 않습니다.
+    "
+          onConfirm={() => {
+            handleEndRoom();
+            setEndDialogShow(false);
+          }}
+          onDismiss={() => setEndDialogShow(false)}
+          confirmButton={{
+            text: '종료',
+            backgroundColor: theme.colors.sementicError,
+          }}
+          dissmissButton={{
+            text: '취소',
+            backgroundColor: theme.colors.grayScale10,
+            textColor: theme.colors.grayScale40,
+          }}
+        />
+      )}
+      {isDeleteDialogShow && (
+        <Dialog
+          title={selectedCardData?.title}
+          body="
+       채팅방을 삭제하시나요?<br />
+        삭제된 채팅방의 데이터는<br />
+        영구적으로 삭제됩니다.
+    "
+          onConfirm={() => {
+            handleDeleteRoom();
+            setDeleteDialogShow(false);
+          }}
+          onDismiss={() => setDeleteDialogShow(false)}
+          confirmButton={{
+            text: '삭제',
+            backgroundColor: theme.colors.sementicError,
+          }}
+          dissmissButton={{
+            text: '취소',
+            backgroundColor: theme.colors.grayScale10,
+            textColor: theme.colors.grayScale40,
+          }}
+        />
+      )}
     </S.Container>
   );
 };

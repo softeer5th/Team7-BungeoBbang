@@ -1,13 +1,16 @@
 import Typography from '@/styles/Typography';
 import styled, { useTheme } from 'styled-components';
+import { ProgressState } from './ChatRoomCardData';
 
 interface MoreContentProps {
+  progressState: ProgressState;
   onEditClick: () => void;
   onEndClick: () => void;
   onDeleteClick: () => void;
 }
 
 export const MoreContent = ({
+  progressState,
   onEditClick = () => {},
   onEndClick = () => {},
   onDeleteClick = () => {},
@@ -16,19 +19,33 @@ export const MoreContent = ({
 
   return (
     <Container>
-      <MoreContentItem onClick = {onEditClick}>
-        <ItemIcon src="/src/assets/icons/edit.svg" />
-        <ItemText variant="body1" textColor={theme.colors.grayScale90}>
-          수정
-        </ItemText>
-      </MoreContentItem>
-      <MoreContentItem onClick = {onEndClick}>
-        <ItemIcon src="/src/assets/icons/trash.svg" />
-        <ItemText variant="body1" textColor={theme.colors.red}>
-          종료
-        </ItemText>
-      </MoreContentItem>
-      <MoreContentItem onClick = {onDeleteClick}>
+      {progressState === ProgressState.BEFORE && (
+        <MoreContentItem onClick={onEditClick}>
+          <ItemIcon src="/src/assets/icons/edit.svg" />
+          <ItemText variant="body1" textColor={theme.colors.grayScale90}>
+            수정
+          </ItemText>
+        </MoreContentItem>
+      )}
+
+      {progressState === ProgressState.IN_PROGRESS && (
+        <>
+          <MoreContentItem onClick={onEditClick}>
+            <ItemIcon src="/src/assets/icons/edit.svg" />
+            <ItemText variant="body1" textColor={theme.colors.grayScale90}>
+              수정
+            </ItemText>
+          </MoreContentItem>
+          <MoreContentItem onClick={onEndClick}>
+            <ItemIcon src="/src/assets/icons/trash.svg" />
+            <ItemText variant="body1" textColor={theme.colors.red}>
+              종료
+            </ItemText>
+          </MoreContentItem>
+        </>
+      )}
+
+      <MoreContentItem onClick={onDeleteClick}>
         <ItemIcon src="/src/assets/icons/power.svg" />
         <ItemText variant="body1" textColor={theme.colors.red}>
           삭제
