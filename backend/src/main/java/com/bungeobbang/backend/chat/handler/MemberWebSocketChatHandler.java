@@ -6,6 +6,7 @@ import com.bungeobbang.backend.badword.service.BadWordService;
 import com.bungeobbang.backend.chat.event.agenda.AgendaMemberEvent;
 import com.bungeobbang.backend.chat.event.agenda.MemberConnectEvent;
 import com.bungeobbang.backend.chat.event.agenda.MemberWebsocketMessage;
+import com.bungeobbang.backend.chat.event.opinion.OpinionMemberEvent;
 import com.bungeobbang.backend.common.exception.AuthException;
 import com.bungeobbang.backend.common.exception.BadWordException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -59,6 +60,7 @@ public class MemberWebSocketChatHandler extends TextWebSocketHandler {
             switch (request.roomType()) {
                 case AGENDA -> publisher.publishEvent(AgendaMemberEvent.from(session, request));
                 case OPINION -> publisher.publishEvent(OpinionMemberEvent.from(session, request));
+                // default -> 에러 발생시키기.
             }
         } catch (AuthException e) {
             session.sendMessage(new TextMessage(objectMapper.writeValueAsString(new MemberWebsocketMessage(ERROR, e.getMessage()))));
