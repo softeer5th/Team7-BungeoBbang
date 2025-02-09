@@ -1,5 +1,6 @@
 package com.bungeobbang.backend.auth;
 
+import com.bungeobbang.backend.auth.domain.Authority;
 import com.bungeobbang.backend.common.exception.AuthException;
 import com.bungeobbang.backend.member.dto.response.MemberTokens;
 import io.jsonwebtoken.*;
@@ -31,10 +32,36 @@ public class JwtProvider {
         this.refreshExpirationTime = refreshExpirationTime;
     }
 
-    public MemberTokens generateLoginToken(final String subject) {
-        final String refreshToken = createToken(EMPTY_SUBJECT, refreshExpirationTime);
-        final String accessToken = createToken(subject, accessExpirationTime);
+    public MemberTokens generateLoginToken(final String subject,
+                                           final Authority authority,
+                                           final String uuid) {
+        final String accessToken = createTokenWithRole(subject, authority, uuid, refreshExpirationTime);
+        final String refreshToken = createToken(EMPTY_SUBJECT, accessExpirationTime);
         return new MemberTokens(accessToken, refreshToken);
+    }
+
+    public String createAccessToken(final String subject, final Authority authority, final String uuid) {
+        return createTokenWithRole(subject, authority, uuid, accessExpirationTime);
+    }
+
+    /*
+     * subject : memberId/adminId
+     * claim : role, uuid
+     */
+    private String createTokenWithRole(final String subject, final Authority authority,
+                                       final String uuid, final Long validityInMilliseconds) {
+        final Date now = new Date();
+        final Date expiresAt = new Date(now.getTime() + validityInMilliseconds);
+
+        return Jwts.builder()
+                .setHeaderParam(Header.TYPE, Header.JWT_TYPE)
+                .setSubject(subject)
+                .claim("role", authority)
+                .claim("uuid", uuid)
+                .setIssuedAt(now)
+                .setExpiration(expiresAt)
+                .signWith(secretKey, SignatureAlgorithm.HS256)
+                .compact();
     }
 
     private String createToken(final String subject, final Long validityInMilliseconds) {
@@ -52,15 +79,20 @@ public class JwtProvider {
 
     public String getSubject(final String token) {
         return parseToken(token)
-                .getBody()
                 .getSubject();
     }
 
-    private Jws<Claims> parseToken(final String token) {
+    public String getClaim(final String token, final String claimName) {
+        return parseToken(token)
+                .get(claimName, String.class);
+    }
+
+    private Claims parseToken(final String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(secretKey)
                 .build()
-                .parseClaimsJws(token);
+                .parseClaimsJws(token)
+                .getBody();
     }
 
     public void validateToken(final String accessToken) {
