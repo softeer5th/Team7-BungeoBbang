@@ -34,6 +34,7 @@ public enum ErrorCode {
     // University
     INVALID_UNIVERSITY(HttpStatus.NOT_FOUND, "아직 등록되지 않은 대학교입니다."),
     // Auth
+    DUPLICATE_LOGIN(HttpStatus.CONFLICT, "다른 장치/브라우저에서 로그인하여 세션이 만료되었습니다."),
     INVALID_AUTHORITY(HttpStatus.FORBIDDEN, "접근 권한이 없습니다."),
     INVALID_AUTHORIZATION_CODE(HttpStatus.BAD_REQUEST, "유효하지 않은 인증 코드입니다."),
     NOT_SUPPORTED_OAUTH_SERVICE(HttpStatus.NOT_IMPLEMENTED, "해당 OAuth 서비스는 제공하지 않습니다."),
@@ -46,6 +47,7 @@ public enum ErrorCode {
     INVALID_ADMIN(HttpStatus.NOT_FOUND, "존재하지 않는 관리자입니다."),
     PASSWORD_MISMATCH(HttpStatus.BAD_REQUEST, "비밀번호가 일치하지 않습니다."),
     INVALID_ACCESS_TOKEN(HttpStatus.UNAUTHORIZED, "올바르지 않은 형식의 AccessToken입니다."),
+    REFRESH_TOKEN_MISMATCH(HttpStatus.UNAUTHORIZED, "리프레시 토큰이 일치하지 않습니다."),
     EXPIRED_ACCESS_TOKEN(HttpStatus.UNAUTHORIZED, "토큰의 유효기간이 만료되었습니다.");
 
 
