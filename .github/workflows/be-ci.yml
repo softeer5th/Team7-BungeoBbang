@@ -32,7 +32,7 @@ jobs:
           echo "${{ secrets.APPLICATION_TEST_YML }}" > backend/src/test/resources/application.yml
 
       - name: Run Tests
-        run: ./gradlew clean build -x test
+        run: ./backend/gradlew clean build -x test
 
       - name: Upload Test Results
         if: always()
