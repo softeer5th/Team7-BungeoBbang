@@ -80,6 +80,7 @@ public class MemberOpinionService {
      * @return OpinionCreationResponse 생성된 말해요 채팅방의 ID를 포함한 응답 객체
      * @throws MemberException 학생 정보를 조회할 수 없는 경우 예외 발생
      */
+    @Transactional
     public OpinionCreationResponse createOpinion(
             final OpinionCreationRequest creationRequest,
             final Long memberId
@@ -95,11 +96,19 @@ public class MemberOpinionService {
         final OpinionLastRead memberLastRead = new OpinionLastRead(opinionId, false, savedChatId);
         opinionLastReadRepository.save(memberLastRead);
 
-        // 학생회의 마지막 읽은 채팅 ID는 ObjectId의 최댓값. (== 아무것도 읽지 않았다는 뜻, isNew를 띄우기 위함.)
+        // 학생회의 마지막 읽은 채팅 ID는 ObjectId의 최솟값. (== 아무것도 읽지 않았다는 뜻, isNew를 띄우기 위함.)
         final OpinionLastRead adminLastRead = new OpinionLastRead(opinionId, true, new ObjectId(MIN_OBJECT_ID));
         opinionLastReadRepository.save(adminLastRead);
 
         return new OpinionCreationResponse(opinionId);
+    }
+
+    @Transactional
+    public void deleteOpinion(final Long opinionId, final Long memberId) {
+        final Opinion opinion = opinionRepository.findById(opinionId)
+                .orElseThrow(() -> new OpinionException(ErrorCode.INVALID_OPINION));
+        validateOpinionAuthor(opinion, memberId);
+        opinionRepository.delete(opinion);
     }
 
     /**
@@ -112,10 +121,13 @@ public class MemberOpinionService {
     public void remindOpinion(final Long opinionId, final Long memberId) {
         final Opinion opinion = opinionRepository.findById(opinionId)
                 .orElseThrow(() -> new OpinionException(ErrorCode.INVALID_OPINION));
-        if (!opinion.getMember().getId().equals(memberId)) {
-            throw new OpinionException(ErrorCode.UNAUTHORIZED_OPINION_ACCESS);
-        }
+        validateOpinionAuthor(opinion, memberId);
         opinion.setRemind();
+    }
+
+    private void validateOpinionAuthor(final Opinion opinion, final Long memberId) {
+        if (!opinion.getMember().getId().equals(memberId))
+            throw new OpinionException(ErrorCode.UNAUTHORIZED_OPINION_ACCESS);
     }
 
     /**
@@ -155,7 +167,8 @@ public class MemberOpinionService {
      * @param member          학생 객체
      * @param opinionId       생성된 말해요 채팅방 ID
      */
-    private ObjectId saveOpinionChat(final OpinionCreationRequest creationRequest,
+    @Transactional
+    public ObjectId saveOpinionChat(final OpinionCreationRequest creationRequest,
                                      final Member member,
                                      final Long opinionId) {
         final OpinionChat opinionChat = OpinionChat.builder()

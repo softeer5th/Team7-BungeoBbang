@@ -1,4 +1,4 @@
-package com.bungeobbang.backend.chat.event.agenda;
+package com.bungeobbang.backend.chat.event.opinion;
 
 import com.bungeobbang.backend.chat.event.common.AdminWebsocketMessage;
 import com.bungeobbang.backend.chat.type.SocketEventType;
@@ -7,19 +7,19 @@ import org.springframework.web.socket.WebSocketSession;
 import java.time.LocalDateTime;
 import java.util.List;
 
-public record AgendaAdminEvent(
-        WebSocketSession session,
-        Long agendaId,
-        SocketEventType eventType,
-        Long adminId,
-        String chat,
-        List<String> images,
-        LocalDateTime createdAt
+public record OpinionAdminEvent (
+    WebSocketSession session,
+    Long opinionId,
+    SocketEventType eventType,
+    Long adminId,
+    String chat,
+    List<String> images,
+    LocalDateTime createdAt
 ) {
-    public static AgendaAdminEvent from(WebSocketSession session, AdminWebsocketMessage message) {
-        return new AgendaAdminEvent(
+    public static OpinionAdminEvent from(WebSocketSession session, AdminWebsocketMessage message) {
+        return new OpinionAdminEvent(
                 session,
-                message.agendaId(),
+                message.opinionId(),
                 message.event(),
                 message.adminId(),
                 message.message(),

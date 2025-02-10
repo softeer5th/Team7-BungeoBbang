@@ -17,6 +17,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.service.annotation.DeleteExchange;
 
 import java.util.List;
 
@@ -76,13 +77,15 @@ public interface MemberOpinionApi {
             @ApiResponse(responseCode = "200", description = "리마인드 요청 성공"),
             @ApiResponse(responseCode = "400", description = "잘못된 요청 데이터", content = @Content),
             @ApiResponse(responseCode = "401", description = "인증되지 않은 사용자", content = @Content),
+            @ApiResponse(responseCode = "403", description = "본인이 작성한 의견이 아닙니다.", content = @Content),
+            @ApiResponse(responseCode = "404", description = "채팅방 조회 실패.", content = @Content),
             @ApiResponse(responseCode = "500", description = "서버 오류", content = @Content)
     })
-    @PatchMapping("/{roomId}/remind")
+    @PatchMapping("/{opinionId}/remind")
     @MemberOnly
     ResponseEntity<Void> patchOpinionRemind(
             @Parameter(description = "리마인드 요청할 말해요 ID", example = "2")
-            @PathVariable @Valid Long roomId,
+            @PathVariable @Valid Long opinionId,
             @Parameter(hidden = true) @Auth Accessor accessor
     );
 
@@ -102,6 +105,27 @@ public interface MemberOpinionApi {
     @GetMapping("/my")
     @MemberOnly
     ResponseEntity<List<MemberOpinionsInfoResponse>> getMemberOpinionList(
+            @Parameter(hidden = true) @Auth Accessor accessor
+    );
+
+    @Operation(
+            summary = "말해요 채팅방 삭제",
+            description = """
+                    학생 본인이 만든 말해요 채팅방을 삭제합니다.
+
+                    """
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "채팅방 삭제 성공", content = @Content(schema = @Schema(implementation = MemberOpinionsInfoResponse.class))),
+            @ApiResponse(responseCode = "401", description = "인증되지 않은 사용자", content = @Content),
+            @ApiResponse(responseCode = "403", description = "본인이 작성한 의견이 아닙니다.", content = @Content),
+            @ApiResponse(responseCode = "404", description = "채팅방 조회 실패.", content = @Content),
+            @ApiResponse(responseCode = "500", description = "서버 오류", content = @Content)
+    })
+    @DeleteExchange("/{opinionId}")
+    @MemberOnly
+    ResponseEntity<Void> deleteOpinion(
+            @PathVariable @Valid final Long opinionId,
             @Parameter(hidden = true) @Auth Accessor accessor
     );
 }

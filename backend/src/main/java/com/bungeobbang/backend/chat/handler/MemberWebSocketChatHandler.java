@@ -4,8 +4,9 @@ package com.bungeobbang.backend.chat.handler;
 import com.bungeobbang.backend.auth.JwtProvider;
 import com.bungeobbang.backend.badword.service.BadWordService;
 import com.bungeobbang.backend.chat.event.agenda.AgendaMemberEvent;
-import com.bungeobbang.backend.chat.event.agenda.MemberConnectEvent;
-import com.bungeobbang.backend.chat.event.agenda.MemberWebsocketMessage;
+import com.bungeobbang.backend.chat.event.common.MemberConnectEvent;
+import com.bungeobbang.backend.chat.event.common.MemberWebsocketMessage;
+import com.bungeobbang.backend.chat.event.opinion.OpinionMemberEvent;
 import com.bungeobbang.backend.common.exception.AuthException;
 import com.bungeobbang.backend.common.exception.BadWordException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -35,9 +36,8 @@ public class MemberWebSocketChatHandler extends TextWebSocketHandler {
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
         final String accessToken = (String) session.getAttributes().get(ACCESS_TOKEN);
-        final String userId = jwtProvider.getSubject(accessToken);
-
-        publisher.publishEvent(new MemberConnectEvent(session, Long.valueOf(userId)));
+        final Long memberId = Long.valueOf(jwtProvider.getSubject(accessToken));
+        publisher.publishEvent(new MemberConnectEvent(session, memberId));
 
         super.afterConnectionEstablished(session);
     }
@@ -59,7 +59,7 @@ public class MemberWebSocketChatHandler extends TextWebSocketHandler {
 
             switch (request.roomType()) {
                 case AGENDA -> publisher.publishEvent(AgendaMemberEvent.from(session, request));
-
+                case OPINION -> publisher.publishEvent(OpinionMemberEvent.from(session, request));
             }
         } catch (AuthException e) {
             session.sendMessage(new TextMessage(objectMapper.writeValueAsString(new MemberWebsocketMessage(ERROR, e.getMessage()))));
