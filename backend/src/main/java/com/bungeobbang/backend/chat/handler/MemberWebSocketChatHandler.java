@@ -7,7 +7,6 @@ import com.bungeobbang.backend.chat.event.agenda.AgendaMemberEvent;
 import com.bungeobbang.backend.chat.event.common.MemberConnectEvent;
 import com.bungeobbang.backend.chat.event.common.MemberWebsocketMessage;
 import com.bungeobbang.backend.chat.event.opinion.OpinionMemberEvent;
-import com.bungeobbang.backend.chat.service.UserSessionService;
 import com.bungeobbang.backend.common.exception.AuthException;
 import com.bungeobbang.backend.common.exception.BadWordException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -33,14 +32,11 @@ public class MemberWebSocketChatHandler extends TextWebSocketHandler {
     private final BadWordService badWordService;
     private final ObjectMapper objectMapper;
     private final ApplicationEventPublisher publisher;
-    private final UserSessionService userSessionService;
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
         final String accessToken = (String) session.getAttributes().get(ACCESS_TOKEN);
         final Long memberId = Long.valueOf(jwtProvider.getSubject(accessToken));
-        userSessionService.saveMemberSession(memberId, session);
-
         publisher.publishEvent(new MemberConnectEvent(session, memberId));
 
         super.afterConnectionEstablished(session);
@@ -77,9 +73,6 @@ public class MemberWebSocketChatHandler extends TextWebSocketHandler {
 
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
-        final String accessToken = (String) session.getAttributes().get(ACCESS_TOKEN);
-        final Long memberId = Long.valueOf(jwtProvider.getSubject(accessToken));
-        userSessionService.removeMemberSession(memberId);
         super.afterConnectionClosed(session, status);
     }
 }

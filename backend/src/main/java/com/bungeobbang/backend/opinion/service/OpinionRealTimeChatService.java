@@ -7,7 +7,6 @@ import com.bungeobbang.backend.chat.event.common.AdminWebsocketMessage;
 import com.bungeobbang.backend.chat.event.common.MemberConnectEvent;
 import com.bungeobbang.backend.chat.event.common.MemberWebsocketMessage;
 import com.bungeobbang.backend.chat.service.MessageQueueService;
-import com.bungeobbang.backend.chat.service.UserSessionService;
 import com.bungeobbang.backend.common.exception.AdminException;
 import com.bungeobbang.backend.common.exception.ErrorCode;
 import com.bungeobbang.backend.common.exception.OpinionException;
@@ -27,7 +26,6 @@ public class OpinionRealTimeChatService {
     private final MessageQueueService messageQueueService;
     private final AdminRepository adminRepository;
     private final ObjectMapper objectMapper;
-    private final UserSessionService userSessionService;
 
     @EventListener
     public void memberConnect(final MemberConnectEvent event) {
@@ -71,9 +69,6 @@ public class OpinionRealTimeChatService {
      */
     public void subscribeToOpinion(final WebSocketSession session, Long opinionId) {
         messageQueueService.subscribe(session, OPINION_PREFIX + opinionId);
-        userSessionService.getAllAdminSessions()
-                .forEach(adminSession ->
-                        messageQueueService.subscribe(adminSession, OPINION_PREFIX + opinionId));
     }
 
     public void disconnect(final WebSocketSession session, Long opinionId) {

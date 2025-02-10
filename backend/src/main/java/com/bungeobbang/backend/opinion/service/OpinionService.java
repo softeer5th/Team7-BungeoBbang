@@ -14,7 +14,6 @@ import com.bungeobbang.backend.opinion.dto.response.OpinionDetailResponse;
 import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
@@ -63,7 +62,6 @@ public class OpinionService {
         return new OpinionDetailResponse(opinion.getUniversity().getName(), opinion.isRemind());
     }
 
-    @Transactional
     public void updateLastReadToMax(final Long opinionId, final boolean isAdmin) {
         OpinionLastRead lastRead = opinionLastReadRepository.findByOpinionIdAndIsAdmin(opinionId, isAdmin)
                 .orElseThrow(() -> new OpinionException(ErrorCode.INVALID_OPINION_LAST_READ));
@@ -71,7 +69,6 @@ public class OpinionService {
         opinionLastReadRepository.save(lastRead);
     }
 
-    @Transactional
     public void updateLastReadToLastChatId(final Long opinionId, final boolean isAdmin) {
         OpinionLastRead lastRead = opinionLastReadRepository.findByOpinionIdAndIsAdmin(opinionId, isAdmin)
                 .orElseThrow(() -> new OpinionException(ErrorCode.INVALID_OPINION_LAST_READ));
@@ -83,7 +80,6 @@ public class OpinionService {
         opinionLastReadRepository.save(lastRead);
     }
 
-    @Transactional
     public void saveChat(
             final Long userId, final Long opinionId,
             final String chat, final List<String> images,

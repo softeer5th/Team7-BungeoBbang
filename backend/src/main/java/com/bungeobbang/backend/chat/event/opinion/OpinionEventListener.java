@@ -31,7 +31,7 @@ public class OpinionEventListener {
             // 새로 구독
             case START -> opinionRealTimeChatService.subscribeToOpinion(event.session(), event.opinionId());
             // 구독 취소
-            case EXIT -> opinionRealTimeChatService.removeOpinionTopic(event.opinionId());
+            case DELETE -> opinionRealTimeChatService.removeOpinionTopic(event.opinionId());
         }
     }
 
@@ -48,6 +48,7 @@ public class OpinionEventListener {
                     event.createdAt()
             );
             case LEAVE -> opinionService.updateLastReadToLastChatId(event.adminId(), false);
+            case START -> opinionRealTimeChatService.subscribeToOpinion(event.session(), event.opinionId());
         }
     }
 }
