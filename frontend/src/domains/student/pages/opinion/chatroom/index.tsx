@@ -17,7 +17,6 @@ import { TextBadge } from '@/components/Chat/TextBadge.tsx';
 import MoreChatButton from '../../chat-page/MoreChatButton.tsx';
 import { ExitDialog } from '../../chat-page/Exitdialog.tsx';
 import api from '@/utils/api.ts';
-import { Dialog } from '@/components/Dialog/Dialog.tsx';
 import { formatChatData } from '@/utils/chat/formatChatData.ts';
 import { useImageUpload } from '@/hooks/useImageUpload.ts';
 import { ImageFileSizeDialog } from '@/components/Dialog/ImageFileSizeDialog.tsx';

@@ -2,7 +2,7 @@ import { BottomNavigation } from '@/components/bottom-navigation/BottomNavigatio
 import * as S from './styles';
 import { TopAppBar } from '@/components/TopAppBar';
 import { useTheme } from 'styled-components';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ChatRoomListCardData } from './data/ChatRoomListCardData';
 import { BannerContainer } from './components/Banner';
 import { ChatRoomListItem } from './components/ChatRoomListItem';
@@ -23,7 +23,7 @@ const AgendaPage = () => {
 
   const [chatRooms, setChatRooms] = useState<ChatRoomListCardData[]>([]);
 
-  let myChatIds: number[] = [];
+  let myChatIds = useRef<number[]>([]);
 
   const getAllChatRooms = async () => {
     try {
@@ -38,9 +38,11 @@ const AgendaPage = () => {
         ...closed.data.map((data: any) => mapResponseToChatListCardData(data, 'CLOSED')),
       ];
 
-      myChatIds = my.data
-        .filter((m: any) => m.agenda?.id !== undefined && m.agenda?.id !== null)
-        .map((m: any) => m.agenda.id);
+      myChatIds.current.push(
+        my.data
+          .filter((m: any) => m.agenda?.id !== undefined && m.agenda?.id !== null)
+          .map((m: any) => m.agenda.id),
+      );
 
       console.log('mychatId', my.data, myChatIds);
 
@@ -52,13 +54,14 @@ const AgendaPage = () => {
 
   const enterChatRoom = async () => {
     try {
-      await api.get(`/student/agendas/${selectedChatRoomEnter}`);
+      await api.post(`/student/agendas/${selectedChatRoomEnter}`);
 
       navigate(`/agenda/chat/${selectedChatRoomEnter}?isEnd=false&isParticipate=true`);
     } catch (error) {
       console.error('Error fetching data:', error);
     }
   };
+
   useEffect(() => {
     getAllChatRooms();
   }, []);
@@ -82,6 +85,7 @@ const AgendaPage = () => {
                 onClick={() => {
                   const isEnd = !room.isInProgress;
                   const isParticipate = myChatIds.includes(room.roomId);
+                  console.log('isParticiplat!!!', isParticipate, room.roomId, myChatIds);
                   if (isEnd || isParticipate) {
                     navigate(
                       `/agenda/chat/${room.roomId}?isEnd=${isEnd}&isParticipate=${isParticipate}`,
