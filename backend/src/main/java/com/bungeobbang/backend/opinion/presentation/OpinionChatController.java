@@ -27,7 +27,7 @@ public class OpinionChatController implements OpinionChatApi {
             @RequestParam(required = false) final ObjectId lastChatId,
             @Auth final Accessor accessor) {
         return ResponseEntity.ok().body(opinionService.findOpinionChat(
-                opinionId, lastChatId, accessor
+                opinionId, lastChatId, accessor.id()
         ));
     }
 
