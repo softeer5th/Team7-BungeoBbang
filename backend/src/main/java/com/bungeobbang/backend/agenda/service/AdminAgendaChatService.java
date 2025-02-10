@@ -11,7 +11,6 @@ import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.event.TransactionalEventListener;
 
@@ -112,7 +111,6 @@ public class AdminAgendaChatService {
     }
 
     @TransactionalEventListener
-    @Async
     public void saveAgendaChat(AgendaChatRequest event) {
         saveChat(event);
     }
