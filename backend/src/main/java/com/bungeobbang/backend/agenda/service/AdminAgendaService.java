@@ -179,6 +179,7 @@ public class AdminAgendaService {
         validAdminWithAgenda(admin, agenda);
 
         final Agenda updateAgenda = Agenda.builder()
+                .id(agendaId)
                 .categoryType(request.categoryType())
                 .university(agenda.getUniversity())
                 .admin(agenda.getAdmin())
