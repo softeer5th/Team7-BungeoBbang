@@ -1,5 +1,3 @@
-// src/domains/student/pages/opinion/chatroom/index.tsx
-
 import * as S from '@/domains/student/pages/chat-page/styles';
 import { useNavigate, useParams } from 'react-router-dom';
 import { TopAppBar } from '@/components/TopAppBar';
@@ -47,15 +45,6 @@ const OpinionChatPage = () => {
   const { roomId } = useParams();
   const { subscribe, sendMessage } = useSocketStore();
 
-  const handleSendMessage = useCallback(
-    (message: string, images: string[] = []) => {
-      if (!roomId) return;
-      sendMessage('OPINION', Number(roomId), message, images);
-      setMessage('');
-    },
-    [roomId, sendMessage],
-  );
-
   const handleMessageReceive = useCallback(
     (message: ChatMessage) => {
       if (message.roomType === 'OPINION' && message.opinionId === Number(roomId)) {
@@ -79,7 +68,8 @@ const OpinionChatPage = () => {
 
     const fetchData = async () => {
       try {
-        const response = await api.get(`/api/opinions/${roomId}`);
+        const response = await api.get(`/api/opinions/${roomId}/chat`);
+        console.log(response.data);
         const formattedData = formatChatData(response.data);
         setChatData(formattedData);
       } catch (error) {
@@ -88,13 +78,24 @@ const OpinionChatPage = () => {
     };
 
     fetchData();
+  }, [roomId]);
+
+  useEffect(() => {
+    if (!roomId) return;
 
     const unsubscribe = subscribe('OPINION', Number(roomId), handleMessageReceive);
-
-    return () => {
-      unsubscribe();
-    };
+    return () => unsubscribe();
   }, [roomId, subscribe, handleMessageReceive]);
+
+  const handleSendMessage = useCallback(
+    (message: string, images: string[] = []) => {
+      if (!roomId || !message.trim()) return;
+
+      sendMessage('OPINION', Number(roomId), message, images);
+      setMessage('');
+    },
+    [roomId, sendMessage],
+  );
 
   return (
     <S.Container>

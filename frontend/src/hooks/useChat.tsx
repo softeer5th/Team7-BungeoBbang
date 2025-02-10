@@ -1,5 +1,3 @@
-// src/hooks/useChat.ts
-
 import { useEffect, useState, useCallback } from 'react';
 import { useSocketStore } from '@/store/socket/socketStore';
 
