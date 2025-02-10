@@ -38,11 +38,9 @@ const AgendaPage = () => {
         ...closed.data.map((data: any) => mapResponseToChatListCardData(data, 'CLOSED')),
       ];
 
-      myChatIds.current.push(
-        my.data
-          .filter((m: any) => m.agenda?.id !== undefined && m.agenda?.id !== null)
-          .map((m: any) => m.agenda.id),
-      );
+      myChatIds.current = my.data
+        .filter((m: any) => m.agenda?.id !== undefined && m.agenda?.id !== null)
+        .map((m: any) => m.agenda.id);
 
       console.log('mychatId', my.data, myChatIds);
 

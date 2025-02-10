@@ -49,6 +49,7 @@ const ChatPage = ({ roomId, isEnd, isParticipate }: ChatPageProps) => {
   const exitChatRoom = async () => {
     try {
       await api.delete(`/student/agendas/${roomId}`);
+      navigate(-1);
     } catch (error) {
       console.error('fail to exit chat room', error);
     }

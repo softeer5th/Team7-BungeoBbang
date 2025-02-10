@@ -26,8 +26,8 @@ export const ChatRoomListItem = ({
   const [isMoreContentVisible, setMoreContentVisible] = useState(false);
 
   const alarmColor =
-    cardData.progressState != 1
-      ? cardData.hasNew
+    cardData.progressState != ProgressState.FINISHED
+      ? cardData.hasNew && cardData.progressState == ProgressState.IN_PROGRESS
         ? theme.colors.sementicMain
         : theme.colors.grayScale50
       : theme.colors.grayScale50;
