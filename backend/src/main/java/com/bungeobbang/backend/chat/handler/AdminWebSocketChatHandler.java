@@ -50,20 +50,22 @@ public class AdminWebSocketChatHandler extends TextWebSocketHandler {
         try {
             jwtProvider.validateToken(accessToken);
             final AdminWebsocketMessage request = objectMapper.readValue(message.getPayload(), AdminWebsocketMessage.class);
+            // createdAt 생성하여 requestContainsCreatedAt 객체 생성
+            final AdminWebsocketMessage requestContainsCreatedAt = AdminWebsocketMessage.createResponse(request);
 
 
             if (request.event().equals(CHAT)) {
                 badWordService.validate(request.message());
-                publisher.publishEvent(request);
+                publisher.publishEvent(requestContainsCreatedAt);
             }
 
             if (request.event().equals(CHAT) && request.roomType().equals(AGENDA))
-                session.sendMessage(new TextMessage(objectMapper.writeValueAsString(request)));
+                session.sendMessage(new TextMessage(objectMapper.writeValueAsString(requestContainsCreatedAt)));
 
 
             switch (request.roomType()) {
-                case AGENDA -> publisher.publishEvent(AgendaAdminEvent.from(session, request));
-                case OPINION -> publisher.publishEvent(OpinionAdminEvent.from(session, request));
+                case AGENDA -> publisher.publishEvent(AgendaAdminEvent.from(session, requestContainsCreatedAt));
+                case OPINION -> publisher.publishEvent(OpinionAdminEvent.from(session, requestContainsCreatedAt));
             }
         } catch (AuthException e) {
             session.sendMessage(new TextMessage(objectMapper.writeValueAsString(new AdminWebsocketMessage(ERROR, e.getMessage()))));

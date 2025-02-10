@@ -21,7 +21,7 @@ import org.springframework.web.socket.WebSocketSession;
 @Service
 @RequiredArgsConstructor
 public class OpinionRealTimeChatService {
-    private static final String OPINION_PREFIX = "O";
+    private static final String OPINION_PREFIX = "O_";
     private final OpinionRepository opinionRepository;
     private final MessageQueueService messageQueueService;
     private final AdminRepository adminRepository;
