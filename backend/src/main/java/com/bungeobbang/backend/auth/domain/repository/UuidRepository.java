@@ -5,6 +5,8 @@ import io.lettuce.core.api.sync.RedisCommands;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 @Repository
 @RequiredArgsConstructor
 public class UuidRepository {
@@ -15,8 +17,8 @@ public class UuidRepository {
         redisCommands.set(String.format("%s_%s:%s", role, AUTH_UUID, id), uuid);
     }
 
-    public String get(Authority role, String id) {
-        return redisCommands.get(String.format("%s_%s:%s", role, AUTH_UUID, id));
+    public Optional<String> get(Authority role, String id) {
+        return Optional.ofNullable(redisCommands.get(String.format("%s_%s:%s", role, AUTH_UUID, id)));
     }
 
     public void remove(Authority role, String id) {

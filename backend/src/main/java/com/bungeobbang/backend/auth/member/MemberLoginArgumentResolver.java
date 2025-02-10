@@ -16,6 +16,7 @@ import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
 
 import static com.bungeobbang.backend.common.exception.ErrorCode.DUPLICATE_LOGIN;
+import static com.bungeobbang.backend.common.exception.ErrorCode.INVALID_UUID;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 @RequiredArgsConstructor
@@ -45,7 +46,8 @@ public class MemberLoginArgumentResolver implements HandlerMethodArgumentResolve
             jwtProvider.validateToken(accessToken);
             final String memberId = jwtProvider.getSubject(accessToken);
             String expected = jwtProvider.getClaim(accessToken, UUID);
-            String actual = uuidRepository.get(Authority.MEMBER, memberId);
+            String actual = uuidRepository.get(Authority.MEMBER, memberId)
+                    .orElseThrow(() -> new AuthException(INVALID_UUID));
             validateUuid(actual, expected);
             return new Accessor(Long.valueOf(memberId), Authority.MEMBER);
         } catch (AuthException e) {
