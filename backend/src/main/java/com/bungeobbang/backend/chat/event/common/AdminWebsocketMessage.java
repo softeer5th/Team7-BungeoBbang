@@ -28,6 +28,6 @@ public record AdminWebsocketMessage(
         LocalDateTime createdAt
 ) {
     public AdminWebsocketMessage(SocketEventType event, String message) {
-        this(null, event, null, null, message, null, null, null);
+        this(null, event, null, null, message, null, null, LocalDateTime.now());
     }
 }

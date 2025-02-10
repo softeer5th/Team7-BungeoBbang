@@ -30,7 +30,7 @@ public class OpinionEventListener {
             case LEAVE -> opinionService.updateLastReadToLastChatId(event.opinionId(), false);
             // 새로 구독
             case START -> opinionRealTimeChatService.subscribeToOpinion(event.session(), event.opinionId());
-            // 구독 취소
+            // 채팅방 삭제 ( 학생이 나가기버튼 누른 경우 )
             case DELETE -> opinionRealTimeChatService.removeOpinionTopic(event.opinionId());
         }
     }
