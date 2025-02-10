@@ -16,8 +16,8 @@ export const ChatRoomListItem = ({ room, onClick = () => {} }: ChatRoomListItemP
       </S.DDayTextContainer>
       <S.ContentWrapper>
         <S.IconContainer>
-          <S.IconBox backgroundColor={room.iconBackgroundColor}>
-            <img src={room.iconSrc} width="17px" height="17px" />
+          <S.IconBox backgroundColor={room.categoryType.iconBackground}>
+            <img src={room.categoryType.iconSrc} width="17px" height="17px" />
           </S.IconBox>
         </S.IconContainer>
         <S.CardTitleText variant="heading2" isInProgress={room.isInProgress}>

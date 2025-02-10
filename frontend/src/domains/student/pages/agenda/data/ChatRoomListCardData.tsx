@@ -1,8 +1,9 @@
-export interface ChatListCardData {
+import { ChatCategoryType } from '@/types/ChatCategoryType';
+
+export interface ChatRoomListCardData {
   roomId: number;
   dday: string;
-  iconSrc: string;
-  iconBackgroundColor: string;
+  categoryType: ChatCategoryType;
   title: string;
   numOfJoin: number;
   isInProgress: boolean;
