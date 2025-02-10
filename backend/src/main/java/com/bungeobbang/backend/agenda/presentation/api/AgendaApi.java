@@ -2,7 +2,7 @@ package com.bungeobbang.backend.agenda.presentation.api;
 
 import com.bungeobbang.backend.agenda.dto.response.AgendaChatResponse;
 import com.bungeobbang.backend.agenda.dto.response.AgendaDetailResponse;
-import com.bungeobbang.backend.agenda.dto.response.AgendaResponse;
+import com.bungeobbang.backend.agenda.dto.response.MemberAgendaResponse;
 import com.bungeobbang.backend.agenda.dto.response.MyAgendaResponse;
 import com.bungeobbang.backend.agenda.status.AgendaStatusType;
 import com.bungeobbang.backend.auth.domain.Accessor;
@@ -41,12 +41,12 @@ public interface AgendaApi {
     @Operation(summary = "답해요 상태별 조회", description = "특정 상태의 답해요 목록을 조회합니다.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "조회 성공",
-                    content = @Content(schema = @Schema(implementation = AgendaResponse.class))),
+                    content = @Content(schema = @Schema(implementation = MemberAgendaResponse.class))),
             @ApiResponse(responseCode = "400", description = "잘못된 요청", content = @Content),
             @ApiResponse(responseCode = "401", description = "인증 필요", content = @Content),
     })
     @GetMapping
-    ResponseEntity<List<AgendaResponse>> getAgendasByStatus(
+    ResponseEntity<List<MemberAgendaResponse>> getAgendasByStatus(
             @Auth Accessor accessor,
             @Parameter(description = "조회할 답해요 상태") @RequestParam AgendaStatusType status,
             @Parameter(description = "마지막 조회된 답해요 마감일 (선택)") @RequestParam(required = false) LocalDate endDate,

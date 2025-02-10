@@ -6,9 +6,10 @@ import com.bungeobbang.backend.agenda.domain.AgendaMember;
 import com.bungeobbang.backend.agenda.domain.repository.AgendaMemberRepository;
 import com.bungeobbang.backend.agenda.domain.repository.AgendaRepository;
 import com.bungeobbang.backend.agenda.domain.repository.CustomAgendaChatRepository;
+import com.bungeobbang.backend.agenda.domain.repository.CustomAgendaRepository;
 import com.bungeobbang.backend.agenda.dto.response.AgendaDetailResponse;
 import com.bungeobbang.backend.agenda.dto.response.AgendaLatestChat;
-import com.bungeobbang.backend.agenda.dto.response.AgendaResponse;
+import com.bungeobbang.backend.agenda.dto.response.MemberAgendaResponse;
 import com.bungeobbang.backend.agenda.dto.response.MyAgendaResponse;
 import com.bungeobbang.backend.agenda.service.strategies.AgendaFinder;
 import com.bungeobbang.backend.agenda.service.strategies.AgendaFinders;
@@ -51,6 +52,7 @@ public class AgendaService {
     private final MemberRepository memberRepository;
     private final AgendaMemberRepository agendaMemberRepository;
     private final CustomAgendaChatRepository customAgendaChatRepository;
+    private final CustomAgendaRepository customAgendaRepository;
 
     private final static ObjectId MIN_OBJECT_ID = new ObjectId(0, 0);
 
@@ -98,10 +100,10 @@ public class AgendaService {
      * @param agendaId 마지막으로 조회된 답해요의 ID (중복 방지 및 페이징용, 선택적)
      * @return 상태별 답해요 목록 (최대 페이지 크기 제한 적용)
      */
-    public List<AgendaResponse> getAgendasByStatus(final Long memberId, final AgendaStatusType status, final LocalDate endDate, final Long agendaId) {
+    public List<MemberAgendaResponse> getAgendasByStatus(final Long memberId, final AgendaStatusType status, final LocalDate endDate, final Long agendaId) {
         final Member member = getMember(memberId);
         final AgendaFinder finder = agendaFinders.mapping(status);
-        return finder.findAllByStatus(member.getUniversity().getId(), endDate, agendaId);
+        return finder.findAllByStatus(member.getUniversity().getId(), endDate, agendaId, memberId);
     }
 
     public AgendaDetailResponse getAgendaDetail(final Long memberId, final Long agendaId) {
@@ -191,5 +193,13 @@ public class AgendaService {
     private Member getMember(final Long memberId) {
         return memberRepository.findById(memberId)
                 .orElseThrow(() -> new MemberException(ErrorCode.INVALID_MEMBER));
+    }
+
+    public void test(long member, long uni) {
+        final List<MemberAgendaResponse> activeAgendasWithParticipation = customAgendaRepository.getActiveAgendasWithParticipation(uni, null, null, member);
+        for (MemberAgendaResponse memberAgendaResponse : activeAgendasWithParticipation) {
+            System.out.println("memberAgendaResponse = " + memberAgendaResponse);
+        }
+
     }
 }
