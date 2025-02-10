@@ -13,6 +13,7 @@ import api from '@/utils/api';
 import { mapResponseToChatRoomListCardData } from './util/ChatRoomMapper';
 import { useNavigate } from 'react-router-dom';
 import { Dialog } from '@/components/Dialog/Dialog';
+import { LogoutDialog } from '@/components/Dialog/LogoutDialog';
 
 const AgendaPage: React.FC = () => {
   const theme = useTheme();
@@ -29,6 +30,7 @@ const AgendaPage: React.FC = () => {
 
   const [tabContents, setTabContents] = useState<Record<string, ChatRoomListCardData[]>>({});
 
+  const [isLogoutDialogShow, setLogoutDialogShow] = useState(false);
   const [isDeleteDialogShow, setDeleteDialogShow] = useState(false);
   const [isEndDialogShow, setEndDialogShow] = useState(false);
   const [selectedCardData, setSelectedCardData] = useState<ChatRoomListCardData | null>(null);
@@ -64,6 +66,17 @@ const AgendaPage: React.FC = () => {
       }
     }
     setActiveIndex(newIndex);
+  };
+
+  const handleLogout = async () => {
+    try {
+      // lotou
+
+      setLogoutDialogShow(false);
+      navigate('/');
+    } catch (error) {
+      console.error('fail to logout', error);
+    }
   };
 
   useEffect(() => {
@@ -172,6 +185,7 @@ const AgendaPage: React.FC = () => {
         leftIconSrc="/src/assets/icons/logo.svg"
         rightIconSrc="/src/assets/icons/logout.svg"
         titleColor={theme.colors.sementicMain}
+        onRightIconClick={() => setLogoutDialogShow(true)}
       />
       <TabBar
         currentDestination={tabItems[activeIndex].itemId}
@@ -231,6 +245,14 @@ const AgendaPage: React.FC = () => {
         setAlarm={true}
         destinations={bottomItems}
       />
+      {isLogoutDialogShow && (
+        <LogoutDialog
+          onDismiss={() => setLogoutDialogShow(false)}
+          onConfirm={() => {
+            setLogoutDialogShow(false);
+          }}
+        />
+      )}
       {isEndDialogShow && (
         <Dialog
           title={selectedCardData?.title}

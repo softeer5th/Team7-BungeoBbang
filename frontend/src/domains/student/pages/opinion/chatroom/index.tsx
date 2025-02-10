@@ -20,6 +20,7 @@ import api from '@/utils/api.ts';
 import { Dialog } from '@/components/Dialog/Dialog.tsx';
 import { formatChatData } from '@/utils/chat/formatChatData.ts';
 import { useImageUpload } from '@/hooks/useImageUpload.ts';
+import { ImageFileSizeDialog } from '@/components/Dialog/ImageFileSizeDialog.tsx';
 
 const OpinionChatPage = () => {
   const [chatData, setChatData] = useState<ChatData[]>([]);
@@ -131,17 +132,7 @@ const OpinionChatPage = () => {
         />
       )}
       {showSizeDialog && (
-        <Dialog
-          body="10MB 이하의 이미지만 업로드할 수 있습니다."
-          onConfirm={closeSizeDialog}
-          onDismiss={closeSizeDialog}
-          confirmButton={{
-            text: '확인',
-            children: '확인',
-            backgroundColor: '#1F87FF',
-            textColor: '#FFFFFF',
-          }}
-        />
+        <ImageFileSizeDialog onConfirm={closeSizeDialog} onDismiss={closeSizeDialog} />
       )}
     </S.Container>
   );

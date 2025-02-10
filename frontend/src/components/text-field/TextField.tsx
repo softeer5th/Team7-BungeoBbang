@@ -79,7 +79,7 @@ const TextFieldInput = styled(Typography).attrs({ as: 'textarea' })<{
   width: 100%;
   padding: 14px;
   box-sizing: border-box;
-  background-color: ${(props) => (props.disabled ? '#E0E0E0' : '#FFFFFF')};
+  background-color: ${(props) => (props.disabled ? '#F4F4F4' : '#FFFFFF')};
   color: ${(props) => (props.disabled ? '#C6C6C6' : props.textColor)};
   border: ${(props) =>
     `${props.border?.borderWidth || '1px'} solid ${

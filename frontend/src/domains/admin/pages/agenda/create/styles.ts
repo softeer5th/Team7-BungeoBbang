@@ -8,6 +8,8 @@ export const Container = styled.div`
   background-color: ${(props) => props.theme.colors.grayScaleWhite};
   min-height: 100dvh;
   max-height: 100dvh;
+  min-width: 100dvw;
+  max-width: 100dvw;
   overflow: auto;
 `;
 
@@ -72,15 +74,20 @@ export const InfoText = styled(Typography)`
 `;
 
 export const DescriptionContainer = styled.div`
-  margin-bottom: 30px;
+  margin-bottom: 37px;
 `;
 
-export const ImageList = styled.div`
+export const ImageContainer = styled.div`
+  height: 103px;
   display: flex;
+  justify-content: flex-start;
+  align-items: flex-end;
   gap: 8px;
+  flex: 1;
 `;
 
 export const ImageAddContainer = styled.div`
+  flex-shrink: 0;
   width: 100px;
   height: 100px;
   border: 1px solid ${(props) => props.theme.colors.grayScale20};
@@ -117,10 +124,25 @@ export const HiddenFileInput = styled.input`
   cursor: pointer;
 `;
 
+export const ImageList = styled.div`
+  height: 100%;
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  overflow-y: visible;
+  align-items: flex-end;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+`;
+
 export const ImageItem = styled.div`
-  width: 100px;
-  height: 100px;
+  flex-shrink: 0;
+  width: 103px;
+  height: 103px;
   position: relative;
+  overflow: visible;
 `;
 
 export const DeleteIconBox = styled.div`
@@ -132,13 +154,18 @@ export const DeleteIconBox = styled.div`
   justify-content: center;
   align-items: center;
   position: absolute;
-  right: -3px;
-  top: -3px;
+  right: 0px;
+  top: 0px;
+  z-index: 2;
 `;
 
 export const ImageBox = styled.img`
-  width: 100%;
-  height: 100%;
+  width: 100px;
+  height: 100px;
+
+  position: absolute;
+  top: 3px;
+  right: 3px;
 
   object-fit: cover;
   border: 1px solid ${(props) => props.theme.colors.grayScale20};

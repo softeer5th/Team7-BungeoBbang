@@ -15,6 +15,8 @@ import { SubTitleText } from '../components/SubTitleText';
 import { CategoryContent } from '../components/CategoryContent';
 import { DurationContent } from '../components/DurationContent';
 import { mapToChatCreateData } from '../util/ChatCreateMapper';
+import { useImageUpload } from '@/hooks/useImageUpload';
+import { ImageFileSizeDialog } from '@/components/Dialog/ImageFileSizeDialog';
 
 export interface ChatCreateData {
   roomId?: number | null;
@@ -27,7 +29,6 @@ export interface ChatCreateData {
 }
 
 const CreateAgendaPage = () => {
-  const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB in bytes
   const NEW_CHAT = '-1';
 
   const { roomId } = useParams(); // 모든 URL 파라미터 가져오기
@@ -37,6 +38,7 @@ const CreateAgendaPage = () => {
 
   const [isCategoryBottomSheetOpen, setCategoryBottomSheetOpen] = useState(false);
   const [isDurationBottomSheetOpen, setDurationBottomSheetOpen] = useState(false);
+
   const [isValidate, setIsValidate] = useState(false);
   const [chatValue, setChatValue] = useState<ChatCreateData>({
     title: '',
@@ -47,56 +49,23 @@ const CreateAgendaPage = () => {
     images: ['/src/assets/imgs/preview_img.png'],
   });
 
+  let previousImage: string[] = [];
+
+  const { images, showSizeDialog, handleImageUpload, closeSizeDialog } = useImageUpload(10, 5);
+
   function checkValidation(): boolean {
     const { title, category, startDate, endDate, description } = chatValue;
     return !!(title && category && startDate && endDate && description);
   }
 
-  useEffect(() => {
-    if (roomId && roomId !== NEW_CHAT) {
-      getPrevAgendaInfo();
-    }
-  }, []);
-
   const getPrevAgendaInfo = async () => {
     try {
       const response = await api.get(`/admin/agendas/${roomId}`);
-      setChatValue(mapToChatCreateData(response.data));
+      const data = mapToChatCreateData(response.data);
+      setChatValue(data);
+      previousImage = data.images;
     } catch (error) {
       console.error('failed to load previous chat room data', error);
-    }
-  };
-
-  const handleImageUpload = async (files: FileList) => {
-    const oversizedFiles = Array.from(files).filter((file) => file.size > MAX_FILE_SIZE);
-
-    if (oversizedFiles.length > 0) {
-      //   setShowDialog(true);
-      return;
-    }
-
-    const uploadedUrls = await uploadImages(Array.from(files));
-    setChatValue((prev: ChatCreateData) => {
-      return { ...prev, images: uploadedUrls };
-    });
-  };
-
-  const uploadImages = async (files: File[]): Promise<string[]> => {
-    const formData = new FormData();
-    files.forEach((file) => {
-      formData.append('images', file);
-    });
-
-    try {
-      const response = await api.post('/api/images', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
-      return response.data.urls;
-    } catch (error) {
-      console.error('이미지 업로드 실패:', error);
-      return [];
     }
   };
 
@@ -108,7 +77,7 @@ const CreateAgendaPage = () => {
         startDate: chatValue.startDate?.toISOString().split('T')[0],
         endDate: chatValue.endDate?.toISOString().split('T')[0],
         content: chatValue.description,
-        images: [],
+        images: images,
       };
 
       await api.post('/admin/agendas', body);
@@ -123,7 +92,7 @@ const CreateAgendaPage = () => {
         title: chatValue.title,
         categoryType: chatValue.category?.type,
         content: chatValue.description,
-        images: [],
+        images: chatValue.images,
       };
 
       await api.patch(`/admin/agendas/${roomId}`, body);
@@ -131,6 +100,19 @@ const CreateAgendaPage = () => {
       console.error('Failed to send data:', error);
     }
   }
+
+  useEffect(() => {
+    setChatValue((prev) => ({
+      ...prev,
+      images: [...previousImage, ...images],
+    }));
+  }, [images]);
+
+  useEffect(() => {
+    if (roomId && roomId !== NEW_CHAT) {
+      getPrevAgendaInfo();
+    }
+  }, []);
 
   useEffect(() => {
     setIsValidate(checkValidation());
@@ -219,7 +201,7 @@ const CreateAgendaPage = () => {
           />
         </S.DescriptionContainer>
 
-        <S.ImageList>
+        <S.ImageContainer>
           <S.ImageAddContainer>
             <CameraIcon
               width="32px"
@@ -251,17 +233,28 @@ const CreateAgendaPage = () => {
               }}
             />
           </S.ImageAddContainer>
-          {chatValue.images.map((image) => {
-            return (
-              <S.ImageItem>
-                <S.DeleteIconBox>
-                  <DeleteIcon width="16px" height="16px" stroke={theme.colors.grayScaleWhite} />
-                </S.DeleteIconBox>
-                <S.ImageBox src={image}></S.ImageBox>
-              </S.ImageItem>
-            );
-          })}
-        </S.ImageList>
+          <S.ImageList>
+            {chatValue.images.map((image, index) => {
+              return (
+                <S.ImageItem>
+                  <S.DeleteIconBox
+                    onClick={() => {
+                      setChatValue((prev) => ({
+                        ...prev,
+                        images: prev.images.filter((_, i) => i !== index), // ✅ 괄호 수정
+                      }));
+                    }}
+                  >
+                    <DeleteIcon width="16px" height="16px" stroke={theme.colors.grayScaleWhite} />
+                  </S.DeleteIconBox>
+                  <S.ImageBox
+                    src={`https://temp-onu.s3.ap-northeast-2.amazonaws.com/${image}`}
+                  ></S.ImageBox>
+                </S.ImageItem>
+              );
+            })}
+          </S.ImageList>
+        </S.ImageContainer>
       </S.BodyContainer>
 
       {isCategoryBottomSheetOpen && (
@@ -296,6 +289,10 @@ const CreateAgendaPage = () => {
             }}
           />
         </BottomSheet>
+      )}
+
+      {showSizeDialog && (
+        <ImageFileSizeDialog onConfirm={closeSizeDialog} onDismiss={closeSizeDialog} />
       )}
     </S.Container>
   );
