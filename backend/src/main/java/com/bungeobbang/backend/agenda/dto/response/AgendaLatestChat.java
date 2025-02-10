@@ -4,7 +4,7 @@ import org.bson.types.ObjectId;
 
 import java.time.LocalDateTime;
 
-public record AgendaChatInfo(
+public record AgendaLatestChat(
         Long agendaId,
         ObjectId chatId,
         String content,

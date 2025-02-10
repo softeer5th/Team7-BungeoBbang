@@ -4,7 +4,7 @@ import com.bungeobbang.backend.agenda.domain.AgendaAdminLastReadChat;
 import com.bungeobbang.backend.agenda.domain.AgendaChat;
 import com.bungeobbang.backend.agenda.domain.AgendaLastReadChat;
 import com.bungeobbang.backend.agenda.domain.repository.CustomAgendaChatRepository;
-import com.bungeobbang.backend.agenda.dto.response.AgendaChatInfo;
+import com.bungeobbang.backend.agenda.dto.response.AgendaLatestChat;
 import com.bungeobbang.backend.agenda.dto.response.LastChat;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,7 +17,6 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Repository;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -42,12 +41,13 @@ public class CustomAgendaChatRepositoryImpl implements CustomAgendaChatRepositor
     private final static String ADMIN_ID = "adminId";
     private static final String IS_ADMIN = "isAdmin";
     private static final String LAST_CHAT = "lastChat";
+    private static final String LAST_READ_CHAT_ID = "lastReadChatId";
 
     private final MongoTemplate mongoTemplate;
 
     /***************************************************************************************<<<STUDENT>>>>**************************************************************************/
     @Override
-    public List<AgendaChatInfo> findLastChats(List<Long> agendaIdList, Long memberId) {
+    public List<AgendaLatestChat> findLastChats(List<Long> agendaIdList, Long memberId) {
         // Match - 주어진 agendaId 리스트와 memberId 필터링
         MatchOperation matchStage = Aggregation.match(
                 new Criteria(AGENDA_ID).in(agendaIdList)
@@ -89,7 +89,6 @@ public class CustomAgendaChatRepositoryImpl implements CustomAgendaChatRepositor
                                 .and(MEMBER_ID).is(memberId)
                 ), AgendaLastReadChat.class);
 
-        //
         Map<Long, ObjectId> lastChatMap = lastChats.stream()
                 .collect(Collectors.toMap(LastChat::agendaId, LastChat::chatId, (a, b) -> b));
 
@@ -107,18 +106,16 @@ public class CustomAgendaChatRepositoryImpl implements CustomAgendaChatRepositor
                 unreadMap.put(agendaId, lastChatId != null);
             }
         }
-        List<AgendaChatInfo> temp = new ArrayList<>();
-        for (LastChat chat : lastChats) {
-            final AgendaChatInfo info = new AgendaChatInfo(
-                    chat.agendaId(),
-                    chat.chatId(),
-                    chat.content(),
-                    chat.createdAt(),
-                    unreadMap.get(chat.agendaId())
-            );
-            temp.add(info);
-        }
-        return temp;
+
+        return lastChats.stream()
+                .map(chat -> new AgendaLatestChat(
+                        chat.agendaId(),
+                        chat.chatId(),
+                        chat.content(),
+                        chat.createdAt(),
+                        unreadMap.get(chat.agendaId())
+                ))
+                .toList();
     }
 
 
@@ -176,7 +173,7 @@ public class CustomAgendaChatRepositoryImpl implements CustomAgendaChatRepositor
                 .and(AGENDA_ID).is(agendaId));
 
         Update update = new Update();
-        update.set("lastReadChatId", lastChatId);
+        update.set(LAST_READ_CHAT_ID, lastChatId);
         update.setOnInsert(MEMBER_ID, memberId); // 삽입될 경우 기본값 설정
         update.setOnInsert(AGENDA_ID, agendaId);
 
@@ -240,12 +237,12 @@ public class CustomAgendaChatRepositoryImpl implements CustomAgendaChatRepositor
 
     public void upsertAdminLastReadChat(Long agendaId, Long adminId, ObjectId lastChatId) {
         Query query = new Query();
-        query.addCriteria(Criteria.where("adminId").is(adminId)
+        query.addCriteria(Criteria.where(ADMIN_ID).is(adminId)
                 .and(AGENDA_ID).is(agendaId));
 
         Update update = new Update();
-        update.set("lastReadChatId", lastChatId);
-        update.setOnInsert("adminId", adminId); // 삽입될 경우 기본값 설정
+        update.set(LAST_READ_CHAT_ID, lastChatId);
+        update.setOnInsert(ADMIN_ID, adminId); // 삽입될 경우 기본값 설정
         update.setOnInsert(AGENDA_ID, agendaId);
 
         mongoTemplate.upsert(query, update, AGENDA_LAST_READ_COLLECTION);

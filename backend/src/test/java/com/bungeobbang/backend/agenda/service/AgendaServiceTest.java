@@ -6,8 +6,8 @@ import com.bungeobbang.backend.agenda.domain.repository.AgendaLastReadChatReposi
 import com.bungeobbang.backend.agenda.domain.repository.AgendaMemberRepository;
 import com.bungeobbang.backend.agenda.domain.repository.AgendaRepository;
 import com.bungeobbang.backend.agenda.domain.repository.CustomAgendaChatRepository;
-import com.bungeobbang.backend.agenda.dto.response.AgendaChatInfo;
 import com.bungeobbang.backend.agenda.dto.response.AgendaDetailResponse;
+import com.bungeobbang.backend.agenda.dto.response.AgendaLatestChat;
 import com.bungeobbang.backend.agenda.dto.response.MyAgendaResponse;
 import com.bungeobbang.backend.common.exception.AgendaException;
 import com.bungeobbang.backend.member.domain.Member;
@@ -195,8 +195,8 @@ class AgendaServiceTest {
         when(customAgendaChatRepository.findLastChats(List.of(1L, 2L), member.getId()))
                 .thenReturn(
                         List.of(
-                                new AgendaChatInfo(1L, new ObjectId(0, 0), "1번 마지막 채팅", LocalDateTime.now(), false),
-                                new AgendaChatInfo(2L, new ObjectId(0, 0), null, LocalDateTime.now(), false)
+                                new AgendaLatestChat(1L, new ObjectId(0, 0), "1번 마지막 채팅", LocalDateTime.now(), false),
+                                new AgendaLatestChat(2L, new ObjectId(0, 0), null, LocalDateTime.now(), false)
                         ));
         // when
         final List<MyAgendaResponse> myAgenda = agendaService.getMyAgenda(member.getId());

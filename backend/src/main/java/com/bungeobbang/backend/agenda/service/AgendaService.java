@@ -6,8 +6,8 @@ import com.bungeobbang.backend.agenda.domain.AgendaMember;
 import com.bungeobbang.backend.agenda.domain.repository.AgendaMemberRepository;
 import com.bungeobbang.backend.agenda.domain.repository.AgendaRepository;
 import com.bungeobbang.backend.agenda.domain.repository.CustomAgendaChatRepository;
-import com.bungeobbang.backend.agenda.dto.response.AgendaChatInfo;
 import com.bungeobbang.backend.agenda.dto.response.AgendaDetailResponse;
+import com.bungeobbang.backend.agenda.dto.response.AgendaLatestChat;
 import com.bungeobbang.backend.agenda.dto.response.AgendaResponse;
 import com.bungeobbang.backend.agenda.dto.response.MyAgendaResponse;
 import com.bungeobbang.backend.agenda.service.strategies.AgendaFinder;
@@ -134,7 +134,8 @@ public class AgendaService {
 
         final Map<Long, Agenda> agendaMap = agendaList.stream()
                 .collect(Collectors.toMap(Agenda::getId, agenda -> agenda));
-        final List<AgendaChatInfo> lastChats = customAgendaChatRepository.findLastChats(agendaIds, memberId);
+
+        final List<AgendaLatestChat> lastChats = customAgendaChatRepository.findLastChats(agendaIds, memberId);
 
         return lastChats.stream()
                 .map(lastChat ->
