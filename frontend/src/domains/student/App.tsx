@@ -20,7 +20,7 @@ function StudentApp() {
         <Route path="/" element={<LoginPage />} />
         <Route path="/kakao/redirect" element={<OAuthCallback />} />
         <Route path="/google/redirect" element={<OAuthCallback />} />
-        
+
         {/* Protected routes */}
         <Route element={<ProtectedRoute />}>
           <Route path="/email" element={<EmailVerification />} />

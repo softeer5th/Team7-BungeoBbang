@@ -74,29 +74,38 @@ export const useSocketStore = create<SocketState>((set, get) => ({
     set({ hasNewMessage: false });
   },
 
-  subscribe: (destination, callback) => {
+  subscribe: (
+    roomType: 'OPINION' | 'AGENDA',
+    roomId: number,
+    callback: (message: ChatMessage) => void,
+  ) => {
     const socket = get().socket;
 
     if (socket) {
+      console.log(`Subscribing to ${roomType} room ${roomId}`);
       const messageHandler = (event: MessageEvent) => {
         try {
           const data = JSON.parse(event.data) as ChatMessage;
-          // destination 필터링
-          if (data.roomType === destination) {
+          console.log('Received message:', data);
+
+          if (
+            data.roomType === roomType &&
+            ((roomType === 'OPINION' && data.opinionId === roomId) ||
+              (roomType === 'AGENDA' && data.agendaId === roomId))
+          ) {
             callback(data);
           }
         } catch (error) {
           console.error('Error parsing WebSocket message:', error);
+          console.log('Raw message:', event.data);
         }
       };
 
       socket.addEventListener('message', messageHandler);
-
       return () => {
         socket.removeEventListener('message', messageHandler);
       };
     }
-
     return () => {};
   },
 

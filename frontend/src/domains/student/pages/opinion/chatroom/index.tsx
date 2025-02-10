@@ -68,6 +68,8 @@ const OpinionChatPage = () => {
 
     const fetchData = async () => {
       try {
+        const enterResponse = await api.get(`/api/opinions/${roomId}`);
+        console.log(enterResponse.data);
         const response = await api.get(`/api/opinions/${roomId}/chat`);
         console.log(response.data);
         const formattedData = formatChatData(response.data);
@@ -81,7 +83,10 @@ const OpinionChatPage = () => {
   }, [roomId]);
 
   useEffect(() => {
-    if (!roomId) return;
+    if (!roomId) {
+      console.log('No roomId provided');
+      return;
+    }
 
     const unsubscribe = subscribe('OPINION', Number(roomId), handleMessageReceive);
     return () => unsubscribe();
