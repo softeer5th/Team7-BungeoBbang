@@ -195,7 +195,7 @@ const AgendaPage: React.FC = () => {
                     <ChatRoomListItem
                       key={c.roomId}
                       cardData={c}
-                      onCardEdit={() => {}}
+                      onCardEdit={() => navigate(`/agenda/create/${c.roomId}`)}
                       onCardEnd={() => {
                         setSelectedCardData(c);
                         setEndDialogShow(true);
@@ -221,7 +221,7 @@ const AgendaPage: React.FC = () => {
             </S.TabContent>
           );
         })}
-        <S.FloatingActionButton bottom={bottomPx} onClick={() => navigate('/agenda/create')}>
+        <S.FloatingActionButton bottom={bottomPx} onClick={() => navigate(`/agenda/create/-1`)}>
           <img src="/src/assets/icons/plus.svg" />
         </S.FloatingActionButton>
       </S.TabContainer>

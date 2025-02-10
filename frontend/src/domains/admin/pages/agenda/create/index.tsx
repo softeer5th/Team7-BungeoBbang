@@ -1,6 +1,6 @@
 import * as S from './styles';
 import { useTheme } from 'styled-components';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import ArrowLeftIcon from '/src/assets/icons/arrow-left.svg?react';
 import CameraIcon from '/src/assets/icons/camera.svg?react';
 import DeleteIcon from '/src/assets/icons/close-2.svg?react';
@@ -14,8 +14,10 @@ import api from '@/utils/api';
 import { SubTitleText } from '../components/SubTitleText';
 import { CategoryContent } from '../components/CategoryContent';
 import { DurationContent } from '../components/DurationContent';
+import { mapToChatCreateData } from '../util/ChatCreateMapper';
 
-interface ChatCreateData {
+export interface ChatCreateData {
+  roomId?: number | null;
   title: string;
   category: ChatCategoryType | null;
   startDate: Date | null;
@@ -26,6 +28,9 @@ interface ChatCreateData {
 
 const CreateAgendaPage = () => {
   const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB in bytes
+  const NEW_CHAT = '-1';
+
+  const { roomId } = useParams(); // 모든 URL 파라미터 가져오기
 
   const theme = useTheme();
   const navigate = useNavigate();
@@ -46,6 +51,21 @@ const CreateAgendaPage = () => {
     const { title, category, startDate, endDate, description } = chatValue;
     return !!(title && category && startDate && endDate && description);
   }
+
+  useEffect(() => {
+    if (roomId && roomId !== NEW_CHAT) {
+      getPrevAgendaInfo();
+    }
+  }, []);
+
+  const getPrevAgendaInfo = async () => {
+    try {
+      const response = await api.get(`/admin/agendas/${roomId}`);
+      setChatValue(mapToChatCreateData(response.data));
+    } catch (error) {
+      console.error('failed to load previous chat room data', error);
+    }
+  };
 
   const handleImageUpload = async (files: FileList) => {
     const oversizedFiles = Array.from(files).filter((file) => file.size > MAX_FILE_SIZE);
@@ -97,6 +117,21 @@ const CreateAgendaPage = () => {
     }
   }
 
+  async function editChatValue() {
+    try {
+      const body = {
+        title: chatValue.title,
+        categoryType: chatValue.category?.type,
+        content: chatValue.description,
+        images: [],
+      };
+
+      await api.patch(`/admin/agendas/${roomId}`, body);
+    } catch (error) {
+      console.error('Failed to send data:', error);
+    }
+  }
+
   useEffect(() => {
     setIsValidate(checkValidation());
   }, [chatValue]);
@@ -104,7 +139,12 @@ const CreateAgendaPage = () => {
   return (
     <S.Container>
       <S.TopAppBar>
-        <ArrowLeftIcon stroke={theme.colors.grayScale90} width="24px" height="24px" onClick = {() => navigate(-1)}/>
+        <ArrowLeftIcon
+          stroke={theme.colors.grayScale90}
+          width="24px"
+          height="24px"
+          onClick={() => navigate(-1)}
+        />
         <S.TitleWrapper>
           <S.TitleText variant="heading3">새 채팅방</S.TitleText>
         </S.TitleWrapper>
@@ -114,7 +154,11 @@ const CreateAgendaPage = () => {
           onClick={() => {
             if (!isValidate) return;
 
-            submitChatValue();
+            if (roomId === NEW_CHAT) {
+              submitChatValue();
+            } else {
+              editChatValue();
+            }
             navigate(-1);
           }}
         >
@@ -146,6 +190,7 @@ const CreateAgendaPage = () => {
         <S.DurationContainer>
           <SubTitleText text="기간 설정" />
           <TextField
+            disabled={roomId !== NEW_CHAT}
             value={
               chatValue.startDate && chatValue.endDate
                 ? `${formatDate(chatValue.startDate)} - ${formatDate(chatValue.endDate)}`

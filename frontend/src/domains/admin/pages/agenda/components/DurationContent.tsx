@@ -94,6 +94,9 @@ const CompleteText = styled(Typography)`
 `;
 
 const CalendarWrapper = styled.div`
+  display: flex;
+  justify-content: center;
+
   .react-calendar {
     border: none;
   }
