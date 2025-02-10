@@ -77,4 +77,8 @@ public class Agenda extends BaseTimeEntity {
         this.endDate = LocalDate.now();
         this.isEnd = true;
     }
+
+    public void increaseParticipantCount(int num) {
+        this.count += num;
+    }
 }

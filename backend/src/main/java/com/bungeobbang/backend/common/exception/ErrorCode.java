@@ -34,6 +34,7 @@ public enum ErrorCode {
     // University
     INVALID_UNIVERSITY(HttpStatus.NOT_FOUND, "아직 등록되지 않은 대학교입니다."),
     // Auth
+    INVALID_UUID(HttpStatus.BAD_REQUEST, "해당 사용자의 uuid를 찾을 수 없습니다."),
     DUPLICATE_LOGIN(HttpStatus.CONFLICT, "다른 장치/브라우저에서 로그인하여 세션이 만료되었습니다."),
     INVALID_AUTHORITY(HttpStatus.FORBIDDEN, "접근 권한이 없습니다."),
     INVALID_AUTHORIZATION_CODE(HttpStatus.BAD_REQUEST, "유효하지 않은 인증 코드입니다."),

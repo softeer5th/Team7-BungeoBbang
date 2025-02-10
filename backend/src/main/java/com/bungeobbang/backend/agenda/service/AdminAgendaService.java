@@ -6,9 +6,11 @@ import com.bungeobbang.backend.agenda.domain.Agenda;
 import com.bungeobbang.backend.agenda.domain.AgendaImage;
 import com.bungeobbang.backend.agenda.domain.repository.AgendaImageRepository;
 import com.bungeobbang.backend.agenda.domain.repository.AgendaRepository;
+import com.bungeobbang.backend.agenda.domain.repository.CustomAgendaChatRepository;
 import com.bungeobbang.backend.agenda.dto.request.AgendaChatRequest;
 import com.bungeobbang.backend.agenda.dto.request.AgendaCreationRequest;
 import com.bungeobbang.backend.agenda.dto.request.AgendaEditRequest;
+import com.bungeobbang.backend.agenda.dto.response.AdminAgendaResponse;
 import com.bungeobbang.backend.agenda.dto.response.AgendaCreationResponse;
 import com.bungeobbang.backend.agenda.dto.response.AgendaDetailResponse;
 import com.bungeobbang.backend.agenda.dto.response.AgendaResponse;
@@ -19,12 +21,15 @@ import com.bungeobbang.backend.common.exception.AdminException;
 import com.bungeobbang.backend.common.exception.AgendaException;
 import com.bungeobbang.backend.common.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import static com.bungeobbang.backend.common.exception.ErrorCode.*;
 
@@ -36,6 +41,7 @@ import static com.bungeobbang.backend.common.exception.ErrorCode.*;
  * - 관리자(Admin) 권한으로 관리.
  * </p>
  */
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AdminAgendaService {
@@ -43,6 +49,7 @@ public class AdminAgendaService {
     private final AdminRepository adminRepository;
     private final AgendaRepository agendaRepository;
     private final AgendaImageRepository agendaImageRepository;
+    private final CustomAgendaChatRepository customAgendaChatRepository;
 
     private final ApplicationEventPublisher eventPublisher;
 
@@ -69,10 +76,17 @@ public class AdminAgendaService {
      * @throws AdminException 관리자 정보가 존재하지 않을 경우 발생
      */
     @Transactional(readOnly = true)
-    public List<AgendaResponse> getAgendasByStatus(Long adminId, AgendaStatusType status, LocalDate endDate, Long agendaId) {
+    public List<AdminAgendaResponse> getAgendasByStatus(Long adminId, AgendaStatusType status, LocalDate endDate, Long agendaId) {
         final Admin admin = getAdmin(adminId);
         final AgendaFinder finder = agendaFinders.mapping(status);
-        return finder.findAllByStatus(admin.getUniversity().getId(), endDate, agendaId);
+        final List<AgendaResponse> agendaList = finder.findAllByStatus(admin.getUniversity().getId(), endDate, agendaId);
+
+        final Map<Long, Boolean> unreadStatus = customAgendaChatRepository.findUnreadStatus(
+                agendaList.stream().map(AgendaResponse::agendaId).toList(),
+                adminId);
+        return agendaList.stream()
+                .map(agenda -> new AdminAgendaResponse(agenda, unreadStatus.getOrDefault(agenda.agendaId(), false)))
+                .collect(Collectors.toList());
     }
 
     private static void validAdminWithAgenda(final Admin admin, final Agenda agenda) {

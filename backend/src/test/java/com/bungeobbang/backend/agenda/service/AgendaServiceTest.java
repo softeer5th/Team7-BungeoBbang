@@ -1,14 +1,13 @@
 package com.bungeobbang.backend.agenda.service;
 
 import com.bungeobbang.backend.agenda.domain.Agenda;
-import com.bungeobbang.backend.agenda.domain.AgendaLastReadChat;
 import com.bungeobbang.backend.agenda.domain.AgendaMember;
 import com.bungeobbang.backend.agenda.domain.repository.AgendaLastReadChatRepository;
 import com.bungeobbang.backend.agenda.domain.repository.AgendaMemberRepository;
 import com.bungeobbang.backend.agenda.domain.repository.AgendaRepository;
 import com.bungeobbang.backend.agenda.domain.repository.CustomAgendaChatRepository;
 import com.bungeobbang.backend.agenda.dto.response.AgendaDetailResponse;
-import com.bungeobbang.backend.agenda.dto.response.LastChat;
+import com.bungeobbang.backend.agenda.dto.response.AgendaLatestChat;
 import com.bungeobbang.backend.agenda.dto.response.MyAgendaResponse;
 import com.bungeobbang.backend.common.exception.AgendaException;
 import com.bungeobbang.backend.member.domain.Member;
@@ -196,11 +195,9 @@ class AgendaServiceTest {
         when(customAgendaChatRepository.findLastChats(List.of(1L, 2L), member.getId()))
                 .thenReturn(
                         List.of(
-                                new LastChat(1L, new ObjectId(0, 0), "1번 마지막 채팅", LocalDateTime.now())
+                                new AgendaLatestChat(1L, new ObjectId(0, 0), "1번 마지막 채팅", LocalDateTime.now(), false),
+                                new AgendaLatestChat(2L, new ObjectId(0, 0), null, LocalDateTime.now(), false)
                         ));
-        when(agendaLastReadChatRepository.findByMemberIdAndAgendaId(anyLong(), anyLong()))
-                .thenReturn(Optional.of(new AgendaLastReadChat(new ObjectId(0, 0), member.getId(), agenda.getId(), new ObjectId(0, 0))));
-
         // when
         final List<MyAgendaResponse> myAgenda = agendaService.getMyAgenda(member.getId());
         // then

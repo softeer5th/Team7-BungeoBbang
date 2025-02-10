@@ -2,10 +2,7 @@ package com.bungeobbang.backend.agenda.presentation.api;
 
 import com.bungeobbang.backend.agenda.dto.request.AgendaCreationRequest;
 import com.bungeobbang.backend.agenda.dto.request.AgendaEditRequest;
-import com.bungeobbang.backend.agenda.dto.response.AgendaChatResponse;
-import com.bungeobbang.backend.agenda.dto.response.AgendaCreationResponse;
-import com.bungeobbang.backend.agenda.dto.response.AgendaDetailResponse;
-import com.bungeobbang.backend.agenda.dto.response.AgendaResponse;
+import com.bungeobbang.backend.agenda.dto.response.*;
 import com.bungeobbang.backend.agenda.status.AgendaStatusType;
 import com.bungeobbang.backend.auth.admin.AdminAuth;
 import com.bungeobbang.backend.auth.domain.Accessor;
@@ -43,7 +40,7 @@ public interface AdminAgendaApi {
     })
 
     @GetMapping
-    ResponseEntity<List<AgendaResponse>> getAgendasByStatus(
+    ResponseEntity<List<AdminAgendaResponse>> getAgendasByStatus(
             @AdminAuth Accessor accessor,
             @RequestParam AgendaStatusType status,
             @RequestParam(required = false) LocalDate endDate,

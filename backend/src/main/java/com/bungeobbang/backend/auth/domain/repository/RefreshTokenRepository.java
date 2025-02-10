@@ -15,10 +15,10 @@ public class RefreshTokenRepository {
     private Long refreshExpirationTime;
 
     public void saveRefreshToken(Authority authority, String id, String refreshToken) {
-        redisCommands.setex(String.format("%s_refreshToken_%s", authority, id), refreshExpirationTime, refreshToken);
+        redisCommands.setex(String.format("%s_refreshToken:%s", authority, id), refreshExpirationTime, refreshToken);
     }
 
     public String getRefreshToken(Authority authority, String id) {
-        return redisCommands.get(String.format("%s_refreshToken_%s", authority, id) + id);
+        return redisCommands.get(String.format("%s_refreshToken:%s", authority, id) + id);
     }
 }

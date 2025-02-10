@@ -11,6 +11,7 @@ import com.bungeobbang.backend.common.exception.AuthException;
 import com.bungeobbang.backend.common.exception.BadWordException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.CloseStatus;
@@ -24,6 +25,7 @@ import static com.bungeobbang.backend.chat.type.RoomType.AGENDA;
 import static com.bungeobbang.backend.chat.type.SocketEventType.CHAT;
 import static com.bungeobbang.backend.chat.type.SocketEventType.ERROR;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class MemberWebSocketChatHandler extends TextWebSocketHandler {
@@ -46,6 +48,7 @@ public class MemberWebSocketChatHandler extends TextWebSocketHandler {
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws IOException {
         final String accessToken = (String) session.getAttributes().get(ACCESS_TOKEN);
         try {
+            log.info("Received text message: {}", message.getPayload());
             jwtProvider.validateToken(accessToken);
             final MemberWebsocketMessage request = objectMapper.readValue(message.getPayload(), MemberWebsocketMessage.class);
 

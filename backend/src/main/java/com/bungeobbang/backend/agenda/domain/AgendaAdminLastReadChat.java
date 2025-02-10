@@ -25,4 +25,14 @@ public class AgendaAdminLastReadChat {
         this.agendaId = agendaId;
         this.lastReadChatId = lastReadChatId;
     }
+
+    @Override
+    public String toString() {
+        return "AgendaAdminLastReadChat{" +
+                "id=" + id +
+                ", adminId=" + adminId +
+                ", agendaId=" + agendaId +
+                ", lastReadChatId=" + lastReadChatId +
+                '}';
+    }
 }
