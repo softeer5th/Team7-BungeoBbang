@@ -2,10 +2,10 @@ package com.bungeobbang.backend.agenda.presentation;
 
 import com.bungeobbang.backend.agenda.dto.request.AgendaCreationRequest;
 import com.bungeobbang.backend.agenda.dto.request.AgendaEditRequest;
+import com.bungeobbang.backend.agenda.dto.response.AdminAgendaResponse;
 import com.bungeobbang.backend.agenda.dto.response.AgendaChatResponse;
 import com.bungeobbang.backend.agenda.dto.response.AgendaCreationResponse;
 import com.bungeobbang.backend.agenda.dto.response.AgendaDetailResponse;
-import com.bungeobbang.backend.agenda.dto.response.AgendaResponse;
 import com.bungeobbang.backend.agenda.presentation.api.AdminAgendaApi;
 import com.bungeobbang.backend.agenda.service.AdminAgendaChatService;
 import com.bungeobbang.backend.agenda.service.AdminAgendaService;
@@ -30,7 +30,7 @@ public class AdminAgendaController implements AdminAgendaApi {
 
     @Override
     @GetMapping
-    public ResponseEntity<List<AgendaResponse>> getAgendasByStatus(
+    public ResponseEntity<List<AdminAgendaResponse>> getAgendasByStatus(
             @AdminAuth Accessor accessor,
             @RequestParam AgendaStatusType status,
             @RequestParam(required = false) LocalDate endDate,

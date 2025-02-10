@@ -85,6 +85,7 @@ public class AgendaService {
                 .member(member)
                 .build()
         );
+        agenda.increaseParticipantCount(1);
 
         // 현재 시점에서의 마지막 채팅을 마지막 읽은 채팅으로 저장
         final AgendaChat lastChat = customAgendaChatRepository.findLastChatForMember(agendaId, memberId);
