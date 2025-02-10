@@ -20,7 +20,7 @@ export const SenderChat: React.FC<SenderChatProps> = ({
 }) => {
   return (
     <SenderChatContainer>
-      {images && (
+      {images && images.length > 0 && (
         <ImageContainer>
           {images.map((image, index) => {
             return <ImageBox src={image} key={`${image}${index}`} />;
@@ -76,7 +76,7 @@ const ImageBox = styled.img`
 
 const MessageContainer = styled.div`
   display: flex;
-  justify-content: flex-start;
+  justify-content: flex-end;
   align-items: flex-end;
   gap: 4px;
   margin-top: 4px;
@@ -91,7 +91,7 @@ const TimeText = styled(Typography)<{
 const ChatContainer = styled.div<{
   backgroundColor: string;
 }>`
-  width: 277px;
+  max-width: 73%;
   background-color: ${(props) => props.backgroundColor};
   border-radius: 16px;
   padding: 12px 16px 12px 16px;
