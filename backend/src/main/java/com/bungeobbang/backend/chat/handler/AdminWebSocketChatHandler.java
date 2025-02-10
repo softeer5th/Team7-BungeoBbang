@@ -6,7 +6,6 @@ import com.bungeobbang.backend.badword.service.BadWordService;
 import com.bungeobbang.backend.chat.event.common.AdminConnectEvent;
 import com.bungeobbang.backend.chat.event.common.AdminWebsocketMessage;
 import com.bungeobbang.backend.chat.event.agenda.AgendaAdminEvent;
-import com.bungeobbang.backend.chat.event.common.MemberWebsocketMessage;
 import com.bungeobbang.backend.chat.event.opinion.OpinionAdminEvent;
 import com.bungeobbang.backend.common.exception.AuthException;
 import com.bungeobbang.backend.common.exception.BadWordException;
@@ -67,12 +66,12 @@ public class AdminWebSocketChatHandler extends TextWebSocketHandler {
                 case OPINION -> publisher.publishEvent(OpinionAdminEvent.from(session, request));
             }
         } catch (AuthException e) {
-            session.sendMessage(new TextMessage(objectMapper.writeValueAsString(new MemberWebsocketMessage(ERROR, e.getMessage()))));
+            session.sendMessage(new TextMessage(objectMapper.writeValueAsString(new AdminWebsocketMessage(ERROR, e.getMessage()))));
             session.close();
         } catch (BadWordException e) {
-            session.sendMessage(new TextMessage(objectMapper.writeValueAsString(new MemberWebsocketMessage(ERROR, e.getMessage()))));
+            session.sendMessage(new TextMessage(objectMapper.writeValueAsString(new AdminWebsocketMessage(ERROR, e.getMessage()))));
         } catch (Exception e) {
-            session.sendMessage(new TextMessage(objectMapper.writeValueAsString(new MemberWebsocketMessage(ERROR, e.getMessage()))));
+            session.sendMessage(new TextMessage(objectMapper.writeValueAsString(new AdminWebsocketMessage(ERROR, e.getMessage()))));
         }
     }
 
