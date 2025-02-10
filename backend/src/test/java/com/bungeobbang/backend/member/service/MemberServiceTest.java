@@ -2,7 +2,6 @@ package com.bungeobbang.backend.member.service;
 
 import com.bungeobbang.backend.auth.JwtProvider;
 import com.bungeobbang.backend.common.exception.AuthException;
-import com.bungeobbang.backend.common.infrastructure.RedisClient;
 import com.bungeobbang.backend.member.domain.Member;
 import com.bungeobbang.backend.member.domain.repository.MemberRepository;
 import com.bungeobbang.backend.member.dto.request.MemberUniversityUpdateRequest;
@@ -27,13 +26,10 @@ import static org.mockito.Mockito.when;
 class MemberServiceTest {
     @InjectMocks
     private MemberService memberService;
-
     @Mock
     private MemberRepository memberRepository;
     @Mock
     private UniversityRepository universityRepository;
-    @Mock
-    private RedisClient redisClient;
     @Mock
     private JwtProvider jwtProvider;
 
@@ -76,7 +72,7 @@ class MemberServiceTest {
         when(memberRepository.findById(Mockito.anyLong()))
                 .thenReturn(Optional.of(member));
         when(universityRepository.findById(Mockito.anyLong()))
-                .thenReturn(Optional.of(new University("테스트 대학교", "test.ac.kr")));
+                .thenReturn(Optional.of(new University(1L, "테스트 대학교", "test.ac.kr")));
 
         memberService.updateUniversityInfo(request);
     }
@@ -90,7 +86,7 @@ class MemberServiceTest {
         when(memberRepository.findById(Mockito.anyLong()))
                 .thenReturn(Optional.of(member));
         when(universityRepository.findById(Mockito.anyLong()))
-                .thenReturn(Optional.of(new University("테스트 대학교", "test.ac.kr")));
+                .thenReturn(Optional.of(new University(1L, "테스트 대학교", "test.ac.kr")));
 
         // when & then
         assertThatThrownBy(() -> memberService.updateUniversityInfo(request))

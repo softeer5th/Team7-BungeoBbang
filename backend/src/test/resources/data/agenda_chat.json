@@ -1,0 +1,34 @@
+[
+  {
+    "agendaId": 1,
+    "images": [
+      "www.naver.com"
+    ],
+    "memberId": 30,
+    "chat": "학생30 채팅"
+  },
+  {
+    "agendaId": 1,
+    "images": [
+      "www.naver.com"
+    ],
+    "memberId": 31,
+    "chat": "학생31 채팅"
+  },
+  {
+    "agendaId": 2,
+    "images": [
+      "www.google.com"
+    ],
+    "memberId": 31,
+    "chat": "학생31 채팅"
+  },
+  {
+    "agendaId": 3,
+    "images": [
+      "www.google.com"
+    ],
+    "memberId": 1,
+    "chat": "학생1 채팅"
+  }
+]

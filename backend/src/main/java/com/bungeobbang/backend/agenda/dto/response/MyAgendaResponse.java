@@ -25,7 +25,7 @@ public record MyAgendaResponse(
         );
     }
 
-    private record Agenda(
+    public record Agenda(
             Long id,
             String title,
             CategoryType categoryType,
@@ -35,7 +35,7 @@ public record MyAgendaResponse(
 
     }
 
-    private record LastChat(
+    public record LastChat(
             String content,
             @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
             LocalDateTime createdAt

@@ -25,7 +25,8 @@ public class University extends BaseTimeEntity {
     @Column(nullable = false, unique = true)
     private String domain;
 
-    public University(String name, String domain) {
+    public University(Long id, String name, String domain) {
+        this.id = id;
         this.name = name;
         this.domain = domain;
     }

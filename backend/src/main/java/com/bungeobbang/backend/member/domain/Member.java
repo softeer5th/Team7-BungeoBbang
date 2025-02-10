@@ -4,6 +4,7 @@ import com.bungeobbang.backend.common.entity.BaseTimeEntity;
 import com.bungeobbang.backend.university.domain.University;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -35,6 +36,15 @@ public class Member extends BaseTimeEntity {
         this.university = null;
         this.email = null;
         this.loginId = loginId;
+        this.provider = provider;
+    }
+
+    @Builder
+    public Member(Long id, University university, String loginId, String email, ProviderType provider) {
+        this.id = id;
+        this.university = university;
+        this.loginId = loginId;
+        this.email = email;
         this.provider = provider;
     }
 

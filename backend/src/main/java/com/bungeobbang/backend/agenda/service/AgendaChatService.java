@@ -1,7 +1,12 @@
 package com.bungeobbang.backend.agenda.service;
 
+import com.bungeobbang.backend.agenda.domain.AgendaChat;
+import com.bungeobbang.backend.agenda.domain.AgendaLastReadChat;
 import com.bungeobbang.backend.agenda.domain.repository.AgendaChatRepository;
+import com.bungeobbang.backend.agenda.domain.repository.AgendaLastReadChatRepository;
 import com.bungeobbang.backend.agenda.domain.repository.AgendaMemberRepository;
+import com.bungeobbang.backend.agenda.domain.repository.CustomAgendaChatRepository;
+import com.bungeobbang.backend.agenda.dto.request.AgendaChatRequest;
 import com.bungeobbang.backend.agenda.dto.response.AgendaChatResponse;
 import com.bungeobbang.backend.common.exception.AgendaException;
 import com.bungeobbang.backend.common.exception.ErrorCode;
@@ -11,7 +16,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * ✅ 학생용 답해요 채팅 서비스 (무한 스크롤 지원)
@@ -19,9 +26,15 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class AgendaChatService {
-    private static final int CHAT_SIZE = 10;
     private final AgendaChatRepository agendaChatRepository;
     private final AgendaMemberRepository agendaMemberRepository;
+    private final CustomAgendaChatRepository customAgendaChatRepository;
+    private final AgendaLastReadChatRepository agendaLastReadChatRepository;
+
+    private static final int CHAT_SIZE = 10;
+    private static final ObjectId MIN_OBJECT_ID = new ObjectId(0, 0);
+    private static final ObjectId MAX_OBJECT_ID = new ObjectId("ffffffffffffffffffffffff");
+
 
     /**
      * ✅ 답해요 채팅 내역 조회 (무한 스크롤 방식)
@@ -39,15 +52,63 @@ public class AgendaChatService {
         }
 
         if (chatId == null) {
-            return agendaChatRepository.findChatsByAgendaIdAndMemberId(agendaId, memberId, pageable)
+            // 사용자의 마지막 읽은 채팅 가져오기
+            AgendaLastReadChat lastReadChat = agendaLastReadChatRepository.findByMemberIdAndAgendaId(memberId, agendaId)
+                    .orElse(new AgendaLastReadChat(null, null, null, MIN_OBJECT_ID));
+            ObjectId lastReadChatId = lastReadChat.getLastReadChatId();
+
+            // lastReadChatId보다 작은 채팅 가져오기
+            List<AgendaChatResponse> chats = agendaChatRepository
+                    .findChatsByAgendaIdAndMemberIdAndIdLessThan(agendaId, memberId, lastReadChatId, pageable)
                     .stream()
                     .map(AgendaChatResponse::from)
-                    .toList();
+                    .collect(Collectors.collectingAndThen(Collectors.toList(), list -> {
+                        Collections.reverse(list); // 🔹 리스트 역순 정렬
+                        return list;
+                    }));
+
+            // lastReadChatId보다 큰 채팅 가져오기
+            List<AgendaChatResponse> afterChats = agendaChatRepository
+                    .findChatsByAgendaIdAndMemberIdAndIdGreaterThan(agendaId, memberId, lastReadChatId)
+                    .stream()
+                    .map(AgendaChatResponse::from)
+                    .collect(Collectors.collectingAndThen(Collectors.toList(), list -> {
+                        Collections.reverse(list); // 🔹 리스트 역순 정렬
+                        return list;
+                    }));
+
+            chats.addAll(afterChats); // 최종 리스트 합치기
+
+            return chats;
         }
+
 
         return agendaChatRepository.findChatsByAgendaIdAndMemberIdAndIdLessThan(agendaId, memberId, chatId, pageable)
                 .stream()
                 .map(AgendaChatResponse::from)
-                .toList();
+                .collect(Collectors.collectingAndThen(Collectors.toList(), list -> {
+                    Collections.reverse(list); // 🔹 리스트 역순 정렬
+                    return list;
+                }));
+    }
+
+    public void saveChat(AgendaChatRequest request) {
+        agendaChatRepository.save(AgendaChat.builder()
+                .memberId(request.memberId())
+                .images(request.images())
+                .isAdmin(false)
+                .agendaId(request.agendaId())
+                .chat(request.chat())
+                .createdAt(request.createdAt())
+                .build());
+    }
+
+    public void updateLastReadToMax(Long agendaId, Long memberId) {
+        customAgendaChatRepository.upsertLastReadChat(agendaId, memberId, MAX_OBJECT_ID);
+    }
+
+    public void updateLastRead(Long agendaId, Long memberId) {
+        final AgendaChat lastChat = customAgendaChatRepository.findLastChatForMember(agendaId, memberId);
+        customAgendaChatRepository.upsertLastReadChat(agendaId, memberId, lastChat.getId());
     }
 }

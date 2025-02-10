@@ -1,7 +1,10 @@
 package com.bungeobbang.backend.agenda.service;
 
 import com.bungeobbang.backend.agenda.domain.Agenda;
+import com.bungeobbang.backend.agenda.domain.AgendaChat;
+import com.bungeobbang.backend.agenda.domain.AgendaLastReadChat;
 import com.bungeobbang.backend.agenda.domain.AgendaMember;
+import com.bungeobbang.backend.agenda.domain.repository.AgendaLastReadChatRepository;
 import com.bungeobbang.backend.agenda.domain.repository.AgendaMemberRepository;
 import com.bungeobbang.backend.agenda.domain.repository.AgendaRepository;
 import com.bungeobbang.backend.agenda.domain.repository.CustomAgendaChatRepository;
@@ -29,6 +32,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static com.bungeobbang.backend.common.exception.ErrorCode.AGENDA_PARTICIPATION_NOT_FOUND;
+
 /**
  * <h2>AgendaService</h2>
  * <p>사용자가 참여하는 답해요(Agenda) 관련 비즈니스 로직을 처리하는 서비스 클래스</p>
@@ -47,6 +52,7 @@ import java.util.stream.Collectors;
 public class AgendaService {
 
     private final AgendaMemberRepository agendaMemberRepository;
+    private final AgendaLastReadChatRepository agendaLastReadChatRepository;
     private final CustomAgendaChatRepository customAgendaChatRepository;
     private final AgendaRepository agendaRepository;
     private final MemberRepository memberRepository;
@@ -65,8 +71,7 @@ public class AgendaService {
      */
     public void participateAgenda(final Long memberId, final Long agendaId) {
         final Member member = getMember(memberId);
-        final Agenda agenda = agendaRepository.findById(agendaId)
-                .orElseThrow(() -> new AgendaException(ErrorCode.INVALID_AGENDA));
+        final Agenda agenda = getAgenda(agendaId);
 
         if (!agenda.getUniversity().equals(member.getUniversity())) {
             throw new AgendaException(ErrorCode.FORBIDDEN_UNIVERSITY_ACCESS);
@@ -82,10 +87,9 @@ public class AgendaService {
         );
 
         // 현재 시점에서의 마지막 채팅을 마지막 읽은 채팅으로 저장
-        // todo 비동기 고려
-        final LastChat lastChat = customAgendaChatRepository.findLastChat(agendaId, memberId);
-        ObjectId lastChatId = lastChat == null ? MIN_OBJECT_ID : lastChat.chatId();
-        customAgendaChatRepository.saveLastReadChat(agendaId, memberId, lastChatId);
+        final AgendaChat lastChat = customAgendaChatRepository.findLastChatForMember(agendaId, memberId);
+        ObjectId lastChatId = lastChat == null ? MIN_OBJECT_ID : lastChat.getId();
+        customAgendaChatRepository.upsertLastReadChat(agendaId, memberId, lastChatId);
     }
 
     /**
@@ -106,8 +110,7 @@ public class AgendaService {
 
     public AgendaDetailResponse getAgendaDetail(final Long memberId, final Long agendaId) {
         final Member member = getMember(memberId);
-        final Agenda agenda = agendaRepository.findById(agendaId)
-                .orElseThrow(() -> new AgendaException(ErrorCode.INVALID_AGENDA));
+        final Agenda agenda = getAgenda(agendaId);
 
         if (!agenda.getUniversity().equals(member.getUniversity())) {
             throw new AgendaException(ErrorCode.FORBIDDEN_UNIVERSITY_ACCESS);
@@ -148,7 +151,7 @@ public class AgendaService {
                     final Agenda agenda = agendaMap.get(agendaId);
                     final LastChat lastChat = lastChatMap.getOrDefault(agendaId, new LastChat(agendaId, null, null, null));
 
-                    // 마지막 읽은 채팅 조회 및 비교하여 hasNew 여부 확인
+                    // 마지막 읽은 채팅 조회 및 비교하여 hasNewChat 여부 확인
                     final ObjectId lastReadChat = getLastReadChat(agendaId, memberId);
                     final boolean hasNew = hasNewMessage(lastChat.chatId(), lastReadChat);
 
@@ -180,6 +183,9 @@ public class AgendaService {
      * @param agendaId 탈퇴할 답해요 ID
      */
     public void exitAgenda(final Long memberId, final Long agendaId) {
+        if (!agendaMemberRepository.existsByMemberIdAndAgendaId(memberId, agendaId)) {
+            throw new AgendaException(AGENDA_PARTICIPATION_NOT_FOUND);
+        }
         agendaMemberRepository.deleteByMemberIdAndAgendaId(memberId, agendaId);
     }
 
@@ -192,7 +198,14 @@ public class AgendaService {
      * @return 마지막으로 읽은 채팅의 ObjectId (없으면 null)
      */
     private ObjectId getLastReadChat(final Long agendaId, final Long memberId) {
-        return customAgendaChatRepository.findLastReadChat(agendaId, memberId);
+        return agendaLastReadChatRepository.findByMemberIdAndAgendaId(memberId, agendaId)
+                .orElse(new AgendaLastReadChat(MIN_OBJECT_ID, null, null, null))
+                .getLastReadChatId();
+    }
+
+    private Agenda getAgenda(Long agendaId) {
+        return agendaRepository.findById(agendaId)
+                .orElseThrow(() -> new AgendaException(ErrorCode.INVALID_AGENDA));
     }
 
     /**

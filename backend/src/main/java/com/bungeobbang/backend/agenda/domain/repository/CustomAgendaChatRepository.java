@@ -1,5 +1,6 @@
 package com.bungeobbang.backend.agenda.domain.repository;
 
+import com.bungeobbang.backend.agenda.domain.AgendaChat;
 import com.bungeobbang.backend.agenda.dto.response.LastChat;
 import org.bson.types.ObjectId;
 
@@ -9,10 +10,11 @@ public interface CustomAgendaChatRepository {
     // 마지막 채팅 조회
     List<LastChat> findLastChats(List<Long> agendaIdList, Long memberId);
 
-    LastChat findLastChat(Long agendaId, Long memberId);
+    AgendaChat findLastChatForMember(Long agendaId, Long memberId);
 
-    // 마지막으로 읽은 채팅 조회
-    ObjectId findLastReadChat(Long agendaId, Long memberId);
+    AgendaChat findLastChat(Long agendaId);
 
-    void saveLastReadChat(Long agendaId, Long memberId, ObjectId lastChatId);
+    void upsertLastReadChat(Long agendaId, Long memberId, ObjectId lastChatId);
+
+    void upsertAdminLastReadChat(Long agendaId, Long adminId, ObjectId lastChatId);
 }

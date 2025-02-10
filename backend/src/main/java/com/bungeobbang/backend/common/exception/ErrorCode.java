@@ -5,11 +5,20 @@ import org.springframework.http.HttpStatus;
 
 @Getter
 public enum ErrorCode {
+    //IMAGE
+    EXCEED_IMAGE_LIST_SIZE(HttpStatus.BAD_REQUEST, "이미지 최대 개수를 초과하였습니다."),
+    EMPTY_IMAGE_LIST(HttpStatus.BAD_REQUEST, "이미지 리스트 비었습니다."),
+    INVALID_IMG_PATH(HttpStatus.BAD_REQUEST, "잘못된 파일 경로입니다."),
+    IMAGE_UPLOAD_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "이미지 업로드에 실패하였습니다."),
+    IMAGE_DELETE_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "이미지 삭제에 실패하였습니다."),
     // Common
     INVALID_CATEGORY_TYPE(HttpStatus.BAD_REQUEST, "잘못된 카테고리 타입입니다."),
+    BADWORD_INCLUDED(HttpStatus.BAD_REQUEST, "금칙어가 포함되어있습니다."),
+    JSON_PARSE_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "json 파싱에 실패하였습니다."),
     //Agenda
     NOT_SUPPORT_STATUS(HttpStatus.BAD_REQUEST, "지원하지 않는 안건 상태입니다."),
     INVALID_AGENDA(HttpStatus.NOT_FOUND, "존재하지 않는 답해요 안건입니다."),
+    AGENDA_PARTICIPATION_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 답해요 안건에 대해 참여 내역이 없습니다."),
     FORBIDDEN_UNIVERSITY_ACCESS(HttpStatus.FORBIDDEN, "대학교 정보 불일치로 인해 접근이 거부되었습니다."),
     ALREADY_PARTICIPATED(HttpStatus.BAD_REQUEST, "이미 참여한 답해요 안건입니다."),
     NOT_PARTICIPATED(HttpStatus.BAD_REQUEST, "참여하지 않은 답해요 안건입니다."),
@@ -19,11 +28,13 @@ public enum ErrorCode {
     INVALID_OPINION(HttpStatus.NOT_FOUND, "말해요 채팅방 조회에 실패하였습니다."),
     INVALID_OPINION_CHAT(HttpStatus.NOT_FOUND, "말해요 채팅 조회에 실패하였습니다."),
     INVALID_OPINION_LAST_READ(HttpStatus.NOT_FOUND, "말해요 마지막 읽은 채팅 id 조회에 실패하였습니다."),
+    UNAUTHORIZED_OPINION_ACCESS(HttpStatus.FORBIDDEN, "본인이 작성한 말해요 의견이 아닙니다."),
     // Member
     INVALID_MEMBER(HttpStatus.NOT_FOUND, "존재하지 않는 사용자입니다."),
     // University
     INVALID_UNIVERSITY(HttpStatus.NOT_FOUND, "아직 등록되지 않은 대학교입니다."),
     // Auth
+    DUPLICATE_LOGIN(HttpStatus.CONFLICT, "다른 장치/브라우저에서 로그인하여 세션이 만료되었습니다."),
     INVALID_AUTHORITY(HttpStatus.FORBIDDEN, "접근 권한이 없습니다."),
     INVALID_AUTHORIZATION_CODE(HttpStatus.BAD_REQUEST, "유효하지 않은 인증 코드입니다."),
     NOT_SUPPORTED_OAUTH_SERVICE(HttpStatus.NOT_IMPLEMENTED, "해당 OAuth 서비스는 제공하지 않습니다."),
@@ -36,6 +47,7 @@ public enum ErrorCode {
     INVALID_ADMIN(HttpStatus.NOT_FOUND, "존재하지 않는 관리자입니다."),
     PASSWORD_MISMATCH(HttpStatus.BAD_REQUEST, "비밀번호가 일치하지 않습니다."),
     INVALID_ACCESS_TOKEN(HttpStatus.UNAUTHORIZED, "올바르지 않은 형식의 AccessToken입니다."),
+    REFRESH_TOKEN_MISMATCH(HttpStatus.UNAUTHORIZED, "리프레시 토큰이 일치하지 않습니다."),
     EXPIRED_ACCESS_TOKEN(HttpStatus.UNAUTHORIZED, "토큰의 유효기간이 만료되었습니다.");
 
 
