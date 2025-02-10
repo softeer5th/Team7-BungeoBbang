@@ -65,7 +65,8 @@ public class WebSocketAuthInterceptor implements HandshakeInterceptor {
                 return false;
             } catch (Exception e) {
                 log.info(e.getMessage());
-
+                servletResponse.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
+                return false;
             }
         }
         return false;
