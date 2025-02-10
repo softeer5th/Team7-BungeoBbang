@@ -3,10 +3,11 @@ package com.bungeobbang.backend.chat.handler;
 
 import com.bungeobbang.backend.auth.JwtProvider;
 import com.bungeobbang.backend.badword.service.BadWordService;
-import com.bungeobbang.backend.chat.event.agenda.AdminConnectEvent;
-import com.bungeobbang.backend.chat.event.agenda.AdminWebsocketMessage;
+import com.bungeobbang.backend.chat.event.common.AdminConnectEvent;
+import com.bungeobbang.backend.chat.event.common.AdminWebsocketMessage;
 import com.bungeobbang.backend.chat.event.agenda.AgendaAdminEvent;
-import com.bungeobbang.backend.chat.event.agenda.MemberWebsocketMessage;
+import com.bungeobbang.backend.chat.event.common.MemberWebsocketMessage;
+import com.bungeobbang.backend.chat.event.opinion.OpinionAdminEvent;
 import com.bungeobbang.backend.common.exception.AuthException;
 import com.bungeobbang.backend.common.exception.BadWordException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -38,9 +39,8 @@ public class AdminWebSocketChatHandler extends TextWebSocketHandler {
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
         final String accessToken = (String) session.getAttributes().get(ACCESS_TOKEN);
-        final String adminId = jwtProvider.getSubject(accessToken);
-
-        publisher.publishEvent(new AdminConnectEvent(session, Long.valueOf(adminId)));
+        final Long adminId = Long.valueOf(jwtProvider.getSubject(accessToken));
+        publisher.publishEvent(new AdminConnectEvent(session, adminId));
 
         super.afterConnectionEstablished(session);
     }
@@ -64,7 +64,7 @@ public class AdminWebSocketChatHandler extends TextWebSocketHandler {
 
             switch (request.roomType()) {
                 case AGENDA -> publisher.publishEvent(AgendaAdminEvent.from(session, request));
-
+                case OPINION -> publisher.publishEvent(OpinionAdminEvent.from(session, request));
             }
         } catch (AuthException e) {
             session.sendMessage(new TextMessage(objectMapper.writeValueAsString(new MemberWebsocketMessage(ERROR, e.getMessage()))));

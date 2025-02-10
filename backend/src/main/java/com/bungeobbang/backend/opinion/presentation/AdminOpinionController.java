@@ -31,6 +31,6 @@ public class AdminOpinionController implements AdminOpinionApi {
             final @AdminAuth Accessor accessor,
             @RequestParam(required = false) Set<CategoryType> categoryTypes) {
         return ResponseEntity.ok()
-                .body(adminOpinionService.findAdminOpinionList(categoryTypes));
+                .body(adminOpinionService.findAdminOpinionList(categoryTypes, accessor.id()));
     }
 }

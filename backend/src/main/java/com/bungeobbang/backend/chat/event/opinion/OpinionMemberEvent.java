@@ -1,4 +1,4 @@
-package com.bungeobbang.backend.chat.event.agenda;
+package com.bungeobbang.backend.chat.event.opinion;
 
 import com.bungeobbang.backend.chat.event.common.MemberWebsocketMessage;
 import com.bungeobbang.backend.chat.type.SocketEventType;
@@ -7,19 +7,19 @@ import org.springframework.web.socket.WebSocketSession;
 import java.time.LocalDateTime;
 import java.util.List;
 
-public record AgendaMemberEvent(
+public record OpinionMemberEvent(
         WebSocketSession session,
-        Long agendaId,
+        Long opinionId,
         SocketEventType eventType,
         Long memberId,
         String chat,
         List<String> images,
         LocalDateTime createdAt
 ) {
-    public static AgendaMemberEvent from(WebSocketSession session, MemberWebsocketMessage message) {
-        return new AgendaMemberEvent(
+    public static OpinionMemberEvent from(WebSocketSession session, MemberWebsocketMessage message) {
+        return new OpinionMemberEvent(
                 session,
-                message.agendaId(),
+                message.opinionId(),
                 message.event(),
                 message.memberId(),
                 message.message(),
