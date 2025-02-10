@@ -9,7 +9,7 @@ const AgendaChatPage = () => {
   const isEnd = searchParams.get('isEnd') === 'true'; // 쿼리 파라미터
   const isParticipate = searchParams.get('isParticipate') === 'true';
 
-  return <ChatPage roomId={roomId} isEnd={isEnd} isParticipate={isParticipate} />;
+  return <ChatPage roomId={Number(roomId)} isEnd={isEnd} isParticipate={isParticipate} />;
 };
 
 export default AgendaChatPage;

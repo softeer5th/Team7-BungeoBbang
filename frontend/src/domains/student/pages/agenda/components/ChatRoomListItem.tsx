@@ -1,8 +1,8 @@
-import { ChatListCardData } from '../data/ChatRoomListCardData.tsx';
+import { ChatRoomListCardData } from '../data/ChatRoomListCardData.tsx';
 import * as S from './styles.ts';
 
 interface ChatRoomListItemProps {
-  room: ChatListCardData;
+  room: ChatRoomListCardData;
   onClick: () => void;
 }
 

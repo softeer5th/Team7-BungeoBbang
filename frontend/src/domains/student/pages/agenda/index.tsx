@@ -84,7 +84,7 @@ const AgendaPage = () => {
                 room={room}
                 onClick={() => {
                   const isEnd = !room.isInProgress;
-                  const isParticipate = myChatIds.includes(room.roomId);
+                  const isParticipate = myChatIds.current.includes(room.roomId);
                   console.log('isParticiplat!!!', isParticipate, room.roomId, myChatIds);
                   if (isEnd || isParticipate) {
                     navigate(

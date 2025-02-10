@@ -68,17 +68,6 @@ const AgendaPage: React.FC = () => {
     setActiveIndex(newIndex);
   };
 
-  const handleLogout = async () => {
-    try {
-      // lotou
-
-      setLogoutDialogShow(false);
-      navigate('/');
-    } catch (error) {
-      console.error('fail to logout', error);
-    }
-  };
-
   useEffect(() => {
     if (bottomNavRef) {
       setBottomPx(bottomNavRef.current?.offsetHeight || 17);
@@ -248,9 +237,7 @@ const AgendaPage: React.FC = () => {
       {isLogoutDialogShow && (
         <LogoutDialog
           onDismiss={() => setLogoutDialogShow(false)}
-          onConfirm={() => {
-            setLogoutDialogShow(false);
-          }}
+          onConfirm={() => setLogoutDialogShow(false)}
         />
       )}
       {isEndDialogShow && (
