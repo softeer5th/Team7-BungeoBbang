@@ -2,7 +2,7 @@ package com.bungeobbang.backend.agenda.domain.infrastructure;
 
 import com.bungeobbang.backend.agenda.domain.AgendaChat;
 import com.bungeobbang.backend.agenda.domain.AgendaLastReadChat;
-import com.bungeobbang.backend.agenda.dto.response.LastChat;
+import com.bungeobbang.backend.agenda.dto.response.AgendaChatInfo;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.bson.types.ObjectId;
@@ -55,7 +55,7 @@ class CustomAgendaChatRepositoryImplTest {
     @Test
     @DisplayName("학생회 채팅, 자신이 전송한 채팅이 없는 경우 마지막 채팅이 존재하지 않는다.")
     void findLastChats_sendNoChatForMember() {
-        final List<LastChat> lastChats =
+        final List<AgendaChatInfo> lastChats =
                 customAgendaChatRepository.findLastChats(List.of(1L, 2L), 1L);
 
         assertThat(lastChats).size().isEqualTo(0);
@@ -64,11 +64,11 @@ class CustomAgendaChatRepositoryImplTest {
     @Test
     @DisplayName("여러 개의 채팅방에서 마지막 채팅을 조회한다.")
     void findLastChatsForMember() {
-        final List<LastChat> lastChats =
+        final List<AgendaChatInfo> lastChats =
                 customAgendaChatRepository.findLastChats(List.of(1L, 2L), 31L);
 
         assertThat(lastChats).size().isEqualTo(2);
-        final List<Long> list = lastChats.stream().map(LastChat::agendaId).toList();
+        final List<Long> list = lastChats.stream().map(AgendaChatInfo::agendaId).toList();
         assertThat(list).containsExactlyInAnyOrder(1L, 2L);
     }
 

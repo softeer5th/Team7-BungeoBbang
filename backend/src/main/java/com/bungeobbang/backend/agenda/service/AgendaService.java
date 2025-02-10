@@ -2,15 +2,13 @@ package com.bungeobbang.backend.agenda.service;
 
 import com.bungeobbang.backend.agenda.domain.Agenda;
 import com.bungeobbang.backend.agenda.domain.AgendaChat;
-import com.bungeobbang.backend.agenda.domain.AgendaLastReadChat;
 import com.bungeobbang.backend.agenda.domain.AgendaMember;
-import com.bungeobbang.backend.agenda.domain.repository.AgendaLastReadChatRepository;
 import com.bungeobbang.backend.agenda.domain.repository.AgendaMemberRepository;
 import com.bungeobbang.backend.agenda.domain.repository.AgendaRepository;
 import com.bungeobbang.backend.agenda.domain.repository.CustomAgendaChatRepository;
+import com.bungeobbang.backend.agenda.dto.response.AgendaChatInfo;
 import com.bungeobbang.backend.agenda.dto.response.AgendaDetailResponse;
 import com.bungeobbang.backend.agenda.dto.response.AgendaResponse;
-import com.bungeobbang.backend.agenda.dto.response.LastChat;
 import com.bungeobbang.backend.agenda.dto.response.MyAgendaResponse;
 import com.bungeobbang.backend.agenda.service.strategies.AgendaFinder;
 import com.bungeobbang.backend.agenda.service.strategies.AgendaFinders;
@@ -18,7 +16,6 @@ import com.bungeobbang.backend.agenda.status.AgendaStatusType;
 import com.bungeobbang.backend.common.exception.AgendaException;
 import com.bungeobbang.backend.common.exception.ErrorCode;
 import com.bungeobbang.backend.common.exception.MemberException;
-import com.bungeobbang.backend.common.util.ObjectIdTimestampConverter;
 import com.bungeobbang.backend.member.domain.Member;
 import com.bungeobbang.backend.member.domain.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
@@ -26,8 +23,6 @@ import org.bson.types.ObjectId;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -50,13 +45,11 @@ import static com.bungeobbang.backend.common.exception.ErrorCode.AGENDA_PARTICIP
 @Service
 @RequiredArgsConstructor
 public class AgendaService {
-
-    private final AgendaMemberRepository agendaMemberRepository;
-    private final AgendaLastReadChatRepository agendaLastReadChatRepository;
-    private final CustomAgendaChatRepository customAgendaChatRepository;
+    private final AgendaFinders agendaFinders;
     private final AgendaRepository agendaRepository;
     private final MemberRepository memberRepository;
-    private final AgendaFinders agendaFinders;
+    private final AgendaMemberRepository agendaMemberRepository;
+    private final CustomAgendaChatRepository customAgendaChatRepository;
 
     private final static ObjectId MIN_OBJECT_ID = new ObjectId(0, 0);
 
@@ -141,38 +134,25 @@ public class AgendaService {
 
         final Map<Long, Agenda> agendaMap = agendaList.stream()
                 .collect(Collectors.toMap(Agenda::getId, agenda -> agenda));
+        final List<AgendaChatInfo> lastChats = customAgendaChatRepository.findLastChats(agendaIds, memberId);
 
-        final List<LastChat> lastChats = customAgendaChatRepository.findLastChats(agendaIds, memberId);
-
-        final Map<Long, LastChat> lastChatMap = lastChats.stream()
-                .collect(Collectors.toMap(LastChat::agendaId, chat -> chat));
-
-        return agendaIds.stream()
-                .map(agendaId -> {
-                    final Agenda agenda = agendaMap.get(agendaId);
-                    final LastChat lastChat = lastChatMap.getOrDefault(agendaId, new LastChat(agendaId, null, null, null));
-
-                    // 마지막 읽은 채팅 조회 및 비교하여 hasNewChat 여부 확인
-                    final ObjectId lastReadChat = getLastReadChat(agendaId, memberId);
-                    final boolean hasNew = hasNewMessage(lastChat.chatId(), lastReadChat);
-
-                    final LocalDateTime createdAt = lastChat.chatId() == null ? null :
-                            ObjectIdTimestampConverter.getLocalDateTimeFromObjectId(lastChat.chatId());
-
-                    return MyAgendaResponse.builder()
-                            .title(agenda.getTitle())
-                            .count(agenda.getCount())
-                            .lastChatId(lastChat.chatId())
-                            .agendaId(agendaId)
-                            .isEnd(agenda.getEndDate().isBefore(LocalDate.now()))
-                            .categoryType(agenda.getCategoryType())
-                            .lastChat(lastChat.content())
-                            .createdAt(createdAt)
-                            .hasNew(hasNew)
-                            .build();
-                })
-                .sorted(Comparator.comparing(MyAgendaResponse::lastChatId, Comparator.nullsFirst(ObjectId::compareTo).reversed()))
-                .toList();
+        return lastChats.stream()
+                .map(lastChat ->
+                        {
+                            final Agenda agenda = agendaMap.get(lastChat.agendaId());
+                            return MyAgendaResponse.builder()
+                                    .agendaId(lastChat.agendaId())
+                                    .lastChatId(lastChat.chatId())
+                                    .count(agenda.getCount())
+                                    .isEnd(agenda.getEndDate().isAfter(LocalDate.now()))
+                                    .title(agenda.getTitle())
+                                    .categoryType(agenda.getCategoryType())
+                                    .createdAt(agenda.getCreatedAt())
+                                    .hasNew(lastChat.hasNewChat())
+                                    .lastChat(lastChat.content())
+                                    .build();
+                        }
+                ).toList();
     }
 
 
@@ -190,19 +170,6 @@ public class AgendaService {
         agendaMemberRepository.deleteByMemberIdAndAgendaId(memberId, agendaId);
     }
 
-    /**
-     * <h3>마지막 읽은 채팅 ID 조회</h3>
-     * <p>MongoDB에서 특정 사용자의 마지막 읽은 채팅 ID를 가져옵니다.</p>
-     *
-     * @param agendaId 조회할 답해요 ID
-     * @param memberId 조회할 사용자 ID
-     * @return 마지막으로 읽은 채팅의 ObjectId (없으면 null)
-     */
-    private ObjectId getLastReadChat(final Long agendaId, final Long memberId) {
-        return agendaLastReadChatRepository.findByMemberIdAndAgendaId(memberId, agendaId)
-                .orElse(new AgendaLastReadChat(MIN_OBJECT_ID, null, null, null))
-                .getLastReadChatId();
-    }
 
     private Agenda getAgenda(Long agendaId) {
         return agendaRepository.findById(agendaId)
@@ -220,20 +187,5 @@ public class AgendaService {
     private Member getMember(final Long memberId) {
         return memberRepository.findById(memberId)
                 .orElseThrow(() -> new MemberException(ErrorCode.INVALID_MEMBER));
-    }
-
-    /**
-     * <h3>새로운 메시지 여부 확인</h3>
-     * <p>마지막 읽은 채팅과 최신 채팅 ID를 비교하여 새로운 메시지가 있는지 확인합니다.</p>
-     *
-     * @param lastChat     최신 채팅 ID
-     * @param lastReadChat 마지막으로 읽은 채팅 ID
-     * @return 새로운 메시지가 있으면 true, 없으면 false
-     */
-    private boolean hasNewMessage(final ObjectId lastChat, final ObjectId lastReadChat) {
-        if (lastChat == null || lastReadChat == null) {
-            return false;
-        }
-        return lastChat.compareTo(lastReadChat) > 0;
     }
 }

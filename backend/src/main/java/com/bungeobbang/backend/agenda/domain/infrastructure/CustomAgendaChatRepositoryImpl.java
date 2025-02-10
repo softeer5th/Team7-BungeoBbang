@@ -2,7 +2,9 @@ package com.bungeobbang.backend.agenda.domain.infrastructure;
 
 import com.bungeobbang.backend.agenda.domain.AgendaAdminLastReadChat;
 import com.bungeobbang.backend.agenda.domain.AgendaChat;
+import com.bungeobbang.backend.agenda.domain.AgendaLastReadChat;
 import com.bungeobbang.backend.agenda.domain.repository.CustomAgendaChatRepository;
+import com.bungeobbang.backend.agenda.dto.response.AgendaChatInfo;
 import com.bungeobbang.backend.agenda.dto.response.LastChat;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,6 +17,7 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Repository;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,21 +39,15 @@ public class CustomAgendaChatRepositoryImpl implements CustomAgendaChatRepositor
     private final static String AGENDA_LAST_READ_COLLECTION = "agenda_last_read_chat";
     private final static String AGENDA_ID = "agendaId";
     private final static String MEMBER_ID = "memberId";
+    private final static String ADMIN_ID = "adminId";
     private static final String IS_ADMIN = "isAdmin";
     private static final String LAST_CHAT = "lastChat";
 
     private final MongoTemplate mongoTemplate;
 
-    /**
-     * <h3>MongoDB에서 각 채팅방의 최신 메시지를 조회</h3>
-     * <p>사용자가 참여한 채팅방(agendaId) 목록을 받아, 각 채팅방에서 최신 메시지를 가져옵니다.</p>
-     *
-     * @param agendaIdList 사용자가 참여한 채팅방의 ID 목록
-     * @param memberId     사용자 ID (자신이 보낸 메시지 또는 관리자 메시지를 조회)
-     * @return 각 채팅방에서 가장 최신 메시지 (LastChat 객체 목록)
-     */
+    /***************************************************************************************<<<STUDENT>>>>**************************************************************************/
     @Override
-    public List<LastChat> findLastChats(List<Long> agendaIdList, Long memberId) {
+    public List<AgendaChatInfo> findLastChats(List<Long> agendaIdList, Long memberId) {
         // Match - 주어진 agendaId 리스트와 memberId 필터링
         MatchOperation matchStage = Aggregation.match(
                 new Criteria(AGENDA_ID).in(agendaIdList)
@@ -74,70 +71,57 @@ public class CustomAgendaChatRepositoryImpl implements CustomAgendaChatRepositor
                 .and("lastChat.chat").as(LastChat.CONTENT)
                 .and("lastChat.createdAt").as(LastChat.CREATED_AT);
 
+        SortOperation finalSortStage = Aggregation.sort(Sort.Direction.DESC, "_id");
         // Aggregation 실행
         Aggregation aggregation = Aggregation.newAggregation(
                 matchStage,
                 sortStage,
                 groupStage,
-                projectStage
+                projectStage,
+                finalSortStage
         );
 
-        return mongoTemplate.aggregate(aggregation, AGENDA_COLLECTION, LastChat.class).getMappedResults();
-    }
+        final List<LastChat> lastChats = mongoTemplate.aggregate(aggregation, AGENDA_COLLECTION, LastChat.class).getMappedResults();
 
-    public Map<Long, Boolean> findUnreadStatus(List<Long> agendaIdList, Long adminId) {
-        Map<Long, Boolean> result = new HashMap<>();
 
-        // ✅ 1. 최신 채팅 가져오기 (각 agendaId별로 _id가 가장 큰 값)
-        MatchOperation matchStage = Aggregation.match(Criteria.where("agendaId").in(agendaIdList));
-        SortOperation sortStage = Aggregation.sort(org.springframework.data.domain.Sort.by(org.springframework.data.domain.Sort.Direction.DESC, "_id"));
-        GroupOperation groupStage = Aggregation.group(AGENDA_ID)
-                .first("$$ROOT").as(LAST_CHAT);
-
-        // Project - lastChat에서 _id, chat, createdAt만 유지
-        ProjectionOperation projectStage = Aggregation.project()
-                .and("_id").as(LastChat.AGENDA_ID)  // 원래 _id를 agendaId로 매핑
-                .and("lastChat._id").as(LastChat.CHAT_ID)
-                .and("lastChat.chat").as(LastChat.CONTENT)
-                .and("lastChat.createdAt").as(LastChat.CREATED_AT);
-
-        Aggregation aggregation = Aggregation.newAggregation(
-                matchStage,
-                sortStage,
-                groupStage,
-                projectStage);
-
-        AggregationResults<LastChat> lastChatsResult = mongoTemplate.aggregate(aggregation, "agenda_chat", LastChat.class);
-
-        List<LastChat> lastChats = lastChatsResult.getMappedResults();
-
-        // ✅ 2. 모든 agendaId에 대한 lastReadChatId 조회
-        List<AgendaAdminLastReadChat> lastReadChats = mongoTemplate.find(
+        List<AgendaLastReadChat> lastReadChats = mongoTemplate.find(
                 new org.springframework.data.mongodb.core.query.Query(
-                        Criteria.where("agendaId").in(agendaIdList)
-                                .and("adminId").is(adminId)
-                ), AgendaAdminLastReadChat.class);
+                        Criteria.where(AGENDA_ID).in(agendaIdList)
+                                .and(MEMBER_ID).is(memberId)
+                ), AgendaLastReadChat.class);
 
-        // ✅ 3. 결과를 Map 형태로 변환
+        //
         Map<Long, ObjectId> lastChatMap = lastChats.stream()
                 .collect(Collectors.toMap(LastChat::agendaId, LastChat::chatId, (a, b) -> b));
 
         Map<Long, ObjectId> lastReadChatMap = lastReadChats.stream()
-                .collect(Collectors.toMap(AgendaAdminLastReadChat::getAgendaId, AgendaAdminLastReadChat::getLastReadChatId, (a, b) -> b));
+                .collect(Collectors.toMap(AgendaLastReadChat::getAgendaId, AgendaLastReadChat::getLastReadChatId, (a, b) -> b));
 
-        // ✅ 4. 최종 결과 계산
+        Map<Long, Boolean> unreadMap = new HashMap<>();
         for (Long agendaId : agendaIdList) {
             ObjectId lastChatId = lastChatMap.get(agendaId);
             ObjectId lastReadChatId = lastReadChatMap.get(agendaId);
 
             if (lastChatId != null && lastReadChatId != null) {
-                result.put(agendaId, lastChatId.compareTo(lastReadChatId) > 0);
+                unreadMap.put(agendaId, lastChatId.compareTo(lastReadChatId) > 0);
             } else {
-                result.put(agendaId, lastChatId != null);
+                unreadMap.put(agendaId, lastChatId != null);
             }
         }
-        return result;
+        List<AgendaChatInfo> temp = new ArrayList<>();
+        for (LastChat chat : lastChats) {
+            final AgendaChatInfo info = new AgendaChatInfo(
+                    chat.agendaId(),
+                    chat.chatId(),
+                    chat.content(),
+                    chat.createdAt(),
+                    unreadMap.get(chat.agendaId())
+            );
+            temp.add(info);
+        }
+        return temp;
     }
+
 
     @Override
     public AgendaChat findLastChatForMember(Long agendaId, Long memberId) {
@@ -198,6 +182,61 @@ public class CustomAgendaChatRepositoryImpl implements CustomAgendaChatRepositor
         update.setOnInsert(AGENDA_ID, agendaId);
 
         mongoTemplate.upsert(query, update, AGENDA_LAST_READ_COLLECTION); // upsert 사용
+    }
+
+    /***************************************************************************************<<<ADMIN>>>>**************************************************************************/
+    public Map<Long, Boolean> findUnreadStatus(List<Long> agendaIdList, Long adminId) {
+        Map<Long, Boolean> result = new HashMap<>();
+
+        // ✅ 1. 최신 채팅 가져오기 (각 agendaId별로 _id가 가장 큰 값)
+        MatchOperation matchStage = Aggregation.match(Criteria.where(AGENDA_ID).in(agendaIdList));
+        SortOperation sortStage = Aggregation.sort(org.springframework.data.domain.Sort.by(org.springframework.data.domain.Sort.Direction.DESC, "_id"));
+        GroupOperation groupStage = Aggregation.group(AGENDA_ID)
+                .first("$$ROOT").as(LAST_CHAT);
+
+        // Project - lastChat에서 _id, chat, createdAt만 유지
+        ProjectionOperation projectStage = Aggregation.project()
+                .and("_id").as(LastChat.AGENDA_ID)  // 원래 _id를 agendaId로 매핑
+                .and("lastChat._id").as(LastChat.CHAT_ID)
+                .and("lastChat.chat").as(LastChat.CONTENT)
+                .and("lastChat.createdAt").as(LastChat.CREATED_AT);
+
+        Aggregation aggregation = Aggregation.newAggregation(
+                matchStage,
+                sortStage,
+                groupStage,
+                projectStage);
+
+        AggregationResults<LastChat> lastChatsResult = mongoTemplate.aggregate(aggregation, AGENDA_COLLECTION, LastChat.class);
+
+        List<LastChat> lastChats = lastChatsResult.getMappedResults();
+
+        // ✅ 2. 모든 agendaId에 대한 lastReadChatId 조회
+        List<AgendaAdminLastReadChat> lastReadChats = mongoTemplate.find(
+                new org.springframework.data.mongodb.core.query.Query(
+                        Criteria.where(AGENDA_ID).in(agendaIdList)
+                                .and(ADMIN_ID).is(adminId)
+                ), AgendaAdminLastReadChat.class);
+
+        // ✅ 3. 결과를 Map 형태로 변환
+        Map<Long, ObjectId> lastChatMap = lastChats.stream()
+                .collect(Collectors.toMap(LastChat::agendaId, LastChat::chatId, (a, b) -> b));
+
+        Map<Long, ObjectId> lastReadChatMap = lastReadChats.stream()
+                .collect(Collectors.toMap(AgendaAdminLastReadChat::getAgendaId, AgendaAdminLastReadChat::getLastReadChatId, (a, b) -> b));
+
+        // ✅ 4. 최종 결과 계산
+        for (Long agendaId : agendaIdList) {
+            ObjectId lastChatId = lastChatMap.get(agendaId);
+            ObjectId lastReadChatId = lastReadChatMap.get(agendaId);
+
+            if (lastChatId != null && lastReadChatId != null) {
+                result.put(agendaId, lastChatId.compareTo(lastReadChatId) > 0);
+            } else {
+                result.put(agendaId, lastChatId != null);
+            }
+        }
+        return result;
     }
 
     public void upsertAdminLastReadChat(Long agendaId, Long adminId, ObjectId lastChatId) {
