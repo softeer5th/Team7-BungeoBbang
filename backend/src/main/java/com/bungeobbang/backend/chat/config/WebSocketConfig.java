@@ -23,6 +23,7 @@ public class WebSocketConfig implements WebSocketConfigurer {
         registry.addHandler(webSocketChatHandler, "/students")
                 .addHandler(adminWebSocketChatHandler, "/admins")
                 .addInterceptors(webSocketAuthInterceptor)
-                .setAllowedOrigins("*");
+                .setAllowedOriginPatterns("*")
+                .withSockJS();
     }
 }
