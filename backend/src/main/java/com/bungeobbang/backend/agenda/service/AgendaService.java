@@ -21,6 +21,7 @@ import com.bungeobbang.backend.member.domain.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -62,6 +63,7 @@ public class AgendaService {
      * @param agendaId 참여할 답해요 ID
      * @throws AgendaException 사용자가 해당 대학교 소속이 아닐 경우 예외 발생
      */
+    @Transactional
     public void participateAgenda(final Long memberId, final Long agendaId) {
         final Member member = getMember(memberId);
         final Agenda agenda = getAgenda(agendaId);
@@ -164,6 +166,7 @@ public class AgendaService {
      * @param memberId 탈퇴할 사용자 ID
      * @param agendaId 탈퇴할 답해요 ID
      */
+    @Transactional
     public void exitAgenda(final Long memberId, final Long agendaId) {
         if (!agendaMemberRepository.existsByMemberIdAndAgendaId(memberId, agendaId)) {
             throw new AgendaException(AGENDA_PARTICIPATION_NOT_FOUND);
