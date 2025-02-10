@@ -66,6 +66,8 @@ public class MemberWebSocketChatHandler extends TextWebSocketHandler {
             session.close();
         } catch (BadWordException e) {
             session.sendMessage(new TextMessage(objectMapper.writeValueAsString(new MemberWebsocketMessage(ERROR, e.getMessage()))));
+        } catch (Exception e) {
+            session.sendMessage(new TextMessage(objectMapper.writeValueAsString(new MemberWebsocketMessage(ERROR, e.getMessage()))));
         }
     }
 
