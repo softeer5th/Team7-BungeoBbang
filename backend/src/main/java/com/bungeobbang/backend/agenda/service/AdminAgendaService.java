@@ -10,10 +10,10 @@ import com.bungeobbang.backend.agenda.domain.repository.CustomAgendaChatReposito
 import com.bungeobbang.backend.agenda.dto.request.AgendaChatRequest;
 import com.bungeobbang.backend.agenda.dto.request.AgendaCreationRequest;
 import com.bungeobbang.backend.agenda.dto.request.AgendaEditRequest;
-import com.bungeobbang.backend.agenda.dto.response.AdminAgendaResponse;
-import com.bungeobbang.backend.agenda.dto.response.AgendaCreationResponse;
 import com.bungeobbang.backend.agenda.dto.response.AgendaDetailResponse;
 import com.bungeobbang.backend.agenda.dto.response.AgendaResponse;
+import com.bungeobbang.backend.agenda.dto.response.admin.AdminAgendaResponse;
+import com.bungeobbang.backend.agenda.dto.response.admin.AgendaCreationResponse;
 import com.bungeobbang.backend.agenda.service.strategies.AgendaFinder;
 import com.bungeobbang.backend.agenda.service.strategies.AgendaFinders;
 import com.bungeobbang.backend.agenda.status.AgendaStatusType;

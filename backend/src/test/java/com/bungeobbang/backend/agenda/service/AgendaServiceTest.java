@@ -6,9 +6,9 @@ import com.bungeobbang.backend.agenda.domain.repository.AgendaLastReadChatReposi
 import com.bungeobbang.backend.agenda.domain.repository.AgendaMemberRepository;
 import com.bungeobbang.backend.agenda.domain.repository.AgendaRepository;
 import com.bungeobbang.backend.agenda.domain.repository.CustomAgendaChatRepository;
+import com.bungeobbang.backend.agenda.dto.AgendaLatestChat;
 import com.bungeobbang.backend.agenda.dto.response.AgendaDetailResponse;
-import com.bungeobbang.backend.agenda.dto.response.AgendaLatestChat;
-import com.bungeobbang.backend.agenda.dto.response.MyAgendaResponse;
+import com.bungeobbang.backend.agenda.dto.response.member.MyAgendaResponse;
 import com.bungeobbang.backend.common.exception.AgendaException;
 import com.bungeobbang.backend.member.domain.Member;
 import com.bungeobbang.backend.member.domain.repository.MemberRepository;

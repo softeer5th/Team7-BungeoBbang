@@ -1,4 +1,4 @@
-package com.bungeobbang.backend.agenda.dto.response;
+package com.bungeobbang.backend.agenda.dto;
 
 import org.bson.types.ObjectId;
 

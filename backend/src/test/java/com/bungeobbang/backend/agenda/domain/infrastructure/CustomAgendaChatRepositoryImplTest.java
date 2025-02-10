@@ -2,7 +2,7 @@ package com.bungeobbang.backend.agenda.domain.infrastructure;
 
 import com.bungeobbang.backend.agenda.domain.AgendaChat;
 import com.bungeobbang.backend.agenda.domain.AgendaLastReadChat;
-import com.bungeobbang.backend.agenda.dto.response.AgendaLatestChat;
+import com.bungeobbang.backend.agenda.dto.AgendaLatestChat;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.bson.types.ObjectId;
