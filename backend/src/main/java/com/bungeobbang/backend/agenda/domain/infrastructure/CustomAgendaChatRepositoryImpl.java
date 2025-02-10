@@ -71,7 +71,7 @@ public class CustomAgendaChatRepositoryImpl implements CustomAgendaChatRepositor
                 .and("lastChat.chat").as(LastChat.CONTENT)
                 .and("lastChat.createdAt").as(LastChat.CREATED_AT);
 
-        SortOperation finalSortStage = Aggregation.sort(Sort.Direction.DESC, "_id");
+        SortOperation finalSortStage = Aggregation.sort(Sort.Direction.DESC, LastChat.CHAT_ID);
         // Aggregation 실행
         Aggregation aggregation = Aggregation.newAggregation(
                 matchStage,
@@ -82,7 +82,6 @@ public class CustomAgendaChatRepositoryImpl implements CustomAgendaChatRepositor
         );
 
         final List<LastChat> lastChats = mongoTemplate.aggregate(aggregation, AGENDA_COLLECTION, LastChat.class).getMappedResults();
-
 
         List<AgendaLastReadChat> lastReadChats = mongoTemplate.find(
                 new org.springframework.data.mongodb.core.query.Query(
