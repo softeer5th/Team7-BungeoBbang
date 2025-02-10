@@ -1,6 +1,5 @@
 package com.bungeobbang.backend.opinion.service;
 
-import com.bungeobbang.backend.auth.domain.Accessor;
 import com.bungeobbang.backend.common.exception.ErrorCode;
 import com.bungeobbang.backend.common.exception.OpinionException;
 import com.bungeobbang.backend.opinion.domain.Opinion;
@@ -42,14 +41,14 @@ public class OpinionService {
      *
      * @param opinionId  조회할 말해요 채팅방의 ID
      * @param lastChatId 마지막으로 조회한 채팅의 ID (Cursor 방식). 없을 경우 최신 메시지부터 조회
-     * @param accessor   현재 요청을 보낸 사용자의 인증 정보
+     * @param userId   요청을 보낸 유저의 ID
      * @return OpinionChatResponse 리스트 (해당 채팅방의 메시지 목록)
      */
-    public List<OpinionChatResponse> findOpinionChat(final Long opinionId, ObjectId lastChatId, final Accessor accessor) {
+    public List<OpinionChatResponse> findOpinionChat(final Long opinionId, ObjectId lastChatId, final Long userId) {
         if (lastChatId == null) lastChatId = new ObjectId(MAX_OBJECT_ID);
         final List<OpinionChatResponse> opinionChatResponses = new java.util.ArrayList<>(opinionChatRepository.findByOpinionIdAndLastChatId(opinionId, lastChatId)
                 .stream()
-                .map(opinionChat -> OpinionChatResponse.of(opinionChat, accessor.id(), opinionId))
+                .map(opinionChat -> OpinionChatResponse.of(opinionChat, userId, opinionId))
                 .toList());
         Collections.reverse(opinionChatResponses);
 
