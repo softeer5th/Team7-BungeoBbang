@@ -174,6 +174,7 @@ export const ChatSendField: React.FC<ChatSendFieldProps> = ({
             )}
 
             <TextFieldInputWrapper>
+              
               <TextFieldInput
                 rows={1}
                 ref={textAreaRef}

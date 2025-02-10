@@ -13,7 +13,7 @@ export const TabContainer = styled.div`
   flex: 1;
   display: flex;
   background-color: ${(props) => props.theme.colors.grayScale10};
-  overflow: auto;
+  overflow: hidden;
 
   &::-webkit-scrollbar {
     display: none;
