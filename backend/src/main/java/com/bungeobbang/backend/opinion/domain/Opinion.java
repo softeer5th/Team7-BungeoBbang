@@ -41,7 +41,8 @@ public class Opinion extends BaseTimeEntity {
     private int chatCount;
 
     @Builder
-    public Opinion(University university, OpinionType opinionType, CategoryType categoryType, Member member, boolean isRemind, int chatCount) {
+    public Opinion(Long id, University university, OpinionType opinionType, CategoryType categoryType, Member member, boolean isRemind, int chatCount) {
+        this.id = id;
         this.university = university;
         this.opinionType = opinionType;
         this.categoryType = categoryType;

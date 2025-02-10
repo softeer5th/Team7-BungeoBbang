@@ -96,7 +96,12 @@ public class AdminOpinionService {
                     OpinionChat lastChat = lastChatMap.get(opinion.getId());
 
                     if (lastRead == null) {
-                        opinionLastReadRepository.save(new OpinionLastRead(opinion.getId(), true, new ObjectId(MIN_OBJECT_ID)));
+                        opinionLastReadRepository.save(OpinionLastRead
+                                .builder()
+                                .opinionId(opinion.getId())
+                                .isAdmin(true)
+                                .lastReadChatId(new ObjectId(MIN_OBJECT_ID))
+                                .build());
                     }
                     if (lastChat == null) throw new OpinionException(ErrorCode.INVALID_OPINION_CHAT);
 
