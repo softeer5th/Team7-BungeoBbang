@@ -9,6 +9,7 @@ import com.bungeobbang.backend.member.domain.repository.MemberRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
@@ -20,6 +21,7 @@ import org.springframework.web.socket.server.HandshakeInterceptor;
 
 import java.util.Map;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class WebSocketAuthInterceptor implements HandshakeInterceptor {
@@ -42,7 +44,9 @@ public class WebSocketAuthInterceptor implements HandshakeInterceptor {
             HttpServletRequest servletRequest = ((ServletServerHttpRequest) request).getServletRequest();
             HttpServletResponse servletResponse = ((ServletServerHttpResponse) response).getServletResponse();
 
+            log.info("Authorization header: {}", servletRequest.getHeader(ACCESS_TOKEN));
             final String accessToken = extractor.extractAccessToken(servletRequest.getHeader(HttpHeaders.AUTHORIZATION));
+            log.info("Access token: {}", accessToken);
             try {
                 jwtProvider.validateToken(accessToken);
                 attributes.put(ACCESS_TOKEN, accessToken);
