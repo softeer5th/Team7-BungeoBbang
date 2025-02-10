@@ -44,12 +44,14 @@ const OpinionChatPage = () => {
   const navigate = useNavigate();
   const { roomId } = useParams();
   const { subscribe, sendMessage } = useSocketStore();
+  const memberId = localStorage.getItem('member_id');
+  const { socket } = useSocketStore();
 
   const handleMessageReceive = useCallback(
     (message: ChatMessage) => {
       if (message.roomType === 'OPINION' && message.opinionId === Number(roomId)) {
         const newChat = {
-          type: message.memberId === 1 ? ChatType.SEND : ChatType.RECEIVE, // TODO: memberId 수정
+          type: message.memberId === memberId ? ChatType.SEND : ChatType.RECEIVE,
           message: message.message,
           time: new Date(message.createdAt).toLocaleTimeString('ko-KR', {
             hour: '2-digit',
@@ -60,7 +62,7 @@ const OpinionChatPage = () => {
         setChatData((prev) => [...prev, newChat]);
       }
     },
-    [roomId],
+    [roomId, memberId],
   );
 
   useEffect(() => {
@@ -68,10 +70,24 @@ const OpinionChatPage = () => {
 
     const fetchData = async () => {
       try {
+        // 채팅방 정보 가져오기
         const enterResponse = await api.get(`/api/opinions/${roomId}`);
-        console.log(enterResponse.data);
+        console.log('채팅방 정보:', enterResponse);
+
+        // 웹소켓으로 입장 메시지 전송
+        if (socket && socket.readyState === WebSocket.OPEN) {
+          const enterMessage = {
+            roomType: 'OPINION',
+            event: 'ENTER',
+            opinionId: Number(roomId),
+            memberId: Number(localStorage.getItem('member_id')),
+          };
+          console.log('Sending enter message:', enterMessage);
+          socket.send(JSON.stringify(enterMessage));
+        }
+
         const response = await api.get(`/api/opinions/${roomId}/chat`);
-        console.log(response.data);
+        console.log('채팅 내역:', response.data);
         const formattedData = formatChatData(response.data);
         setChatData(formattedData);
       } catch (error) {
@@ -80,7 +96,7 @@ const OpinionChatPage = () => {
     };
 
     fetchData();
-  }, [roomId]);
+  }, [roomId, socket]);
 
   useEffect(() => {
     if (!roomId) {
