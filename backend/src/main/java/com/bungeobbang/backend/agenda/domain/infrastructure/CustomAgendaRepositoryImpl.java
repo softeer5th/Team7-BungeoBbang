@@ -2,7 +2,7 @@ package com.bungeobbang.backend.agenda.domain.infrastructure;
 
 import com.bungeobbang.backend.agenda.domain.repository.CustomAgendaRepository;
 import com.bungeobbang.backend.agenda.dto.response.AgendaResponse;
-import com.bungeobbang.backend.agenda.dto.response.MemberAgendaResponse;
+import com.bungeobbang.backend.agenda.dto.response.member.MemberAgendaResponse;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;

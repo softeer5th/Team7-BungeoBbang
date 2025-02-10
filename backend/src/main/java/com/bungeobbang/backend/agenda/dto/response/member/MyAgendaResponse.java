@@ -1,4 +1,4 @@
-package com.bungeobbang.backend.agenda.dto.response;
+package com.bungeobbang.backend.agenda.dto.response.member;
 
 import com.bungeobbang.backend.common.type.CategoryType;
 import com.fasterxml.jackson.annotation.JsonFormat;

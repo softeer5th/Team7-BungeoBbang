@@ -2,8 +2,8 @@ package com.bungeobbang.backend.agenda.presentation;
 
 import com.bungeobbang.backend.agenda.dto.response.AgendaChatResponse;
 import com.bungeobbang.backend.agenda.dto.response.AgendaDetailResponse;
-import com.bungeobbang.backend.agenda.dto.response.MemberAgendaResponse;
-import com.bungeobbang.backend.agenda.dto.response.MyAgendaResponse;
+import com.bungeobbang.backend.agenda.dto.response.member.MemberAgendaResponse;
+import com.bungeobbang.backend.agenda.dto.response.member.MyAgendaResponse;
 import com.bungeobbang.backend.agenda.presentation.api.AgendaApi;
 import com.bungeobbang.backend.agenda.service.AgendaChatService;
 import com.bungeobbang.backend.agenda.service.AgendaService;

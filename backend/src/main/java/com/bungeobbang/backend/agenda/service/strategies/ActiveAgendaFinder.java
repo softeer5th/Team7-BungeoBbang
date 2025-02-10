@@ -2,7 +2,7 @@ package com.bungeobbang.backend.agenda.service.strategies;
 
 import com.bungeobbang.backend.agenda.domain.repository.CustomAgendaRepository;
 import com.bungeobbang.backend.agenda.dto.response.AgendaResponse;
-import com.bungeobbang.backend.agenda.dto.response.MemberAgendaResponse;
+import com.bungeobbang.backend.agenda.dto.response.member.MemberAgendaResponse;
 import com.bungeobbang.backend.agenda.status.AgendaStatusType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

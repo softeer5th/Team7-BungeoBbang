@@ -1,7 +1,7 @@
 package com.bungeobbang.backend.agenda.domain.repository;
 
 import com.bungeobbang.backend.agenda.dto.response.AgendaResponse;
-import com.bungeobbang.backend.agenda.dto.response.MemberAgendaResponse;
+import com.bungeobbang.backend.agenda.dto.response.member.MemberAgendaResponse;
 
 import java.time.LocalDate;
 import java.util.List;

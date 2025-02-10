@@ -1,11 +1,12 @@
-package com.bungeobbang.backend.agenda.dto.response;
+package com.bungeobbang.backend.agenda.dto.response.member;
 
+import com.bungeobbang.backend.agenda.dto.response.AgendaResponse;
 import com.bungeobbang.backend.common.type.CategoryType;
 
 import java.time.LocalDate;
 
 public record MemberAgendaResponse(
-        AgendaResponse agendaResponse,
+        AgendaResponse agenda,
         boolean isParticipate
 ) {
     public MemberAgendaResponse(Long agendaId, CategoryType categoryType, String title, LocalDate startDate, LocalDate endDate, int count, boolean isParticipate) {
