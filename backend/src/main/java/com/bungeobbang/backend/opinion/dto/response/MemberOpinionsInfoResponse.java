@@ -34,7 +34,7 @@ public record MemberOpinionsInfoResponse(
     ) {
     }
 
-    private record OpinionLastChatInfo(
+    public record OpinionLastChatInfo(
             @JsonIgnore
             ObjectId chatId,
             String content,

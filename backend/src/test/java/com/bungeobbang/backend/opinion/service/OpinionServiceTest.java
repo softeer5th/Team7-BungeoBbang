@@ -22,7 +22,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
-import static com.bungeobbang.backend.opinion.fixture.OpinionFixture.NAVER_OPINION;
+import static com.bungeobbang.backend.opinion.fixture.OpinionFixture.NAVER_OPINION1;
 import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -34,7 +34,6 @@ import static org.mockito.Mockito.*;
 class OpinionServiceTest {
     @InjectMocks
     private OpinionService opinionService;
-
     @Mock
     private OpinionChatRepository opinionChatRepository;
     @Mock
@@ -71,7 +70,7 @@ class OpinionServiceTest {
     @DisplayName("말해요 정보 조회 - 정상 조회")
     void findOpinionDetail() {
         // given
-        Opinion opinion = NAVER_OPINION;
+        Opinion opinion = NAVER_OPINION1;
         when(opinionRepository.findById(anyLong())).thenReturn(Optional.of(opinion));
 
         // when
