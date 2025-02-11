@@ -49,6 +49,7 @@ public class RedisMessageQueue implements MessageQueueService {
         channelSubscribers.get(topic).remove(session);
         if (channelSubscribers.get(topic).isEmpty()) {
             asyncCommands.unsubscribe(topic);
+            channelSubscribers.remove(topic);
         }
     }
 
