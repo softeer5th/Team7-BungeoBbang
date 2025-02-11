@@ -2,9 +2,10 @@ import styled, { useTheme } from 'styled-components';
 import { ChatRoomListCardData, ProgressState } from './ChatRoomCardData';
 import Typography from '@/styles/Typography';
 import { CategoryIcon } from '@/components/CategoryIcon';
-import { useState } from 'react';
+import { forwardRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MoreContent } from './MoreContent';
+import { formatDate } from '../util/ChatRoomMapper';
 
 interface ChatRoomListItemProps {
   cardData: ChatRoomListCardData;
@@ -13,73 +14,69 @@ interface ChatRoomListItemProps {
   onCardDelete: () => void;
 }
 
-export const ChatRoomListItem = ({
-  cardData,
-  onCardEdit = () => {},
-  onCardEnd = () => {},
-  onCardDelete = () => {},
-}: ChatRoomListItemProps) => {
-  const theme = useTheme();
+export const ChatRoomListItem = forwardRef<HTMLDivElement, ChatRoomListItemProps>(
+  ({ cardData, onCardEdit = () => {}, onCardEnd = () => {}, onCardDelete = () => {} }, ref) => {
+    const theme = useTheme();
+    const navigate = useNavigate();
 
-  const navigate = useNavigate();
+    const [isMoreContentVisible, setMoreContentVisible] = useState(false);
 
-  const [isMoreContentVisible, setMoreContentVisible] = useState(false);
+    const alarmColor =
+      cardData.progressState != ProgressState.FINISHED
+        ? cardData.hasNew && cardData.progressState == ProgressState.IN_PROGRESS
+          ? theme.colors.sementicMain
+          : theme.colors.grayScale50
+        : theme.colors.grayScale50;
 
-  const alarmColor =
-    cardData.progressState != ProgressState.FINISHED
-      ? cardData.hasNew && cardData.progressState == ProgressState.IN_PROGRESS
-        ? theme.colors.sementicMain
-        : theme.colors.grayScale50
-      : theme.colors.grayScale50;
-
-  return (
-    <CardWrapper>
-      <CardContainer isBeforeProgress={cardData.progressState === ProgressState.BEFORE}>
-        <HeaderContainer>
-          <AlarmContainer>
-            {!(cardData.progressState === ProgressState.IN_PROGRESS && !cardData.hasNew) && (
-              <>
-                <AlarmBox backgroundColor={alarmColor} />
-                <AlarmText variant="caption1" textColor={alarmColor}>
-                  {cardData.progressState === ProgressState.FINISHED
-                    ? `${cardData.numOfJoin || 0}명 참여`
-                    : cardData.progressState === ProgressState.BEFORE
-                      ? '진행 전'
-                      : '새 의견'}
-                </AlarmText>
-              </>
-            )}
-          </AlarmContainer>
-          <MoreIcon
-            src="/src/assets/icons/dot-vertical.svg"
-            onClick={() => setMoreContentVisible((v) => !v)}
+    return (
+      <CardWrapper ref={ref}>
+        <CardContainer isBeforeProgress={cardData.progressState === ProgressState.BEFORE}>
+          <HeaderContainer>
+            <AlarmContainer>
+              {!(cardData.progressState === ProgressState.IN_PROGRESS && !cardData.hasNew) && (
+                <>
+                  <AlarmBox backgroundColor={alarmColor} />
+                  <AlarmText variant="caption1" textColor={alarmColor}>
+                    {cardData.progressState === ProgressState.FINISHED
+                      ? `${cardData.numOfJoin || 0}명 참여`
+                      : cardData.progressState === ProgressState.BEFORE
+                        ? '진행 전'
+                        : '새 의견'}
+                  </AlarmText>
+                </>
+              )}
+            </AlarmContainer>
+            <MoreIcon
+              src="/src/assets/icons/dot-vertical.svg"
+              onClick={() => setMoreContentVisible((v) => !v)}
+            />
+          </HeaderContainer>
+          <BodyContainer
+            isBeforeProgress={cardData.progressState === ProgressState.BEFORE}
+            onClick={() => navigate(`/agenda/chat/${cardData.roomId}`)}
+          >
+            <CategoryIcon type={cardData.chatCategoryType} boxSize={30} iconWidth={17} />
+            <TitleText variant="heading3">{cardData.title}</TitleText>
+            <DateContainer>
+              <DateIcon src="/src/assets/icons/calendar.svg" />
+              <DateText variant="caption2">
+                {formatDate(cardData.startDate)} ~ {formatDate(cardData.endDate)}
+              </DateText>
+            </DateContainer>
+          </BodyContainer>
+        </CardContainer>
+        {isMoreContentVisible && (
+          <MoreContent
+            progressState={cardData.progressState}
+            onEditClick={onCardEdit}
+            onEndClick={onCardEnd}
+            onDeleteClick={onCardDelete}
           />
-        </HeaderContainer>
-        <BodyContainer
-          isBeforeProgress={cardData.progressState === ProgressState.BEFORE}
-          onClick={() => navigate(`/agenda/chat/${cardData.roomId}`)}
-        >
-          <CategoryIcon type={cardData.chatCategoryType} boxSize={30} iconWidth={17} />
-          <TitleText variant="heading3">{cardData.title}</TitleText>
-          <DateContainer>
-            <DateIcon src="/src/assets/icons/calendar.svg" />
-            <DateText variant="caption2">
-              {cardData.startDate}~{cardData.endDate}
-            </DateText>
-          </DateContainer>
-        </BodyContainer>
-      </CardContainer>
-      {isMoreContentVisible && (
-        <MoreContent
-          progressState={cardData.progressState}
-          onEditClick={onCardEdit}
-          onEndClick={onCardEnd}
-          onDeleteClick={onCardDelete}
-        />
-      )}
-    </CardWrapper>
-  );
-};
+        )}
+      </CardWrapper>
+    );
+  },
+);
 
 const CardWrapper = styled.div`
   position: relative;

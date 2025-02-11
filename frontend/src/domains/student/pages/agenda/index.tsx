@@ -13,6 +13,7 @@ import { bottomItems } from '../destinations';
 import { mapResponseToChatListCardData, ServerData } from './util/ChatRoomCardMapper';
 import useInfiniteScroll from '@/hooks/useInfiniteScroll';
 import { ChatEnterDialog } from './components/ChatEnterDialog';
+import { e } from 'node_modules/framer-motion/dist/types.d-CdW9auKD';
 
 const AgendaPage = () => {
   const MAX_PAGE_ITEMS = 6;
@@ -56,7 +57,7 @@ const AgendaPage = () => {
         if (!isInProgessEnd.current) {
           isInProgessEnd.current = true;
         } else {
-          hasMore.current = false;
+          setHasMore(false);
         }
       }
     } catch (error) {
@@ -74,7 +75,7 @@ const AgendaPage = () => {
     }
   };
 
-  const { setTriggerItem } = useInfiniteScroll({
+  const { setTriggerItem, setHasMore } = useInfiniteScroll({
     fetchMore: fetchChatRooms,
     hasMore: isInProgessEnd.current == false || hasMore.current === true,
   });

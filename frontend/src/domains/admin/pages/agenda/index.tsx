@@ -10,14 +10,29 @@ import { ChatRoomListCardData } from './components/ChatRoomCardData';
 import { ChatRoomListItem } from './components/ChatRoomListItem';
 import { EmptyContent } from '@/components/EmptyContent';
 import api from '@/utils/api';
-import { mapResponseToChatRoomListCardData, ServerData } from './util/ChatRoomMapper';
+import { mapResponseToChatRoomListCardData } from './util/ChatRoomMapper';
 import { useNavigate } from 'react-router-dom';
-import { Dialog } from '@/components/Dialog/Dialog';
 import { LogoutDialog } from '@/components/Dialog/LogoutDialog';
 import { AgendaEndDialog } from './components/ChatEndDialog';
 import { AgendaDeleteDialog } from './components/AgendaDeleteDialog';
+import useInfiniteScroll from '@/hooks/useInfiniteScroll';
+import JwtManager from '@/utils/jwtManager';
+
+const tabItems: TabBarItemProps[] = [
+  {
+    itemId: 'inProgress',
+    title: '진행 중',
+  },
+  {
+    itemId: 'complete',
+    title: '종료',
+  },
+];
 
 const AgendaPage: React.FC = () => {
+  const MAX_PAGE_ITEMS = 6;
+  const TRIGGER_REST_ITEMS = 3;
+
   const theme = useTheme();
   const navigate = useNavigate();
 
@@ -37,16 +52,11 @@ const AgendaPage: React.FC = () => {
   const [isEndDialogShow, setEndDialogShow] = useState(false);
   const [selectedCardData, setSelectedCardData] = useState<ChatRoomListCardData | null>(null);
 
-  const tabItems: TabBarItemProps[] = [
-    {
-      itemId: 'inProgress',
-      title: '진행 중',
-    },
-    {
-      itemId: 'complete',
-      title: '종료',
-    },
-  ];
+  const hasMore = useRef<boolean[]>(tabItems.map(() => false));
+  const isInProgessEnd = useRef<boolean>(false);
+  const isFirstUpcoming = useRef<boolean>(false);
+
+  const lastChatRoom = useRef<[string | null, number | null][]>(tabItems.map(() => [null, null]));
 
   const handleTouchStart = (e: React.TouchEvent) => {
     setStartX(e.touches[0].clientX);
@@ -84,65 +94,62 @@ const AgendaPage: React.FC = () => {
     setTranslateX(scrollLeft + -activeIndex * width);
   }, [activeIndex]);
 
-  useEffect(() => {
-    getAllChatRooms();
-  }, []);
-
-  const getAllChatRooms = async () => {
-    const result: Record<string, ChatRoomListCardData[]> = {
-      inProgress: [],
-      complete: [],
-    };
-
+  const fetchProgressChatRooms = async () => {
     try {
-      const [active, upcoming, closed] = await Promise.all([
-        api.get('/admin/agendas', { params: { status: 'ACTIVE' } }),
-        api.get('/admin/agendas', { params: { status: 'UPCOMING' } }),
-        api.get('/admin/agendas', { params: { status: 'CLOSED' } }),
-      ]);
+      const status = isInProgessEnd.current ? 'UPCOMING' : 'ACTIVE';
+      const params =
+        status == 'ACTIVE'
+          ? {
+              status: status,
+              ...(lastChatRoom.current
+                ? { endDate: lastChatRoom.current[0][0], agendaId: lastChatRoom.current[0][1] }
+                : {}),
+            }
+          : {
+              status: status,
+              ...(lastChatRoom.current && !isFirstUpcoming.current
+                ? { endDate: lastChatRoom.current[0][0], agendaId: lastChatRoom.current[0][1] }
+                : {}),
+            };
 
-      result.inProgress = [
-        ...active.data.map((data: ServerData) => mapResponseToChatRoomListCardData(data)),
-        ...upcoming.data.map((data: ServerData) => mapResponseToChatRoomListCardData(data)),
-      ];
+      if (status == 'UPCOMING') isFirstUpcoming.current = false;
 
-      result.complete = [
-        ...closed.data.map((data: ServerData) => mapResponseToChatRoomListCardData(data)),
-      ];
+      const response = await api.get('/admin/agendas', { params: params });
 
-      setTabContents(result);
-    } catch (error) {
-      console.error('Error fetching data:', error);
-    }
-  };
-
-  const getProgressChatRooms = async () => {
-    try {
-      const [active, upcoming] = await Promise.all([
-        api.get('/admin/agendas', { params: { status: 'ACTIVE' } }),
-        api.get('/admin/agendas', { params: { status: 'UPCOMING' } }),
-      ]);
+      const newRooms = response.data.map(mapResponseToChatRoomListCardData);
 
       setTabContents((prev) => ({
         ...prev,
-        inProgress: [
-          ...active.data.map(mapResponseToChatRoomListCardData),
-          ...upcoming.data.map(mapResponseToChatRoomListCardData),
-        ],
+        inProgress: [...(prev.inProgress ?? []), ...newRooms],
       }));
+
+      if (newRooms.length < MAX_PAGE_ITEMS) {
+        if (!isInProgessEnd.current) {
+          isInProgessEnd.current = true;
+          isFirstUpcoming.current = true;
+        } else {
+          setProgressHasMore(false);
+        }
+      }
     } catch (error) {
       console.error('Error fetching progress chat rooms:', error);
     }
   };
 
-  const getCompleteChatRooms = async () => {
+  const fetchCompleteChatRooms = async () => {
     try {
       const closed = await api.get('/admin/agendas', { params: { status: 'CLOSED' } });
 
+      const newRooms = closed.data.map(mapResponseToChatRoomListCardData);
+
       setTabContents((prev) => ({
         ...prev,
-        complete: closed.data.map(mapResponseToChatRoomListCardData),
+        complete: [...(prev.complete ?? []), ...newRooms],
       }));
+
+      if (newRooms.length < MAX_PAGE_ITEMS) {
+        setCompleteHasMore(false);
+      }
     } catch (error) {
       console.error('Error fetching complete chat rooms:', error);
     }
@@ -153,7 +160,7 @@ const AgendaPage: React.FC = () => {
       if (!selectedCardData) return;
 
       await api.patch(`/admin/agendas/${selectedCardData?.roomId}/close`);
-      getAllChatRooms();
+      // getAllChatRooms();
     } catch (error) {
       console.error('채팅방 삭제 실패', error);
     }
@@ -164,11 +171,23 @@ const AgendaPage: React.FC = () => {
       if (!selectedCardData) return;
 
       await api.delete(`/admin/agendas/${selectedCardData?.roomId}`);
-      activeIndex === 0 ? getProgressChatRooms() : getCompleteChatRooms();
+      // activeIndex === 0 ? getProgressChatRooms() : getCompleteChatRooms();
     } catch (error) {
       console.error('채팅방 삭제 실패', error);
     }
   };
+
+  const { setTriggerItem: setProgressTriggerItem, setHasMore: setProgressHasMore } =
+    useInfiniteScroll({
+      fetchMore: fetchProgressChatRooms,
+      hasMore: isInProgessEnd.current === false || hasMore.current[0] == true,
+    });
+
+  const { setTriggerItem: setCompleteTriggerItem, setHasMore: setCompleteHasMore } =
+    useInfiniteScroll({
+      fetchMore: fetchCompleteChatRooms,
+      hasMore: hasMore.current[1],
+    });
 
   return (
     <S.Container>
@@ -190,27 +209,43 @@ const AgendaPage: React.FC = () => {
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
       >
-        {tabItems.map((tab) => {
+        {tabItems.map((tab, tabIndex) => {
           const content = tabContents[tab.itemId] || [];
           return (
             <S.TabContent key={tab.itemId} transX={translateX}>
               {content.length > 0 ? (
                 <S.ChatPreviewList>
-                  {content.map((c) => (
-                    <ChatRoomListItem
-                      key={c.roomId}
-                      cardData={c}
-                      onCardEdit={() => navigate(`/agenda/create/${c.roomId}`)}
-                      onCardEnd={() => {
-                        setSelectedCardData(c);
-                        setEndDialogShow(true);
-                      }}
-                      onCardDelete={() => {
-                        setSelectedCardData(c);
-                        setDeleteDialogShow(true);
-                      }}
-                    />
-                  ))}
+                  {content.map((c, contentIndex) => {
+                    const isTriggerItem = contentIndex === content.length - TRIGGER_REST_ITEMS;
+                    const isLastItem = contentIndex === content.length - 1;
+
+                    if (isLastItem) {
+                      lastChatRoom.current[tabIndex] = [c.endDate, c.roomId];
+                    }
+
+                    return (
+                      <ChatRoomListItem
+                        ref={
+                          isTriggerItem
+                            ? tabIndex == 0
+                              ? setProgressTriggerItem
+                              : setCompleteTriggerItem
+                            : null
+                        }
+                        key={c.roomId}
+                        cardData={c}
+                        onCardEdit={() => navigate(`/agenda/create/${c.roomId}`)}
+                        onCardEnd={() => {
+                          setSelectedCardData(c);
+                          setEndDialogShow(true);
+                        }}
+                        onCardDelete={() => {
+                          setSelectedCardData(c);
+                          setDeleteDialogShow(true);
+                        }}
+                      />
+                    );
+                  })}
                 </S.ChatPreviewList>
               ) : (
                 <EmptyContent
