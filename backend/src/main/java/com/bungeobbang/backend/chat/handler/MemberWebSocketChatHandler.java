@@ -5,6 +5,7 @@ import com.bungeobbang.backend.auth.JwtProvider;
 import com.bungeobbang.backend.badword.service.BadWordService;
 import com.bungeobbang.backend.chat.event.agenda.AgendaMemberEvent;
 import com.bungeobbang.backend.chat.event.common.MemberConnectEvent;
+import com.bungeobbang.backend.chat.event.common.MemberDisconnectEvent;
 import com.bungeobbang.backend.chat.event.common.MemberWebsocketMessage;
 import com.bungeobbang.backend.chat.event.opinion.OpinionMemberEvent;
 import com.bungeobbang.backend.common.exception.AuthException;
@@ -77,6 +78,9 @@ public class MemberWebSocketChatHandler extends TextWebSocketHandler {
 
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
+        final String accessToken = (String) session.getAttributes().get(ACCESS_TOKEN);
+        final Long memberId = Long.valueOf(jwtProvider.getSubject(accessToken));
+        publisher.publishEvent(new MemberDisconnectEvent(session, memberId));
         super.afterConnectionClosed(session, status);
     }
 }
