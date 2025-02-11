@@ -1,7 +1,7 @@
 import * as S from '@/domains/student/pages/chat-page/styles';
 import { useNavigate, useParams } from 'react-router-dom';
 import { TopAppBar } from '@/components/TopAppBar';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import {
   ChatData,
   ChatType,
@@ -19,7 +19,22 @@ import { ExitDialog } from '../../chat-page/Exitdialog.tsx';
 import api from '@/utils/api.ts';
 import { formatChatData } from '@/utils/chat/formatChatData.ts';
 import { useImageUpload } from '@/hooks/useImageUpload.ts';
+import { useSocketStore } from '@/store/socketStore';
+import { useSocketManager } from '@/hooks/useSocketManager.ts';
+
+interface ChatMessage {
+  roomType: 'OPINION' | 'AGENDA';
+  event: 'CHAT';
+  opinionId?: number;
+  agendaId?: number;
+  message: string;
+  images: string[];
+  memberId: number;
+  createdAt: string;
+}
+
 import { ImageFileSizeDialog } from '@/components/Dialog/ImageFileSizeDialog.tsx';
+
 
 const OpinionChatPage = () => {
   const [chatData, setChatData] = useState<ChatData[]>([]);
@@ -31,24 +46,37 @@ const OpinionChatPage = () => {
 
   const navigate = useNavigate();
   const { roomId } = useParams();
+  const { subscribe, sendMessage } = useSocketStore();
+  const memberId = localStorage.getItem('member_id');
+  const { socket } = useSocketStore();
+  const socketManager = useSocketManager();
 
-  const handleSendMessage = async () => {
-    // const messageData = {
-    //   content: message,
-    //   images: images,
-    // };
-
-    try {
-      //소켓으로 메세지 전송
-    } catch (error) {
-      console.error('메시지 전송 실패:', error);
-    }
-  };
+  const handleMessageReceive = useCallback(
+    (message: ChatMessage) => {
+      if (message.roomType === 'OPINION' && message.opinionId === Number(roomId)) {
+        const newChat = {
+          type: message.memberId === Number(memberId) ? ChatType.SEND : ChatType.RECEIVE,
+          message: message.message,
+          time: new Date(message.createdAt).toLocaleTimeString('ko-KR', {
+            hour: '2-digit',
+            minute: '2-digit',
+          }),
+          images: message.images || [],
+        };
+        setChatData((prev) => [...prev, newChat]);
+      }
+    },
+    [roomId, memberId],
+  );
 
   useEffect(() => {
+    if (!roomId) return;
+
     const fetchData = async () => {
       try {
-        const response = await api.get(`/api/opinions/${roomId}`);
+        const enterResponse = await api.get(`/api/opinions/${roomId}`);
+        console.log('채팅방 정보:', enterResponse);
+        const response = await api.get(`/api/opinions/${roomId}/chat`);
         const formattedData = formatChatData(response.data);
         setChatData(formattedData);
       } catch (error) {
@@ -57,7 +85,20 @@ const OpinionChatPage = () => {
     };
 
     fetchData();
-  }, [roomId]);
+  }, [roomId, socket]);
+
+  useEffect(() => {
+    const unsubscribe = subscribe('OPINION', Number(roomId), handleMessageReceive);
+    return () => unsubscribe();
+  }, [roomId, subscribe, handleMessageReceive]);
+
+  const handleSendMessage = useCallback(
+    (message: string, images: string[] = []) => {
+      sendMessage('OPINION', Number(roomId), message, images);
+      setMessage('');
+    },
+    [roomId, sendMessage],
+  );
 
   return (
     <S.Container>
@@ -67,6 +108,7 @@ const OpinionChatPage = () => {
         rightIconSrc="/src/assets/icons/logout.svg"
         onLeftIconClick={() => {
           navigate(-1);
+          socketManager('OPINION', 'LEAVE', Number(roomId));
         }}
         onRightIconClick={() => {
           setExitDialogOpen(true);
@@ -122,8 +164,15 @@ const OpinionChatPage = () => {
 
       {isExitDialogOpen && (
         <ExitDialog
-          onConfirm={() => {
+          onConfirm={async () => {
             setExitDialogOpen(false);
+            try {
+              socketManager('OPINION', 'EXIT', Number(roomId));
+              await api.delete(`/student/opinion/${roomId}`);
+              navigate('/opinion/entry');
+            } catch (error) {
+              console.error('채팅방 삭제 실패:', error);
+            }
           }}
           onDismiss={() => {
             setExitDialogOpen(false);
