@@ -2,10 +2,7 @@ package com.bungeobbang.backend.opinion.service;
 
 import com.bungeobbang.backend.admin.domain.Admin;
 import com.bungeobbang.backend.admin.domain.repository.AdminRepository;
-import com.bungeobbang.backend.chat.event.common.AdminConnectEvent;
-import com.bungeobbang.backend.chat.event.common.AdminWebsocketMessage;
-import com.bungeobbang.backend.chat.event.common.MemberConnectEvent;
-import com.bungeobbang.backend.chat.event.common.MemberWebsocketMessage;
+import com.bungeobbang.backend.chat.event.common.*;
 import com.bungeobbang.backend.chat.service.MessageQueueService;
 import com.bungeobbang.backend.common.exception.AdminException;
 import com.bungeobbang.backend.common.exception.ErrorCode;
@@ -71,8 +68,20 @@ public class OpinionRealTimeChatService {
         messageQueueService.subscribe(session, OPINION_PREFIX + opinionId);
     }
 
-    public void disconnect(final WebSocketSession session, Long opinionId) {
-        messageQueueService.unsubscribe(session, OPINION_PREFIX + opinionId);
+    @EventListener
+    public void disconnectMember(final MemberDisconnectEvent event) {
+        opinionRepository.findAllByMemberId(event.memberId())
+                .forEach(opinion ->
+                        messageQueueService.unsubscribe(event.session(), OPINION_PREFIX + opinion.getId()));
+    }
+
+    @EventListener
+    public void disconnectAdmin(final AdminDisconnectEvent event) {
+        Admin admin = adminRepository.findById(event.adminId())
+                        .orElseThrow(() -> new AdminException(ErrorCode.INVALID_ADMIN));
+        opinionRepository.findAllByUniversityId(admin.getUniversity().getId())
+                .forEach(opinion ->
+                        messageQueueService.unsubscribe(event.session(), OPINION_PREFIX + opinion.getId()));
     }
 
     public void removeOpinionTopic(final Long opinionId) {

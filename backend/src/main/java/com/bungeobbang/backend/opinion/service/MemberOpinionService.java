@@ -93,11 +93,19 @@ public class MemberOpinionService {
         final ObjectId savedChatId = saveOpinionChat(creationRequest, member, opinionId);
 
         // 학생의 마지막 읽은 채팅 ID는 현재 저장한 채팅의 ID
-        final OpinionLastRead memberLastRead = new OpinionLastRead(opinionId, false, savedChatId);
+        final OpinionLastRead memberLastRead = OpinionLastRead.builder()
+                .opinionId(opinionId)
+                .isAdmin(false)
+                .lastReadChatId(savedChatId)
+                .build();
         opinionLastReadRepository.save(memberLastRead);
 
         // 학생회의 마지막 읽은 채팅 ID는 ObjectId의 최솟값. (== 아무것도 읽지 않았다는 뜻, isNew를 띄우기 위함.)
-        final OpinionLastRead adminLastRead = new OpinionLastRead(opinionId, true, new ObjectId(MIN_OBJECT_ID));
+        final OpinionLastRead adminLastRead = OpinionLastRead.builder()
+                .opinionId(opinionId)
+                .isAdmin(true)
+                .lastReadChatId(new ObjectId(MIN_OBJECT_ID))
+                .build();
         opinionLastReadRepository.save(adminLastRead);
 
         return new OpinionCreationResponse(opinionId);
@@ -211,7 +219,12 @@ public class MemberOpinionService {
                     OpinionChat lastChat = lastChatMap.get(opinion.getId());
 
                     if (lastRead == null) {
-                        opinionLastReadRepository.save(new OpinionLastRead(opinion.getId(), false, new ObjectId(MIN_OBJECT_ID)));
+                        opinionLastReadRepository.save(
+                                OpinionLastRead.builder()
+                                        .opinionId(opinion.getId())
+                                        .isAdmin(false)
+                                        .lastReadChatId(new ObjectId(MIN_OBJECT_ID))
+                                        .build());
                     }
                     if (lastChat == null) throw new OpinionException(ErrorCode.INVALID_OPINION_CHAT);
 

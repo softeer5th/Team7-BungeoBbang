@@ -17,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
@@ -96,7 +97,12 @@ public class AdminOpinionService {
                     OpinionChat lastChat = lastChatMap.get(opinion.getId());
 
                     if (lastRead == null) {
-                        opinionLastReadRepository.save(new OpinionLastRead(opinion.getId(), true, new ObjectId(MIN_OBJECT_ID)));
+                        lastRead = opinionLastReadRepository.save(OpinionLastRead
+                                .builder()
+                                .opinionId(opinion.getId())
+                                .isAdmin(true)
+                                .lastReadChatId(new ObjectId(MIN_OBJECT_ID))
+                                .build());
                     }
                     if (lastChat == null) throw new OpinionException(ErrorCode.INVALID_OPINION_CHAT);
 
@@ -104,5 +110,12 @@ public class AdminOpinionService {
                 })
                 .sorted()
                 .toList();
+    }
+
+    @Transactional
+    public void unsetRemindOpinion(final Long opinionId) {
+        final Opinion opinion = opinionRepository.findById(opinionId)
+                .orElseThrow(() -> new OpinionException(ErrorCode.INVALID_OPINION));
+        opinion.unsetRemind();
     }
 }
