@@ -30,4 +30,17 @@ public record MemberWebsocketMessage(
     public MemberWebsocketMessage(SocketEventType event, String message) {
         this(null, event, null, null, message, null, null, LocalDateTime.now());
     }
+
+    public static MemberWebsocketMessage createResponse(MemberWebsocketMessage request) {
+        return new MemberWebsocketMessage(
+                request.roomType,
+                request.event,
+                request.opinionId,
+                request.agendaId,
+                request.message,
+                request.images,
+                request.memberId,
+                LocalDateTime.now()
+        );
+    }
 }

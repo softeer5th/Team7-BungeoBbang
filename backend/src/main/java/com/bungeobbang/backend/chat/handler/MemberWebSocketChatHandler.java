@@ -52,18 +52,19 @@ public class MemberWebSocketChatHandler extends TextWebSocketHandler {
             log.info("Received text message: {}", message.getPayload());
             jwtProvider.validateToken(accessToken);
             final MemberWebsocketMessage request = objectMapper.readValue(message.getPayload(), MemberWebsocketMessage.class);
+            final MemberWebsocketMessage requestContainsCreatedAt = MemberWebsocketMessage.createResponse(request);
 
             if (request.event().equals(CHAT)) {
                 badWordService.validate(request.message());
-                publisher.publishEvent(request);
+                publisher.publishEvent(requestContainsCreatedAt);
             }
 
             if (request.event().equals(CHAT) && request.roomType().equals(AGENDA))
-                session.sendMessage(new TextMessage(objectMapper.writeValueAsString(request)));
+                session.sendMessage(new TextMessage(objectMapper.writeValueAsString(requestContainsCreatedAt)));
 
             switch (request.roomType()) {
-                case AGENDA -> publisher.publishEvent(AgendaMemberEvent.from(session, request));
-                case OPINION -> publisher.publishEvent(OpinionMemberEvent.from(session, request));
+                case AGENDA -> publisher.publishEvent(AgendaMemberEvent.from(session, requestContainsCreatedAt));
+                case OPINION -> publisher.publishEvent(OpinionMemberEvent.from(session, requestContainsCreatedAt));
             }
         } catch (AuthException e) {
             session.sendMessage(new TextMessage(objectMapper.writeValueAsString(new MemberWebsocketMessage(ERROR, e.getMessage()))));
