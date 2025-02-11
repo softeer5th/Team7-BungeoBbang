@@ -116,6 +116,10 @@ public class AgendaChatService {
     public void validAgenda(Long agendaId) {
         final Agenda agenda = agendaRepository.findById(agendaId)
                 .orElseThrow(() -> new AgendaException(ErrorCode.AGENDA_DELETED));
+
+        if (agenda.getStartDate().isAfter(LocalDate.now()))
+            throw new AgendaException(ErrorCode.AGENDA_NOT_STARTED);
+
         if (agenda.getEndDate().isBefore(LocalDate.now()))
             throw new AgendaException(ErrorCode.AGENDA_CLOSED);
     }
