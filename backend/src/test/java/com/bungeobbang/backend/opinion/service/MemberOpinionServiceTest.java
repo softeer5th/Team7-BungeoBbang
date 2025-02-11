@@ -158,7 +158,7 @@ class MemberOpinionServiceTest {
                 .lastReadChatId(NAVER_MEMBER2_OPINION2_CHAT.getId())
                 .build();
 
-        when(opinionRepository.findAllByMemberId(anyLong())).thenReturn(opinions);
+        when(opinionRepository.findAllByMemberIdAndIsDeletedFalse(anyLong())).thenReturn(opinions);
         when(opinionLastReadRepository.findByOpinionIdInAndIsAdmin(any(), eq(false)))
                 .thenReturn(List.of(fstOpinionLastRead, scdOpinionLastRead));
         when(opinionChatRepository.findLatestChatsByOpinionIds(any()))
