@@ -8,9 +8,11 @@ import { CategoryStep } from './components/CategoryStep';
 import { ChatStep } from './components/ChatStep';
 import api from '@/utils/api';
 import { Dialog } from '@/components/Dialog/Dialog';
+import { useSocketManager } from '@/hooks/useSocketManager';
 
 const OpinionCategoryPage: React.FC = () => {
   const navigate = useNavigate();
+  const socketManager = useSocketManager();
 
   const [selectedOpinion, setSelectedOpinion] = useState<string>('');
   const [selectedCategory, setSelectedCategory] = useState<string>('');
@@ -79,12 +81,10 @@ const OpinionCategoryPage: React.FC = () => {
       content: message,
       images: images,
     };
-
     try {
-      console.log('메시지 전송 데이터:', messageData);
       const response = await api.post('/student/opinions', messageData);
-      console.log('메시지 전송 결과:', response);
       if (response.status === 200) {
+        socketManager('OPINION', 'START', response.data.opinionId);
         navigate('/opinion/chat/' + response.data.opinionId);
       }
     } catch (error) {

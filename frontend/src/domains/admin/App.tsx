@@ -3,8 +3,18 @@ import AdminLogin from './pages/login';
 import AgendaPage from './pages/agenda';
 import AgendaChatPage from './pages/agenda/chat';
 import OpinionEntryPage from './pages/opinion/entry';
+import { useSocketStore } from '@/store/socketStore';
+import { useEffect } from 'react';
 
 function AdminApp() {
+  const { connect, disconnect } = useSocketStore();
+  useEffect(() => {
+    connect(true);
+    return () => {
+      disconnect();
+    };
+  }, [connect, disconnect]);
+
   return (
     <BrowserRouter>
       <Routes>

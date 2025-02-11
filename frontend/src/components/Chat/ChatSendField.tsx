@@ -109,6 +109,7 @@ export const ChatSendField: React.FC<ChatSendFieldProps> = ({
   const handleSend = () => {
     if (message.trim()) {
       onSendMessage(message, images);
+      setMessage('');
     }
   };
 
