@@ -21,6 +21,7 @@ import { Dialog } from '@/components/Dialog/Dialog.tsx';
 import { formatChatData } from '@/utils/chat/formatChatData.ts';
 import { useImageUpload } from '@/hooks/useImageUpload.ts';
 import { useSocketStore } from '@/store/socketStore';
+import { useSocketManager } from '@/hooks/useSocketManager.ts';
 
 interface ChatMessage {
   roomType: 'OPINION' | 'AGENDA';
@@ -46,6 +47,7 @@ const OpinionChatPage = () => {
   const { subscribe, sendMessage } = useSocketStore();
   const memberId = localStorage.getItem('member_id');
   const { socket } = useSocketStore();
+  const socketManager = useSocketManager();
 
   const handleMessageReceive = useCallback(
     (message: ChatMessage) => {
@@ -113,6 +115,7 @@ const OpinionChatPage = () => {
         rightIconSrc="/src/assets/icons/logout.svg"
         onLeftIconClick={() => {
           navigate(-1);
+          socketManager('OPINION', 'LEAVE', Number(roomId));
         }}
         onRightIconClick={() => {
           setExitDialogOpen(true);
@@ -168,8 +171,15 @@ const OpinionChatPage = () => {
 
       {isExitDialogOpen && (
         <ExitDialog
-          onConfirm={() => {
+          onConfirm={async () => {
             setExitDialogOpen(false);
+            try {
+              socketManager('OPINION', 'EXIT', Number(roomId));
+              await api.delete(`/student/opinions/${roomId}`);
+              navigate('/opinion/entry');
+            } catch (error) {
+              console.error('채팅방 삭제 실패:', error);
+            }
           }}
           onDismiss={() => {
             setExitDialogOpen(false);
