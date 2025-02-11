@@ -12,5 +12,5 @@ import AdminApp from './domains/admin/App.tsx';
 const isAdmin = window.location.pathname.startsWith('/admin');
 
 createRoot(document.getElementById('root')!).render(
-  <ThemeProvider theme={theme}>{isAdmin ? <AdminApp /> : <StudentApp />}</ThemeProvider>,
+  <ThemeProvider theme={theme}>{!isAdmin ? <AdminApp /> : <StudentApp />}</ThemeProvider>,
 );

@@ -1,6 +1,13 @@
 import styled from 'styled-components';
 import Typography from '@/styles/Typography';
 
+export const Container = styled.div`
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+  max-height: 100dvh;
+  overflow: hidden;
+`;
 export const TopAppBarBorder = styled.div`
   border-bottom: 2px solid var(--Default-Gray-20, #e0e0e0);
   position: sticky;
@@ -8,10 +15,10 @@ export const TopAppBarBorder = styled.div`
 `;
 
 export const OpinionEntryContainer = styled.div`
-  height: calc(100svh - 52px);
-  padding: 0 0 12px 0;
   display: flex;
+  overflow: auto;
   flex-direction: column;
+  height: 100dvh;
 `;
 
 export const ChipListContainer = styled.div`
