@@ -77,14 +77,14 @@ public class AgendaRealTimeChatService {
     @EventListener
     public void adminConnect(AdminConnectEvent event) {
         log.info("☄️ AdminConnect event: {}", event);
-        final List<Agenda> agendas = getAgenda(event);
+        final List<Agenda> agendas = getAgenda(event.adminId());
         agendas.forEach(agenda -> messageQueueService.subscribe(event.session(), AGENDA_MEMBER_PREFIX + agenda.getId()));
     }
 
     @EventListener
-    public void adminDisconnect(AdminConnectEvent event) {
+    public void adminDisconnect(AdminDisconnectEvent event) {
         log.info("️✂ AdminDisconnect event: {}", event);
-        final List<Agenda> agendas = getAgenda(event);
+        final List<Agenda> agendas = getAgenda(event.adminId());
         agendas.forEach(agenda -> messageQueueService.unsubscribe(event.session(), AGENDA_MEMBER_PREFIX + agenda.getId()));
     }
 
@@ -171,8 +171,8 @@ public class AgendaRealTimeChatService {
         messageQueueService.unsubscribe(AGENDA_MEMBER_PREFIX + agendaId);
     }
 
-    private List<Agenda> getAgenda(AdminConnectEvent event) {
-        final Admin admin = adminRepository.findById(event.adminId())
+    private List<Agenda> getAgenda(Long adminId) {
+        final Admin admin = adminRepository.findById(adminId)
                 .orElseThrow(() -> new AdminException(ErrorCode.INVALID_ADMIN));
         Long universityId = admin.getUniversity().getId();
         return agendaRepository.findAllByUniversityId(universityId);
