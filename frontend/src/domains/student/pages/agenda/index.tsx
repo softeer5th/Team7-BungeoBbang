@@ -3,7 +3,7 @@ import * as S from './styles';
 import { TopAppBar } from '@/components/TopAppBar';
 import { useTheme } from 'styled-components';
 import { useEffect, useState } from 'react';
-import { ChatListCardData } from './data/ChatRoomListCardData';
+import { ChatRoomListCardData } from './data/ChatRoomListCardData';
 import { BannerContainer } from './components/Banner';
 import { ChatRoomListItem } from './components/ChatRoomListItem';
 import { LogoutDialog } from '@/components/Dialog/LogoutDialog';
@@ -11,8 +11,8 @@ import { ButtonProps } from '@/components/Button';
 import { useNavigate } from 'react-router-dom';
 import { Dialog } from '@/components/Dialog/Dialog';
 import api from '@/utils/api';
-import JWtManager from '@/utils/jwtManager';
 import { bottomItems } from '../destinations';
+import { mapResponseToChatListCardData } from './util/ChatRoomCardMapper';
 
 const AgendaPage = () => {
   const theme = useTheme();
@@ -21,86 +21,38 @@ const AgendaPage = () => {
   const [isLogoutDialogOpen, setLogoutDialogOpen] = useState(false);
   const [selectedChatRoomEnter, setSelectedChatRoomEnter] = useState<number | null>(null);
 
-  const [chatRooms, setChatRooms] = useState<ChatListCardData[]>([]);
+  const [chatRooms, setChatRooms] = useState<ChatRoomListCardData[]>([]);
 
-  // const mockData = [
-  //   {
-  //     roomId: '1',
-  //     dday: 'D-2',
-  //     iconSrc: '/assets/icons/school.svg',
-  //     iconBackgroundColor: theme?.colors.icnGreen,
-  //     title: '2025학년도 1학기 수강 신청 수요 조사',
-  //     numOfJoin: 0,
-  //     isInProgress: true,
-  //   },
-  //   {
-  //     roomId: '11',
-  //     dday: 'D-2',
-  //     iconSrc: '/assets/icons/school.svg',
-  //     iconBackgroundColor: theme?.colors.icnGreen,
-  //     title: '2025학년도 1학기 수강 신청 수요 조사',
-  //     numOfJoin: 0,
-  //     isInProgress: true,
-  //   },
-  //   {
-  //     roomId: '12',
-  //     dday: 'D-2',
-  //     iconSrc: '/assets/icons/school.svg',
-  //     iconBackgroundColor: theme?.colors.icnGreen,
-  //     title: '2025학년도 1학기 수강 신청 수요 조사',
-  //     numOfJoin: 0,
-  //     isInProgress: true,
-  //   },
-  //   {
-  //     roomId: '2',
-  //     dday: 'D-7',
-  //     iconSrc: '/assets/icons/school.svg',
-  //     iconBackgroundColor: theme.colors.icnGreen,
-  //     title: '2025학년도 1학기 수강 신청 수요 조사',
-  //     numOfJoin: 0,
-  //     isInProgress: true,
-  //   },
-  //   {
-  //     roomId: '3',
-  //     dday: 'D+2',
-  //     iconSrc: '/assets/icons/school.svg',
-  //     iconBackgroundColor: theme.colors.icnGreen,
-  //     title: '2025학년도 1학기 수강 신청 수요 조사',
-  //     numOfJoin: 2,
-  //     isInProgress: false,
-  //   },
-  //   {
-  //     roomId: '4',
-  //     dday: 'D+2',
-  //     iconSrc: '/assets/icons/school.svg',
-  //     iconBackgroundColor: theme.colors.icnGreen,
-  //     title: '2025학년도 1학기 수강 신청 수요 조사',
-  //     numOfJoin: 5,
-  //     isInProgress: false,
-  //   },
-  //   {
-  //     roomId: '5',
-  //     dday: 'D+2',
-  //     iconSrc: '/assets/icons/school.svg',
-  //     iconBackgroundColor: theme.colors.icnGreen,
-  //     title: '2025학년도 1학기 수강 신청 수요 조사',
-  //     numOfJoin: 21,
-  //     isInProgress: false,
-  //   },
-  // ];
+  const getAllChatRooms = async () => {
+    try {
+      const [active, closed] = await Promise.all([
+        api.get('/student/agendas', { params: { status: 'ACTIVE' } }),
+        api.get('/student/agendas', { params: { status: 'CLOSED' } }),
+      ]);
+
+      const result: ChatRoomListCardData[] = [
+        ...active.data.map((data: any) => mapResponseToChatListCardData(data, 'ACTIVE')),
+        ...closed.data.map((data: any) => mapResponseToChatListCardData(data, 'CLOSED')),
+      ];
+
+      setChatRooms(result);
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
+  };
+
+  const enterChatRoom = async () => {
+    try {
+      await api.post(`/student/agendas/${selectedChatRoomEnter}`);
+
+      navigate(`/agenda/chat/${selectedChatRoomEnter}?isEnd=false&isParticipate=true`);
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
+  };
+
   useEffect(() => {
-    const getChatRooms = async () => {
-      try {
-        console.log(await JWtManager.getMemberId());
-        console.log(await JWtManager.getAccessToken());
-        console.log(await JWtManager.getRefreshToken());
-        const response = await api.get('/student/agendas');
-        setChatRooms(response.data);
-      } catch (error) {
-        console.log(error);
-      }
-    };
-    getChatRooms();
+    getAllChatRooms();
   }, []);
 
   return (
@@ -117,7 +69,19 @@ const AgendaPage = () => {
         {chatRooms && chatRooms.length > 0 ? (
           <S.ChatRoomList>
             {chatRooms.map((room) => (
-              <ChatRoomListItem room={room} onClick={() => setSelectedChatRoomEnter(room.roomId)} />
+              <ChatRoomListItem
+                room={room}
+                onClick={() => {
+                  const isEnd = !room.isInProgress;
+                  const isParticipate = room.isParticipate;
+                  if (isEnd || isParticipate) {
+                    navigate(
+                      `/agenda/chat/${room.roomId}?isEnd=${isEnd}&isParticipate=${isParticipate}`,
+                    );
+                  }
+                  setSelectedChatRoomEnter(room.roomId);
+                }}
+              />
             ))}
           </S.ChatRoomList>
         ) : (
@@ -132,18 +96,14 @@ const AgendaPage = () => {
       {isLogoutDialogOpen && (
         <LogoutDialog
           onDismiss={() => setLogoutDialogOpen(false)}
-          onConfirm={() => {
-            //logout 요청
-            setLogoutDialogOpen(false);
-          }}
+          onConfirm={() => setLogoutDialogOpen(false)}
         />
       )}
 
       {selectedChatRoomEnter && (
         <ChatEnterDialog
           onConfirm={() => {
-            navigate(`/agenda/chat/${selectedChatRoomEnter}`);
-            setSelectedChatRoomEnter(null);
+            enterChatRoom();
           }}
           onDismiss={() => setSelectedChatRoomEnter(null)}
         />

@@ -12,7 +12,7 @@ export const Container = styled.div`
 `;
 
 export const ChatList = styled.div`
-  height: 100%;
+  flex: 1;
   width: 100%;
   overflow-x: scroll;
   overflow-y: auto;

@@ -24,6 +24,7 @@ export const formatChatData = (serverData: ServerChatData[]): ChatData[] => {
   // 기본 채팅 데이터 포맷팅
   const formattedChats: ChatData[] = sortedData.map((item) => {
     const baseChat = {
+      chatId: item.chatId,
       type: item.isAdmin ? ChatType.RECEIVE : ChatType.SEND,
       message: item.chat,
       time: new Date(item.createdAt).toLocaleTimeString('ko-KR', {

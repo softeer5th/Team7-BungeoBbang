@@ -3,14 +3,14 @@ import { ChatRoomListCardData, ProgressState } from '../components/ChatRoomCardD
 
 export const mapResponseToChatRoomListCardData = (response: any): ChatRoomListCardData => {
   return {
-    roomId: response.agendaId,
-    hasNew: false,
-    progressState: getProgressState(response.startDate, response.endDate),
-    numOfJoin: response.count,
-    chatCategoryType: findChatCategoryType(response.categoryType),
-    title: response.title,
-    startDate: formatDate(response.startDate),
-    endDate: formatDate(response.endDate),
+    roomId: response.agenda.agendaId,
+    hasNew: response.hasNewMessage,
+    progressState: getProgressState(response.agenda.startDate, response.agenda.endDate),
+    numOfJoin: response.agenda.count,
+    chatCategoryType: findChatCategoryType(response.agenda.categoryType),
+    title: response.agenda.title,
+    startDate: formatDate(response.agenda.startDate),
+    endDate: formatDate(response.agenda.endDate),
   };
 };
 
