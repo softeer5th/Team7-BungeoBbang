@@ -2,7 +2,7 @@ package com.bungeobbang.backend.agenda.presentation;
 
 import com.bungeobbang.backend.agenda.dto.request.AgendaCreationRequest;
 import com.bungeobbang.backend.agenda.dto.request.AgendaEditRequest;
-import com.bungeobbang.backend.agenda.dto.response.AgendaChatResponse;
+import com.bungeobbang.backend.agenda.dto.response.AgendaChatResponses;
 import com.bungeobbang.backend.agenda.dto.response.AgendaDetailResponse;
 import com.bungeobbang.backend.agenda.dto.response.admin.AdminAgendaResponse;
 import com.bungeobbang.backend.agenda.dto.response.admin.AgendaCreationResponse;
@@ -81,7 +81,7 @@ public class AdminAgendaController implements AdminAgendaApi {
 
     @Override
     @GetMapping("/{agendaId}/chat")
-    public ResponseEntity<List<AgendaChatResponse>> getAgendaChat(
+    public ResponseEntity<AgendaChatResponses> getAgendaChat(
             @AdminAuth Accessor accessor,
             @PathVariable Long agendaId,
             @RequestParam(required = false) ObjectId chatId) {

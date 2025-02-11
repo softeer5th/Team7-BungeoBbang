@@ -2,7 +2,7 @@ package com.bungeobbang.backend.agenda.presentation.api;
 
 import com.bungeobbang.backend.agenda.dto.request.AgendaCreationRequest;
 import com.bungeobbang.backend.agenda.dto.request.AgendaEditRequest;
-import com.bungeobbang.backend.agenda.dto.response.AgendaChatResponse;
+import com.bungeobbang.backend.agenda.dto.response.AgendaChatResponses;
 import com.bungeobbang.backend.agenda.dto.response.AgendaDetailResponse;
 import com.bungeobbang.backend.agenda.dto.response.AgendaResponse;
 import com.bungeobbang.backend.agenda.dto.response.admin.AdminAgendaResponse;
@@ -129,7 +129,7 @@ public interface AdminAgendaApi {
                     "chatId를 전달하면 해당 채팅부터 이후의 메시지를 가져옵니다."
     )
     @GetMapping("/{agendaId}/chat")
-    ResponseEntity<List<AgendaChatResponse>> getAgendaChat(
+    ResponseEntity<AgendaChatResponses> getAgendaChat(
             @Parameter(description = "관리자 인증 정보", hidden = true)
             @AdminAuth Accessor accessor,
 
