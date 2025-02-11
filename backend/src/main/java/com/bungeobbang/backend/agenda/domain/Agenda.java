@@ -57,6 +57,8 @@ public class Agenda extends BaseTimeEntity {
 
     @OneToMany(mappedBy = "agenda")
     private List<AgendaImage> images = new ArrayList<>();
+    @OneToMany(mappedBy = "agenda", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<AgendaMember> agendaMembers = new ArrayList<>();
 
     @Builder
     public Agenda(Long id, CategoryType categoryType, University university, Admin admin, String title, LocalDate startDate, LocalDate endDate, String content, boolean isEnd, int count, List<AgendaImage> images) {

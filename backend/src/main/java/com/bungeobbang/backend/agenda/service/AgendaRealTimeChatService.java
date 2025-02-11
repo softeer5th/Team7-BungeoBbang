@@ -3,7 +3,6 @@ package com.bungeobbang.backend.agenda.service;
 import com.bungeobbang.backend.admin.domain.Admin;
 import com.bungeobbang.backend.admin.domain.repository.AdminRepository;
 import com.bungeobbang.backend.agenda.domain.Agenda;
-import com.bungeobbang.backend.agenda.domain.repository.AgendaMemberRepository;
 import com.bungeobbang.backend.agenda.domain.repository.AgendaRepository;
 import com.bungeobbang.backend.chat.event.common.*;
 import com.bungeobbang.backend.chat.service.MessageQueueService;
@@ -44,7 +43,6 @@ public class AgendaRealTimeChatService {
     private final MessageQueueService messageQueueService;
     private static final String AGENDA_ADMIN_PREFIX = "A_A";
     private final ObjectMapper objectMapper;
-    private final AgendaMemberRepository agendaMemberRepository;
 
     /**
      * 학생이 웹소켓에 연결될 때 호출된다.
@@ -55,17 +53,15 @@ public class AgendaRealTimeChatService {
     @EventListener
     public void memberConnect(MemberConnectEvent event) {
         log.info("☄️ memberConnect event: {}", event);
-        agendaMemberRepository.findAllByMemberId(event.memberId())
-                .forEach(agendaMember ->
-                        messageQueueService.subscribe(event.session(), AGENDA_ADMIN_PREFIX + agendaMember.getAgenda().getId()));
+        List<Agenda> agendas = agendaRepository.findActiveAgendasByMemberId(event.memberId());
+        agendas.forEach(agenda -> messageQueueService.subscribe(event.session(), AGENDA_ADMIN_PREFIX + agenda.getId()));
     }
 
     @EventListener
     public void memberDisconnect(MemberDisconnectEvent event) {
         log.info("️✂ memberDisconnect event: {}", event);
-        agendaMemberRepository.findAllByMemberId(event.memberId())
-                .forEach(agendaMember ->
-                        messageQueueService.unsubscribe(event.session(), AGENDA_ADMIN_PREFIX + agendaMember.getAgenda().getId()));
+        List<Agenda> agendas = agendaRepository.findActiveAgendasByMemberId(event.memberId());
+        agendas.forEach(agenda -> messageQueueService.unsubscribe(event.session(), AGENDA_ADMIN_PREFIX + agenda.getId()));
     }
 
     /**
