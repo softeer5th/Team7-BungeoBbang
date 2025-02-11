@@ -75,6 +75,7 @@ const ImageBox = styled.img`
 `;
 
 const MessageContainer = styled.div`
+  width: fit-content;
   display: flex;
   justify-content: flex-end;
   align-items: flex-end;

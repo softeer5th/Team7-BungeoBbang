@@ -2,7 +2,7 @@ import { BottomNavigation } from '@/components/bottom-navigation/BottomNavigatio
 import * as S from './styles';
 import { TopAppBar } from '@/components/TopAppBar';
 import { useTheme } from 'styled-components';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ChatRoomListCardData } from './data/ChatRoomListCardData';
 import { BannerContainer } from './components/Banner';
 import { ChatRoomListItem } from './components/ChatRoomListItem';
@@ -15,27 +15,60 @@ import { bottomItems } from '../destinations';
 import { mapResponseToChatListCardData } from './util/ChatRoomCardMapper';
 
 const AgendaPage = () => {
+  const MAX_PAGE_ITEMS = 6;
+  const TRIGGER_REST_ITEMS = 3;
+
   const theme = useTheme();
   const navigate = useNavigate();
 
   const [isLogoutDialogOpen, setLogoutDialogOpen] = useState(false);
   const [selectedChatRoomEnter, setSelectedChatRoomEnter] = useState<number | null>(null);
 
+  const lastChatRoom = useRef<[string, number] | null>(null);
+
+  const hasMore = useRef<boolean>(true);
+  const isInProgessEnd = useRef<boolean>(false);
   const [chatRooms, setChatRooms] = useState<ChatRoomListCardData[]>([]);
 
-  const getAllChatRooms = async () => {
+  const observer = useRef<IntersectionObserver | null>(null);
+
+  const triggerItemRef = useRef<HTMLDivElement | null>(null);
+
+  const setTriggerItemRef = (element: HTMLDivElement) => {
+    if (observer.current && element) {
+      observer.current.disconnect();
+      observer.current.observe(element);
+      triggerItemRef.current = element;
+    }
+  };
+
+  const fetchChatRooms = async () => {
+    if (!hasMore.current) return;
     try {
-      const [active, closed] = await Promise.all([
-        api.get('/student/agendas', { params: { status: 'ACTIVE' } }),
-        api.get('/student/agendas', { params: { status: 'CLOSED' } }),
-      ]);
+      const status = isInProgessEnd.current ? 'CLOSED' : 'ACTIVE';
+      const params = {
+        status: status,
+        ...(lastChatRoom.current
+          ? { endDate: lastChatRoom.current[0], agendaId: lastChatRoom.current[1] }
+          : {}),
+      };
+      const response = await api.get('/student/agendas', {
+        params: params,
+      });
 
-      const result: ChatRoomListCardData[] = [
-        ...active.data.map((data: any) => mapResponseToChatListCardData(data, 'ACTIVE')),
-        ...closed.data.map((data: any) => mapResponseToChatListCardData(data, 'CLOSED')),
-      ];
+      const newRooms = response.data.map((data: any) =>
+        mapResponseToChatListCardData(data, status),
+      );
 
-      setChatRooms(result);
+      setChatRooms((prev) => [...prev, ...newRooms]);
+
+      if (newRooms.length < MAX_PAGE_ITEMS) {
+        if (!isInProgessEnd.current) {
+          isInProgessEnd.current = true;
+        } else {
+          hasMore.current = false;
+        }
+      }
     } catch (error) {
       console.error('Error fetching data:', error);
     }
@@ -52,7 +85,26 @@ const AgendaPage = () => {
   };
 
   useEffect(() => {
-    getAllChatRooms();
+    fetchChatRooms();
+    if (!observer.current) {
+      observer.current = new IntersectionObserver((entries) => {
+        const [entry] = entries;
+        if (entry.isIntersecting) {
+          fetchChatRooms();
+        }
+      });
+
+      if (triggerItemRef.current) {
+        observer.current.disconnect();
+        observer.current.observe(triggerItemRef.current);
+      }
+    }
+
+    return () => {
+      if (observer.current && triggerItemRef.current) {
+        observer.current.disconnect();
+      }
+    };
   }, []);
 
   return (
@@ -68,21 +120,31 @@ const AgendaPage = () => {
         <BannerContainer />
         {chatRooms && chatRooms.length > 0 ? (
           <S.ChatRoomList>
-            {chatRooms.map((room) => (
-              <ChatRoomListItem
-                room={room}
-                onClick={() => {
-                  const isEnd = !room.isInProgress;
-                  const isParticipate = room.isParticipate;
-                  if (isEnd || isParticipate) {
-                    navigate(
-                      `/agenda/chat/${room.roomId}?isEnd=${isEnd}&isParticipate=${isParticipate}`,
-                    );
-                  }
-                  setSelectedChatRoomEnter(room.roomId);
-                }}
-              />
-            ))}
+            {chatRooms.map((room, index) => {
+              const isTriggerItem = index === chatRooms.length - TRIGGER_REST_ITEMS;
+              const isLastItem = index === chatRooms.length - 1;
+              if (isLastItem) {
+                lastChatRoom.current = [room.endDate, room.roomId];
+              }
+
+              return (
+                <ChatRoomListItem
+                  key={room.roomId}
+                  ref={isTriggerItem ? setTriggerItemRef : null}
+                  room={room}
+                  onClick={() => {
+                    const isEnd = !room.isInProgress;
+                    const isParticipate = room.isParticipate;
+                    if (isEnd || isParticipate) {
+                      navigate(
+                        `/agenda/chat/${room.roomId}?isEnd=${isEnd}&isParticipate=${isParticipate}`,
+                      );
+                    }
+                    setSelectedChatRoomEnter(room.roomId);
+                  }}
+                />
+              );
+            })}
           </S.ChatRoomList>
         ) : (
           <S.EmptyTextWrapper>
