@@ -6,7 +6,6 @@ import com.bungeobbang.backend.agenda.domain.AgendaMember;
 import com.bungeobbang.backend.agenda.domain.repository.AgendaMemberRepository;
 import com.bungeobbang.backend.agenda.domain.repository.AgendaRepository;
 import com.bungeobbang.backend.agenda.domain.repository.CustomAgendaChatRepository;
-import com.bungeobbang.backend.agenda.domain.repository.CustomAgendaRepository;
 import com.bungeobbang.backend.agenda.dto.AgendaLatestChat;
 import com.bungeobbang.backend.agenda.dto.response.AgendaDetailResponse;
 import com.bungeobbang.backend.agenda.dto.response.member.MemberAgendaResponse;
@@ -52,7 +51,6 @@ public class AgendaService {
     private final MemberRepository memberRepository;
     private final AgendaMemberRepository agendaMemberRepository;
     private final CustomAgendaChatRepository customAgendaChatRepository;
-    private final CustomAgendaRepository customAgendaRepository;
 
     private final static ObjectId MIN_OBJECT_ID = new ObjectId(0, 0);
 
@@ -193,13 +191,5 @@ public class AgendaService {
     private Member getMember(final Long memberId) {
         return memberRepository.findById(memberId)
                 .orElseThrow(() -> new MemberException(ErrorCode.INVALID_MEMBER));
-    }
-
-    public void test(long member, long uni) {
-        final List<MemberAgendaResponse> activeAgendasWithParticipation = customAgendaRepository.getActiveAgendasWithParticipation(uni, null, null, member);
-        for (MemberAgendaResponse memberAgendaResponse : activeAgendasWithParticipation) {
-            System.out.println("memberAgendaResponse = " + memberAgendaResponse);
-        }
-
     }
 }
