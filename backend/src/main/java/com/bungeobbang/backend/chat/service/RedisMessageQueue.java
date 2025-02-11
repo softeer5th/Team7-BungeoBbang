@@ -46,10 +46,12 @@ public class RedisMessageQueue implements MessageQueueService {
 
     @Override
     public void unsubscribe(WebSocketSession session, String topic) {
-        channelSubscribers.get(topic).remove(session);
-        if (channelSubscribers.get(topic).isEmpty()) {
-            asyncCommands.unsubscribe(topic);
-            channelSubscribers.remove(topic);
+        if (channelSubscribers.containsKey(topic)) {
+            channelSubscribers.get(topic).remove(session);
+            if (channelSubscribers.get(topic).isEmpty()) {
+                asyncCommands.unsubscribe(topic);
+                channelSubscribers.remove(topic);
+            }
         }
     }
 
