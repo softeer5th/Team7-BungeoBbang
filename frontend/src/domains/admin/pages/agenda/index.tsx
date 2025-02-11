@@ -10,10 +10,12 @@ import { ChatRoomListCardData } from './components/ChatRoomCardData';
 import { ChatRoomListItem } from './components/ChatRoomListItem';
 import { EmptyContent } from '@/components/EmptyContent';
 import api from '@/utils/api';
-import { mapResponseToChatRoomListCardData } from './util/ChatRoomMapper';
+import { mapResponseToChatRoomListCardData, ServerData } from './util/ChatRoomMapper';
 import { useNavigate } from 'react-router-dom';
 import { Dialog } from '@/components/Dialog/Dialog';
 import { LogoutDialog } from '@/components/Dialog/LogoutDialog';
+import { AgendaEndDialog } from './components/ChatEndDialog';
+import { AgendaDeleteDialog } from './components/AgendaDeleteDialog';
 
 const AgendaPage: React.FC = () => {
   const theme = useTheme();
@@ -100,12 +102,12 @@ const AgendaPage: React.FC = () => {
       ]);
 
       result.inProgress = [
-        ...active.data.map((data: any) => mapResponseToChatRoomListCardData(data)),
-        ...upcoming.data.map((data: any) => mapResponseToChatRoomListCardData(data)),
+        ...active.data.map((data: ServerData) => mapResponseToChatRoomListCardData(data)),
+        ...upcoming.data.map((data: ServerData) => mapResponseToChatRoomListCardData(data)),
       ];
 
       result.complete = [
-        ...closed.data.map((data: any) => mapResponseToChatRoomListCardData(data)),
+        ...closed.data.map((data: ServerData) => mapResponseToChatRoomListCardData(data)),
       ];
 
       setTabContents(result);
@@ -241,51 +243,23 @@ const AgendaPage: React.FC = () => {
         />
       )}
       {isEndDialogShow && (
-        <Dialog
+        <AgendaEndDialog
           title={selectedCardData?.title}
-          body="
-       채팅방을 종료하시나요?<br />
-        종료된 채팅방은 종료 페이지로 이동되며,<br />
-        다시 개설되지 않습니다.
-    "
           onConfirm={() => {
             handleEndRoom();
             setEndDialogShow(false);
           }}
           onDismiss={() => setEndDialogShow(false)}
-          confirmButton={{
-            text: '종료',
-            backgroundColor: theme.colors.sementicError,
-          }}
-          dissmissButton={{
-            text: '취소',
-            backgroundColor: theme.colors.grayScale10,
-            textColor: theme.colors.grayScale40,
-          }}
         />
       )}
       {isDeleteDialogShow && (
-        <Dialog
+        <AgendaDeleteDialog
           title={selectedCardData?.title}
-          body="
-       채팅방을 삭제하시나요?<br />
-        삭제된 채팅방의 데이터는<br />
-        영구적으로 삭제됩니다.
-    "
           onConfirm={() => {
             handleDeleteRoom();
             setDeleteDialogShow(false);
           }}
           onDismiss={() => setDeleteDialogShow(false)}
-          confirmButton={{
-            text: '삭제',
-            backgroundColor: theme.colors.sementicError,
-          }}
-          dissmissButton={{
-            text: '취소',
-            backgroundColor: theme.colors.grayScale10,
-            textColor: theme.colors.grayScale40,
-          }}
         />
       )}
     </S.Container>

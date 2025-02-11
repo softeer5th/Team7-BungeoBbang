@@ -1,8 +1,20 @@
 import { ChatCategoryType } from '@/types/ChatCategoryType';
 import { ChatRoomListCardData } from '../data/ChatRoomListCardData';
 
+export interface ServerData {
+  agenda: {
+    agendaId: number;
+    categoryType: string;
+    title: string;
+    startDate: string;
+    endDate: string;
+    count: number;
+  };
+  isParticipate: boolean;
+}
+
 export const mapResponseToChatListCardData = (
-  response: any,
+  response: ServerData,
   status: string,
 ): ChatRoomListCardData => {
   return {

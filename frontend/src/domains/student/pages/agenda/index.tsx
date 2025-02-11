@@ -2,17 +2,17 @@ import { BottomNavigation } from '@/components/bottom-navigation/BottomNavigatio
 import * as S from './styles';
 import { TopAppBar } from '@/components/TopAppBar';
 import { useTheme } from 'styled-components';
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { ChatRoomListCardData } from './data/ChatRoomListCardData';
 import { BannerContainer } from './components/Banner';
 import { ChatRoomListItem } from './components/ChatRoomListItem';
 import { LogoutDialog } from '@/components/Dialog/LogoutDialog';
-import { ButtonProps } from '@/components/Button';
 import { useNavigate } from 'react-router-dom';
-import { Dialog } from '@/components/Dialog/Dialog';
 import api from '@/utils/api';
 import { bottomItems } from '../destinations';
-import { mapResponseToChatListCardData } from './util/ChatRoomCardMapper';
+import { mapResponseToChatListCardData, ServerData } from './util/ChatRoomCardMapper';
+import useInfiniteScroll from '@/hooks/useInfiniteScroll';
+import { ChatEnterDialog } from './components/ChatEnterDialog';
 
 const AgendaPage = () => {
   const MAX_PAGE_ITEMS = 6;
@@ -30,20 +30,9 @@ const AgendaPage = () => {
   const isInProgessEnd = useRef<boolean>(false);
   const [chatRooms, setChatRooms] = useState<ChatRoomListCardData[]>([]);
 
-  const observer = useRef<IntersectionObserver | null>(null);
-
-  const triggerItemRef = useRef<HTMLDivElement | null>(null);
-
-  const setTriggerItemRef = (element: HTMLDivElement) => {
-    if (observer.current && element) {
-      observer.current.disconnect();
-      observer.current.observe(element);
-      triggerItemRef.current = element;
-    }
-  };
-
   const fetchChatRooms = async () => {
     if (!hasMore.current) return;
+
     try {
       const status = isInProgessEnd.current ? 'CLOSED' : 'ACTIVE';
       const params = {
@@ -52,11 +41,12 @@ const AgendaPage = () => {
           ? { endDate: lastChatRoom.current[0], agendaId: lastChatRoom.current[1] }
           : {}),
       };
+
       const response = await api.get('/student/agendas', {
         params: params,
       });
 
-      const newRooms = response.data.map((data: any) =>
+      const newRooms = response.data.map((data: ServerData) =>
         mapResponseToChatListCardData(data, status),
       );
 
@@ -84,28 +74,10 @@ const AgendaPage = () => {
     }
   };
 
-  useEffect(() => {
-    fetchChatRooms();
-    if (!observer.current) {
-      observer.current = new IntersectionObserver((entries) => {
-        const [entry] = entries;
-        if (entry.isIntersecting) {
-          fetchChatRooms();
-        }
-      });
-
-      if (triggerItemRef.current) {
-        observer.current.disconnect();
-        observer.current.observe(triggerItemRef.current);
-      }
-    }
-
-    return () => {
-      if (observer.current && triggerItemRef.current) {
-        observer.current.disconnect();
-      }
-    };
-  }, []);
+  const { setTriggerItem } = useInfiniteScroll({
+    fetchMore: fetchChatRooms,
+    hasMore: isInProgessEnd.current == false || hasMore.current === true,
+  });
 
   return (
     <S.Container>
@@ -130,7 +102,7 @@ const AgendaPage = () => {
               return (
                 <ChatRoomListItem
                   key={room.roomId}
-                  ref={isTriggerItem ? setTriggerItemRef : null}
+                  ref={isTriggerItem ? setTriggerItem : null}
                   room={room}
                   onClick={() => {
                     const isEnd = !room.isInProgress;
@@ -171,40 +143,6 @@ const AgendaPage = () => {
         />
       )}
     </S.Container>
-  );
-};
-
-interface ChatEnterDialogProps {
-  onConfirm: () => void;
-  onDismiss: () => void;
-}
-
-export const ChatEnterDialog: React.FC<ChatEnterDialogProps> = ({
-  onConfirm = () => {},
-  onDismiss = () => {},
-}) => {
-  const theme = useTheme();
-
-  const confirmButton: ButtonProps = {
-    text: '입장하기',
-  };
-
-  const dismissButton: ButtonProps = {
-    text: '취소',
-    backgroundColor: theme.colors.grayScale10,
-    textColor: theme.colors.grayScale40,
-  };
-
-  return (
-    <Dialog
-      body={`채팅방에 입장하시겠어요?<br/>
-    입장한 채팅방의 알림은<br/>
-    <span style="color: #1F87FF; font-weight: 700;">[내 의견]</span>에서 확인할 수 있습니다.`}
-      onConfirm={() => onConfirm()}
-      onDismiss={() => onDismiss()}
-      confirmButton={confirmButton}
-      dissmissButton={dismissButton}
-    />
   );
 };
 
