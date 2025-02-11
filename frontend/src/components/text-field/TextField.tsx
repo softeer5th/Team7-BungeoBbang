@@ -5,7 +5,9 @@ import Typography from '../../styles/Typography';
 interface TextFieldProps {
   value: string;
   placeholder?: string;
-  onChange: (value: string) => void;
+  rows?: number;
+  onChange?: (value: string) => void;
+  onClick?: () => void;
   placeholderColor?: string;
   textColor?: string;
   border?: BorderProps;
@@ -18,7 +20,9 @@ interface TextFieldProps {
 export const TextField: React.FC<TextFieldProps> = ({
   value,
   placeholder = '',
-  onChange,
+  rows = 1,
+  onChange = () => {},
+  onClick,
   placeholderColor = '#A8A8A8',
   textColor = '#3C3C3C',
   border,
@@ -27,7 +31,7 @@ export const TextField: React.FC<TextFieldProps> = ({
   isError = false,
   disabled = false,
 }) => {
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const newValue = e.target.value;
     onChange(newValue);
   };
@@ -35,7 +39,9 @@ export const TextField: React.FC<TextFieldProps> = ({
   return (
     <TextFieldContainer>
       <TextFieldInput
+        rows={rows}
         variant="body1"
+        onClick={onClick}
         value={value}
         placeholder={placeholder}
         onChange={handleInputChange}
@@ -44,6 +50,7 @@ export const TextField: React.FC<TextFieldProps> = ({
         border={border}
         hasError={isError}
         disabled={disabled}
+        isFocusable={onClick ? false : true}
       />
       {isError && errorText && (
         <ErrorText variant="caption2" errorTextColor={errorTextColor}>
@@ -61,17 +68,18 @@ const TextFieldContainer = styled.div`
   align-items: flex-start;
 `;
 
-const TextFieldInput = styled(Typography).attrs({ as: 'input' })<{
+const TextFieldInput = styled(Typography).attrs({ as: 'textarea' })<{
   placeholderColor: string;
   textColor: string;
   border?: BorderProps;
   hasError: boolean;
   disabled: boolean;
+  isFocusable: boolean;
 }>`
   width: 100%;
   padding: 14px;
   box-sizing: border-box;
-  background-color: ${(props) => (props.disabled ? '#E0E0E0' : '#FFFFFF')};
+  background-color: ${(props) => (props.disabled ? '#F4F4F4' : '#FFFFFF')};
   color: ${(props) => (props.disabled ? '#C6C6C6' : props.textColor)};
   border: ${(props) =>
     `${props.border?.borderWidth || '1px'} solid ${
@@ -84,6 +92,10 @@ const TextFieldInput = styled(Typography).attrs({ as: 'input' })<{
 
   &::placeholder {
     color: ${(props) => props.placeholderColor || '#A8A8A8'};
+  }
+
+  &:focus {
+    caret-color: ${(props) => (props.isFocusable ? 'default' : 'transparent')};
   }
 `;
 

@@ -69,6 +69,7 @@ export const TopAppBar: React.FC<TopAppBarProps> = ({
           />
         </IconWrapper>
       )}
+      {LeftIconComponent && !RightIconComponent && <RightIconWrapper />}
     </TopAppBarContainer>
   );
 };
@@ -112,4 +113,9 @@ const TitleText = styled(Typography)<{ titleCentered: boolean; titleColor: strin
   color: ${(props) => props.titleColor};
   z-index: 1;
   text-align: ${(props) => (props.titleCentered ? 'center' : 'left')};
+`;
+
+const RightIconWrapper = styled.div`
+  width: 40px;
+  height: 40px;
 `;

@@ -11,7 +11,7 @@ import { ChatPreviewItem } from './components/ChatPreviewItem.tsx';
 import { ChatOpinionType } from '@/types/ChatOpinionType.tsx';
 import { ChatCategoryType } from '@/types/ChatCategoryType.tsx';
 import { EmptyContent } from '@/components/EmptyContent.tsx';
-import { bottomItems } from '../\bdestinations.tsx';
+import { bottomItems } from '../destinations.tsx';
 
 const MyPage = () => {
   const theme = useTheme();

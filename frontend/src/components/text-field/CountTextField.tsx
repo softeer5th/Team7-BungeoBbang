@@ -6,6 +6,7 @@ interface CountTextFieldProps {
   value: string;
   maxLength: number;
   placeholder?: string;
+  rows?: number;
   onChange: (value: string) => void;
   placeholderColor?: string;
   textColor?: string;
@@ -17,13 +18,14 @@ export const CountTextField: React.FC<CountTextFieldProps> = ({
   value,
   maxLength,
   placeholder,
+  rows = 1,
   onChange,
   placeholderColor = '#A8A8A8',
   textColor = '#222222',
   border,
   disabled = false,
 }) => {
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     let newValue = e.target.value;
     if (newValue.length >= maxLength) {
       newValue = newValue.slice(0, maxLength);
@@ -34,6 +36,7 @@ export const CountTextField: React.FC<CountTextFieldProps> = ({
   return (
     <CountTextFieldContainer>
       <TextFieldInput
+        rows={rows}
         variant="body1"
         value={value}
         placeholder={placeholder}
@@ -57,7 +60,7 @@ const CountTextFieldContainer = styled.div`
   align-items: flex-end;
 `;
 
-const TextFieldInput = styled(Typography).attrs({ as: 'input' })<{
+const TextFieldInput = styled(Typography).attrs({ as: 'textarea' })<{
   placeholderColor: string;
   textColor: string;
   border?: BorderProps;

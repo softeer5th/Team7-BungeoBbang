@@ -29,7 +29,7 @@ export const useImageUpload = (
           'Content-Type': 'multipart/form-data',
         },
       });
-      return response.data.urls;
+      return response.data.names;
     } catch (error) {
       console.error('이미지 업로드 실패:', error);
       return [];
