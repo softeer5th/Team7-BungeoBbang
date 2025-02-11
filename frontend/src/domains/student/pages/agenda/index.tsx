@@ -29,6 +29,8 @@ const AgendaPage = () => {
 
   const hasMore = useRef<boolean>(true);
   const isInProgessEnd = useRef<boolean>(false);
+  const isFirstUpcoming = useRef<boolean>(false);
+
   const [chatRooms, setChatRooms] = useState<ChatRoomListCardData[]>([]);
 
   const fetchChatRooms = async () => {
@@ -36,12 +38,22 @@ const AgendaPage = () => {
 
     try {
       const status = isInProgessEnd.current ? 'CLOSED' : 'ACTIVE';
-      const params = {
-        status: status,
-        ...(lastChatRoom.current
-          ? { endDate: lastChatRoom.current[0], agendaId: lastChatRoom.current[1] }
-          : {}),
-      };
+      const params =
+        status == 'ACTIVE'
+          ? {
+              status: status,
+              ...(lastChatRoom.current
+                ? { endDate: lastChatRoom.current[0], agendaId: lastChatRoom.current[1] }
+                : {}),
+            }
+          : {
+              status: status,
+              ...(lastChatRoom.current && !isFirstUpcoming.current
+                ? { endDate: lastChatRoom.current[0], agendaId: lastChatRoom.current[1] }
+                : {}),
+            };
+
+      if (status == 'CLOSED') isFirstUpcoming.current = false;
 
       const response = await api.get('/student/agendas', {
         params: params,

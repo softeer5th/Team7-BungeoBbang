@@ -54,7 +54,7 @@ const AgendaPage: React.FC = () => {
 
   const hasMore = useRef<boolean[]>(tabItems.map(() => false));
   const isInProgessEnd = useRef<boolean>(false);
-  const isFirstUpcoming = useRef<boolean>(false);
+  const isFirstUpcoming = useRef<boolean>(true);
 
   const lastChatRoom = useRef<[string | null, number | null][]>(tabItems.map(() => [null, null]));
 
@@ -126,7 +126,6 @@ const AgendaPage: React.FC = () => {
       if (newRooms.length < MAX_PAGE_ITEMS) {
         if (!isInProgessEnd.current) {
           isInProgessEnd.current = true;
-          isFirstUpcoming.current = true;
         } else {
           setProgressHasMore(false);
         }
