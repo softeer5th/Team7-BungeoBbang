@@ -9,7 +9,7 @@ import com.bungeobbang.backend.agenda.service.AgendaChatService;
 import com.bungeobbang.backend.agenda.service.AgendaService;
 import com.bungeobbang.backend.agenda.status.AgendaStatusType;
 import com.bungeobbang.backend.auth.domain.Accessor;
-import com.bungeobbang.backend.auth.member.Auth;
+import com.bungeobbang.backend.auth.member.MemberAuth;
 import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
 import org.springframework.http.ResponseEntity;
@@ -28,7 +28,7 @@ public class AgendaController implements AgendaApi {
     @Override
     @PostMapping("/{agendaId}")
     public ResponseEntity<Void> participateAgenda(
-            @Auth Accessor accessor,
+            @MemberAuth Accessor accessor,
             @PathVariable Long agendaId) {
         agendaService.participateAgenda(accessor.id(), agendaId);
         return ResponseEntity.noContent().build();
@@ -37,7 +37,7 @@ public class AgendaController implements AgendaApi {
     @Override
     @GetMapping
     public ResponseEntity<List<MemberAgendaResponse>> getAgendasByStatus(
-            @Auth Accessor accessor,
+            @MemberAuth Accessor accessor,
             @RequestParam AgendaStatusType status,
             @RequestParam(required = false) LocalDate endDate,
             @RequestParam(required = false) Long agendaId) {
@@ -47,7 +47,7 @@ public class AgendaController implements AgendaApi {
     @Override
     @GetMapping("/{agendaId}")
     public ResponseEntity<AgendaDetailResponse> getAgendaDetail(
-            @Auth Accessor accessor,
+            @MemberAuth Accessor accessor,
             @PathVariable Long agendaId
     ) {
         return ResponseEntity.ok(agendaService.getAgendaDetail(accessor.id(), agendaId));
@@ -56,7 +56,7 @@ public class AgendaController implements AgendaApi {
     @Override
     @GetMapping("/my")
     public ResponseEntity<List<MyAgendaResponse>> getMyAgendas(
-            @Auth Accessor accessor
+            @MemberAuth Accessor accessor
     ) {
         return ResponseEntity.ok(agendaService.getMyAgenda(accessor.id()));
     }
@@ -64,7 +64,7 @@ public class AgendaController implements AgendaApi {
     @Override
     @DeleteMapping("/{agendaId}")
     public ResponseEntity<Void> exitAgenda(
-            @Auth Accessor accessor,
+            @MemberAuth Accessor accessor,
             @PathVariable Long agendaId
     ) {
         agendaService.exitAgenda(accessor.id(), agendaId);
@@ -74,7 +74,7 @@ public class AgendaController implements AgendaApi {
     @Override
     @GetMapping("/{agendaId}/chat")
     public ResponseEntity<List<AgendaChatResponse>> getChats(
-            @Auth Accessor accessor,
+            @MemberAuth Accessor accessor,
             @PathVariable Long agendaId,
             @RequestParam(required = false) ObjectId chatId
     ) {

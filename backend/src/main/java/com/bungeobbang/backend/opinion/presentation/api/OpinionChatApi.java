@@ -1,7 +1,7 @@
 package com.bungeobbang.backend.opinion.presentation.api;
 
 import com.bungeobbang.backend.auth.domain.Accessor;
-import com.bungeobbang.backend.auth.member.Auth;
+import com.bungeobbang.backend.auth.member.MemberAuth;
 import com.bungeobbang.backend.opinion.dto.response.OpinionChatResponse;
 import com.bungeobbang.backend.opinion.dto.response.OpinionDetailResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -53,7 +53,7 @@ public interface OpinionChatApi {
             @RequestParam(required = false) ObjectId lastChatId,
 
             @Parameter(description = "사용자 인증 정보", hidden = true)
-            @Auth Accessor accessor
+            @MemberAuth Accessor accessor
     );
 
     @Operation(
@@ -74,6 +74,6 @@ public interface OpinionChatApi {
             @PathVariable @Valid Long opinionId,
 
             @Parameter(description = "사용자 인증 정보", hidden = true)
-            @Auth Accessor accessor
+            @MemberAuth Accessor accessor
     );
 }

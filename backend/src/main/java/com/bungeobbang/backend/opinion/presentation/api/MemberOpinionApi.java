@@ -1,7 +1,7 @@
 package com.bungeobbang.backend.opinion.presentation.api;
 
 import com.bungeobbang.backend.auth.domain.Accessor;
-import com.bungeobbang.backend.auth.member.Auth;
+import com.bungeobbang.backend.auth.member.MemberAuth;
 import com.bungeobbang.backend.auth.member.MemberOnly;
 import com.bungeobbang.backend.opinion.dto.request.OpinionCreationRequest;
 import com.bungeobbang.backend.opinion.dto.response.MemberOpinionsInfoResponse;
@@ -44,7 +44,7 @@ public interface MemberOpinionApi {
     @GetMapping
     @MemberOnly
     ResponseEntity<OpinionStatisticsResponse> getOpinionStatistics(
-            @Parameter(hidden = true) @Auth Accessor accessor
+            @Parameter(hidden = true) @MemberAuth Accessor accessor
     );
 
     @Operation(
@@ -64,7 +64,7 @@ public interface MemberOpinionApi {
     @MemberOnly
     ResponseEntity<OpinionCreationResponse> suggestOpinion(
             @RequestBody @Valid OpinionCreationRequest creationRequest,
-            @Parameter(hidden = true) @Auth Accessor accessor
+            @Parameter(hidden = true) @MemberAuth Accessor accessor
     );
 
     @Operation(
@@ -86,7 +86,7 @@ public interface MemberOpinionApi {
     ResponseEntity<Void> patchOpinionRemind(
             @Parameter(description = "리마인드 요청할 말해요 ID", example = "2")
             @PathVariable @Valid Long opinionId,
-            @Parameter(hidden = true) @Auth Accessor accessor
+            @Parameter(hidden = true) @MemberAuth Accessor accessor
     );
 
     @Operation(
@@ -105,7 +105,7 @@ public interface MemberOpinionApi {
     @GetMapping("/my")
     @MemberOnly
     ResponseEntity<List<MemberOpinionsInfoResponse>> getMemberOpinionList(
-            @Parameter(hidden = true) @Auth Accessor accessor
+            @Parameter(hidden = true) @MemberAuth Accessor accessor
     );
 
     @Operation(
@@ -126,6 +126,6 @@ public interface MemberOpinionApi {
     @MemberOnly
     ResponseEntity<Void> deleteOpinion(
             @PathVariable @Valid final Long opinionId,
-            @Parameter(hidden = true) @Auth Accessor accessor
+            @Parameter(hidden = true) @MemberAuth Accessor accessor
     );
 }
