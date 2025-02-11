@@ -33,7 +33,7 @@ dependencies {
     // H2
     implementation 'com.h2database:h2'
     // Mongodb
-    implementation group: 'org.mongodb', name: 'mongodb-driver-sync', version: '5.2.1'
+    implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
     // Redis
     implementation 'redis.clients:jedis:4.3.1'
     // mail
@@ -47,6 +47,12 @@ dependencies {
     implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
     runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
     runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
+    // query dsl
+    implementation 'com.querydsl:querydsl-jpa:5.1.0:jakarta'
+    implementation group: 'com.querydsl', name: 'querydsl-core', version: '5.1.0'
+    annotationProcessor "com.querydsl:querydsl-apt:${dependencyManagement.importedProperties['querydsl.version']}:jakarta"
+    annotationProcessor "jakarta.annotation:jakarta.annotation-api"
+    annotationProcessor "jakarta.persistence:jakarta.persistence-api"
     // Test
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
@@ -55,3 +61,11 @@ dependencies {
 tasks.named('test') {
     useJUnitPlatform()
 }
+def querydslSrcDir = 'src/main/generated'
+clean {
+    delete file(querydslSrcDir)
+}
+tasks.withType(JavaCompile).configureEach {
+    options.generatedSourceOutputDirectory = file(querydslSrcDir)
+}
+

@@ -2,6 +2,7 @@ package com.bungeobbang.backend.agenda.domain;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -22,4 +23,11 @@ public class AgendaImage {
 
     @Column(nullable = false, unique = true)
     private String name;
+
+    @Builder
+    public AgendaImage(Long id, Agenda agenda, String name) {
+        this.id = id;
+        this.agenda = agenda;
+        this.name = name;
+    }
 }

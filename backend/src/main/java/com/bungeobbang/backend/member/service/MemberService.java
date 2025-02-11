@@ -1,7 +1,7 @@
 package com.bungeobbang.backend.member.service;
 
+import com.bungeobbang.backend.auth.JwtProvider;
 import com.bungeobbang.backend.common.exception.AuthException;
-import com.bungeobbang.backend.common.infrastructure.JwtProvider;
 import com.bungeobbang.backend.common.infrastructure.RedisClient;
 import com.bungeobbang.backend.member.domain.Member;
 import com.bungeobbang.backend.member.domain.ProviderType;

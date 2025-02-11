@@ -3,6 +3,7 @@ package com.bungeobbang.backend.agenda.domain;
 import com.bungeobbang.backend.member.domain.Member;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -23,4 +24,11 @@ public class AgendaMember {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
     private Member member;
+
+    @Builder
+    public AgendaMember(Long id, Agenda agenda, Member member) {
+        this.id = id;
+        this.agenda = agenda;
+        this.member = member;
+    }
 }

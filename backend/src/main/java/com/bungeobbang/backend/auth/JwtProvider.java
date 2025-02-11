@@ -1,9 +1,8 @@
-package com.bungeobbang.backend.common.infrastructure;
+package com.bungeobbang.backend.auth;
 
+import com.bungeobbang.backend.common.exception.AuthException;
 import com.bungeobbang.backend.member.dto.response.MemberTokens;
-import io.jsonwebtoken.Header;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -11,6 +10,9 @@ import org.springframework.stereotype.Component;
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
+
+import static com.bungeobbang.backend.common.exception.ErrorCode.EXPIRED_ACCESS_TOKEN;
+import static com.bungeobbang.backend.common.exception.ErrorCode.INVALID_ACCESS_TOKEN;
 
 @Component
 public class JwtProvider {
@@ -32,7 +34,7 @@ public class JwtProvider {
     public MemberTokens generateLoginToken(final String subject) {
         final String refreshToken = createToken(EMPTY_SUBJECT, refreshExpirationTime);
         final String accessToken = createToken(subject, accessExpirationTime);
-        return new MemberTokens(refreshToken, accessToken);
+        return new MemberTokens(accessToken, refreshToken);
     }
 
     private String createToken(final String subject, final Long validityInMilliseconds) {
@@ -46,5 +48,28 @@ public class JwtProvider {
                 .setExpiration(expiresAt)
                 .signWith(secretKey, SignatureAlgorithm.HS256)
                 .compact();
+    }
+
+    public String getSubject(final String token) {
+        return parseToken(token)
+                .getBody()
+                .getSubject();
+    }
+
+    private Jws<Claims> parseToken(final String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(secretKey)
+                .build()
+                .parseClaimsJws(token);
+    }
+
+    public void validateToken(final String accessToken) {
+        try {
+            parseToken(accessToken);
+        } catch (final ExpiredJwtException e) {
+            throw new AuthException(EXPIRED_ACCESS_TOKEN);
+        } catch (final JwtException | IllegalArgumentException e) {
+            throw new AuthException(INVALID_ACCESS_TOKEN);
+        }
     }
 }
