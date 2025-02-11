@@ -74,9 +74,7 @@ const OpinionChatPage = () => {
       try {
         const enterResponse = await api.get(`/api/opinions/${roomId}`);
         console.log('채팅방 정보:', enterResponse);
-
         const response = await api.get(`/api/opinions/${roomId}/chat`);
-        console.log('채팅 내역:', response.data);
         const formattedData = formatChatData(response.data);
         setChatData(formattedData);
       } catch (error) {
@@ -88,19 +86,12 @@ const OpinionChatPage = () => {
   }, [roomId, socket]);
 
   useEffect(() => {
-    if (!roomId) {
-      alert('잘못된 접근입니다. 다시 로그인 해주세요 ');
-      return;
-    }
-
     const unsubscribe = subscribe('OPINION', Number(roomId), handleMessageReceive);
     return () => unsubscribe();
   }, [roomId, subscribe, handleMessageReceive]);
 
   const handleSendMessage = useCallback(
     (message: string, images: string[] = []) => {
-      if (!roomId || !message.trim()) return;
-
       sendMessage('OPINION', Number(roomId), message, images);
       setMessage('');
     },
@@ -175,7 +166,7 @@ const OpinionChatPage = () => {
             setExitDialogOpen(false);
             try {
               socketManager('OPINION', 'EXIT', Number(roomId));
-              await api.delete(`/student/opinions/${roomId}`);
+              await api.delete(`/student/opinion/${roomId}`);
               navigate('/opinion/entry');
             } catch (error) {
               console.error('채팅방 삭제 실패:', error);
