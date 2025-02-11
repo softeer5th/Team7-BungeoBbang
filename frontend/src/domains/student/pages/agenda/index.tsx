@@ -31,8 +31,8 @@ const AgendaPage = () => {
       ]);
 
       const result: ChatRoomListCardData[] = [
-        ...active.data.map((data: any) => mapResponseToChatListCardData(data, 'ACTIVE')),
-        ...closed.data.map((data: any) => mapResponseToChatListCardData(data, 'CLOSED')),
+        ...active.data.map((data) => mapResponseToChatListCardData(data, 'ACTIVE')),
+        ...closed.data.map((data) => mapResponseToChatListCardData(data, 'CLOSED')),
       ];
 
       setChatRooms(result);

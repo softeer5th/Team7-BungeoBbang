@@ -1,7 +1,7 @@
 import { ChatCategoryType } from '@/types/ChatCategoryType';
 import { ChatRoomListCardData, ProgressState } from '../components/ChatRoomCardData';
 
-export const mapResponseToChatRoomListCardData = (response: any): ChatRoomListCardData => {
+export const mapResponseToChatRoomListCardData = (response): ChatRoomListCardData => {
   return {
     roomId: response.agenda.agendaId,
     hasNew: response.hasNewMessage,

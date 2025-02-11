@@ -100,13 +100,11 @@ const AgendaPage: React.FC = () => {
       ]);
 
       result.inProgress = [
-        ...active.data.map((data: any) => mapResponseToChatRoomListCardData(data)),
-        ...upcoming.data.map((data: any) => mapResponseToChatRoomListCardData(data)),
+        ...active.data.map((data) => mapResponseToChatRoomListCardData(data)),
+        ...upcoming.data.map((data) => mapResponseToChatRoomListCardData(data)),
       ];
 
-      result.complete = [
-        ...closed.data.map((data: any) => mapResponseToChatRoomListCardData(data)),
-      ];
+      result.complete = [...closed.data.map((data) => mapResponseToChatRoomListCardData(data))];
 
       setTabContents(result);
     } catch (error) {

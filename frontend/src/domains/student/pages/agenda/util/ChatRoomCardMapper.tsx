@@ -1,10 +1,7 @@
 import { ChatCategoryType } from '@/types/ChatCategoryType';
 import { ChatRoomListCardData } from '../data/ChatRoomListCardData';
 
-export const mapResponseToChatListCardData = (
-  response: any,
-  status: string,
-): ChatRoomListCardData => {
+export const mapResponseToChatListCardData = (response, status: string): ChatRoomListCardData => {
   return {
     roomId: response.agenda.agendaId,
     dday: formatDate(response.agenda.endDate),
