@@ -52,7 +52,6 @@ const AgendaPage: React.FC = () => {
   const [isEndDialogShow, setEndDialogShow] = useState(false);
   const [selectedCardData, setSelectedCardData] = useState<ChatRoomListCardData | null>(null);
 
-  const hasMore = useRef<boolean[]>(tabItems.map(() => false));
   const isInProgessEnd = useRef<boolean>(false);
   const isFirstUpcoming = useRef<boolean>(true);
 
@@ -137,7 +136,13 @@ const AgendaPage: React.FC = () => {
 
   const fetchCompleteChatRooms = async () => {
     try {
-      const closed = await api.get('/admin/agendas', { params: { status: 'CLOSED' } });
+      const params = {
+        status: 'CLOSED',
+        ...(lastChatRoom.current
+          ? { endDate: lastChatRoom.current[1][0], agendaId: lastChatRoom.current[1][1] }
+          : {}),
+      };
+      const closed = await api.get('/admin/agendas', { params: params });
 
       const newRooms = closed.data.map(mapResponseToChatRoomListCardData);
 
@@ -159,7 +164,15 @@ const AgendaPage: React.FC = () => {
       if (!selectedCardData) return;
 
       await api.patch(`/admin/agendas/${selectedCardData?.roomId}/close`);
-      // getAllChatRooms();
+
+      setTabContents((prev) => ({
+        ...prev,
+        inProgress: prev.inProgress.filter((room) => room.roomId !== selectedCardData.roomId),
+      }));
+
+      lastChatRoom.current[1] = [null, null];
+      fetchCompleteChatRooms();
+      setCompleteHasMore(true);
     } catch (error) {
       console.error('채팅방 삭제 실패', error);
     }
@@ -170,7 +183,18 @@ const AgendaPage: React.FC = () => {
       if (!selectedCardData) return;
 
       await api.delete(`/admin/agendas/${selectedCardData?.roomId}`);
-      // activeIndex === 0 ? getProgressChatRooms() : getCompleteChatRooms();
+
+      setTabContents((prev) => {
+        const updatedTabs = { ...prev };
+
+        Object.keys(updatedTabs).forEach((tabKey) => {
+          updatedTabs[tabKey] = updatedTabs[tabKey].filter(
+            (room) => room.roomId !== selectedCardData.roomId,
+          );
+        });
+
+        return updatedTabs;
+      });
     } catch (error) {
       console.error('채팅방 삭제 실패', error);
     }
@@ -179,13 +203,13 @@ const AgendaPage: React.FC = () => {
   const { setTriggerItem: setProgressTriggerItem, setHasMore: setProgressHasMore } =
     useInfiniteScroll({
       fetchMore: fetchProgressChatRooms,
-      hasMore: isInProgessEnd.current === false || hasMore.current[0] == true,
+      hasMore: isInProgessEnd.current === false,
     });
 
   const { setTriggerItem: setCompleteTriggerItem, setHasMore: setCompleteHasMore } =
     useInfiniteScroll({
       fetchMore: fetchCompleteChatRooms,
-      hasMore: hasMore.current[1],
+      hasMore: true,
     });
 
   return (

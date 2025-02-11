@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 
 interface InfiniteScrollOptions {
   threshold?: number;
@@ -12,9 +12,7 @@ const useInfiniteScroll = ({ threshold = 1.0, fetchMore, hasMore }: InfiniteScro
   const more = useRef<boolean>(hasMore);
 
   const setHasMore = (newHasMore: boolean) => {
-    console.log('hasMore', hasMore, newHasMore);
     more.current = newHasMore;
-    console.log('more', more);
   };
 
   const setTriggerItem = (element: HTMLDivElement) => {
@@ -31,7 +29,6 @@ const useInfiniteScroll = ({ threshold = 1.0, fetchMore, hasMore }: InfiniteScro
       observer.current = new IntersectionObserver(
         (entries) => {
           const [entry] = entries;
-          console.log('!!!!', triggerRef, entry.isIntersecting, hasMore);
           if (entry.isIntersecting && more.current) {
             fetchMore();
           }
