@@ -8,6 +8,7 @@ import { CategoryStep } from './components/CategoryStep';
 import { ChatStep } from './components/ChatStep';
 import api from '@/utils/api';
 import { Dialog } from '@/components/Dialog/Dialog';
+import { useSocketStore } from '@/store/socketStore';
 
 const OpinionCategoryPage: React.FC = () => {
   const navigate = useNavigate();
@@ -17,6 +18,7 @@ const OpinionCategoryPage: React.FC = () => {
   const [message, setMessage] = useState('');
   const [images, setImages] = useState<string[]>([]);
   const [showDialog, setShowDialog] = useState(false);
+  const { socket } = useSocketStore();
 
   const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB in bytes
 
@@ -81,11 +83,19 @@ const OpinionCategoryPage: React.FC = () => {
     };
 
     try {
-      console.log('메시지 전송 데이터:', messageData);
       const response = await api.post('/student/opinions', messageData);
-      console.log('메시지 전송 결과:', response);
       if (response.status === 200) {
-        navigate('/opinion/chat/' + response.data.opinionId);
+        if (socket && socket.readyState === WebSocket.OPEN) {
+          const enterMessage = {
+            roomType: 'OPINION',
+            event: 'START',
+            opinionId: Number(response.data.opinionId),
+            memberId: Number(localStorage.getItem('member_id')),
+          };
+          socket.send(JSON.stringify(enterMessage));
+
+          navigate('/opinion/chat/' + response.data.opinionId);
+        }
       }
     } catch (error) {
       console.error('메시지 전송 실패:', error);

@@ -51,7 +51,7 @@ const OpinionChatPage = () => {
     (message: ChatMessage) => {
       if (message.roomType === 'OPINION' && message.opinionId === Number(roomId)) {
         const newChat = {
-          type: message.memberId === memberId ? ChatType.SEND : ChatType.RECEIVE,
+          type: message.memberId === Number(memberId) ? ChatType.SEND : ChatType.RECEIVE,
           message: message.message,
           time: new Date(message.createdAt).toLocaleTimeString('ko-KR', {
             hour: '2-digit',
@@ -70,21 +70,8 @@ const OpinionChatPage = () => {
 
     const fetchData = async () => {
       try {
-        // 채팅방 정보 가져오기
         const enterResponse = await api.get(`/api/opinions/${roomId}`);
         console.log('채팅방 정보:', enterResponse);
-
-        // 웹소켓으로 입장 메시지 전송
-        if (socket && socket.readyState === WebSocket.OPEN) {
-          const enterMessage = {
-            roomType: 'OPINION',
-            event: 'ENTER',
-            opinionId: Number(roomId),
-            memberId: Number(localStorage.getItem('member_id')),
-          };
-          console.log('Sending enter message:', enterMessage);
-          socket.send(JSON.stringify(enterMessage));
-        }
 
         const response = await api.get(`/api/opinions/${roomId}/chat`);
         console.log('채팅 내역:', response.data);
@@ -100,7 +87,7 @@ const OpinionChatPage = () => {
 
   useEffect(() => {
     if (!roomId) {
-      console.log('No roomId provided');
+      alert('잘못된 접근입니다. 다시 로그인 해주세요 ');
       return;
     }
 
