@@ -1,5 +1,6 @@
 package com.bungeobbang.backend.chat.event.opinion;
 
+import com.bungeobbang.backend.opinion.service.AdminOpinionService;
 import com.bungeobbang.backend.opinion.service.OpinionRealTimeChatService;
 import com.bungeobbang.backend.opinion.service.OpinionService;
 import lombok.RequiredArgsConstructor;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Component;
 public class OpinionEventListener {
     private final OpinionService opinionService;
     private final OpinionRealTimeChatService opinionRealTimeChatService;
+    private final AdminOpinionService adminOpinionService;
 
     @EventListener
     public void handleMemberOpinionEvent(OpinionMemberEvent event) {
@@ -39,14 +41,15 @@ public class OpinionEventListener {
     public void handleAdminOpinionEvent(OpinionAdminEvent event) {
         switch (event.eventType()) {
             case ENTER -> opinionService.updateLastReadToMax(event.opinionId(), true);
-            case CHAT -> opinionService.saveChat(
-                    event.adminId(),
-                    event.opinionId(),
-                    event.chat(),
-                    event.images(),
-                    true,
-                    event.createdAt()
-            );
+            case CHAT -> {
+                opinionService.saveChat(
+                    event.adminId(), event.opinionId(),
+                    event.chat(), event.images(),
+                    true, event.createdAt()
+                );
+                // isRemind -> false 변경
+                adminOpinionService.unsetRemindOpinion(event.opinionId());
+            }
             case LEAVE -> opinionService.updateLastReadToLastChatId(event.adminId(), false);
             case START -> opinionRealTimeChatService.subscribeToOpinion(event.session(), event.opinionId());
         }

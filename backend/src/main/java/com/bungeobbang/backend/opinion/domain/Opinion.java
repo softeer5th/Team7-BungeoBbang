@@ -54,4 +54,8 @@ public class Opinion extends BaseTimeEntity {
     public void setRemind() {
         this.isRemind = true;
     }
+
+    public void unsetRemind() {
+        this.isRemind = false;
+    }
 }
