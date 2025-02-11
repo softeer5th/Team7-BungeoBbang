@@ -7,4 +7,5 @@ export interface ChatRoomListCardData {
   title: string;
   numOfJoin: number;
   isInProgress: boolean;
+  isParticipate: boolean;
 }

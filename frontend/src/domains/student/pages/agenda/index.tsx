@@ -2,7 +2,7 @@ import { BottomNavigation } from '@/components/bottom-navigation/BottomNavigatio
 import * as S from './styles';
 import { TopAppBar } from '@/components/TopAppBar';
 import { useTheme } from 'styled-components';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ChatRoomListCardData } from './data/ChatRoomListCardData';
 import { BannerContainer } from './components/Banner';
 import { ChatRoomListItem } from './components/ChatRoomListItem';
@@ -23,26 +23,17 @@ const AgendaPage = () => {
 
   const [chatRooms, setChatRooms] = useState<ChatRoomListCardData[]>([]);
 
-  let myChatIds = useRef<number[]>([]);
-
   const getAllChatRooms = async () => {
     try {
-      const [active, closed, my] = await Promise.all([
+      const [active, closed] = await Promise.all([
         api.get('/student/agendas', { params: { status: 'ACTIVE' } }),
         api.get('/student/agendas', { params: { status: 'CLOSED' } }),
-        api.get('/student/agendas/my'),
       ]);
 
       const result: ChatRoomListCardData[] = [
         ...active.data.map((data: any) => mapResponseToChatListCardData(data, 'ACTIVE')),
         ...closed.data.map((data: any) => mapResponseToChatListCardData(data, 'CLOSED')),
       ];
-
-      myChatIds.current = my.data
-        .filter((m: any) => m.agenda?.id !== undefined && m.agenda?.id !== null)
-        .map((m: any) => m.agenda.id);
-
-      console.log('mychatId', my.data, myChatIds);
 
       setChatRooms(result);
     } catch (error) {
@@ -82,8 +73,7 @@ const AgendaPage = () => {
                 room={room}
                 onClick={() => {
                   const isEnd = !room.isInProgress;
-                  const isParticipate = myChatIds.current.includes(room.roomId);
-                  console.log('isParticiplat!!!', isParticipate, room.roomId, myChatIds);
+                  const isParticipate = room.isParticipate;
                   if (isEnd || isParticipate) {
                     navigate(
                       `/agenda/chat/${room.roomId}?isEnd=${isEnd}&isParticipate=${isParticipate}`,
@@ -106,10 +96,7 @@ const AgendaPage = () => {
       {isLogoutDialogOpen && (
         <LogoutDialog
           onDismiss={() => setLogoutDialogOpen(false)}
-          onConfirm={() => {
-            //logout 요청
-            setLogoutDialogOpen(false);
-          }}
+          onConfirm={() => setLogoutDialogOpen(false)}
         />
       )}
 

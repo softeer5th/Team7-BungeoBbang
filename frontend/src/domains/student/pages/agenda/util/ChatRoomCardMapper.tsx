@@ -6,12 +6,13 @@ export const mapResponseToChatListCardData = (
   status: string,
 ): ChatRoomListCardData => {
   return {
-    roomId: response.agendaId,
-    dday: formatDate(response.endDate),
-    categoryType: findChatCategoryType(response.categoryType),
-    title: response.title,
-    numOfJoin: response.count,
+    roomId: response.agenda.agendaId,
+    dday: formatDate(response.agenda.endDate),
+    categoryType: findChatCategoryType(response.agenda.categoryType),
+    title: response.agenda.title,
+    numOfJoin: response.agenda.count,
     isInProgress: status == 'ACTIVE',
+    isParticipate: response.isParticipate,
   };
 };
 
