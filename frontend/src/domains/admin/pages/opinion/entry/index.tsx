@@ -8,35 +8,9 @@ import { OpinionItem } from './OpinionItem';
 import { ChatCategoryType } from '@/types/ChatCategoryType';
 import { ChatOpinionType } from '@/types/ChatOpinionType';
 import { bottomItems } from '../../destinations.tsx';
+import { Opinion, OpinionResponse } from './types';
+import { useNavigate } from 'react-router-dom';
 import * as S from './styles';
-
-interface Opinion {
-  id: string;
-  category: {
-    label: string;
-    type: string;
-    iconSrc: string;
-    iconBackground: string;
-  };
-  title: string;
-  text: string;
-  time: string;
-  iconColor: string;
-  hasAlarm: boolean;
-}
-
-interface OpinionResponse {
-  opinion: {
-    id: number;
-    categoryType: keyof typeof ChatCategoryType;
-    opinionType: keyof typeof ChatOpinionType;
-  };
-  lastChat: {
-    content: string;
-    createdAt: string;
-  };
-  hasNewChat: boolean;
-}
 
 const chipItems = [
   { itemId: 'ALL', text: '전체' },
@@ -47,8 +21,9 @@ const chipItems = [
 ];
 
 const OpinionEntryPage: React.FC = () => {
-  const [selectedChip, setSelectedChip] = useState('1');
+  const [selectedChip, setSelectedChip] = useState('ALL');
   const [opinions, setOpinions] = useState<Opinion[]>([]);
+  const navigate = useNavigate();
 
   const handleChipClick = (chipId: string) => {
     setSelectedChip(chipId);
@@ -73,6 +48,8 @@ const OpinionEntryPage: React.FC = () => {
           }),
           iconColor: '#FFC107',
           hasAlarm: item.hasNewChat,
+          createdAt: item.lastChat.createdAt,
+          isReminded: item.opinioon.isReminded,
         }));
 
         setOpinions(formattedOpinions);
@@ -115,7 +92,9 @@ const OpinionEntryPage: React.FC = () => {
                 title={opinion.title}
                 text={opinion.text}
                 time={opinion.time}
-                iconColor={opinion.iconColor}
+                hasAlarm={opinion.hasAlarm}
+                onClick={() => navigate('/opinion/chat/' + opinion.id)}
+                createdAt={opinion.createdAt}
               />
             ))}
           </S.OpinionList>

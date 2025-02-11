@@ -60,6 +60,22 @@ export const OpinionItem = styled.div`
   gap: 16px;
 `;
 
+export const CategoryIconWrapper = styled.div`
+  position: relative;
+  width: fit-content;
+`;
+
+export const AlarmDot = styled.div`
+  position: absolute;
+  top: -3px;
+  left: -3px;
+  width: 12px;
+  height: 12px;
+  background-color: #1f87ff; // 파란색 점
+  border-radius: 50%;
+  z-index: 1;
+`;
+
 export const CategoryIcon = styled.div<{ backgroundColor: string }>`
   width: 60px;
   height: 60px;
@@ -86,7 +102,22 @@ export const OpinionTitle = styled(Typography)``;
 export const OpinionTime = styled(Typography)`
   color: #a8a8a8;
 `;
+export const OpinionTextContainer = styled.div`
+  display: flex;
+  gap: 4px;
+  align-items: center;
+`;
+
+export const NewIndicator = styled(Typography)`
+  color: ${(props) => props.theme.colors.sementicMain};
+  white-space: nowrap;
+`;
 
 export const OpinionText = styled(Typography)`
-  color: #6f6f6f;
+  color: ${(props) => props.theme.colors.grayScale60};
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
 `;
