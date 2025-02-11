@@ -17,7 +17,7 @@ interface ChipListProps {
 
 export const ChipList: React.FC<ChipListProps> = ({
   backgroundColor = '#FFFFFF',
-  itemBackgroundColor = '#F5F5F5',
+  itemBackgroundColor = '#F4F4F4',
   itemSelectedBackgroundColor = '#E8F3FF',
   itemTextColor = '#A8A8A8',
   itemSelectedTextColor = '#1F87FF',

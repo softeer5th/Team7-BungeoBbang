@@ -21,9 +21,9 @@ export const ReceiverChat: React.FC<SenderChatProps> = ({
   message,
   timeText,
   images,
-  nameTextColor = '#3C3C3C',
+  nameTextColor = '#393939',
   backgroundColor = '#F4F4F4',
-  textColor = '#3C3C3C',
+  textColor = '#393939',
   timeTextColor = '#C6C6C6',
 }) => {
   return (

@@ -13,7 +13,6 @@ import { bottomItems } from '../destinations';
 import { mapResponseToChatListCardData, ServerData } from './util/ChatRoomCardMapper';
 import useInfiniteScroll from '@/hooks/useInfiniteScroll';
 import { ChatEnterDialog } from './components/ChatEnterDialog';
-import { e } from 'node_modules/framer-motion/dist/types.d-CdW9auKD';
 
 const AgendaPage = () => {
   const MAX_PAGE_ITEMS = 6;

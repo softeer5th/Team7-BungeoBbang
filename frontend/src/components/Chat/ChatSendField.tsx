@@ -53,11 +53,11 @@ export const ChatSendField: React.FC<ChatSendFieldProps> = ({
   sendButtonDisabledIconColor = '#F4F4F4',
   imageButtonBackgroundColor = '#E0E0E0',
   imageButtonDisabledBackgroundColor = '#E0E0E0',
-  imageButtonIconColor = '#8F8F8F',
+  imageButtonIconColor = '#8D8D8D',
   imageButtonDisabledIconColor = '#F4F4F4',
   placeholderColor = '#1F87FF',
   disabledPlaceholderColor = '#C6C6C6',
-  textColor = '#3C3C3C',
+  textColor = '#262626',
   disabledTextColor = '#C6C6C6',
   textFieldBorder = {
     borderWidth: '1px',
