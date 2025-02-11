@@ -2,7 +2,6 @@ package com.bungeobbang.backend.chat.handler;
 
 
 import com.bungeobbang.backend.auth.JwtProvider;
-import com.bungeobbang.backend.badword.service.BadWordService;
 import com.bungeobbang.backend.chat.event.agenda.AgendaMemberEvent;
 import com.bungeobbang.backend.chat.event.common.MemberConnectEvent;
 import com.bungeobbang.backend.chat.event.common.MemberDisconnectEvent;
@@ -22,8 +21,6 @@ import org.springframework.web.socket.handler.TextWebSocketHandler;
 
 import java.io.IOException;
 
-import static com.bungeobbang.backend.chat.type.RoomType.AGENDA;
-import static com.bungeobbang.backend.chat.type.SocketEventType.CHAT;
 import static com.bungeobbang.backend.chat.type.SocketEventType.ERROR;
 
 @Slf4j
@@ -32,7 +29,6 @@ import static com.bungeobbang.backend.chat.type.SocketEventType.ERROR;
 public class MemberWebSocketChatHandler extends TextWebSocketHandler {
     private static final String ACCESS_TOKEN = "accessToken";
     private final JwtProvider jwtProvider;
-    private final BadWordService badWordService;
     private final ObjectMapper objectMapper;
     private final ApplicationEventPublisher publisher;
 
@@ -53,14 +49,6 @@ public class MemberWebSocketChatHandler extends TextWebSocketHandler {
             jwtProvider.validateToken(accessToken);
             final MemberWebsocketMessage request = objectMapper.readValue(message.getPayload(), MemberWebsocketMessage.class);
             final MemberWebsocketMessage requestContainsCreatedAt = MemberWebsocketMessage.createResponse(request);
-
-            if (request.event().equals(CHAT)) {
-                badWordService.validate(request.message());
-                publisher.publishEvent(requestContainsCreatedAt);
-            }
-
-            if (request.event().equals(CHAT) && request.roomType().equals(AGENDA))
-                session.sendMessage(new TextMessage(objectMapper.writeValueAsString(requestContainsCreatedAt)));
 
             switch (request.roomType()) {
                 case AGENDA -> publisher.publishEvent(AgendaMemberEvent.from(session, requestContainsCreatedAt));

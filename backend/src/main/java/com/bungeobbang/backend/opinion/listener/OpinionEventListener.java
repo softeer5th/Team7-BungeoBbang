@@ -1,5 +1,7 @@
-package com.bungeobbang.backend.chat.event.opinion;
+package com.bungeobbang.backend.opinion.listener;
 
+import com.bungeobbang.backend.chat.event.opinion.OpinionAdminEvent;
+import com.bungeobbang.backend.chat.event.opinion.OpinionMemberEvent;
 import com.bungeobbang.backend.opinion.service.AdminOpinionService;
 import com.bungeobbang.backend.opinion.service.OpinionRealTimeChatService;
 import com.bungeobbang.backend.opinion.service.OpinionService;
