@@ -1,7 +1,7 @@
 package com.bungeobbang.backend.agenda.domain.repository;
 
 import com.bungeobbang.backend.agenda.domain.AgendaChat;
-import com.bungeobbang.backend.agenda.dto.response.AgendaLatestChat;
+import com.bungeobbang.backend.agenda.dto.AgendaLatestChat;
 import org.bson.types.ObjectId;
 
 import java.util.List;

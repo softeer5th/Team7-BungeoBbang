@@ -3,9 +3,10 @@ package com.bungeobbang.backend.chat.handler;
 
 import com.bungeobbang.backend.auth.JwtProvider;
 import com.bungeobbang.backend.badword.service.BadWordService;
-import com.bungeobbang.backend.chat.event.common.AdminConnectEvent;
-import com.bungeobbang.backend.chat.event.common.AdminWebsocketMessage;
 import com.bungeobbang.backend.chat.event.agenda.AgendaAdminEvent;
+import com.bungeobbang.backend.chat.event.common.AdminConnectEvent;
+import com.bungeobbang.backend.chat.event.common.AdminDisconnectEvent;
+import com.bungeobbang.backend.chat.event.common.AdminWebsocketMessage;
 import com.bungeobbang.backend.chat.event.opinion.OpinionAdminEvent;
 import com.bungeobbang.backend.common.exception.AuthException;
 import com.bungeobbang.backend.common.exception.BadWordException;
@@ -79,6 +80,9 @@ public class AdminWebSocketChatHandler extends TextWebSocketHandler {
 
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
+        final String accessToken = (String) session.getAttributes().get(ACCESS_TOKEN);
+        final Long adminId = Long.valueOf(jwtProvider.getSubject(accessToken));
+        publisher.publishEvent(new AdminDisconnectEvent(session, adminId));
         super.afterConnectionClosed(session, status);
     }
 }
