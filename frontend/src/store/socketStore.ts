@@ -82,7 +82,6 @@ export const useSocketStore = create<SocketState>((set, get) => ({
     const socket = get().socket;
 
     if (socket) {
-      console.log(`Subscribing to ${roomType} room ${roomId}`);
       const messageHandler = (event: MessageEvent) => {
         try {
           const data = JSON.parse(event.data) as ChatMessage;
