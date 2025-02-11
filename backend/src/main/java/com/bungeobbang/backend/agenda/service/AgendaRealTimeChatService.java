@@ -5,7 +5,12 @@ import com.bungeobbang.backend.admin.domain.repository.AdminRepository;
 import com.bungeobbang.backend.agenda.domain.Agenda;
 import com.bungeobbang.backend.agenda.domain.repository.AgendaMemberRepository;
 import com.bungeobbang.backend.agenda.domain.repository.AgendaRepository;
-import com.bungeobbang.backend.chat.event.common.*;
+import com.bungeobbang.backend.chat.event.agenda.AgendaAdminEvent;
+import com.bungeobbang.backend.chat.event.agenda.AgendaMemberEvent;
+import com.bungeobbang.backend.chat.event.common.AdminConnectEvent;
+import com.bungeobbang.backend.chat.event.common.AdminDisconnectEvent;
+import com.bungeobbang.backend.chat.event.common.MemberConnectEvent;
+import com.bungeobbang.backend.chat.event.common.MemberDisconnectEvent;
 import com.bungeobbang.backend.chat.service.MessageQueueService;
 import com.bungeobbang.backend.common.exception.AdminException;
 import com.bungeobbang.backend.common.exception.AgendaException;
@@ -16,10 +21,13 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
+import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 
+import java.io.IOException;
 import java.util.List;
 
+import static com.bungeobbang.backend.common.exception.ErrorCode.ECHO_SEND_FAIL;
 import static com.bungeobbang.backend.common.exception.ErrorCode.JSON_PARSE_FAIL;
 
 /**
@@ -94,12 +102,16 @@ public class AgendaRealTimeChatService {
      *
      * @param event 메시지 내용을 포함한 이벤트 객체
      */
-    @EventListener
-    public void sendMessageFromMember(MemberWebsocketMessage event) {
+    public void sendMessageFromMember(AgendaMemberEvent event) {
         try {
-            messageQueueService.publish(AGENDA_MEMBER_PREFIX + event.agendaId(), objectMapper.writeValueAsString(event));
+            // 자기 자신에게 전송
+            event.session().sendMessage(new TextMessage(objectMapper.writeValueAsBytes(event.websocketMessage())));
+
+            messageQueueService.publish(AGENDA_MEMBER_PREFIX + event.agendaId(), objectMapper.writeValueAsString(event.websocketMessage()));
         } catch (JsonProcessingException e) {
             throw new AgendaException(JSON_PARSE_FAIL);
+        } catch (IOException e) {
+            throw new AgendaException(ECHO_SEND_FAIL);
         }
     }
 
@@ -108,12 +120,16 @@ public class AgendaRealTimeChatService {
      *
      * @param event 메시지 내용을 포함한 이벤트 객체
      */
-    @EventListener
-    public void sendMessageFromAdmin(AdminWebsocketMessage event) {
+    public void sendMessageFromAdmin(AgendaAdminEvent event) {
         try {
-            messageQueueService.publish(AGENDA_ADMIN_PREFIX + event.agendaId(), objectMapper.writeValueAsString(event));
+            // 메아리 전송
+            event.session().sendMessage(new TextMessage(objectMapper.writeValueAsBytes(event.websocketMessage())));
+
+            messageQueueService.publish(AGENDA_ADMIN_PREFIX + event.agendaId(), objectMapper.writeValueAsString(event.websocketMessage()));
         } catch (JsonProcessingException e) {
             throw new AgendaException(JSON_PARSE_FAIL);
+        } catch (IOException e) {
+            throw new AgendaException(ECHO_SEND_FAIL);
         }
     }
 

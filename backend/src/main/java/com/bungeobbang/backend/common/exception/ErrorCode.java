@@ -22,6 +22,9 @@ public enum ErrorCode {
     FORBIDDEN_UNIVERSITY_ACCESS(HttpStatus.FORBIDDEN, "대학교 정보 불일치로 인해 접근이 거부되었습니다."),
     ALREADY_PARTICIPATED(HttpStatus.BAD_REQUEST, "이미 참여한 답해요 안건입니다."),
     NOT_PARTICIPATED(HttpStatus.BAD_REQUEST, "참여하지 않은 답해요 안건입니다."),
+    AGENDA_CLOSED(HttpStatus.BAD_REQUEST, "종료된 답해요입니다."),
+    AGENDA_DELETED(HttpStatus.BAD_REQUEST, "삭제된 답해요입니다."),
+    ECHO_SEND_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "답해요 메아리 전송에 실패했습니다"),
     // Opinion
     INVALID_OPINION_TYPE(HttpStatus.BAD_REQUEST, "잘못된 말해요 타입입니다."),
     OPINION_COUNT_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "말해요 의견 수 카운트에 실패하였습니다."),

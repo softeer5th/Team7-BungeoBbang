@@ -1,5 +1,6 @@
 package com.bungeobbang.backend.agenda.service;
 
+import com.bungeobbang.backend.agenda.domain.Agenda;
 import com.bungeobbang.backend.agenda.domain.AgendaChat;
 import com.bungeobbang.backend.agenda.domain.AgendaLastReadChat;
 import com.bungeobbang.backend.agenda.domain.repository.*;
@@ -110,5 +111,12 @@ public class AgendaChatService {
     public void updateLastRead(Long agendaId, Long memberId) {
         final AgendaChat lastChat = customAgendaChatRepository.findLastChatForMember(agendaId, memberId);
         customAgendaChatRepository.upsertLastReadChat(agendaId, memberId, lastChat.getId());
+    }
+
+    public void validAgenda(Long agendaId) {
+        final Agenda agenda = agendaRepository.findById(agendaId)
+                .orElseThrow(() -> new AgendaException(ErrorCode.AGENDA_DELETED));
+        if (agenda.getEndDate().isBefore(LocalDate.now()))
+            throw new AgendaException(ErrorCode.AGENDA_CLOSED);
     }
 }
