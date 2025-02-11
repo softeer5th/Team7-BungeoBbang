@@ -15,6 +15,18 @@ import { useNavigate } from 'react-router-dom';
 import { Dialog } from '@/components/Dialog/Dialog';
 import { LogoutDialog } from '@/components/Dialog/LogoutDialog';
 
+interface AgendaResponse {
+  agenda: {
+    id: number;
+    title: string;
+    categoryType: string;
+    status: 'ACTIVE' | 'UPCOMING' | 'CLOSED';
+    startDate: string;
+    endDate: string;
+  };
+  hasNewMessage: boolean;
+}
+
 const AgendaPage: React.FC = () => {
   const theme = useTheme();
   const navigate = useNavigate();
@@ -94,17 +106,19 @@ const AgendaPage: React.FC = () => {
 
     try {
       const [active, upcoming, closed] = await Promise.all([
-        api.get('/admin/agendas', { params: { status: 'ACTIVE' } }),
-        api.get('/admin/agendas', { params: { status: 'UPCOMING' } }),
-        api.get('/admin/agendas', { params: { status: 'CLOSED' } }),
+        api.get<AgendaResponse[]>('/admin/agendas', { params: { status: 'ACTIVE' } }),
+        api.get<AgendaResponse[]>('/admin/agendas', { params: { status: 'UPCOMING' } }),
+        api.get<AgendaResponse[]>('/admin/agendas', { params: { status: 'CLOSED' } }),
       ]);
 
       result.inProgress = [
-        ...active.data.map((data) => mapResponseToChatRoomListCardData(data)),
-        ...upcoming.data.map((data) => mapResponseToChatRoomListCardData(data)),
+        ...active.data.map((data: AgendaResponse) => mapResponseToChatRoomListCardData(data)),
+        ...upcoming.data.map((data: AgendaResponse) => mapResponseToChatRoomListCardData(data)),
       ];
 
-      result.complete = [...closed.data.map((data) => mapResponseToChatRoomListCardData(data))];
+      result.complete = [
+        ...closed.data.map((data: AgendaResponse) => mapResponseToChatRoomListCardData(data)),
+      ];
 
       setTabContents(result);
     } catch (error) {

@@ -2,7 +2,12 @@ import type React from 'react';
 import * as S from './styles';
 
 interface OpinionItemProps {
-  // category: string;
+  category: {
+    label: string;
+    type: string;
+    iconSrc: string;
+    iconBackground: string;
+  };
   title: string;
   text: string;
   time: string;

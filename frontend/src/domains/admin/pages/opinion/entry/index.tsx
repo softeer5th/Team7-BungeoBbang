@@ -12,12 +12,30 @@ import * as S from './styles';
 
 interface Opinion {
   id: string;
-  category: string;
+  category: {
+    label: string;
+    type: string;
+    iconSrc: string;
+    iconBackground: string;
+  };
   title: string;
   text: string;
   time: string;
   iconColor: string;
   hasAlarm: boolean;
+}
+
+interface OpinionResponse {
+  opinion: {
+    id: number;
+    categoryType: keyof typeof ChatCategoryType;
+    opinionType: keyof typeof ChatOpinionType;
+  };
+  lastChat: {
+    content: string;
+    createdAt: string;
+  };
+  hasNewChat: boolean;
 }
 
 const chipItems = [
@@ -40,9 +58,9 @@ const OpinionEntryPage: React.FC = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await api.get<ServerResponse[]>('/admin/opinions');
+        const response = await api.get('/admin/opinions');
         console.log('response', response);
-        const formattedOpinions = response.data.map((item) => ({
+        const formattedOpinions = response.data.map((item: OpinionResponse) => ({
           id: String(item.opinion.id),
           category: ChatCategoryType[item.opinion.categoryType],
           title: ChatOpinionType[item.opinion.opinionType],
