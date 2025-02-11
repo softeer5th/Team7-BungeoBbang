@@ -24,7 +24,7 @@ public class OpinionFixture {
             .id(2L)
             .university(NAVER_UNIVERSITY)
             .opinionType(OpinionType.NEED)
-            .categoryType(CategoryType.IT)
+            .categoryType(CategoryType.EVENTS)
             .member(NAVER_MEMBER)
             .isRemind(false)
             .chatCount(1)

@@ -25,7 +25,7 @@ public record AdminOpinionsInfoResponse(
         );
     }
 
-    private record OpinionInfo(
+    public record OpinionInfo(
             Long id,
             OpinionType opinionType,
             CategoryType categoryType,

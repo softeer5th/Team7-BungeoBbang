@@ -96,7 +96,7 @@ public class AdminOpinionService {
                     OpinionChat lastChat = lastChatMap.get(opinion.getId());
 
                     if (lastRead == null) {
-                        opinionLastReadRepository.save(OpinionLastRead
+                        lastRead = opinionLastReadRepository.save(OpinionLastRead
                                 .builder()
                                 .opinionId(opinion.getId())
                                 .isAdmin(true)
