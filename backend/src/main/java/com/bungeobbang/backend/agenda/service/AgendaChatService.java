@@ -2,10 +2,7 @@ package com.bungeobbang.backend.agenda.service;
 
 import com.bungeobbang.backend.agenda.domain.AgendaChat;
 import com.bungeobbang.backend.agenda.domain.AgendaLastReadChat;
-import com.bungeobbang.backend.agenda.domain.repository.AgendaChatRepository;
-import com.bungeobbang.backend.agenda.domain.repository.AgendaLastReadChatRepository;
-import com.bungeobbang.backend.agenda.domain.repository.AgendaMemberRepository;
-import com.bungeobbang.backend.agenda.domain.repository.CustomAgendaChatRepository;
+import com.bungeobbang.backend.agenda.domain.repository.*;
 import com.bungeobbang.backend.agenda.dto.request.AgendaChatRequest;
 import com.bungeobbang.backend.agenda.dto.response.AgendaChatResponse;
 import com.bungeobbang.backend.common.exception.AgendaException;
@@ -16,6 +13,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -26,6 +24,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class AgendaChatService {
+    private final AgendaRepository agendaRepository;
     private final AgendaChatRepository agendaChatRepository;
     private final AgendaMemberRepository agendaMemberRepository;
     private final CustomAgendaChatRepository customAgendaChatRepository;
@@ -47,7 +46,8 @@ public class AgendaChatService {
      */
     public List<AgendaChatResponse> getChats(Long memberId, Long agendaId, ObjectId chatId) {
         Pageable pageable = PageRequest.of(0, CHAT_SIZE);
-        if (!agendaMemberRepository.existsByMemberIdAndAgendaId(memberId, agendaId)) {
+        final boolean isEnd = agendaRepository.existsByIdAndEndDateBefore(agendaId, LocalDate.now());
+        if (!isEnd && !agendaMemberRepository.existsByMemberIdAndAgendaId(memberId, agendaId)) {
             throw new AgendaException(ErrorCode.NOT_PARTICIPATED);
         }
 
