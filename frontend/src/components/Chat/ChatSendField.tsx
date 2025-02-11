@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import CameraIcon from '/src/assets/icons/camera.svg?react';
 import ArrowUpIcon from '/src/assets/icons/full-arrow-up.svg?react';
@@ -84,8 +84,6 @@ export const ChatSendField: React.FC<ChatSendFieldProps> = ({
   if (images) maxTextInputHeight = 102;
 
   const handleTextInput = (newMessage: string) => {
-    handleResizeHeight();
-
     let newValue = newMessage;
     if (newMessage.length >= maxLength) {
       newValue = newMessage.slice(0, maxLength);
@@ -109,6 +107,7 @@ export const ChatSendField: React.FC<ChatSendFieldProps> = ({
   const handleSend = () => {
     if (message.trim()) {
       onSendMessage(message, images);
+      setMessage('');
     }
   };
 
@@ -121,6 +120,10 @@ export const ChatSendField: React.FC<ChatSendFieldProps> = ({
   };
 
   const isImageDisabled = images.length >= maxLengthOfImages || imageDisabled;
+
+  useEffect(() => {
+    handleResizeHeight();
+  }, [message]);
 
   return (
     <>
@@ -174,7 +177,6 @@ export const ChatSendField: React.FC<ChatSendFieldProps> = ({
             )}
 
             <TextFieldInputWrapper>
-              
               <TextFieldInput
                 rows={1}
                 ref={textAreaRef}
