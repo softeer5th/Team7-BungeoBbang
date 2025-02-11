@@ -2,14 +2,18 @@ package com.bungeobbang.backend.opinion.service;
 
 import com.bungeobbang.backend.common.exception.ErrorCode;
 import com.bungeobbang.backend.common.exception.OpinionException;
+import com.bungeobbang.backend.common.type.CategoryType;
+import com.bungeobbang.backend.member.domain.Member;
 import com.bungeobbang.backend.opinion.domain.Opinion;
 import com.bungeobbang.backend.opinion.domain.OpinionChat;
 import com.bungeobbang.backend.opinion.domain.OpinionLastRead;
+import com.bungeobbang.backend.opinion.domain.OpinionType;
 import com.bungeobbang.backend.opinion.domain.repository.OpinionChatRepository;
 import com.bungeobbang.backend.opinion.domain.repository.OpinionLastReadRepository;
 import com.bungeobbang.backend.opinion.domain.repository.OpinionRepository;
 import com.bungeobbang.backend.opinion.dto.response.OpinionChatResponse;
 import com.bungeobbang.backend.opinion.dto.response.OpinionDetailResponse;
+import com.bungeobbang.backend.university.domain.University;
 import org.bson.types.ObjectId;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -22,7 +26,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
-import static com.bungeobbang.backend.opinion.fixture.OpinionFixture.NAVER_OPINION1;
+import static com.bungeobbang.backend.member.fixture.MemberFixture.NAVER_MEMBER;
+import static com.bungeobbang.backend.university.UniversityFixture.NAVER_UNIVERSITY;
 import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -70,7 +75,18 @@ class OpinionServiceTest {
     @DisplayName("말해요 정보 조회 - 정상 조회")
     void findOpinionDetail() {
         // given
-        Opinion opinion = NAVER_OPINION1;
+        University university = NAVER_UNIVERSITY;
+        Member member = NAVER_MEMBER;
+        Opinion opinion = Opinion.builder()
+                .id(1L)
+                .university(university)
+                .opinionType(OpinionType.NEED)
+                .categoryType(CategoryType.IT)
+                .isRemind(true)
+                .member(member)
+                .chatCount(1)
+                .build();
+
         when(opinionRepository.findById(anyLong())).thenReturn(Optional.of(opinion));
 
         // when
@@ -78,7 +94,7 @@ class OpinionServiceTest {
 
         // then
         assertThat(result.universityName()).isEqualTo("네이버대학교");
-        assertThat(result.isReminded()).isFalse();
+        assertThat(result.isReminded()).isTrue();
     }
 
     @Test
