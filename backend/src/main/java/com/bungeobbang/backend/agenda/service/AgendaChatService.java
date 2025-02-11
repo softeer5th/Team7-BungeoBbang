@@ -6,6 +6,7 @@ import com.bungeobbang.backend.agenda.domain.AgendaLastReadChat;
 import com.bungeobbang.backend.agenda.domain.repository.*;
 import com.bungeobbang.backend.agenda.dto.request.AgendaChatRequest;
 import com.bungeobbang.backend.agenda.dto.response.AgendaChatResponse;
+import com.bungeobbang.backend.agenda.dto.response.AgendaChatResponses;
 import com.bungeobbang.backend.common.exception.AgendaException;
 import com.bungeobbang.backend.common.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
@@ -45,7 +46,7 @@ public class AgendaChatService {
      *                 - `chatId`가 존재하면 해당 ID 이전의 데이터 10개 조회
      * @return `AgendaChatResponse` 리스트 (최대 10개)
      */
-    public List<AgendaChatResponse> getChats(Long memberId, Long agendaId, ObjectId chatId) {
+    public AgendaChatResponses getChats(Long memberId, Long agendaId, ObjectId chatId) {
         Pageable pageable = PageRequest.of(0, CHAT_SIZE);
         final boolean isEnd = agendaRepository.existsByIdAndEndDateBefore(agendaId, LocalDate.now());
         if (!isEnd && !agendaMemberRepository.existsByMemberIdAndAgendaId(memberId, agendaId)) {
@@ -80,17 +81,18 @@ public class AgendaChatService {
 
             chats.addAll(afterChats); // 최종 리스트 합치기
 
-            return chats;
+            return new AgendaChatResponses(lastReadChatId, chats);
         }
 
 
-        return agendaChatRepository.findChatsByAgendaIdAndMemberIdAndIdLessThan(agendaId, memberId, chatId, pageable)
+        final List<AgendaChatResponse> chats = agendaChatRepository.findChatsByAgendaIdAndMemberIdAndIdLessThan(agendaId, memberId, chatId, pageable)
                 .stream()
                 .map(AgendaChatResponse::from)
                 .collect(Collectors.collectingAndThen(Collectors.toList(), list -> {
                     Collections.reverse(list); // 🔹 리스트 역순 정렬
                     return list;
                 }));
+        return new AgendaChatResponses(null, chats);
     }
 
     public void saveChat(AgendaChatRequest request) {

@@ -1,6 +1,6 @@
 package com.bungeobbang.backend.agenda.presentation;
 
-import com.bungeobbang.backend.agenda.dto.response.AgendaChatResponse;
+import com.bungeobbang.backend.agenda.dto.response.AgendaChatResponses;
 import com.bungeobbang.backend.agenda.dto.response.AgendaDetailResponse;
 import com.bungeobbang.backend.agenda.dto.response.member.MemberAgendaResponse;
 import com.bungeobbang.backend.agenda.dto.response.member.MyAgendaResponse;
@@ -73,7 +73,7 @@ public class AgendaController implements AgendaApi {
 
     @Override
     @GetMapping("/{agendaId}/chat")
-    public ResponseEntity<List<AgendaChatResponse>> getChats(
+    public ResponseEntity<AgendaChatResponses> getChats(
             @Auth Accessor accessor,
             @PathVariable Long agendaId,
             @RequestParam(required = false) ObjectId chatId
