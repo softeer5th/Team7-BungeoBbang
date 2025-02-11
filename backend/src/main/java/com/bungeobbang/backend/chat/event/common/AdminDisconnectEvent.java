@@ -4,6 +4,6 @@ import org.springframework.web.socket.WebSocketSession;
 
 public record AdminDisconnectEvent(
         WebSocketSession session,
-        Long memberId
+        Long adminId
 ) {
 }
