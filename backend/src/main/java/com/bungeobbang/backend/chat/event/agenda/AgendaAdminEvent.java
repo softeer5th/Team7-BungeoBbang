@@ -9,6 +9,7 @@ import java.util.List;
 
 public record AgendaAdminEvent(
         WebSocketSession session,
+        AdminWebsocketMessage websocketMessage,
         Long agendaId,
         SocketEventType eventType,
         Long adminId,
@@ -19,6 +20,7 @@ public record AgendaAdminEvent(
     public static AgendaAdminEvent from(WebSocketSession session, AdminWebsocketMessage message) {
         return new AgendaAdminEvent(
                 session,
+                message,
                 message.agendaId(),
                 message.event(),
                 message.adminId(),

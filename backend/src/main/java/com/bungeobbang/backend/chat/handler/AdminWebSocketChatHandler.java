@@ -2,7 +2,6 @@ package com.bungeobbang.backend.chat.handler;
 
 
 import com.bungeobbang.backend.auth.JwtProvider;
-import com.bungeobbang.backend.badword.service.BadWordService;
 import com.bungeobbang.backend.chat.event.agenda.AgendaAdminEvent;
 import com.bungeobbang.backend.chat.event.common.AdminConnectEvent;
 import com.bungeobbang.backend.chat.event.common.AdminDisconnectEvent;
@@ -22,8 +21,6 @@ import org.springframework.web.socket.handler.TextWebSocketHandler;
 
 import java.io.IOException;
 
-import static com.bungeobbang.backend.chat.type.RoomType.AGENDA;
-import static com.bungeobbang.backend.chat.type.SocketEventType.CHAT;
 import static com.bungeobbang.backend.chat.type.SocketEventType.ERROR;
 
 @Component
@@ -32,7 +29,6 @@ import static com.bungeobbang.backend.chat.type.SocketEventType.ERROR;
 public class AdminWebSocketChatHandler extends TextWebSocketHandler {
     private static final String ACCESS_TOKEN = "accessToken";
     private final JwtProvider jwtProvider;
-    private final BadWordService badWordService;
     private final ObjectMapper objectMapper;
     private final ApplicationEventPublisher publisher;
 
@@ -53,15 +49,6 @@ public class AdminWebSocketChatHandler extends TextWebSocketHandler {
             final AdminWebsocketMessage request = objectMapper.readValue(message.getPayload(), AdminWebsocketMessage.class);
             // createdAt 생성하여 requestContainsCreatedAt 객체 생성
             final AdminWebsocketMessage requestContainsCreatedAt = AdminWebsocketMessage.createResponse(request);
-
-
-            if (request.event().equals(CHAT)) {
-                badWordService.validate(request.message());
-                publisher.publishEvent(requestContainsCreatedAt);
-            }
-
-            if (request.event().equals(CHAT) && request.roomType().equals(AGENDA))
-                session.sendMessage(new TextMessage(objectMapper.writeValueAsString(requestContainsCreatedAt)));
 
 
             switch (request.roomType()) {
