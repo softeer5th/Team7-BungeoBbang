@@ -88,7 +88,9 @@ const OpinionChatPage = () => {
     [roomId, sendMessage],
   );
 
-  useScrollBottom(chatData);
+  const { elementRef, useScrollOnUpdate } = useScrollBottom<HTMLDivElement>();
+
+  useScrollOnUpdate(chatData);
 
   return (
     <S.Container>
