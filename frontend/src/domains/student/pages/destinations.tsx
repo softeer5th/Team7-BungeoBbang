@@ -17,3 +17,16 @@ export const bottomItems: BottomNavigationItemProps[] = [
     title: '내 의견',
   },
 ];
+
+export const moveToDestination = (itemId: string): string => {
+  switch (itemId) {
+    case 'agenda':
+      return '/agenda';
+    case 'opinion':
+      return '/opinion/entry';
+    case 'my':
+      return '/my';
+    default:
+      return '/';
+  }
+};

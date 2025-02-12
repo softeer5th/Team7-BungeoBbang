@@ -16,6 +16,7 @@ import { CategoryContent } from '../components/CategoryContent';
 import { DurationContent } from '../components/DurationContent';
 import { useImageUpload } from '@/hooks/useImageUpload';
 import { ImageFileSizeDialog } from '@/components/Dialog/ImageFileSizeDialog';
+import { mapToChatCreateData } from '../util/ChatCreateMapper';
 
 export interface ChatCreateData {
   roomId?: number | null;

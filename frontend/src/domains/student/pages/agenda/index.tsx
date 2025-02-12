@@ -9,7 +9,7 @@ import { ChatRoomListItem } from './components/ChatRoomListItem';
 import { LogoutDialog } from '@/components/Dialog/LogoutDialog';
 import { useNavigate } from 'react-router-dom';
 import api from '@/utils/api';
-import { bottomItems } from '../destinations';
+import { bottomItems, moveToDestination } from '../destinations';
 import { mapResponseToChatListCardData, ServerData } from './util/ChatRoomCardMapper';
 import useInfiniteScroll from '@/hooks/useInfiniteScroll';
 import { ChatEnterDialog } from './components/ChatEnterDialog';
@@ -137,7 +137,11 @@ const AgendaPage = () => {
         )}
       </S.BodyContainer>
 
-      <BottomNavigation startDestination="agenda" destinations={bottomItems} />
+      <BottomNavigation
+        startDestination="agenda"
+        destinations={bottomItems}
+        onItemClick={(itemId) => navigate(moveToDestination(itemId))}
+      />
 
       {isLogoutDialogOpen && (
         <LogoutDialog

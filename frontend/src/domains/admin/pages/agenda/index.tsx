@@ -3,7 +3,7 @@ import * as S from './styles';
 import { TopAppBar } from '@/components/TopAppBar';
 import { useTheme } from 'styled-components';
 import { BottomNavigation } from '@/components/bottom-navigation/BottomNavigation';
-import { bottomItems } from '../destinations';
+import { bottomItems, moveToDestination } from '../destinations';
 import { TabBar } from '@/components/tab-bar/TabBar';
 import { TabBarItemProps } from '@/components/tab-bar/TabBarItem';
 import { ChatRoomListCardData } from './components/ChatRoomCardData';
@@ -317,6 +317,7 @@ const AgendaPage: React.FC = () => {
         startDestination={bottomItems[0].itemId}
         setAlarm={true}
         destinations={bottomItems}
+        onItemClick={(itemId) => navigate(moveToDestination(itemId))}
       />
       {isLogoutDialogShow && (
         <LogoutDialog
