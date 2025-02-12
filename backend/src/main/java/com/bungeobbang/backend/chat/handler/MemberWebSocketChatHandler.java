@@ -45,7 +45,7 @@ public class MemberWebSocketChatHandler extends TextWebSocketHandler {
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws IOException {
         final String accessToken = (String) session.getAttributes().get(ACCESS_TOKEN);
         try {
-            log.info("Received text message: {}", message.getPayload());
+            log.info("Received text message from member: {}", message.getPayload());
             jwtProvider.validateToken(accessToken);
             final MemberWebsocketMessage request = objectMapper.readValue(message.getPayload(), MemberWebsocketMessage.class);
             final MemberWebsocketMessage requestContainsCreatedAt = MemberWebsocketMessage.createResponse(request);
