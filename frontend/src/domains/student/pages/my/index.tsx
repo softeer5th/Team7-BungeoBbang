@@ -2,19 +2,21 @@
 import { BottomNavigation } from '@/components/bottom-navigation/BottomNavigation';
 import * as S from './styles';
 import { TopAppBar } from '@/components/TopAppBar';
-import { BottomNavigationItemProps } from '@/components/bottom-navigation/BottomNavigationItem';
 import { useTheme } from 'styled-components';
 import { useEffect, useRef, useState } from 'react';
 import { TabBar } from '@/components/tab-bar/TabBar';
 import { TabBarItemProps } from '@/components/tab-bar/TabBarItem';
-import EmptyIcon from '/src/assets/imgs/message.png';
-import { ChatOpinionType, ChatCategoryType, ChatPreviewData } from './ChatPreviewData';
-import { ChatPreviewItem } from './chat-preview/ChatPreviewItem.tsx';
+import { ChatPreviewData } from './data/ChatPreviewData.tsx';
+import { ChatPreviewItem } from './components/ChatPreviewItem.tsx';
+import { ChatOpinionType } from '@/types/ChatOpinionType.tsx';
+import { ChatCategoryType } from '@/types/ChatCategoryType.tsx';
+import { EmptyContent } from '@/components/EmptyContent.tsx';
+import { bottomItems, moveToDestination } from '../destinations.tsx';
+import { useNavigate } from 'react-router-dom';
 
 const MyPage = () => {
   const theme = useTheme();
-
-  //   const navigate = useNavigate();
+  const navigate = useNavigate();
 
   const [activeIndex, setActiveIndex] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -111,6 +113,26 @@ const MyPage = () => {
         isInProgress: true,
         isUnread: true,
       },
+      {
+        roomId: '9',
+        roomName: '학생 의견 수렴',
+        categoryType: ChatCategoryType.OTHER,
+        lastSendTime: 'Jan 13',
+        lastMessage: '졸업 관련 절차에 대해 문의하고 싶습니다.',
+        numOfJoin: 21,
+        isInProgress: true,
+        isUnread: true,
+      },
+      {
+        roomId: '10',
+        roomName: '학생 의견 수렴',
+        categoryType: ChatCategoryType.OTHER,
+        lastSendTime: 'Jan 13',
+        lastMessage: '졸업 관련 절차에 대해 문의하고 싶습니다.',
+        numOfJoin: 21,
+        isInProgress: true,
+        isUnread: true,
+      },
     ],
   };
 
@@ -148,24 +170,6 @@ const MyPage = () => {
     setTranslateX(scrollLeft + -activeIndex * width);
   }, [activeIndex]);
 
-  const bottomItems: BottomNavigationItemProps[] = [
-    {
-      itemId: 'agenda',
-      iconSrc: '/src/assets/icons/message.svg',
-      title: '답해요',
-    },
-    {
-      itemId: 'opinion',
-      iconSrc: '/src/assets/icons/home.svg',
-      title: '말해요',
-    },
-    {
-      itemId: 'my',
-      iconSrc: '/src/assets/icons/profile.svg',
-      title: '내 의견',
-    },
-  ];
-
   return (
     <S.Container>
       <TopAppBar
@@ -197,16 +201,17 @@ const MyPage = () => {
                   ))}
                 </S.ChatPreviewList>
               ) : (
-                <S.EmptyTextWrapper>
-                  <S.EmpytIcon src={EmptyIcon} />
-                  <S.EmptyText variant="heading4">현재 개설된 채팅방이 없습니다.</S.EmptyText>
-                </S.EmptyTextWrapper>
+                <EmptyContent showIcon={true} text={'현재 개설된 채팅방이 없습니다.'} />
               )}
             </S.TabContent>
           );
         })}
       </S.TabContentContainer>
-      <BottomNavigation startDestination="my" destinations={bottomItems} />
+      <BottomNavigation
+        startDestination="my"
+        destinations={bottomItems}
+        onItemClick={(itemId) => navigate(moveToDestination(itemId))}
+      />
     </S.Container>
   );
 };

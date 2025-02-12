@@ -21,9 +21,9 @@ export const ReceiverChat: React.FC<SenderChatProps> = ({
   message,
   timeText,
   images,
-  nameTextColor = '#3C3C3C',
+  nameTextColor = '#393939',
   backgroundColor = '#F4F4F4',
-  textColor = '#3C3C3C',
+  textColor = '#393939',
   timeTextColor = '#C6C6C6',
 }) => {
   return (
@@ -122,7 +122,7 @@ const TimeText = styled(Typography)<{
 const ChatContainer = styled.div<{
   backgroundColor: string;
 }>`
-  width: 277px;
+  max-width: 73%;
   background-color: ${(props) => props.backgroundColor};
   border-radius: 16px;
   padding: 12px 16px 12px 16px;

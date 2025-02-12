@@ -6,85 +6,127 @@ import SchoolIcon from '@/assets/imgs/img_school.svg?react';
 import PersonIcon from '@/assets/imgs/img_person.svg?react';
 import * as S from './styles';
 import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import api from '@/utils/api';
+import { motion } from 'framer-motion';
+import { LogoutDialog as Logout } from '@/components/Dialog/LogoutDialog';
+import JwtManager from '@/utils/jwtManager';
+import { bottomItems, moveToDestination } from '../../destinations';
 
 const OpinionEntryPage = () => {
-  const destinations = [
-    {
-      itemId: 'home',
-      iconSrc: '/src/assets/icons/message.svg',
-      title: '답해요',
-    },
-    {
-      itemId: 'search',
-      iconSrc: '/src/assets/icons/home.svg',
-      title: '말해요',
-    },
-    {
-      itemId: 'profile',
-      iconSrc: '/src/assets/icons/profile.svg',
-      title: '내의견',
-      hasAlarm: true,
-    },
-  ];
-
   const navigate = useNavigate();
 
+  const [statistic, setStatistic] = useState({ opinionCount: 0, adminResponseRate: 0 });
+  const [showStatistic, setShowStatistic] = useState(true);
+  const [showLogoutDialog, setShowLogoutDialog] = useState(false);
+
+  useEffect(() => {
+    const getStatistic = async () => {
+      try {
+        const access = await JwtManager.getAccessToken();
+        console.log(access);
+        const response = await api.get('/student/opinions');
+        console.log('response.data)', response.data);
+        response.data.opinionCount < 4 ? setShowStatistic(false) : setStatistic(response.data);
+      } catch (error) {
+        setShowStatistic(false);
+        console.log(error);
+      }
+    };
+    getStatistic();
+  }, []);
+
   return (
-    <S.OpinionEntryContainer>
+    <>
       <TopAppBar
         leftIconSrc="/src/assets/icons/logo.svg"
         rightIconSrc="/src/assets/icons/logout.svg"
         backgroundColor="#51A2FF"
         foregroundColor="#ffffff"
+        onRightIconClick={() => {
+          setShowLogoutDialog(true);
+        }}
       />
 
-      <S.TitleInputContainer>
-        <S.TitleWrapper>
-          <Typography variant="display2">더 나은 학교를 위해</Typography>
-          <Typography variant="display2">여러분의 생각을 들려주세요!</Typography>
-        </S.TitleWrapper>
-        <S.SubTitle>여러분의 의견에 대해 빠른 시일에 답변드리겠습니다.</S.SubTitle>
-        <S.InputContainer
-          onClick={() => {
-            navigate('/opinion/category');
-          }}
+      <S.OpinionEntryContainer>
+        <motion.div
+          initial={{ opacity: 0, y: -57 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7, delay: 0.1, ease: 'easeInOut' }}
         >
-          <S.Input />
-          <S.SendButton>
-            <ArrowUp fill="#ffffff" stroke="#ffffff" />
-          </S.SendButton>
-        </S.InputContainer>
-      </S.TitleInputContainer>
-      <S.StatisticWrapper>
-        <S.StatisticContainer>
-          <S.StatLabel>
-            최근 30일
-            <br />
-            학생의 의견 수
-          </S.StatLabel>
-          <S.StatValue>
-            15건
-            <S.StatIcon>
-              <SchoolIcon />
-            </S.StatIcon>
-          </S.StatValue>
-        </S.StatisticContainer>
-        <S.StatisticContainer>
-          <S.StatLabel>
-            최근 30일
-            <br />
-            학생회의 답변율
-          </S.StatLabel>
-          <S.StatValue>
-            86%
-            <S.StatIcon>
-              <PersonIcon />
-            </S.StatIcon>
-          </S.StatValue>
-        </S.StatisticContainer>
-      </S.StatisticWrapper>
-      <BottomNavigation startDestination="home" destinations={destinations} />
-    </S.OpinionEntryContainer>
+          <S.TitleInputContainer>
+            <S.TitleWrapper>
+              <Typography variant="display2">더 나은 학교를 위해</Typography>
+              <Typography variant="display2">여러분의 생각을 들려주세요!</Typography>
+            </S.TitleWrapper>
+            <S.SubTitle>여러분의 의견에 대해 빠른 시일에 답변드리겠습니다.</S.SubTitle>
+            <S.InputContainer
+              onClick={() => {
+                navigate('/opinion/category');
+              }}
+            >
+              <S.Input />
+              <S.SendButton>
+                <ArrowUp fill="#ffffff" stroke="#ffffff" />
+              </S.SendButton>
+            </S.InputContainer>
+          </S.TitleInputContainer>
+        </motion.div>
+        {showStatistic && (
+          <S.StatisticWrapper>
+            <motion.div
+              initial={{ opacity: 0, y: -85 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.9, ease: 'easeInOut' }}
+            >
+              <S.StatisticContainer>
+                <S.StatLabel>
+                  최근 30일
+                  <br />
+                  학생의 의견 수
+                </S.StatLabel>
+                <S.StatValue>
+                  {statistic.opinionCount}건
+                  <S.StatIcon>
+                    <SchoolIcon />
+                  </S.StatIcon>
+                </S.StatValue>
+              </S.StatisticContainer>
+            </motion.div>
+            <motion.div
+              initial={{ opacity: 0, y: -85 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.9, ease: 'easeInOut' }}
+            >
+              <S.StatisticContainer>
+                <S.StatLabel>
+                  최근 30일
+                  <br />
+                  학생회의 답변율
+                </S.StatLabel>
+                <S.StatValue>
+                  {statistic.adminResponseRate}%
+                  <S.StatIcon>
+                    <PersonIcon />
+                  </S.StatIcon>
+                </S.StatValue>
+              </S.StatisticContainer>
+            </motion.div>
+          </S.StatisticWrapper>
+        )}
+      </S.OpinionEntryContainer>
+      <BottomNavigation
+        startDestination="opinion"
+        destinations={bottomItems}
+        onItemClick={(itemId) => navigate(moveToDestination(itemId))}
+      />
+      {showLogoutDialog && (
+        <Logout
+          onDismiss={() => setShowLogoutDialog(false)}
+          onConfirm={() => setShowLogoutDialog(true)}
+        />
+      )}
+    </>
   );
 };
 

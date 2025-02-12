@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-// import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import * as S from './styles';
 import api from '@/utils/api';
 import JWTManager from '@/utils/jwtManager';
@@ -17,7 +17,7 @@ interface FormError {
 }
 
 const AdminLogin: React.FC = () => {
-  // const navigate = useNavigate();
+  const navigate = useNavigate();
   const [form, setForm] = useState<FormState>({
     loginId: '',
     password: '',
@@ -57,11 +57,13 @@ const AdminLogin: React.FC = () => {
     setIsLoading(true);
     try {
       const response = await api.post('/admin/auth/login', form);
+      console.log('Login response:', response);
       const accessToken = response.headers['access-token'];
       const refreshToken = response.headers['refresh-token'];
-      await JWTManager.setTokens(refreshToken, accessToken, -1);
+      const memberId = response.data.adminId || -1;
+      await JWTManager.setTokens(refreshToken, accessToken, memberId);
 
-      // navigate('/admin');
+      navigate('/opinion/entry');
     } catch (error) {
       console.error('Login error:', error);
       setErrors({

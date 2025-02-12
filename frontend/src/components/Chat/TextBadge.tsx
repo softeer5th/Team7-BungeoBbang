@@ -10,7 +10,7 @@ interface TextBadgeProps {
 export const TextBadge: React.FC<TextBadgeProps> = ({
   text,
   backgroundColor = '#E8F3FF',
-  textColor = '#1F87FF',
+  textColor = '#51A2FF',
 }) => {
   return (
     <TextBadgeContainer backgroundColor={backgroundColor}>

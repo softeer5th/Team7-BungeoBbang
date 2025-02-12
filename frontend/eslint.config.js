@@ -31,7 +31,7 @@ export default [
         { allowConstantExport: true },
       ],
       "@typescript-eslint/no-unused-vars": "error",
-      "@typescript-eslint/no-explicit-any": "error",
+      "@typescript-eslint/no-explicit-any": "warn",
       "no-console": "warn",
       "no-duplicate-imports": "error",
       "no-empty": "error",

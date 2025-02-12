@@ -1,140 +1,163 @@
-// import React from 'react';
 import { BottomNavigation } from '@/components/bottom-navigation/BottomNavigation';
 import * as S from './styles';
 import { TopAppBar } from '@/components/TopAppBar';
-import { BottomNavigationItemProps } from '@/components/bottom-navigation/BottomNavigationItem';
 import { useTheme } from 'styled-components';
-import { useEffect, useState } from 'react';
-import { ChatListCardData } from './ChatRoomListCardData.tsx';
-import { ChatRoomListItem } from './chat-room-list-item/ChatRoomListItem.tsx';
+import { useRef, useState } from 'react';
+import { ChatRoomListCardData } from './data/ChatRoomListCardData';
+import { BannerContainer } from './components/Banner';
+import { ChatRoomListItem } from './components/ChatRoomListItem';
+import { LogoutDialog } from '@/components/Dialog/LogoutDialog';
 import { useNavigate } from 'react-router-dom';
-import { BannerContainer } from './Banner.tsx';
+import api from '@/utils/api';
+import { bottomItems, moveToDestination } from '../destinations';
+import { mapResponseToChatListCardData, ServerData } from './util/ChatRoomCardMapper';
+import useInfiniteScroll from '@/hooks/useInfiniteScroll';
+import { ChatEnterDialog } from './components/ChatEnterDialog';
 
 const AgendaPage = () => {
-  const theme = useTheme();
+  const MAX_PAGE_ITEMS = 6;
+  const TRIGGER_REST_ITEMS = 3;
 
+  const theme = useTheme();
   const navigate = useNavigate();
 
-  const [chatRooms, setChatRooms] = useState<ChatListCardData[]>([]);
+  const [isLogoutDialogOpen, setLogoutDialogOpen] = useState(false);
+  const [selectedChatRoomEnter, setSelectedChatRoomEnter] = useState<number | null>(null);
 
-  const mockData = [
-    {
-      roomId: '1',
-      dday: 'D-2',
-      iconSrc: '/assets/icons/school.svg',
-      iconBackgroundColor: theme?.colors.icnGreen,
-      title: '2025학년도 1학기 수강 신청 수요 조사',
-      numOfJoin: 0,
-      isInProgress: true,
-    },
-    {
-      roomId: '11',
-      dday: 'D-2',
-      iconSrc: '/assets/icons/school.svg',
-      iconBackgroundColor: theme?.colors.icnGreen,
-      title: '2025학년도 1학기 수강 신청 수요 조사',
-      numOfJoin: 0,
-      isInProgress: true,
-    },
-    {
-      roomId: '12',
-      dday: 'D-2',
-      iconSrc: '/assets/icons/school.svg',
-      iconBackgroundColor: theme?.colors.icnGreen,
-      title: '2025학년도 1학기 수강 신청 수요 조사',
-      numOfJoin: 0,
-      isInProgress: true,
-    },
-    {
-      roomId: '2',
-      dday: 'D-7',
-      iconSrc: '/assets/icons/school.svg',
-      iconBackgroundColor: theme.colors.icnGreen,
-      title: '2025학년도 1학기 수강 신청 수요 조사',
-      numOfJoin: 0,
-      isInProgress: true,
-    },
-    {
-      roomId: '3',
-      dday: 'D+2',
-      iconSrc: '/assets/icons/school.svg',
-      iconBackgroundColor: theme.colors.icnGreen,
-      title: '2025학년도 1학기 수강 신청 수요 조사',
-      numOfJoin: 2,
-      isInProgress: false,
-    },
-    {
-      roomId: '4',
-      dday: 'D+2',
-      iconSrc: '/assets/icons/school.svg',
-      iconBackgroundColor: theme.colors.icnGreen,
-      title: '2025학년도 1학기 수강 신청 수요 조사',
-      numOfJoin: 5,
-      isInProgress: false,
-    },
-    {
-      roomId: '5',
-      dday: 'D+2',
-      iconSrc: '/assets/icons/school.svg',
-      iconBackgroundColor: theme.colors.icnGreen,
-      title: '2025학년도 1학기 수강 신청 수요 조사',
-      numOfJoin: 21,
-      isInProgress: false,
-    },
-  ];
+  const lastChatRoom = useRef<[string, number] | null>(null);
 
-  useEffect(() => {
-    setChatRooms(mockData);
-  }, []);
+  const hasMore = useRef<boolean>(true);
+  const isInProgessEnd = useRef<boolean>(false);
+  const isFirstUpcoming = useRef<boolean>(false);
 
-  const bottomItems: BottomNavigationItemProps[] = [
-    {
-      itemId: 'agenda',
-      iconSrc: '/assets/icons/message.svg',
-      title: '답해요',
-    },
-    {
-      itemId: 'opinion',
-      iconSrc: '/assets/icons/home.svg',
-      title: '말해요',
-    },
-    {
-      itemId: 'my',
-      iconSrc: '/assets/icons/profile.svg',
-      title: '내 의견',
-    },
-  ];
+  const [chatRooms, setChatRooms] = useState<ChatRoomListCardData[]>([]);
+
+  const fetchChatRooms = async () => {
+    if (!hasMore.current) return;
+
+    try {
+      const status = isInProgessEnd.current ? 'CLOSED' : 'ACTIVE';
+      const params =
+        status == 'ACTIVE'
+          ? {
+              status: status,
+              ...(lastChatRoom.current
+                ? { endDate: lastChatRoom.current[0], agendaId: lastChatRoom.current[1] }
+                : {}),
+            }
+          : {
+              status: status,
+              ...(lastChatRoom.current && !isFirstUpcoming.current
+                ? { endDate: lastChatRoom.current[0], agendaId: lastChatRoom.current[1] }
+                : {}),
+            };
+
+      if (status == 'CLOSED') isFirstUpcoming.current = false;
+
+      const response = await api.get('/student/agendas', {
+        params: params,
+      });
+
+      const newRooms = response.data.map((data: ServerData) =>
+        mapResponseToChatListCardData(data, status),
+      );
+
+      setChatRooms((prev) => [...prev, ...newRooms]);
+
+      if (newRooms.length < MAX_PAGE_ITEMS) {
+        if (!isInProgessEnd.current) {
+          isInProgessEnd.current = true;
+        } else {
+          setHasMore(false);
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
+  };
+
+  const enterChatRoom = async () => {
+    try {
+      await api.post(`/student/agendas/${selectedChatRoomEnter}`);
+
+      navigate(`/agenda/chat/${selectedChatRoomEnter}?isEnd=false&isParticipate=true`);
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
+  };
+
+  const { setTriggerItem, setHasMore } = useInfiniteScroll({
+    fetchMore: fetchChatRooms,
+    hasMore: isInProgessEnd.current == false || hasMore.current === true,
+  });
 
   return (
     <S.Container>
       <TopAppBar
-        leftIconSrc="/assets/icons/logo.svg"
-        rightIconSrc="/assets/icons/logout.svg"
+        leftIconSrc="/src/assets/icons/logo.svg"
+        rightIconSrc="/src/assets/icons/logout.svg"
         titleColor={theme.colors.sementicMain}
         backgroundColor={theme.colors.grayScale10}
-        onRightIconClick={() => {}}
+        onRightIconClick={() => setLogoutDialogOpen(true)}
       />
       <S.BodyContainer>
         <BannerContainer />
-        <S.ChatRoomList>
-          {chatRooms && chatRooms.length > 0 ? (
-            chatRooms.map((room) => (
-              <ChatRoomListItem
-                room={room}
-                onCardClick={() => {
-                  navigate(`/agenda/chat/${room.roomId}`);
-                }}
-              />
-            ))
-          ) : (
-            <S.EmptyTextWrapper>
-              <S.EmptyText variant="heading4">현재 개설된 채팅방이 없습니다.</S.EmptyText>
-            </S.EmptyTextWrapper>
-          )}
-        </S.ChatRoomList>
+        {chatRooms && chatRooms.length > 0 ? (
+          <S.ChatRoomList>
+            {chatRooms.map((room, index) => {
+              const isTriggerItem = index === chatRooms.length - TRIGGER_REST_ITEMS;
+              const isLastItem = index === chatRooms.length - 1;
+              if (isLastItem) {
+                lastChatRoom.current = [room.endDate, room.roomId];
+              }
+
+              return (
+                <ChatRoomListItem
+                  key={room.roomId}
+                  ref={isTriggerItem ? setTriggerItem : null}
+                  room={room}
+                  onClick={() => {
+                    const isEnd = !room.isInProgress;
+                    const isParticipate = room.isParticipate;
+                    if (isEnd || isParticipate) {
+                      navigate(
+                        `/agenda/chat/${room.roomId}?isEnd=${isEnd}&isParticipate=${isParticipate}`,
+                      );
+                    }
+                    setSelectedChatRoomEnter(room.roomId);
+                  }}
+                />
+              );
+            })}
+          </S.ChatRoomList>
+        ) : (
+          <S.EmptyTextWrapper>
+            <S.EmptyText variant="heading4">현재 개설된 채팅방이 없습니다.</S.EmptyText>
+          </S.EmptyTextWrapper>
+        )}
       </S.BodyContainer>
 
-      <BottomNavigation startDestination="agenda" destinations={bottomItems} />
+      <BottomNavigation
+        startDestination="agenda"
+        destinations={bottomItems}
+        onItemClick={(itemId) => navigate(moveToDestination(itemId))}
+      />
+
+      {isLogoutDialogOpen && (
+        <LogoutDialog
+          onDismiss={() => setLogoutDialogOpen(false)}
+          onConfirm={() => setLogoutDialogOpen(false)}
+        />
+      )}
+
+      {selectedChatRoomEnter && (
+        <ChatEnterDialog
+          onConfirm={() => {
+            enterChatRoom();
+          }}
+          onDismiss={() => setSelectedChatRoomEnter(null)}
+        />
+      )}
     </S.Container>
   );
 };

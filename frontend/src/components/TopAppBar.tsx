@@ -32,7 +32,7 @@ export const TopAppBar: React.FC<TopAppBarProps> = ({
   onLeftIconClick = () => {},
   onRightIconClick = () => {},
   backgroundColor = '#FFFFFF',
-  foregroundColor = '#000000',
+  foregroundColor = '#262626',
   titleColor,
   border,
 }) => {
@@ -69,6 +69,7 @@ export const TopAppBar: React.FC<TopAppBarProps> = ({
           />
         </IconWrapper>
       )}
+      {LeftIconComponent && !RightIconComponent && <RightIconWrapper />}
     </TopAppBarContainer>
   );
 };
@@ -94,6 +95,7 @@ const TopAppBarContainer = styled.div<{
       ? `${props.border.borderWidth || '1px'} solid ${props.border.borderColor || '#000000'}`
       : 'none'};
   border-radius: ${(props) => props.border?.borderRadius || '0px'};
+  z-index: 3000;
 `;
 
 const IconWrapper = styled.div`
@@ -111,4 +113,9 @@ const TitleText = styled(Typography)<{ titleCentered: boolean; titleColor: strin
   color: ${(props) => props.titleColor};
   z-index: 1;
   text-align: ${(props) => (props.titleCentered ? 'center' : 'left')};
+`;
+
+const RightIconWrapper = styled.div`
+  width: 40px;
+  height: 40px;
 `;
