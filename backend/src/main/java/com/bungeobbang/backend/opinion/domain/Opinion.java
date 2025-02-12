@@ -37,21 +37,17 @@ public class Opinion extends BaseTimeEntity {
     @Column(name = "is_remind", nullable = false)
     private boolean isRemind;
 
-    @Column(name = "chat_count", nullable = false)
-    private int chatCount;
-
     @Column(name = "is_deleted", nullable = false)
     private boolean isDeleted;
 
     @Builder
-    public Opinion(Long id, University university, OpinionType opinionType, CategoryType categoryType, Member member, boolean isRemind, int chatCount, boolean isDeleted) {
+    public Opinion(Long id, University university, OpinionType opinionType, CategoryType categoryType, Member member, boolean isRemind, boolean isDeleted) {
         this.id = id;
         this.university = university;
         this.opinionType = opinionType;
         this.categoryType = categoryType;
         this.member = member;
         this.isRemind = isRemind;
-        this.chatCount = chatCount;
         this.isDeleted = isDeleted;
     }
 
