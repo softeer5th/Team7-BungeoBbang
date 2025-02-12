@@ -3,12 +3,7 @@ import { ChatOpinionType } from '@/types/ChatOpinionType';
 
 export interface Opinion {
   id: string;
-  category: {
-    label: string;
-    type: string;
-    iconSrc: string;
-    iconBackground: string;
-  };
+  category: ChatCategoryType;
   title: string;
   text: string;
   time: string;

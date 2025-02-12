@@ -1,12 +1,9 @@
+import { CategoryIcon } from '@/components/CategoryIcon';
 import * as S from './styles';
+import { ChatCategoryType } from '@/types/ChatCategoryType';
 
 interface OpinionItemProps {
-  category: {
-    label: string;
-    type: string;
-    iconSrc: string;
-    iconBackground: string;
-  };
+  category: ChatCategoryType;
   title: string;
   text: string;
   time: string;
@@ -50,9 +47,13 @@ export const OpinionItem: React.FC<OpinionItemProps> = ({
     <S.OpinionItem onClick={onClick}>
       <S.CategoryIconWrapper>
         {hasAlarm && <S.AlarmDot />}
-        <S.CategoryIcon backgroundColor={category.iconBackground}>
-          <img src={category.iconSrc} alt={category.label} width="24" height="24" />
-        </S.CategoryIcon>
+        <CategoryIcon
+          boxSize={60}
+          iconWidth={24}
+          textVariant="caption3"
+          type={category}
+          showText={true}
+        />
       </S.CategoryIconWrapper>
       <S.OpinionContent>
         <S.OpinionHeader>
