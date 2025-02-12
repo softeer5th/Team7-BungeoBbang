@@ -28,7 +28,7 @@ const ChatPage = () => {
   const getChatData = async () => {
     try {
       const response = await api.get(`/admin/agendas/${roomId}/chat`);
-      const formattedData = formatChatData(response.data);
+      const formattedData = formatChatData(response.data, true);
       setChatData(formattedData);
     } catch (error) {
       console.error('fail to get chat data', error);

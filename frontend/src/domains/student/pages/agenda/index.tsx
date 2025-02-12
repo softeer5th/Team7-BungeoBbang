@@ -32,10 +32,8 @@ const AgendaPage = () => {
 
   const [chatRooms, setChatRooms] = useState<ChatRoomListCardData[]>([]);
 
-
   const fetchChatRooms = async () => {
     if (!hasMore.current) return;
-
 
     try {
       const status = isInProgessEnd.current ? 'CLOSED' : 'ACTIVE';

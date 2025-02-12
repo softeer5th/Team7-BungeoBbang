@@ -8,7 +8,8 @@ export interface ChatMessage {
   agendaId?: number;
   message: string;
   images: string[];
-  memberId: number;
+  memberId?: number;
+  adminId?: number;
   createdAt: string;
 }
 
@@ -28,6 +29,7 @@ interface SocketState {
     roomId: number,
     message: string,
     images: string[],
+    isAdmin: boolean,
   ) => void;
 }
 

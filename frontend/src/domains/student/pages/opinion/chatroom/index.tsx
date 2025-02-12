@@ -19,19 +19,8 @@ import { ExitDialog } from '../../chat-page/Exitdialog.tsx';
 import api from '@/utils/api.ts';
 import { formatChatData } from '@/utils/chat/formatChatData.ts';
 import { useImageUpload } from '@/hooks/useImageUpload.ts';
-import { useSocketStore } from '@/store/socketStore';
+import { useSocketStore, ChatMessage } from '@/store/socketStore';
 import { useSocketManager } from '@/hooks/useSocketManager.ts';
-
-interface ChatMessage {
-  roomType: 'OPINION' | 'AGENDA';
-  event: 'CHAT';
-  opinionId?: number;
-  agendaId?: number;
-  message: string;
-  images: string[];
-  memberId: number;
-  createdAt: string;
-}
 
 import { ImageFileSizeDialog } from '@/components/Dialog/ImageFileSizeDialog.tsx';
 

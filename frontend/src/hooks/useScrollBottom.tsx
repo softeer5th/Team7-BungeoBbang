@@ -1,4 +1,5 @@
 import { useRef, useCallback, useEffect } from 'react';
+import { ChatData } from '@/domains/student/pages/chat-page/ChatData';
 
 export const useScrollBottom = <T extends HTMLElement>() => {
   const elementRef = useRef<T>(null);
@@ -9,7 +10,8 @@ export const useScrollBottom = <T extends HTMLElement>() => {
     }
   }, []);
 
-  const useScrollOnUpdate = (dependency) => {
+  // ChatData[] 타입으로 제한
+  const useScrollOnUpdate = (dependency: ChatData[]) => {
     useEffect(() => {
       scrollToBottom();
     }, [dependency]);

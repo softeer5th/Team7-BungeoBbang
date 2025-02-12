@@ -19,19 +19,10 @@ import { ExitDialog } from '@/domains/student/pages/chat-page/Exitdialog';
 import api from '@/utils/api';
 import { formatChatData } from '@/utils/chat/formatChatData';
 import { useImageUpload } from '@/hooks/useImageUpload';
-import { useSocketStore } from '@/store/socketStore';
+import { useSocketStore, ChatMessage } from '@/store/socketStore';
 import { useSocketManager } from '@/hooks/useSocketManager';
 import { ImageFileSizeDialog } from '@/components/Dialog/ImageFileSizeDialog';
 import { useScrollBottom } from '@/hooks/useScrollBottom';
-interface ChatMessage {
-  roomType: 'OPINION';
-  event: 'CHAT';
-  opinionId: number;
-  message: string;
-  images: string[];
-  memberId: number;
-  createdAt: string;
-}
 
 const OpinionChatPage = () => {
   const [chatData, setChatData] = useState<ChatData[]>([]);
