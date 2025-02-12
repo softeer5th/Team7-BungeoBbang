@@ -1,15 +1,14 @@
 package com.bungeobbang.backend.agenda.dto.response.member;
 
-import com.bungeobbang.backend.agenda.dto.response.AgendaResponse;
-import com.bungeobbang.backend.common.type.CategoryType;
-
-import java.time.LocalDate;
+import com.bungeobbang.backend.agenda.dto.MemberAgendaSubResult;
+import com.bungeobbang.backend.common.util.ObjectIdSerializer;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import org.bson.types.ObjectId;
 
 public record MemberAgendaResponse(
-        AgendaResponse agenda,
-        boolean isParticipate
+        MemberAgendaSubResult agenda,
+        @JsonSerialize(using = ObjectIdSerializer.class)
+        ObjectId lastReadChatId
 ) {
-    public MemberAgendaResponse(Long agendaId, CategoryType categoryType, String title, LocalDate startDate, LocalDate endDate, int count, boolean isParticipate) {
-        this(new AgendaResponse(agendaId, categoryType, title, startDate, endDate, count), isParticipate);
-    }
+
 }

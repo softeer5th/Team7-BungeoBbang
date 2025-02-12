@@ -6,6 +6,7 @@ import com.bungeobbang.backend.common.type.ScrollType;
 import org.bson.types.ObjectId;
 
 import java.util.List;
+import java.util.Map;
 
 public interface MemberAgendaChatRepository {
 
@@ -28,4 +29,6 @@ public interface MemberAgendaChatRepository {
      * 스크롤에 따라 채팅 내역 무한 스크롤 조회한다.
      */
     List<AgendaChat> findChatsByScroll(Long agendaId, Long memberId, ObjectId chatId, ScrollType scrollType);
+
+    Map<Long, ObjectId> findAllByAgendaId(List<Long> agendaList, Long memberId);
 }

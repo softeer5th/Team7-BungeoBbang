@@ -1,5 +1,6 @@
 package com.bungeobbang.backend.agenda.presentation.api;
 
+import com.bungeobbang.backend.agenda.dto.MemberAgendaSubResult;
 import com.bungeobbang.backend.agenda.dto.response.AgendaChatResponse;
 import com.bungeobbang.backend.agenda.dto.response.AgendaDetailResponse;
 import com.bungeobbang.backend.agenda.dto.response.member.MemberAgendaResponse;
@@ -42,7 +43,7 @@ public interface AgendaApi {
     @Operation(summary = "답해요 상태별 조회", description = "특정 상태의 답해요 목록을 조회합니다.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "조회 성공",
-                    content = @Content(schema = @Schema(implementation = MemberAgendaResponse.class))),
+                    content = @Content(schema = @Schema(implementation = MemberAgendaSubResult.class))),
             @ApiResponse(responseCode = "400", description = "잘못된 요청", content = @Content),
             @ApiResponse(responseCode = "401", description = "인증 필요", content = @Content),
     })

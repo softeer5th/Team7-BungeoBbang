@@ -7,6 +7,7 @@ import com.bungeobbang.backend.agenda.domain.repository.AgendaMemberRepository;
 import com.bungeobbang.backend.agenda.domain.repository.AgendaRepository;
 import com.bungeobbang.backend.agenda.domain.repository.MemberAgendaChatRepository;
 import com.bungeobbang.backend.agenda.dto.AgendaLatestChat;
+import com.bungeobbang.backend.agenda.dto.MemberAgendaSubResult;
 import com.bungeobbang.backend.agenda.dto.response.AgendaDetailResponse;
 import com.bungeobbang.backend.agenda.dto.response.member.MemberAgendaResponse;
 import com.bungeobbang.backend.agenda.dto.response.member.MyAgendaResponse;
@@ -52,7 +53,7 @@ public class AgendaService {
     private final AgendaMemberRepository agendaMemberRepository;
     private final MemberAgendaChatRepository memberAgendaChatRepository;
 
-    private final static ObjectId MIN_OBJECT_ID = new ObjectId(0, 0);
+    private final static ObjectId MIN_OBJECT_ID = new ObjectId("000000000000000000000000");
 
     /**
      * <h3>답해요에 사용자 참여</h3>
@@ -101,7 +102,13 @@ public class AgendaService {
     public List<MemberAgendaResponse> getAgendasByStatus(final Long memberId, final AgendaStatusType status, final LocalDate endDate, final Long agendaId) {
         final Member member = getMember(memberId);
         final AgendaFinder finder = agendaFinders.mapping(status);
-        return finder.findAllByStatus(member.getUniversity().getId(), endDate, agendaId, memberId);
+        final List<MemberAgendaSubResult> allByStatus = finder.findAllByStatus(member.getUniversity().getId(), endDate, agendaId, memberId);
+        final List<Long> list = allByStatus.stream().map(MemberAgendaSubResult::agendaId).toList();
+        final Map<Long, ObjectId> lastReadChatMap = memberAgendaChatRepository.findAllByAgendaId(list, memberId);
+        return allByStatus.stream()
+                .map(agenda -> new MemberAgendaResponse(agenda, lastReadChatMap.getOrDefault(agenda.agendaId(), MIN_OBJECT_ID)))
+                .toList();
+        //return allByStatus;
     }
 
     public AgendaDetailResponse getAgendaDetail(final Long memberId, final Long agendaId) {
@@ -153,6 +160,7 @@ public class AgendaService {
                                     .createdAt(agenda.getCreatedAt())
                                     .hasNew(lastChat.hasNewChat())
                                     .lastChat(lastChat.content())
+                                    .lastReadChatId(lastChat.lastReadChatId())
                                     .build();
                         }
                 ).toList();

@@ -9,6 +9,7 @@ public record AgendaLatestChat(
         ObjectId chatId,
         String content,
         LocalDateTime createdAt,
-        boolean hasNewChat
+        boolean hasNewChat,
+        ObjectId lastReadChatId
 ) {
 }

@@ -46,6 +46,7 @@ public class MemberAgendaChatRepositoryImpl implements MemberAgendaChatRepositor
     private static final String BELOW = "below";
     private static final String ID = "_id";
     private static final ObjectId MAX_OBJECT_ID = new ObjectId("ffffffffffffffffffffffff");
+    private static final ObjectId MIN_OBJECT_ID = new ObjectId("000000000000000000000000");
     private final MongoTemplate mongoTemplate;
 
     @Override
@@ -115,7 +116,8 @@ public class MemberAgendaChatRepositoryImpl implements MemberAgendaChatRepositor
                         chat.chatId(),
                         chat.content(),
                         chat.createdAt(),
-                        unreadMap.get(chat.agendaId())
+                        unreadMap.get(chat.agendaId()),
+                        lastReadChatMap.getOrDefault(chat.agendaId(), MIN_OBJECT_ID)
                 ))
                 .toList();
     }
@@ -188,6 +190,20 @@ public class MemberAgendaChatRepositoryImpl implements MemberAgendaChatRepositor
         query.with(Sort.by(Sort.Direction.ASC, ID));
         query.limit(10);
         return mongoTemplate.find(query, AgendaChat.class);
+    }
+
+    @Override
+    public Map<Long, ObjectId> findAllByAgendaId(List<Long> agendaList, Long memberId) {
+        Query query = new Query();
+        query.addCriteria(
+                Criteria.where("agendaId").in(agendaList) // agendaId가 리스트에 포함
+                        .and("memberId").is(memberId)    // 특정 memberId
+        );
+
+        List<AgendaLastReadChat> results = mongoTemplate.find(query, AgendaLastReadChat.class, AGENDA_LAST_READ_COLLECTION);
+
+        // 결과를 Map<agendaId, AgendaLastReadChat> 형태로 변환
+        return results.stream().collect(Collectors.toMap(AgendaLastReadChat::getAgendaId, AgendaLastReadChat::getLastReadChatId));
     }
 
     private List<AgendaChat> findChatsAroundForMember(Long agendaId, Long memberId, ObjectId chatId) {
