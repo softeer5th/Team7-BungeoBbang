@@ -3,6 +3,7 @@ package com.bungeobbang.backend.agenda.domain.infrastructure;
 import com.bungeobbang.backend.agenda.domain.AgendaAdminLastReadChat;
 import com.bungeobbang.backend.agenda.domain.AgendaChat;
 import com.bungeobbang.backend.agenda.domain.repository.AdminAgendaChatRepository;
+import com.bungeobbang.backend.agenda.dto.AdminAgendaSubResult;
 import com.bungeobbang.backend.agenda.dto.LastChat;
 import com.bungeobbang.backend.common.type.ScrollType;
 import lombok.RequiredArgsConstructor;
@@ -45,6 +46,7 @@ public class AdminAgendaChatRepositoryImpl implements AdminAgendaChatRepository 
     private static final String ID = "_id";
     private final MongoTemplate mongoTemplate;
     private static final ObjectId MAX_OBJECT_ID = new ObjectId("ffffffffffffffffffffffff");
+    private static final ObjectId MIN_OBJECT_ID = new ObjectId("000000000000000000000000");
 
     @Override
     public AgendaChat findLastChat(Long agendaId) {
@@ -61,8 +63,8 @@ public class AdminAgendaChatRepositoryImpl implements AdminAgendaChatRepository 
         return mongoTemplate.findOne(query, AgendaChat.class);
     }
 
-    public Map<Long, Boolean> findUnreadStatus(List<Long> agendaIdList, Long adminId) {
-        Map<Long, Boolean> result = new HashMap<>();
+    public Map<Long, AdminAgendaSubResult> findUnreadStatus(List<Long> agendaIdList, Long adminId) {
+        Map<Long, AdminAgendaSubResult> result = new HashMap<>();
 
         // ✅ 1. 최신 채팅 가져오기 (각 agendaId별로 _id가 가장 큰 값)
         MatchOperation matchStage = Aggregation.match(Criteria.where(AGENDA_ID).in(agendaIdList));
@@ -104,13 +106,9 @@ public class AdminAgendaChatRepositoryImpl implements AdminAgendaChatRepository 
         // ✅ 4. 최종 결과 계산
         for (Long agendaId : agendaIdList) {
             ObjectId lastChatId = lastChatMap.get(agendaId);
-            ObjectId lastReadChatId = lastReadChatMap.get(agendaId);
+            ObjectId lastReadChatId = lastReadChatMap.getOrDefault(agendaId, MIN_OBJECT_ID);
 
-            if (lastChatId != null && lastReadChatId != null) {
-                result.put(agendaId, lastChatId.compareTo(lastReadChatId) > 0);
-            } else {
-                result.put(agendaId, lastChatId != null);
-            }
+            result.put(agendaId, new AdminAgendaSubResult(lastChatId.compareTo(lastReadChatId) > 0, lastReadChatId));
         }
         return result;
     }

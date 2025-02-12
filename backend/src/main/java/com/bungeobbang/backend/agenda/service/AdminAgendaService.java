@@ -7,6 +7,7 @@ import com.bungeobbang.backend.agenda.domain.AgendaImage;
 import com.bungeobbang.backend.agenda.domain.repository.AdminAgendaChatRepository;
 import com.bungeobbang.backend.agenda.domain.repository.AgendaImageRepository;
 import com.bungeobbang.backend.agenda.domain.repository.AgendaRepository;
+import com.bungeobbang.backend.agenda.dto.AdminAgendaSubResult;
 import com.bungeobbang.backend.agenda.dto.request.AgendaChatRequest;
 import com.bungeobbang.backend.agenda.dto.request.AgendaCreationRequest;
 import com.bungeobbang.backend.agenda.dto.request.AgendaEditRequest;
@@ -81,11 +82,14 @@ public class AdminAgendaService {
         final AgendaFinder finder = agendaFinders.mapping(status);
         final List<AgendaResponse> agendaList = finder.findAllByStatus(admin.getUniversity().getId(), endDate, agendaId);
 
-        final Map<Long, Boolean> unreadStatus = adminAgendaChatRepository.findUnreadStatus(
+        final Map<Long, AdminAgendaSubResult> unreadStatus = adminAgendaChatRepository.findUnreadStatus(
                 agendaList.stream().map(AgendaResponse::agendaId).toList(),
                 adminId);
         return agendaList.stream()
-                .map(agenda -> new AdminAgendaResponse(agenda, unreadStatus.getOrDefault(agenda.agendaId(), false)))
+                .map(agenda -> new AdminAgendaResponse(
+                        agenda,
+                        unreadStatus.get(agenda.agendaId()).hasNewMessage(),
+                        unreadStatus.get(agenda.agendaId()).lastReadChatId()))
                 .collect(Collectors.toList());
     }
 
