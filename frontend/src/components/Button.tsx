@@ -1,6 +1,7 @@
 import styled from 'styled-components';
-import { BorderProps } from './BorderProps';
+import { BorderProps } from './border/BorderProps';
 import Typography from '../styles/Typography';
+import { getBorderStyle } from './border/getBorderType';
 
 export interface ButtonProps {
   text: string;
@@ -36,11 +37,7 @@ export const Button: React.FC<ButtonProps> = ({
 
 const ButtonContainer = styled.div<{
   backgroundColor: string;
-  border?: {
-    borderWidth?: string;
-    borderColor?: string;
-    borderRadius?: string;
-  };
+  border?: BorderProps;
   disabled: boolean;
 }>`
   width: 100%;
@@ -50,6 +47,15 @@ const ButtonContainer = styled.div<{
   padding: 15px;
   box-sizing: border-box;
   background-color: ${(props) => (props.disabled ? '#E0E0E0' : props.backgroundColor || '#1F87FF')};
+
+  ${(props) =>
+    props.border
+      ? getBorderStyle({
+          ...props.border,
+          borderColor: props.disabled ? props.border.disabledBorderColor : props.border.borderColor,
+        })
+      : 'border: none;'}
+
   border: ${(props) =>
     props.border
       ? `${props.border?.borderWidth || '1px'} solid ${props.border?.borderColor || '#1F87FF'}`

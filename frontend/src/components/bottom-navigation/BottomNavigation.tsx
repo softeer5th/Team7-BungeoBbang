@@ -1,7 +1,8 @@
 import styled from 'styled-components';
 import { useState, forwardRef } from 'react';
 import { BottomNavigationItem, BottomNavigationItemProps } from './BottomNavigationItem';
-import { BorderProps } from '../BorderProps';
+import { BorderProps } from '../border/BorderProps';
+import { getBorderStyle } from '../border/getBorderType';
 
 interface BottomNavigationProps {
   startDestination: string;
@@ -67,9 +68,6 @@ const BottomNavigationWrapper = styled.div<{
   align-items: center;
   justify-content: center;
   background-color: ${(props) => props.backgroundColor};
-  border: ${(props) =>
-    props.border
-      ? `${props.border.borderWidth || '1px'} solid ${props.border.borderColor || '#000000'}`
-      : 'none'};
+  ${(props) => (props.border ? getBorderStyle(props.border) : 'border: none;')}
   border-radius: ${(props) => props.border?.borderRadius || '0px'};
 `;

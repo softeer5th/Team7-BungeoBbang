@@ -1,6 +1,7 @@
 import styled from 'styled-components';
-import { BorderProps } from '../BorderProps';
+import { BorderProps } from '../border/BorderProps';
 import Typography from '../../styles/Typography';
+import { getBorderStyle } from '../border/getBorderType';
 
 interface CountTextFieldProps {
   value: string;
@@ -64,14 +65,21 @@ const TextFieldInput = styled(Typography).attrs({ as: 'textarea' })<{
   placeholderColor: string;
   textColor: string;
   border?: BorderProps;
+  disabled: boolean;
 }>`
   width: 100%;
   padding: 14px;
   box-sizing: border-box;
   background-color: ${(props) => (props.disabled ? '#E0E0E0' : '#FFFFFF')};
   color: ${(props) => (props.disabled ? '#C6C6C6' : props.textColor)};
-  border: ${(props) =>
-    `${props.border?.borderWidth || '1px'} solid ${props.border?.borderColor || '#E0E0E0'}`};
+  ${(props) =>
+    props.border
+      ? getBorderStyle({
+          ...props.border,
+          borderColor: props.disabled ? props.border.disabledBorderColor : props.border.borderColor,
+        })
+      : 'border: none;'}
+
   border-radius: ${(props) => props.border?.borderRadius || '12px'};
   outline: none;
 

@@ -2,8 +2,9 @@ import styled from 'styled-components';
 import parse from 'html-react-parser';
 import { createPortal } from 'react-dom';
 import { Button, ButtonProps } from '../Button';
-import { BorderProps } from '../BorderProps';
+import { BorderProps } from '../border/BorderProps';
 import Typography from '@/styles/Typography';
+import { getBorderStyle } from '../border/getBorderType';
 
 interface DialogProps {
   title?: string;
@@ -88,10 +89,7 @@ const DialogContainer = styled.div<{
   width: 90%;
   max-width: 324px;
   background-color: ${(props) => props.backgroundColor};
-  border: ${(props) =>
-    props.border
-      ? `${props.border?.borderWidth || '1px'} solid ${props.border?.borderColor || '#E0E0E0'}`
-      : 'non'};
+  ${(props) => (props.border ? getBorderStyle(props.border) : 'border: none;')}
   border-radius: ${(props) => props.border?.borderRadius || '14px'};
   display: flex;
   flex-direction: column;

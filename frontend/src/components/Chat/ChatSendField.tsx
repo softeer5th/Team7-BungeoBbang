@@ -4,7 +4,7 @@ import CameraIcon from '/src/assets/icons/camera.svg?react';
 import ArrowUpIcon from '/src/assets/icons/full-arrow-up.svg?react';
 import CloseIcon from '/src/assets/icons/close-2.svg?react';
 import Typography from '../../styles/Typography';
-import { BorderProps } from '../BorderProps';
+import { BorderProps } from '../border/BorderProps';
 import { ImagePreview } from './ImagePreview';
 
 interface ChatSendFieldProps {
@@ -175,7 +175,6 @@ export const ChatSendField: React.FC<ChatSendFieldProps> = ({
             )}
 
             <TextFieldInputWrapper>
-              
               <TextFieldInput
                 rows={1}
                 ref={textAreaRef}

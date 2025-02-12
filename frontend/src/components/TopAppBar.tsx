@@ -1,11 +1,12 @@
 import styled from 'styled-components';
 import React from 'react';
-import { BorderProps } from './BorderProps';
+import { BorderProps } from './border/BorderProps';
 import Typography from '../styles/Typography';
 
 import ArrowLeftIcon from '/src/assets/icons/arrow-left.svg?react';
 import LogoIcon from '/src/assets/icons/logo.svg?react';
 import LogoutIcon from '/src/assets/icons/logout.svg?react';
+import { getBorderStyle } from './border/getBorderType';
 
 const IconComponents: { [key: string]: React.FC<React.SVGProps<SVGSVGElement>> } = {
   '/src/assets/icons/arrow-left.svg': ArrowLeftIcon,
@@ -76,11 +77,7 @@ export const TopAppBar: React.FC<TopAppBarProps> = ({
 
 const TopAppBarContainer = styled.div<{
   backgroundColor: string;
-  border?: {
-    borderWidth?: string;
-    borderColor?: string;
-    borderRadius?: string;
-  };
+  border?: BorderProps;
 }>`
   width: 100%;
   position: sticky;
@@ -90,10 +87,7 @@ const TopAppBarContainer = styled.div<{
   justify-content: center;
   padding: 5px 16px 5px 16px;
   background-color: ${(props) => props.backgroundColor};
-  border: ${(props) =>
-    props.border
-      ? `${props.border.borderWidth || '1px'} solid ${props.border.borderColor || '#000000'}`
-      : 'none'};
+  ${(props) => (props.border ? getBorderStyle(props.border) : 'border: none;')}
   border-radius: ${(props) => props.border?.borderRadius || '0px'};
   z-index: 3000;
 `;

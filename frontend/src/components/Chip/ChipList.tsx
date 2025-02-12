@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 import { ChipListItem, ChipListItemProps } from './ChipListItem';
 import { useState } from 'react';
-import { BorderProps } from '../BorderProps';
+import { BorderProps } from '../border/BorderProps';
 
 interface ChipListProps {
   backgroundColor?: string;

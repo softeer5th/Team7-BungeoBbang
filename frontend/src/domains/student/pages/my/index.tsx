@@ -12,6 +12,12 @@ import { ChatOpinionType } from '@/types/ChatOpinionType.tsx';
 import { ChatCategoryType } from '@/types/ChatCategoryType.tsx';
 import { EmptyContent } from '@/components/EmptyContent.tsx';
 import { bottomItems } from '../destinations.tsx';
+import api from '@/utils/api.ts';
+import { getDefaultBorderStyle } from '@/components/border/getBorderType.tsx';
+import { BorderType } from '@/components/border/BorderProps.tsx';
+import { Button } from '@/components/Button.tsx';
+import { TextField } from '@/components/text-field/TextField.tsx';
+import { CountTextField } from '@/components/text-field/CountTextField.tsx';
 
 const MyPage = () => {
   const theme = useTheme();
@@ -35,6 +41,35 @@ const MyPage = () => {
     },
   ];
 
+  // const fetchChatRooms = async () => {
+  //   try {
+  //     const [opinion, agenda] = await Promise.all([
+  //       api.get('/student/agendas/my'),
+  //       api.get('/student/opinions/my'),
+  //     ]);
+
+  //     const response = await api.get('/student/opinions/my');
+
+  //     console.log('response', response);
+  //   } catch (error) {
+  //     console.error('fail to fetch agenda data', error);
+  //   }
+  // };
+
+  // const fetchAgendaChatRooms = async () => {
+  //   try {
+  //     const response = await api.get('/student/agendas/my');
+
+  //     console.log('agenda response', response);
+  //   } catch (error) {
+  //     console.error('fail to fetch opinion data', error);
+  //   }
+  // };
+
+  // useEffect(() => {
+  //   fetchAgendaChatRooms();
+  //   fetchOpinionChatRooms();
+  // }, []);
   const mockData: Record<string, ChatPreviewData[]> = {
     opinion: [
       {
@@ -177,6 +212,19 @@ const MyPage = () => {
         rightIconSrc="/src/assets/icons/logout.svg"
         titleColor={theme.colors.sementicMain}
         onRightIconClick={() => {}}
+      />
+      <CountTextField
+        value="hello"
+        maxLength={20}
+        onChange={() => {}}
+        border={{
+          ...getDefaultBorderStyle(),
+          borderType: BorderType.BOTTOM,
+          borderColor: 'red',
+          errorBorderColor: 'blue',
+          disabledBorderColor: 'pink',
+        }}
+        disabled={true}
       />
       <TabBar
         currentDestination={tabItems[activeIndex].itemId}
