@@ -2,7 +2,7 @@ package com.bungeobbang.backend.agenda.presentation;
 
 import com.bungeobbang.backend.agenda.dto.request.AgendaCreationRequest;
 import com.bungeobbang.backend.agenda.dto.request.AgendaEditRequest;
-import com.bungeobbang.backend.agenda.dto.response.AgendaChatResponses;
+import com.bungeobbang.backend.agenda.dto.response.AgendaChatResponse;
 import com.bungeobbang.backend.agenda.dto.response.AgendaDetailResponse;
 import com.bungeobbang.backend.agenda.dto.response.admin.AdminAgendaResponse;
 import com.bungeobbang.backend.agenda.dto.response.admin.AgendaCreationResponse;
@@ -10,9 +10,9 @@ import com.bungeobbang.backend.agenda.presentation.api.AdminAgendaApi;
 import com.bungeobbang.backend.agenda.service.AdminAgendaChatService;
 import com.bungeobbang.backend.agenda.service.AdminAgendaService;
 import com.bungeobbang.backend.agenda.status.AgendaStatusType;
-import com.bungeobbang.backend.auth.admin.AdminOnly;
 import com.bungeobbang.backend.auth.common.Auth;
 import com.bungeobbang.backend.auth.domain.Accessor;
+import com.bungeobbang.backend.common.type.ScrollType;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
@@ -30,7 +30,6 @@ public class AdminAgendaController implements AdminAgendaApi {
     private final AdminAgendaChatService adminAgendaChatService;
 
     @Override
-    @AdminOnly
     @GetMapping
     public ResponseEntity<List<AdminAgendaResponse>> getAgendasByStatus(
             @Auth Accessor accessor,
@@ -41,7 +40,6 @@ public class AdminAgendaController implements AdminAgendaApi {
     }
 
     @Override
-    @AdminOnly
     @GetMapping("/{agendaId}")
     public ResponseEntity<AgendaDetailResponse> getAgendaDetail(
             @Auth Accessor accessor,
@@ -50,7 +48,6 @@ public class AdminAgendaController implements AdminAgendaApi {
     }
 
     @Override
-    @AdminOnly
     @PostMapping
     public ResponseEntity<AgendaCreationResponse> createAgenda(
             @Auth Accessor accessor,
@@ -59,7 +56,6 @@ public class AdminAgendaController implements AdminAgendaApi {
     }
 
     @Override
-    @AdminOnly
     @PatchMapping("/{agendaId}/close")
     public ResponseEntity<Void> endAgenda(@Auth Accessor accessor,
                                           @PathVariable Long agendaId) {
@@ -68,7 +64,6 @@ public class AdminAgendaController implements AdminAgendaApi {
     }
 
     @Override
-    @AdminOnly
     @DeleteMapping("/{agendaId}")
     public ResponseEntity<Void> deleteAgenda(@Auth Accessor accessor,
                                              @PathVariable Long agendaId) {
@@ -77,7 +72,6 @@ public class AdminAgendaController implements AdminAgendaApi {
     }
 
     @Override
-    @AdminOnly
     @PatchMapping("/{agendaId}")
     public ResponseEntity<Void> editAgenda(@Auth Accessor accessor,
                                            @PathVariable Long agendaId,
@@ -87,12 +81,12 @@ public class AdminAgendaController implements AdminAgendaApi {
     }
 
     @Override
-    @AdminOnly
     @GetMapping("/{agendaId}/chat")
-    public ResponseEntity<AgendaChatResponses> getAgendaChat(
+    public ResponseEntity<List<AgendaChatResponse>> getAgendaChat(
             @Auth Accessor accessor,
             @PathVariable Long agendaId,
-            @RequestParam(required = false) ObjectId chatId) {
-        return ResponseEntity.ok(adminAgendaChatService.getChats(accessor.id(), agendaId, chatId));
+            @RequestParam(required = false) ObjectId chatId,
+            @RequestParam(required = false, name = "scroll") ScrollType scrollType) {
+        return ResponseEntity.ok(adminAgendaChatService.getChats(accessor.id(), agendaId, chatId, scrollType));
     }
 }

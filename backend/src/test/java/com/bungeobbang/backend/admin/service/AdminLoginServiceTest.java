@@ -4,6 +4,7 @@ import com.bungeobbang.backend.admin.config.PasswordEncoder;
 import com.bungeobbang.backend.admin.domain.Admin;
 import com.bungeobbang.backend.admin.domain.repository.AdminRepository;
 import com.bungeobbang.backend.admin.dto.request.AdminLoginRequest;
+import com.bungeobbang.backend.admin.dto.response.AdminLoginResult;
 import com.bungeobbang.backend.auth.JwtProvider;
 import com.bungeobbang.backend.auth.domain.Authority;
 import com.bungeobbang.backend.auth.domain.repository.RefreshTokenRepository;
@@ -91,9 +92,10 @@ class AdminLoginServiceTest {
         doNothing().when(refreshTokenRepository).saveRefreshToken(Mockito.any(Authority.class), Mockito.anyString(), Mockito.anyString());
 
         // when
-        final MemberTokens actual = adminLoginService.login(request);
+        final AdminLoginResult actual = adminLoginService.login(request);
 
         // then
-        Assertions.assertThat(actual).isEqualTo(expected);
+        Assertions.assertThat(actual.memberTokens()).isEqualTo(expected);
+        Assertions.assertThat(actual.adminIdResponse().adminId()).isEqualTo(admin.getId());
     }
 }

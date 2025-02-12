@@ -5,8 +5,9 @@ import com.bungeobbang.backend.agenda.domain.AgendaChat;
 import com.bungeobbang.backend.agenda.domain.AgendaMember;
 import com.bungeobbang.backend.agenda.domain.repository.AgendaMemberRepository;
 import com.bungeobbang.backend.agenda.domain.repository.AgendaRepository;
-import com.bungeobbang.backend.agenda.domain.repository.CustomAgendaChatRepository;
+import com.bungeobbang.backend.agenda.domain.repository.MemberAgendaChatRepository;
 import com.bungeobbang.backend.agenda.dto.AgendaLatestChat;
+import com.bungeobbang.backend.agenda.dto.MemberAgendaSubResult;
 import com.bungeobbang.backend.agenda.dto.response.AgendaDetailResponse;
 import com.bungeobbang.backend.agenda.dto.response.member.MemberAgendaResponse;
 import com.bungeobbang.backend.agenda.dto.response.member.MyAgendaResponse;
@@ -50,9 +51,9 @@ public class AgendaService {
     private final AgendaRepository agendaRepository;
     private final MemberRepository memberRepository;
     private final AgendaMemberRepository agendaMemberRepository;
-    private final CustomAgendaChatRepository customAgendaChatRepository;
+    private final MemberAgendaChatRepository memberAgendaChatRepository;
 
-    private final static ObjectId MIN_OBJECT_ID = new ObjectId(0, 0);
+    private final static ObjectId MIN_OBJECT_ID = new ObjectId("000000000000000000000000");
 
     /**
      * <h3>답해요에 사용자 참여</h3>
@@ -83,9 +84,9 @@ public class AgendaService {
         agenda.increaseParticipantCount(1);
 
         // 현재 시점에서의 마지막 채팅을 마지막 읽은 채팅으로 저장
-        final AgendaChat lastChat = customAgendaChatRepository.findLastChatForMember(agendaId, memberId);
+        final AgendaChat lastChat = memberAgendaChatRepository.findLastChat(agendaId, memberId);
         ObjectId lastChatId = lastChat == null ? MIN_OBJECT_ID : lastChat.getId();
-        customAgendaChatRepository.upsertLastReadChat(agendaId, memberId, lastChatId);
+        memberAgendaChatRepository.upsertLastReadChat(agendaId, memberId, lastChatId);
     }
 
     /**
@@ -101,7 +102,13 @@ public class AgendaService {
     public List<MemberAgendaResponse> getAgendasByStatus(final Long memberId, final AgendaStatusType status, final LocalDate endDate, final Long agendaId) {
         final Member member = getMember(memberId);
         final AgendaFinder finder = agendaFinders.mapping(status);
-        return finder.findAllByStatus(member.getUniversity().getId(), endDate, agendaId, memberId);
+        final List<MemberAgendaSubResult> allByStatus = finder.findAllByStatus(member.getUniversity().getId(), endDate, agendaId, memberId);
+        final List<Long> list = allByStatus.stream().map(MemberAgendaSubResult::agendaId).toList();
+        final Map<Long, ObjectId> lastReadChatMap = memberAgendaChatRepository.findAllByAgendaId(list, memberId);
+        return allByStatus.stream()
+                .map(agenda -> new MemberAgendaResponse(agenda, lastReadChatMap.getOrDefault(agenda.agendaId(), MIN_OBJECT_ID)))
+                .toList();
+        //return allByStatus;
     }
 
     public AgendaDetailResponse getAgendaDetail(final Long memberId, final Long agendaId) {
@@ -137,7 +144,7 @@ public class AgendaService {
         final Map<Long, Agenda> agendaMap = agendaList.stream()
                 .collect(Collectors.toMap(Agenda::getId, agenda -> agenda));
 
-        final List<AgendaLatestChat> lastChats = customAgendaChatRepository.findLastChats(agendaIds, memberId);
+        final List<AgendaLatestChat> lastChats = memberAgendaChatRepository.findLastChats(agendaIds, memberId);
 
         return lastChats.stream()
                 .map(lastChat ->
@@ -153,6 +160,7 @@ public class AgendaService {
                                     .createdAt(agenda.getCreatedAt())
                                     .hasNew(lastChat.hasNewChat())
                                     .lastChat(lastChat.content())
+                                    .lastReadChatId(lastChat.lastReadChatId())
                                     .build();
                         }
                 ).toList();

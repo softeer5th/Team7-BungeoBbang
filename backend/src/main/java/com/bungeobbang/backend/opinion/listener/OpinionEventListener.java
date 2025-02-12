@@ -28,23 +28,24 @@ public class OpinionEventListener {
             }
             // 채팅 금칙어 필터링, 해당 채팅방 존재 여부 검증, 메시지 전송/저장
             //
-            case CHAT ->  {
+            case CHAT -> {
                 opinionRealTimeChatService.validateExistOpinion(event.websocketMessage().opinionId());
                 badWordService.validate(event.websocketMessage().message());
                 opinionRealTimeChatService.sendMessageFromMember(event.websocketMessage());
                 opinionService.saveChat(
-                    event.websocketMessage().memberId(),
-                    event.websocketMessage().opinionId(),
-                    event.websocketMessage().message(),
-                    event.websocketMessage().images(),
+                        event.websocketMessage().memberId(),
+                        event.websocketMessage().opinionId(),
+                        event.websocketMessage().message(),
+                        event.websocketMessage().images(),
                     false,
-                    event.websocketMessage().createdAt()
+                        event.websocketMessage().createdAt()
                 );
             }
             // 마지막 채팅 ID 저장
             case LEAVE -> opinionService.updateLastReadToLastChatId(event.websocketMessage().opinionId(), false);
             // 새로 구독
-            case START -> opinionRealTimeChatService.subscribeToOpinion(event.session(), event.websocketMessage().opinionId());
+            case START ->
+                    opinionRealTimeChatService.subscribeToOpinion(event.session(), event.websocketMessage().opinionId());
             // 채팅방 삭제 ( 학생이 나가기버튼 누른 경우 )
             case DELETE -> opinionRealTimeChatService.removeOpinionTopic(event.websocketMessage().opinionId());
         }
@@ -63,13 +64,14 @@ public class OpinionEventListener {
                         event.websocketMessage().opinionId(),
                         event.websocketMessage().message(),
                         event.websocketMessage().images(),
-                    true,
+                        true,
                         event.websocketMessage().createdAt()
                 );
                 adminOpinionService.unsetRemindOpinion(event.websocketMessage().opinionId());
             }
             case LEAVE -> opinionService.updateLastReadToLastChatId(event.websocketMessage().adminId(), false);
-            case START -> opinionRealTimeChatService.subscribeToOpinion(event.session(), event.websocketMessage().opinionId());
+            case START ->
+                    opinionRealTimeChatService.subscribeToOpinion(event.session(), event.websocketMessage().opinionId());
         }
     }
 }

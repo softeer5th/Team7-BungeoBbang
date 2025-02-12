@@ -1,12 +1,14 @@
 package com.bungeobbang.backend.agenda.presentation.api;
 
-import com.bungeobbang.backend.agenda.dto.response.AgendaChatResponses;
+import com.bungeobbang.backend.agenda.dto.MemberAgendaSubResult;
+import com.bungeobbang.backend.agenda.dto.response.AgendaChatResponse;
 import com.bungeobbang.backend.agenda.dto.response.AgendaDetailResponse;
 import com.bungeobbang.backend.agenda.dto.response.member.MemberAgendaResponse;
 import com.bungeobbang.backend.agenda.dto.response.member.MyAgendaResponse;
 import com.bungeobbang.backend.agenda.status.AgendaStatusType;
 import com.bungeobbang.backend.auth.common.Auth;
 import com.bungeobbang.backend.auth.domain.Accessor;
+import com.bungeobbang.backend.common.type.ScrollType;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -41,7 +43,7 @@ public interface AgendaApi {
     @Operation(summary = "답해요 상태별 조회", description = "특정 상태의 답해요 목록을 조회합니다.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "조회 성공",
-                    content = @Content(schema = @Schema(implementation = MemberAgendaResponse.class))),
+                    content = @Content(schema = @Schema(implementation = MemberAgendaSubResult.class))),
             @ApiResponse(responseCode = "400", description = "잘못된 요청", content = @Content),
             @ApiResponse(responseCode = "401", description = "인증 필요", content = @Content),
     })
@@ -90,10 +92,11 @@ public interface AgendaApi {
             description = "특정 agendaId에 대한 채팅 목록을 조회합니다. 선택적으로 chatId를 제공하면 해당 chatId 이전의 메시지만 조회할 수 있습니다."
     )
     @GetMapping("/{agendaId}/chat")
-    ResponseEntity<AgendaChatResponses> getChats(
+    ResponseEntity<List<AgendaChatResponse>> getChats(
             @Parameter(hidden = true) @Auth Accessor accessor,
             @Parameter(description = "조회할 답해요 ID", example = "123") @PathVariable Long agendaId,
             @Parameter(description = "특정 채팅 이후의 메시지를 가져오기 위한 chat ID", example = "65afc39b2d1e7c7a1f5b9123")
-            @RequestParam(required = false) ObjectId chatId
+            @RequestParam(required = false) ObjectId chatId,
+            @RequestParam(required = false, name = "scroll") ScrollType scrollType
     );
 }
