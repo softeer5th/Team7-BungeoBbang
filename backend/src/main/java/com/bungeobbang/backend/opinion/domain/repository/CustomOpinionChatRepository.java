@@ -99,7 +99,6 @@ public class CustomOpinionChatRepository {
 
         // Limit 적용
         operations.add(Aggregation.limit(10));
-        // up인 경우 reverse
 
         // Aggregation 실행
         Aggregation aggregation = Aggregation.newAggregation(operations);
