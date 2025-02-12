@@ -21,7 +21,7 @@ import { formatChatData } from '@/utils/chat/formatChatData.ts';
 import { useImageUpload } from '@/hooks/useImageUpload.ts';
 import { useSocketStore, ChatMessage } from '@/store/socketStore';
 import { useSocketManager } from '@/hooks/useSocketManager.ts';
-
+import { useScrollBottom } from '@/hooks/useScrollBottom.tsx';
 import { ImageFileSizeDialog } from '@/components/Dialog/ImageFileSizeDialog.tsx';
 
 const OpinionChatPage = () => {
@@ -88,6 +88,8 @@ const OpinionChatPage = () => {
     [roomId, sendMessage],
   );
 
+  useScrollBottom(chatData);
+
   return (
     <S.Container>
       <TopAppBar
@@ -102,7 +104,7 @@ const OpinionChatPage = () => {
           setExitDialogOpen(true);
         }}
       />
-      <S.ChatList>
+      <S.ChatList ref={elementRef}>
         {chatData.map((chat) => {
           if (chat.type === ChatType.RECEIVE) {
             const chatData = chat as ReceiveChatData;
