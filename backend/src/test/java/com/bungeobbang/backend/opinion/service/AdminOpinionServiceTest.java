@@ -52,9 +52,9 @@ class AdminOpinionServiceTest {
         Admin admin = NAVER_ADMIN;
         when(adminRepository.findById(anyLong())).thenReturn(Optional.of(admin));
 
-        Opinion opinion1 = new Opinion(1L, admin.getUniversity(), null, CategoryType.IT, null, false, 1);
-        Opinion opinion2 = new Opinion(2L, admin.getUniversity(), null, CategoryType.EVENTS, null, false, 1);
-        when(opinionRepository.findAllByCategoryTypeInAndUniversityId(Set.of(CategoryType.IT), admin.getUniversity().getId()))
+        Opinion opinion1 = new Opinion(1L, admin.getUniversity(), null, CategoryType.IT, null, false, 1, false);
+        Opinion opinion2 = new Opinion(2L, admin.getUniversity(), null, CategoryType.EVENTS, null, false, 1, false);
+        when(opinionRepository.findAllByCategoryTypeInAndUniversityIdAndIsDeletedFalse(Set.of(CategoryType.IT), admin.getUniversity().getId()))
                 .thenReturn(List.of(opinion1));
 
         // Mock 데이터 설정 (마지막 읽은 채팅 및 최신 채팅)
@@ -85,9 +85,9 @@ class AdminOpinionServiceTest {
         Admin admin = NAVER_ADMIN;
         when(adminRepository.findById(anyLong())).thenReturn(Optional.of(admin));
 
-        Opinion opinion1 = new Opinion(1L, admin.getUniversity(), null, CategoryType.IT, null, false, 1);
-        Opinion opinion2 = new Opinion(2L, admin.getUniversity(), null, CategoryType.EVENTS, null, true, 1);
-        when(opinionRepository.findAllByCategoryTypeInAndUniversityId(Set.of(CategoryType.IT), admin.getUniversity().getId()))
+        Opinion opinion1 = new Opinion(1L, admin.getUniversity(), null, CategoryType.IT, null, false, 1, false);
+        Opinion opinion2 = new Opinion(2L, admin.getUniversity(), null, CategoryType.EVENTS, null, true, 1, false);
+        when(opinionRepository.findAllByCategoryTypeInAndUniversityIdAndIsDeletedFalse(Set.of(CategoryType.IT), admin.getUniversity().getId()))
                 .thenReturn(List.of(opinion1, opinion2));
 
         OpinionLastRead lastRead1 = new OpinionLastRead(new ObjectId(), opinion1.getId(), true, new ObjectId("000000000000000000000000"));
@@ -138,7 +138,7 @@ class AdminOpinionServiceTest {
         Admin admin = NAVER_ADMIN;
         when(adminRepository.findById(anyLong())).thenReturn(Optional.of(admin));
 
-        Opinion opinion = new Opinion(1L, admin.getUniversity(), null, CategoryType.IT, null, false, 1);
+        Opinion opinion = new Opinion(1L, admin.getUniversity(), null, CategoryType.IT, null, false, 1, false);
         OpinionChat lastChat = OpinionChat.builder()
                 .id(new ObjectId())
                 .opinionId(1L)
@@ -151,7 +151,7 @@ class AdminOpinionServiceTest {
                 .lastReadChatId(new ObjectId("000000000000000000000000"))
                 .build();
 
-        when(opinionRepository.findAllByUniversityId(admin.getUniversity().getId()))
+        when(opinionRepository.findAllByUniversityIdAndIsDeletedFalse(admin.getUniversity().getId()))
                 .thenReturn(List.of(opinion));
         when(opinionLastReadRepository.findByOpinionIdInAndIsAdmin(List.of(1L), true))
                 .thenReturn(List.of());
@@ -178,9 +178,9 @@ class AdminOpinionServiceTest {
         Admin admin = NAVER_ADMIN;
         when(adminRepository.findById(anyLong())).thenReturn(Optional.of(admin));
 
-        Opinion opinion = new Opinion(1L, admin.getUniversity(), null, CategoryType.IT, null, false, 1);
+        Opinion opinion = new Opinion(1L, admin.getUniversity(), null, CategoryType.IT, null, false, 1, false);
 
-        when(opinionRepository.findAllByUniversityId(admin.getUniversity().getId()))
+        when(opinionRepository.findAllByUniversityIdAndIsDeletedFalse(admin.getUniversity().getId()))
                 .thenReturn(List.of(opinion));
         when(opinionChatRepository.findLatestChatsByOpinionIds(List.of(1L)))
                 .thenReturn(List.of());

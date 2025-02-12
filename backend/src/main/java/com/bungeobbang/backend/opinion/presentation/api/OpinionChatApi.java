@@ -1,7 +1,7 @@
 package com.bungeobbang.backend.opinion.presentation.api;
 
+import com.bungeobbang.backend.auth.common.Auth;
 import com.bungeobbang.backend.auth.domain.Accessor;
-import com.bungeobbang.backend.auth.member.Auth;
 import com.bungeobbang.backend.opinion.dto.response.OpinionChatResponse;
 import com.bungeobbang.backend.opinion.dto.response.OpinionDetailResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -33,7 +33,7 @@ public interface OpinionChatApi {
                     
                     **✅ 사용 예시**
                     ```
-                    GET /api/opinions\n
+                    GET /api/opinions
                     GET /api/opinions?lastChatId=67a04c4a6d8394488027b840
                     ```
                     """

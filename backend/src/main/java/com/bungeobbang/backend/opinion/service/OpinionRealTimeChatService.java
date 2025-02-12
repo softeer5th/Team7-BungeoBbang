@@ -26,7 +26,7 @@ public class OpinionRealTimeChatService {
 
     @EventListener
     public void memberConnect(final MemberConnectEvent event) {
-        opinionRepository.findAllByMemberId(event.memberId())
+        opinionRepository.findAllByMemberIdAndIsDeletedFalse(event.memberId())
                 .forEach(opinion ->
                         messageQueueService.subscribe(event.session(), OPINION_PREFIX + opinion.getId()));
     }
@@ -36,12 +36,11 @@ public class OpinionRealTimeChatService {
         final Admin admin = adminRepository.findById(event.adminId())
                 .orElseThrow(() -> new AdminException(ErrorCode.INVALID_ADMIN));
         final Long universityId = admin.getUniversity().getId();
-        opinionRepository.findAllByUniversityId(universityId)
+        opinionRepository.findAllByUniversityIdAndIsDeletedFalse(universityId)
                 .forEach(opinion ->
                         messageQueueService.subscribe(event.session(), OPINION_PREFIX + opinion.getId()));
     }
 
-    @EventListener
     public void sendMessageFromMember(final MemberWebsocketMessage event) {
         try {
             messageQueueService.publish(OPINION_PREFIX + event.opinionId(), objectMapper.writeValueAsString(event));
@@ -50,13 +49,17 @@ public class OpinionRealTimeChatService {
         }
     }
 
-    @EventListener
     public void sendMessageFromAdmin(final AdminWebsocketMessage event) {
         try {
             messageQueueService.publish(OPINION_PREFIX + event.opinionId(), objectMapper.writeValueAsString(event));
         } catch (JsonProcessingException e) {
             throw new OpinionException(ErrorCode.JSON_PARSE_FAIL);
         }
+    }
+
+    public void validateExistOpinion(final Long opinionId) {
+        opinionRepository.findByIdAndIsDeletedFalse(opinionId)
+                .orElseThrow(() -> new OpinionException(ErrorCode.DELETED_OPINION));
     }
 
     /*
@@ -70,7 +73,7 @@ public class OpinionRealTimeChatService {
 
     @EventListener
     public void disconnectMember(final MemberDisconnectEvent event) {
-        opinionRepository.findAllByMemberId(event.memberId())
+        opinionRepository.findAllByMemberIdAndIsDeletedFalse(event.memberId())
                 .forEach(opinion ->
                         messageQueueService.unsubscribe(event.session(), OPINION_PREFIX + opinion.getId()));
     }
@@ -79,7 +82,7 @@ public class OpinionRealTimeChatService {
     public void disconnectAdmin(final AdminDisconnectEvent event) {
         Admin admin = adminRepository.findById(event.adminId())
                         .orElseThrow(() -> new AdminException(ErrorCode.INVALID_ADMIN));
-        opinionRepository.findAllByUniversityId(admin.getUniversity().getId())
+        opinionRepository.findAllByUniversityIdAndIsDeletedFalse(admin.getUniversity().getId())
                 .forEach(opinion ->
                         messageQueueService.unsubscribe(event.session(), OPINION_PREFIX + opinion.getId()));
     }

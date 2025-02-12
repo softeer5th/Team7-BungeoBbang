@@ -113,10 +113,10 @@ public class MemberOpinionService {
 
     @Transactional
     public void deleteOpinion(final Long opinionId, final Long memberId) {
-        final Opinion opinion = opinionRepository.findById(opinionId)
+        final Opinion opinion = opinionRepository.findByIdAndIsDeletedFalse(opinionId)
                 .orElseThrow(() -> new OpinionException(ErrorCode.INVALID_OPINION));
         validateOpinionAuthor(opinion, memberId);
-        opinionRepository.delete(opinion);
+        opinion.delete();
     }
 
     /**
@@ -127,7 +127,7 @@ public class MemberOpinionService {
      */
     @Transactional
     public void remindOpinion(final Long opinionId, final Long memberId) {
-        final Opinion opinion = opinionRepository.findById(opinionId)
+        final Opinion opinion = opinionRepository.findByIdAndIsDeletedFalse(opinionId)
                 .orElseThrow(() -> new OpinionException(ErrorCode.INVALID_OPINION));
         validateOpinionAuthor(opinion, memberId);
         opinion.setRemind();
@@ -145,7 +145,7 @@ public class MemberOpinionService {
      * @return MemberOpinionListResponse 학생이 생성한 말해요 채팅방 목록 응답 객체
      */
     public List<MemberOpinionsInfoResponse> findMemberOpinionList(final Long memberId) {
-        final List<Opinion> opinions = opinionRepository.findAllByMemberId(memberId);
+        final List<Opinion> opinions = opinionRepository.findAllByMemberIdAndIsDeletedFalse(memberId);
         return convertToMemberOpinionInfoList(opinions);
     }
 
@@ -165,6 +165,7 @@ public class MemberOpinionService {
                 .member(member)
                 .isRemind(false)
                 .chatCount(1)
+                .isDeleted(false)
                 .build();
     }
 
@@ -219,7 +220,7 @@ public class MemberOpinionService {
                     OpinionChat lastChat = lastChatMap.get(opinion.getId());
 
                     if (lastRead == null) {
-                        opinionLastReadRepository.save(
+                        lastRead = opinionLastReadRepository.save(
                                 OpinionLastRead.builder()
                                         .opinionId(opinion.getId())
                                         .isAdmin(false)

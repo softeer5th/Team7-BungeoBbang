@@ -130,7 +130,7 @@ class MemberOpinionServiceTest {
     @Test
     @DisplayName("존재하지 않는 의견을 삭제하려 하면 예외 발생")
     void deleteOpinion_NotFound() {
-        when(opinionRepository.findById(anyLong())).thenReturn(Optional.empty());
+        when(opinionRepository.findByIdAndIsDeletedFalse(anyLong())).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> memberOpinionService.deleteOpinion(1L, 1L))
                 .isInstanceOf(OpinionException.class)
@@ -158,7 +158,7 @@ class MemberOpinionServiceTest {
                 .lastReadChatId(NAVER_MEMBER2_OPINION2_CHAT.getId())
                 .build();
 
-        when(opinionRepository.findAllByMemberId(anyLong())).thenReturn(opinions);
+        when(opinionRepository.findAllByMemberIdAndIsDeletedFalse(anyLong())).thenReturn(opinions);
         when(opinionLastReadRepository.findByOpinionIdInAndIsAdmin(any(), eq(false)))
                 .thenReturn(List.of(fstOpinionLastRead, scdOpinionLastRead));
         when(opinionChatRepository.findLatestChatsByOpinionIds(any()))
@@ -178,7 +178,7 @@ class MemberOpinionServiceTest {
     void remindOpinion() {
         // given
         Opinion opinion = NAVER_OPINION1;
-        when(opinionRepository.findById(anyLong())).thenReturn(Optional.of(opinion));
+        when(opinionRepository.findByIdAndIsDeletedFalse(anyLong())).thenReturn(Optional.of(opinion));
 
         // when
         memberOpinionService.remindOpinion(NAVER_OPINION1.getId(), NAVER_OPINION1.getMember().getId());
@@ -191,7 +191,7 @@ class MemberOpinionServiceTest {
     @DisplayName("학생이 본인의 의견이 아닐 때 리마인드를 설정하려 하면 예외 발생")
     void remindOpinion_Unauthorized() {
         Opinion opinion = NAVER_OPINION1;
-        when(opinionRepository.findById(anyLong())).thenReturn(Optional.of(opinion));
+        when(opinionRepository.findByIdAndIsDeletedFalse(anyLong())).thenReturn(Optional.of(opinion));
 
         assertThatThrownBy(() -> memberOpinionService.remindOpinion(1L, 2L))
                 .isInstanceOf(OpinionException.class)

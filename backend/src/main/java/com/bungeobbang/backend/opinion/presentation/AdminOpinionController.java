@@ -1,7 +1,7 @@
 package com.bungeobbang.backend.opinion.presentation;
 
-import com.bungeobbang.backend.auth.admin.AdminAuth;
 import com.bungeobbang.backend.auth.admin.AdminOnly;
+import com.bungeobbang.backend.auth.common.Auth;
 import com.bungeobbang.backend.auth.domain.Accessor;
 import com.bungeobbang.backend.common.type.CategoryType;
 import com.bungeobbang.backend.opinion.dto.response.AdminOpinionsInfoResponse;
@@ -25,10 +25,10 @@ public class AdminOpinionController implements AdminOpinionApi {
 
     private final AdminOpinionService adminOpinionService;
 
-    @GetMapping()
     @AdminOnly
+    @GetMapping()
     public ResponseEntity<List<AdminOpinionsInfoResponse>> getAdminOpinionList(
-            final @AdminAuth Accessor accessor,
+            final @Auth Accessor accessor,
             @RequestParam(required = false) Set<CategoryType> categoryTypes) {
         return ResponseEntity.ok()
                 .body(adminOpinionService.findAdminOpinionList(categoryTypes, accessor.id()));
