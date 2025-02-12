@@ -9,6 +9,7 @@ import com.bungeobbang.backend.opinion.domain.Opinion;
 import com.bungeobbang.backend.opinion.domain.OpinionChat;
 import com.bungeobbang.backend.opinion.domain.OpinionLastRead;
 import com.bungeobbang.backend.opinion.domain.OpinionType;
+import com.bungeobbang.backend.opinion.domain.repository.CustomOpinionChatRepository;
 import com.bungeobbang.backend.opinion.domain.repository.OpinionChatRepository;
 import com.bungeobbang.backend.opinion.domain.repository.OpinionLastReadRepository;
 import com.bungeobbang.backend.opinion.domain.repository.OpinionRepository;
@@ -46,6 +47,8 @@ class OpinionServiceTest {
     private OpinionRepository opinionRepository;
     @Mock
     private OpinionLastReadRepository opinionLastReadRepository;
+    @Mock
+    private CustomOpinionChatRepository customOpinionChatRepository;
 
     @Test
     @DisplayName("말해요 채팅 내역 조회 - 정상 조회")
@@ -61,7 +64,8 @@ class OpinionServiceTest {
                 .images(emptyList())
                 .build();
 
-        when(opinionChatRepository.findByOpinionIdAndLastChatId(anyLong(), any(ObjectId.class)))
+        // Mock 설정: 특정 값이 들어오면 List<OpinionChat> 반환하도록 설정
+        when(customOpinionChatRepository.findOpinionChats(anyLong(), any(ObjectId.class), any()))
                 .thenReturn(List.of(chat));
 
         // when
