@@ -11,12 +11,12 @@ import { ChatPreviewItem } from './components/ChatPreviewItem.tsx';
 import { ChatOpinionType } from '@/types/ChatOpinionType.tsx';
 import { ChatCategoryType } from '@/types/ChatCategoryType.tsx';
 import { EmptyContent } from '@/components/EmptyContent.tsx';
-import { bottomItems } from '../destinations.tsx';
+import { bottomItems, moveToDestination } from '../destinations.tsx';
+import { useNavigate } from 'react-router-dom';
 
 const MyPage = () => {
   const theme = useTheme();
-
-  //   const navigate = useNavigate();
+  const navigate = useNavigate();
 
   const [activeIndex, setActiveIndex] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -207,7 +207,11 @@ const MyPage = () => {
           );
         })}
       </S.TabContentContainer>
-      <BottomNavigation startDestination="my" destinations={bottomItems} />
+      <BottomNavigation
+        startDestination="my"
+        destinations={bottomItems}
+        onItemClick={(itemId) => navigate(moveToDestination(itemId))}
+      />
     </S.Container>
   );
 };

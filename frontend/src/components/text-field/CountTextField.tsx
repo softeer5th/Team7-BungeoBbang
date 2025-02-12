@@ -21,7 +21,7 @@ export const CountTextField: React.FC<CountTextFieldProps> = ({
   rows = 1,
   onChange,
   placeholderColor = '#A8A8A8',
-  textColor = '#222222',
+  textColor = '#262626',
   border,
   disabled = false,
 }) => {

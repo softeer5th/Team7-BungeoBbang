@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import CameraIcon from '/src/assets/icons/camera.svg?react';
 import ArrowUpIcon from '/src/assets/icons/full-arrow-up.svg?react';
@@ -53,11 +53,11 @@ export const ChatSendField: React.FC<ChatSendFieldProps> = ({
   sendButtonDisabledIconColor = '#F4F4F4',
   imageButtonBackgroundColor = '#E0E0E0',
   imageButtonDisabledBackgroundColor = '#E0E0E0',
-  imageButtonIconColor = '#8F8F8F',
+  imageButtonIconColor = '#8D8D8D',
   imageButtonDisabledIconColor = '#F4F4F4',
   placeholderColor = '#1F87FF',
   disabledPlaceholderColor = '#C6C6C6',
-  textColor = '#3C3C3C',
+  textColor = '#262626',
   disabledTextColor = '#C6C6C6',
   textFieldBorder = {
     borderWidth: '1px',
@@ -84,8 +84,6 @@ export const ChatSendField: React.FC<ChatSendFieldProps> = ({
   if (images) maxTextInputHeight = 102;
 
   const handleTextInput = (newMessage: string) => {
-    handleResizeHeight();
-
     let newValue = newMessage;
     if (newMessage.length >= maxLength) {
       newValue = newMessage.slice(0, maxLength);
@@ -122,6 +120,10 @@ export const ChatSendField: React.FC<ChatSendFieldProps> = ({
   };
 
   const isImageDisabled = images.length >= maxLengthOfImages || imageDisabled;
+
+  useEffect(() => {
+    handleResizeHeight();
+  }, [message]);
 
   return (
     <>
@@ -175,7 +177,6 @@ export const ChatSendField: React.FC<ChatSendFieldProps> = ({
             )}
 
             <TextFieldInputWrapper>
-              
               <TextFieldInput
                 rows={1}
                 ref={textAreaRef}

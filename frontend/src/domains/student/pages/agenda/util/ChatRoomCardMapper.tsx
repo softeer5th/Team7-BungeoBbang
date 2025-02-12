@@ -1,13 +1,27 @@
 import { ChatCategoryType } from '@/types/ChatCategoryType';
 import { ChatRoomListCardData } from '../data/ChatRoomListCardData';
 
+export interface ServerData {
+  agenda: {
+    agendaId: number;
+    categoryType: string;
+    title: string;
+    startDate: string;
+    endDate: string;
+    count: number;
+  };
+  isParticipate: boolean;
+}
+
 export const mapResponseToChatListCardData = (
-  response: any,
+  response: ServerData,
   status: string,
 ): ChatRoomListCardData => {
   return {
     roomId: response.agenda.agendaId,
     dday: formatDate(response.agenda.endDate),
+    startDate: response.agenda.startDate,
+    endDate: response.agenda.endDate,
     categoryType: findChatCategoryType(response.agenda.categoryType),
     title: response.agenda.title,
     numOfJoin: response.agenda.count,
@@ -27,10 +41,7 @@ const formatDate = (date: string): string => {
   const today = new Date();
   const end = new Date(date);
 
-  // 날짜 차이 (밀리초)
   const diff = end.getTime() - today.getTime();
-
-  // 밀리초를 일 단위로 변환
   const dDay = Math.ceil(diff / (1000 * 60 * 60 * 24));
 
   return dDay === 0 ? 'D-Day' : dDay > 0 ? `D-${dDay}` : `D+${Math.abs(dDay)}`;

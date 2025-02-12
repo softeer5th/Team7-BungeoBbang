@@ -5,29 +5,13 @@ import { ChipList } from '@/components/Chip/ChipList';
 import { EmptyState } from './EmptyState';
 import { OpinionItem } from './OpinionItem';
 import * as S from './styles';
+import { bottomItems, moveToDestination } from '../../destinations';
+import { useNavigate } from 'react-router-dom';
 
 const OpinionEntryPage: React.FC = () => {
+  const navigate = useNavigate();
   const [selectedChip, setSelectedChip] = useState('1');
   const [hasOpinions, setHasOpinions] = useState(1); // 실제로는 API 응답에 따라 설정
-
-  const destinations = [
-    {
-      itemId: 'answer',
-      iconSrc: '/src/assets/icons/message.svg',
-      title: '답해요',
-    },
-    {
-      itemId: 'home',
-      iconSrc: '/src/assets/icons/home.svg',
-      title: '말해요',
-    },
-    {
-      itemId: 'profile',
-      iconSrc: '/src/assets/icons/profile.svg',
-      title: '내의견',
-      hasAlarm: true,
-    },
-  ];
 
   const chipItems = [
     { itemId: '1', text: '전체' },
@@ -150,7 +134,11 @@ const OpinionEntryPage: React.FC = () => {
         )}
       </S.OpinionEntryContainer>
 
-      <BottomNavigation startDestination="home" destinations={destinations} />
+      <BottomNavigation
+        startDestination="opinion"
+        destinations={bottomItems}
+        onItemClick={(itemId) => navigate(moveToDestination(itemId))}
+      />
     </>
   );
 };

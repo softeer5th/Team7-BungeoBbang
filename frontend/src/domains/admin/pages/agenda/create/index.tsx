@@ -14,9 +14,9 @@ import api from '@/utils/api';
 import { SubTitleText } from '../components/SubTitleText';
 import { CategoryContent } from '../components/CategoryContent';
 import { DurationContent } from '../components/DurationContent';
-import { mapToChatCreateData } from '../util/ChatCreateMapper';
 import { useImageUpload } from '@/hooks/useImageUpload';
 import { ImageFileSizeDialog } from '@/components/Dialog/ImageFileSizeDialog';
+import { mapToChatCreateData } from '../util/ChatCreateMapper';
 
 export interface ChatCreateData {
   roomId?: number | null;
@@ -81,6 +81,7 @@ const CreateAgendaPage = () => {
       };
 
       await api.post('/admin/agendas', body);
+      navigate(-1);
     } catch (error) {
       console.error('Failed to send data:', error);
     }
@@ -141,6 +142,7 @@ const CreateAgendaPage = () => {
             } else {
               editChatValue();
             }
+
             navigate(-1);
           }}
         >
