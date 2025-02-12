@@ -4,8 +4,9 @@ import CameraIcon from '/src/assets/icons/camera.svg?react';
 import ArrowUpIcon from '/src/assets/icons/full-arrow-up.svg?react';
 import CloseIcon from '/src/assets/icons/close-2.svg?react';
 import Typography from '../../styles/Typography';
-import { BorderProps } from '../BorderProps';
+import { BorderProps } from '../border/BorderProps';
 import { ImagePreview } from './ImagePreview';
+import { getDefaultBorderStyle } from '../border/getBorderType';
 
 interface ChatSendFieldProps {
   placeholder?: string;
@@ -60,6 +61,7 @@ export const ChatSendField: React.FC<ChatSendFieldProps> = ({
   textColor = '#262626',
   disabledTextColor = '#C6C6C6',
   textFieldBorder = {
+    ...getDefaultBorderStyle(),
     borderWidth: '1px',
     borderColor: '#E0E0E0',
     disabledBorderColor: '#E0E0E0',

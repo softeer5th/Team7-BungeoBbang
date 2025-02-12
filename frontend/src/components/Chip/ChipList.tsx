@@ -1,9 +1,10 @@
 import styled from 'styled-components';
 import { ChipListItem, ChipListItemProps } from './ChipListItem';
 import { useState } from 'react';
-import { BorderProps } from '../BorderProps';
+import { BorderProps } from '../border/BorderProps';
 
 interface ChipListProps {
+  startItem?: string;
   backgroundColor?: string;
   itemBackgroundColor?: string;
   itemSelectedBackgroundColor?: string;
@@ -11,11 +12,12 @@ interface ChipListProps {
   itemSelectedTextColor?: string;
   itemBorder?: BorderProps;
   onChipClick: (chipId: string) => void;
-  items: (ChipListItemProps & { itemId: string })[]; // 🔥 `itemId` 추가
+  items: (ChipListItemProps & { itemId: string })[];
   sidePadding?: string;
 }
 
 export const ChipList: React.FC<ChipListProps> = ({
+  startItem,
   backgroundColor = '#FFFFFF',
   itemBackgroundColor = '#F4F4F4',
   itemSelectedBackgroundColor = '#E8F3FF',
@@ -26,7 +28,7 @@ export const ChipList: React.FC<ChipListProps> = ({
   items,
   sidePadding = '0px',
 }) => {
-  const [selectedItem, setSelectedItem] = useState<string | null>(null);
+  const [selectedItem, setSelectedItem] = useState<string | undefined>(startItem);
 
   return (
     <ChipListContainer backgroundColor={backgroundColor} sidePadding={sidePadding}>

@@ -11,6 +11,7 @@ import { Opinion, OpinionResponse } from './types';
 import * as S from './styles';
 import { bottomItems, moveToDestination } from '../../destinations';
 import { useNavigate } from 'react-router-dom';
+import { findChatCategoryType } from '@/utils/findChatCategoryType';
 
 const chipItems = [
   { itemId: 'ALL', text: '전체' },
@@ -37,8 +38,8 @@ const OpinionEntryPage: React.FC = () => {
         console.log('response', response);
         const formattedOpinions = response.data.map((item: OpinionResponse) => ({
           id: String(item.opinion.id),
-          category: ChatCategoryType[item.opinion.categoryType],
-          title: ChatOpinionType[item.opinion.opinionType],
+          category: findChatCategoryType(item.opinion.categoryType),
+          title: ChatOpinionType[item.opinion.opinionType]?.label,
           text: item.lastChat.content,
           time: new Date(item.lastChat.createdAt).toLocaleTimeString('ko-KR', {
             hour: '2-digit',
@@ -76,6 +77,7 @@ const OpinionEntryPage: React.FC = () => {
       <S.TopAppBarBorder></S.TopAppBarBorder>
       <S.ChipListContainer>
         <ChipList
+          startItem="ALL"
           itemBackgroundColor="#fff"
           onChipClick={handleChipClick}
           items={chipItems}

@@ -1,4 +1,3 @@
-// import React from 'react';
 import { BottomNavigation } from '@/components/bottom-navigation/BottomNavigation';
 import * as S from './styles';
 import { TopAppBar } from '@/components/TopAppBar';
@@ -8,11 +7,16 @@ import { TabBar } from '@/components/tab-bar/TabBar';
 import { TabBarItemProps } from '@/components/tab-bar/TabBarItem';
 import { ChatPreviewData } from './data/ChatPreviewData.tsx';
 import { ChatPreviewItem } from './components/ChatPreviewItem.tsx';
-import { ChatOpinionType } from '@/types/ChatOpinionType.tsx';
-import { ChatCategoryType } from '@/types/ChatCategoryType.tsx';
-import { EmptyContent } from '@/components/EmptyContent.tsx';
+import api from '@/utils/api.ts';
+import {
+  AgendaServerData,
+  mapAgendaResponseToChatPreviewData,
+  mapOpinionResponseToChatPreviewData,
+  OpinionServerData,
+} from './util/AgendaChatRoomMapper.tsx';
 import { bottomItems, moveToDestination } from '../destinations.tsx';
 import { useNavigate } from 'react-router-dom';
+import { EmptyContent } from '@/components/EmptyContent.tsx';
 
 const MyPage = () => {
   const theme = useTheme();
@@ -35,106 +39,36 @@ const MyPage = () => {
     },
   ];
 
-  const mockData: Record<string, ChatPreviewData[]> = {
-    opinion: [
-      {
-        roomId: '1',
-        opinionType: ChatOpinionType.NEED,
-        categoryType: ChatCategoryType.CLUBS,
-        lastSendTime: '13:20',
-        lastMessage:
-          '안녕하세요, 귀한 의견 감사드립니다. 말씀 주신 기숙사에서 A역 또는 B역으로 가는 노선 추가 요청은 ',
-        isUnread: true,
-      },
-      {
-        roomId: '2',
-        opinionType: ChatOpinionType.SUGGESTION,
-        categoryType: ChatCategoryType.ACADEMICS,
-        lastSendTime: '09:45',
-        lastMessage: '수업시간 조정에 대한 건의사항이 있습니다. 기존 시간대보다...',
-        isUnread: false,
-      },
-      {
-        roomId: '3',
-        opinionType: ChatOpinionType.IMPROVEMENT,
-        categoryType: ChatCategoryType.FACILITIES,
-        lastSendTime: '17:10',
-        lastMessage: '기숙사 내 와이파이 연결이 자주 끊깁니다. 개선이 필요할 것 같아요.',
-        isUnread: true,
-      },
-      {
-        roomId: '4',
-        opinionType: ChatOpinionType.NEED,
-        categoryType: ChatCategoryType.IT,
-        lastSendTime: '20:30',
-        lastMessage: '학생 포털 사이트에서 오류가 발생하는 문제가 있습니다.',
-        isUnread: false,
-      },
-    ],
-    agenda: [
-      {
-        roomId: '5',
-        roomName: '총학생회 생활 불편 관련 2월 달 건의함입니다.',
-        categoryType: ChatCategoryType.TRANSPORTATION,
-        lastSendTime: 'Jan 13',
-        lastMessage: '셔틀버스 배차 간격을 줄이는 것에 대한 논의가 필요합니다.',
-        numOfJoin: 21,
-        isInProgress: true,
-        isUnread: false,
-      },
-      {
-        roomId: '6',
-        roomName: '건의함',
-        categoryType: ChatCategoryType.EVENTS,
-        lastSendTime: 'Jan 13',
-        lastMessage: '학교 축제에서 학생 참여형 프로그램을 추가하면 어떨까요?',
-        numOfJoin: 21,
-        isInProgress: true,
-        isUnread: false,
-      },
-      {
-        roomId: '7',
-        roomName: '2025학년도 등록금 인상 조사',
-        categoryType: ChatCategoryType.BUDGET,
-        lastSendTime: 'Jan 13',
-        lastMessage:
-          '학생회 예산 분배 방식에 대한 투명성이 필요합니다.학생회 예산 분배 방식에 대한 투명성이 필요합니다.학생회 예산 분배 방식에 대한 투명성이 필요합니다.학생회 예산 분배 방식에 대한 투명성이 필요합니다.학생회 예산 분배 방식에 대한 투명성이 필요합니다.s',
-        numOfJoin: 21,
-        isInProgress: false,
-        isUnread: false,
-      },
-      {
-        roomId: '8',
-        roomName: '학생 의견 수렴',
-        categoryType: ChatCategoryType.OTHER,
-        lastSendTime: 'Jan 13',
-        lastMessage: '졸업 관련 절차에 대해 문의하고 싶습니다.',
-        numOfJoin: 21,
-        isInProgress: true,
-        isUnread: true,
-      },
-      {
-        roomId: '9',
-        roomName: '학생 의견 수렴',
-        categoryType: ChatCategoryType.OTHER,
-        lastSendTime: 'Jan 13',
-        lastMessage: '졸업 관련 절차에 대해 문의하고 싶습니다.',
-        numOfJoin: 21,
-        isInProgress: true,
-        isUnread: true,
-      },
-      {
-        roomId: '10',
-        roomName: '학생 의견 수렴',
-        categoryType: ChatCategoryType.OTHER,
-        lastSendTime: 'Jan 13',
-        lastMessage: '졸업 관련 절차에 대해 문의하고 싶습니다.',
-        numOfJoin: 21,
-        isInProgress: true,
-        isUnread: true,
-      },
-    ],
+  const fetchChatRooms = async () => {
+    const result: Record<string, ChatPreviewData[]> = {
+      opinion: [],
+      agenda: [],
+    };
+
+    try {
+      const [opinion, agenda] = await Promise.all([
+        api.get('/student/opinions/my'),
+        api.get('/student/agendas/my'),
+      ]);
+
+      result.opinion = opinion.data.map((data: OpinionServerData) =>
+        mapOpinionResponseToChatPreviewData(data),
+      );
+
+      result.agenda = agenda.data.map((data: AgendaServerData) =>
+        mapAgendaResponseToChatPreviewData(data),
+      );
+
+      console.log('response', result);
+      setTabBarContent(result);
+    } catch (error) {
+      console.error('fail to fetch agenda data', error);
+    }
   };
+
+  useEffect(() => {
+    fetchChatRooms();
+  }, []);
 
   const handleTouchStart = (e: React.TouchEvent) => {
     setStartX(e.touches[0].clientX);
@@ -157,10 +91,6 @@ const MyPage = () => {
     }
     setActiveIndex(newIndex);
   };
-
-  useEffect(() => {
-    setTabBarContent(mockData);
-  }, []);
 
   useEffect(() => {
     const scrollLeft = containerRef.current?.scrollLeft || 0;
