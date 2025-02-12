@@ -145,6 +145,11 @@ const BodyContainer = styled.div<{
 
 const TitleText = styled(Typography)`
   color: ${(props) => props.theme.colors.grayScale100};
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
 `;
 
 const DateContainer = styled.div`

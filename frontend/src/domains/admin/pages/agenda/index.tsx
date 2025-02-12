@@ -16,7 +16,6 @@ import { LogoutDialog } from '@/components/Dialog/LogoutDialog';
 import { AgendaEndDialog } from './components/ChatEndDialog';
 import { AgendaDeleteDialog } from './components/AgendaDeleteDialog';
 import useInfiniteScroll from '@/hooks/useInfiniteScroll';
-import JwtManager from '@/utils/jwtManager';
 
 const tabItems: TabBarItemProps[] = [
   {
@@ -159,6 +158,34 @@ const AgendaPage: React.FC = () => {
     }
   };
 
+  const refetchCompleteChatRooms = async () => {
+    lastChatRoom.current[1] = [null, null];
+    setCompleteHasMore(true);
+
+    try {
+      const params = {
+        status: 'CLOSED',
+        ...(lastChatRoom.current
+          ? { endDate: lastChatRoom.current[1][0], agendaId: lastChatRoom.current[1][1] }
+          : {}),
+      };
+      const closed = await api.get('/admin/agendas', { params: params });
+
+      const newRooms = closed.data.map(mapResponseToChatRoomListCardData);
+
+      setTabContents((prev) => ({
+        ...prev,
+        complete: newRooms,
+      }));
+
+      if (newRooms.length < MAX_PAGE_ITEMS) {
+        setCompleteHasMore(false);
+      }
+    } catch (error) {
+      console.error('Error fetching complete chat rooms:', error);
+    }
+  };
+
   const handleEndRoom = async () => {
     try {
       if (!selectedCardData) return;
@@ -169,10 +196,7 @@ const AgendaPage: React.FC = () => {
         ...prev,
         inProgress: prev.inProgress.filter((room) => room.roomId !== selectedCardData.roomId),
       }));
-
-      lastChatRoom.current[1] = [null, null];
-      fetchCompleteChatRooms();
-      setCompleteHasMore(true);
+      refetchCompleteChatRooms();
     } catch (error) {
       console.error('채팅방 삭제 실패', error);
     }
