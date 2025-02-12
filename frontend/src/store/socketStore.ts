@@ -18,7 +18,11 @@ interface SocketState {
   connect: (isAdmin: boolean) => void;
   disconnect: () => void;
   clearNewMessage: () => void;
-  subscribe: (destination: string, callback: (message: ChatMessage) => void) => () => void;
+  subscribe: (
+    roomType: 'OPINION' | 'AGENDA',
+    roomId: number,
+    callback: (message: ChatMessage) => void,
+  ) => () => void;
   sendMessage: (
     roomType: 'OPINION' | 'AGENDA',
     roomId: number,
@@ -33,6 +37,10 @@ export const useSocketStore = create<SocketState>((set, get) => ({
 
   connect: (isAdmin: boolean) => {
     const accessToken = localStorage.getItem('access_token');
+    if (!accessToken) {
+      throw new Error('Access token is missing');
+    }
+
     const namespace = isAdmin ? '/admins' : '/students';
     const socketUrl = new URL(
       `${namespace}`,
@@ -54,11 +62,11 @@ export const useSocketStore = create<SocketState>((set, get) => ({
       console.log('WebSocket connection closed');
       set({ socket: null });
 
-      setTimeout(() => {
-        if (!get().socket) {
-          get().connect(isAdmin);
-        }
-      }, 3000);
+      // setTimeout(() => {
+      //   if (!get().socket) {
+      //     get().connect(isAdmin);
+      //   }
+      // }, 3000);
     };
   },
 

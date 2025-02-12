@@ -25,7 +25,7 @@ export const TextField: React.FC<TextFieldProps> = ({
   onChange = () => {},
   onClick,
   placeholderColor = '#A8A8A8',
-  textColor = '#3C3C3C',
+  textColor = '#262626',
   border,
   errorText,
   errorTextColor = '#FF4B4B',

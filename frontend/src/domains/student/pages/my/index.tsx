@@ -1,4 +1,3 @@
-// import React from 'react';
 import { BottomNavigation } from '@/components/bottom-navigation/BottomNavigation';
 import * as S from './styles';
 import { TopAppBar } from '@/components/TopAppBar';
@@ -8,27 +7,20 @@ import { TabBar } from '@/components/tab-bar/TabBar';
 import { TabBarItemProps } from '@/components/tab-bar/TabBarItem';
 import { ChatPreviewData } from './data/ChatPreviewData.tsx';
 import { ChatPreviewItem } from './components/ChatPreviewItem.tsx';
-import { ChatOpinionType } from '@/types/ChatOpinionType.tsx';
-import { ChatCategoryType } from '@/types/ChatCategoryType.tsx';
-import { EmptyContent } from '@/components/EmptyContent.tsx';
-import { bottomItems } from '../destinations.tsx';
 import api from '@/utils/api.ts';
-import { getDefaultBorderStyle } from '@/components/border/getBorderType.tsx';
-import { BorderType } from '@/components/border/BorderProps.tsx';
-import { Button } from '@/components/Button.tsx';
-import { TextField } from '@/components/text-field/TextField.tsx';
-import { CountTextField } from '@/components/text-field/CountTextField.tsx';
 import {
   AgendaServerData,
   mapAgendaResponseToChatPreviewData,
   mapOpinionResponseToChatPreviewData,
   OpinionServerData,
 } from './util/AgendaChatRoomMapper.tsx';
+import { bottomItems, moveToDestination } from '../destinations.tsx';
+import { useNavigate } from 'react-router-dom';
+import { EmptyContent } from '@/components/EmptyContent.tsx';
 
 const MyPage = () => {
   const theme = useTheme();
-
-  //   const navigate = useNavigate();
+  const navigate = useNavigate();
 
   const [activeIndex, setActiveIndex] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -145,7 +137,11 @@ const MyPage = () => {
           );
         })}
       </S.TabContentContainer>
-      <BottomNavigation startDestination="my" destinations={bottomItems} />
+      <BottomNavigation
+        startDestination="my"
+        destinations={bottomItems}
+        onItemClick={(itemId) => navigate(moveToDestination(itemId))}
+      />
     </S.Container>
   );
 };

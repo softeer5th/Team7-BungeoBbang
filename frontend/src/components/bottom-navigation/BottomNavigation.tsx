@@ -68,6 +68,9 @@ const BottomNavigationWrapper = styled.div<{
   align-items: center;
   justify-content: center;
   background-color: ${(props) => props.backgroundColor};
-  ${(props) => (props.border ? getBorderStyle(props.border) : 'border: none;')}
+  border: ${(props) =>
+    props.border
+      ? `${props.border.borderWidth || '1px'} solid ${props.border.borderColor || '#161616'}`
+      : 'none'};
   border-radius: ${(props) => props.border?.borderRadius || '0px'};
 `;

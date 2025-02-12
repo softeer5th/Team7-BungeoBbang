@@ -33,7 +33,7 @@ export const TopAppBar: React.FC<TopAppBarProps> = ({
   onLeftIconClick = () => {},
   onRightIconClick = () => {},
   backgroundColor = '#FFFFFF',
-  foregroundColor = '#000000',
+  foregroundColor = '#262626',
   titleColor,
   border,
 }) => {

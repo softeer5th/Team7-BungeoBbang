@@ -1,7 +1,7 @@
-import * as S from '@/domains/student/pages/chat-page/styles';
-import { useNavigate, useParams } from 'react-router-dom';
-import { TopAppBar } from '@/components/TopAppBar';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useEffect, useState, useCallback } from 'react';
+import * as S from '@/domains/student/pages/chat-page/styles';
+import { TopAppBar } from '@/components/TopAppBar';
 import {
   ChatData,
   ChatType,
@@ -9,31 +9,29 @@ import {
   MoreChatData,
   ReceiveChatData,
   SendChatData,
-} from '../../chat-page/ChatData';
-import { ChatSendField } from '@/components/Chat/ChatSendField.tsx';
-import { ReceiverChat } from '@/components/Chat/ReceiverChat.tsx';
-import { SenderChat } from '@/components/Chat/SenderChat.tsx';
-import { TextBadge } from '@/components/Chat/TextBadge.tsx';
-import MoreChatButton from '../../chat-page/MoreChatButton.tsx';
-import { ExitDialog } from '../../chat-page/Exitdialog.tsx';
-import api from '@/utils/api.ts';
-import { formatChatData } from '@/utils/chat/formatChatData.ts';
-import { useImageUpload } from '@/hooks/useImageUpload.ts';
+} from '@/domains/student/pages/chat-page/ChatData';
+import { ChatSendField } from '@/components/Chat/ChatSendField';
+import { ReceiverChat } from '@/components/Chat/ReceiverChat';
+import { SenderChat } from '@/components/Chat/SenderChat';
+import { TextBadge } from '@/components/Chat/TextBadge';
+import MoreChatButton from '@/domains/student/pages/chat-page/MoreChatButton';
+import { ExitDialog } from '@/domains/student/pages/chat-page/Exitdialog';
+import api from '@/utils/api';
+import { formatChatData } from '@/utils/chat/formatChatData';
+import { useImageUpload } from '@/hooks/useImageUpload';
 import { useSocketStore } from '@/store/socketStore';
-import { useSocketManager } from '@/hooks/useSocketManager.ts';
+import { useSocketManager } from '@/hooks/useSocketManager';
+import { ImageFileSizeDialog } from '@/components/Dialog/ImageFileSizeDialog';
 
 interface ChatMessage {
-  roomType: 'OPINION' | 'AGENDA';
+  roomType: 'OPINION';
   event: 'CHAT';
-  opinionId?: number;
-  agendaId?: number;
+  opinionId: number;
   message: string;
   images: string[];
   memberId: number;
   createdAt: string;
 }
-
-import { ImageFileSizeDialog } from '@/components/Dialog/ImageFileSizeDialog.tsx';
 
 const OpinionChatPage = () => {
   const [chatData, setChatData] = useState<ChatData[]>([]);
@@ -47,8 +45,9 @@ const OpinionChatPage = () => {
   const { roomId } = useParams();
   const { subscribe, sendMessage } = useSocketStore();
   const memberId = localStorage.getItem('member_id');
-  const { socket } = useSocketStore();
   const socketManager = useSocketManager();
+  const location = useLocation();
+  const opinionType = location.state?.opinionType || '';
 
   const handleMessageReceive = useCallback(
     (message: ChatMessage) => {
@@ -73,10 +72,9 @@ const OpinionChatPage = () => {
 
     const fetchData = async () => {
       try {
-        const enterResponse = await api.get(`/api/opinions/${roomId}`);
-        console.log('채팅방 정보:', enterResponse);
         const response = await api.get(`/api/opinions/${roomId}/chat`);
-        const formattedData = formatChatData(response.data, false);
+        const formattedData = formatChatData(response.data, true);
+        console.log('formattedData', response);
         setChatData(formattedData);
       } catch (error) {
         console.error('채팅 데이터 불러오기 실패:', error);
@@ -84,7 +82,7 @@ const OpinionChatPage = () => {
     };
 
     fetchData();
-  }, [roomId, socket]);
+  }, [roomId]);
 
   useEffect(() => {
     const unsubscribe = subscribe('OPINION', Number(roomId), handleMessageReceive);
@@ -103,8 +101,8 @@ const OpinionChatPage = () => {
     <S.Container>
       <TopAppBar
         leftIconSrc="/src/assets/icons/arrow-left.svg"
-        title="총학생회 국제캠퍼스 생활 불편 건의함"
-        rightIconSrc="/src/assets/icons/logout.svg"
+        title={opinionType}
+        rightIconSrc="/src/assets/icons/close.svg"
         onLeftIconClick={() => {
           navigate(-1);
           socketManager('OPINION', 'LEAVE', Number(roomId));
@@ -113,12 +111,14 @@ const OpinionChatPage = () => {
           setExitDialogOpen(true);
         }}
       />
+
       <S.ChatList>
-        {chatData.map((chat) => {
+        {chatData.map((chat, index) => {
           if (chat.type === ChatType.RECEIVE) {
             const chatData = chat as ReceiveChatData;
             return (
               <ReceiverChat
+                key={index}
                 receiverName={chatData.name}
                 message={chatData.message}
                 images={chatData.images}
@@ -129,6 +129,7 @@ const OpinionChatPage = () => {
             const chatData = chat as SendChatData;
             return (
               <SenderChat
+                key={index}
                 message={chatData.message}
                 images={chatData.images}
                 timeText={chatData.time}
@@ -136,11 +137,12 @@ const OpinionChatPage = () => {
             );
           } else if (chat.type === ChatType.INFO) {
             const chatData = chat as InfoChatData;
-            return <TextBadge text={chatData.message} />;
+            return <TextBadge key={index} text={chatData.message} />;
           } else if (chat.type === ChatType.MORE) {
             const chatData = chat as MoreChatData;
             return (
               <MoreChatButton
+                key={index}
                 text={chatData.text}
                 iconSrc={chatData.iconSrc}
                 onClick={chatData.onMoreClick}
@@ -163,15 +165,9 @@ const OpinionChatPage = () => {
 
       {isExitDialogOpen && (
         <ExitDialog
-          onConfirm={async () => {
+          onConfirm={() => {
             setExitDialogOpen(false);
-            try {
-              socketManager('OPINION', 'EXIT', Number(roomId));
-              await api.delete(`/student/opinion/${roomId}`);
-              navigate('/opinion/entry');
-            } catch (error) {
-              console.error('채팅방 삭제 실패:', error);
-            }
+            navigate(-1);
           }}
           onDismiss={() => {
             setExitDialogOpen(false);
