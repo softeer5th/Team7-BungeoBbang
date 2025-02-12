@@ -14,7 +14,7 @@ export const bottomItems: BottomNavigationItemProps[] = [
   {
     itemId: 'my',
     iconSrc: '/src/assets/icons/profile.svg',
-    title: '내 의견',
+    title: '내 질문',
   },
 ];
 

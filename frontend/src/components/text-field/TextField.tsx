@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 import { BorderProps } from '../border/BorderProps';
 import Typography from '../../styles/Typography';
-import { getBorderStyle } from '../border/getBorderType';
+import { getBorderStyle, getDefaultBorderStyle } from '../border/getBorderType';
 
 interface TextFieldProps {
   value: string;
@@ -26,7 +26,12 @@ export const TextField: React.FC<TextFieldProps> = ({
   onClick,
   placeholderColor = '#A8A8A8',
   textColor = '#262626',
-  border,
+  border = {
+    ...getDefaultBorderStyle(),
+    borderColor: '#E0E0E0',
+    disabledBorderColor: 'E0E0E0',
+    borderRadius: '12px',
+  },
   errorText,
   errorTextColor = '#FF4B4B',
   isError = false,
