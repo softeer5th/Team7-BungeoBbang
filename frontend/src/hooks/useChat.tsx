@@ -1,16 +1,5 @@
 import { useEffect, useState, useCallback } from 'react';
-import { useSocketStore } from '@/store/socketStore';
-
-interface ChatMessage {
-  roomType: 'OPINION' | 'AGENDA';
-  event: 'CHAT';
-  opinionId?: number;
-  agendaId?: number;
-  message: string;
-  images: string[];
-  memberId: number;
-  createdAt: string;
-}
+import { useSocketStore, ChatMessage } from '@/store/socketStore';
 
 export const useChat = (type: 'OPINION' | 'AGENDA', roomId: number) => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -32,7 +21,7 @@ export const useChat = (type: 'OPINION' | 'AGENDA', roomId: number) => {
   // 메시지 전송 함수
   const send = useCallback(
     (message: string, images: string[] = []) => {
-      sendMessage(type, roomId, message, images);
+      sendMessage(type, roomId, message, images, false);
     },
     [type, roomId, sendMessage],
   );

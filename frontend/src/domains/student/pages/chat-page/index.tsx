@@ -39,7 +39,7 @@ const ChatPage = ({ roomId, isEnd, isParticipate }: ChatPageProps) => {
     try {
       const response = await api.get(`/student/agendas/${roomId}/chat`);
 
-      const formattedData = formatChatData(response.data);
+      const formattedData = formatChatData(response.data, false);
       setChatData(formattedData);
     } catch (error) {
       console.error('fail to get chat data', error);

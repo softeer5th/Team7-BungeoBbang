@@ -19,19 +19,10 @@ import { ExitDialog } from '@/domains/student/pages/chat-page/Exitdialog';
 import api from '@/utils/api';
 import { formatChatData } from '@/utils/chat/formatChatData';
 import { useImageUpload } from '@/hooks/useImageUpload';
-import { useSocketStore } from '@/store/socketStore';
+import { useSocketStore, ChatMessage } from '@/store/socketStore';
 import { useSocketManager } from '@/hooks/useSocketManager';
 import { ImageFileSizeDialog } from '@/components/Dialog/ImageFileSizeDialog';
-
-interface ChatMessage {
-  roomType: 'OPINION';
-  event: 'CHAT';
-  opinionId: number;
-  message: string;
-  images: string[];
-  memberId: number;
-  createdAt: string;
-}
+import { useScrollBottom } from '@/hooks/useScrollBottom';
 
 const OpinionChatPage = () => {
   const [chatData, setChatData] = useState<ChatData[]>([]);
@@ -53,7 +44,7 @@ const OpinionChatPage = () => {
     (message: ChatMessage) => {
       if (message.roomType === 'OPINION' && message.opinionId === Number(roomId)) {
         const newChat = {
-          type: message.memberId === Number(memberId) ? ChatType.SEND : ChatType.RECEIVE,
+          type: message.adminId === Number(memberId) ? ChatType.SEND : ChatType.RECEIVE,
           message: message.message,
           time: new Date(message.createdAt).toLocaleTimeString('ko-KR', {
             hour: '2-digit',
@@ -91,11 +82,15 @@ const OpinionChatPage = () => {
 
   const handleSendMessage = useCallback(
     (message: string, images: string[] = []) => {
-      sendMessage('OPINION', Number(roomId), message, images);
+      sendMessage('OPINION', Number(roomId), message, images, true);
       setMessage('');
     },
     [roomId, sendMessage],
   );
+
+  const { elementRef, useScrollOnUpdate } = useScrollBottom<HTMLDivElement>();
+  // chatData가 업데이트될 때마다 스크롤
+  useScrollOnUpdate(chatData);
 
   return (
     <S.Container>
@@ -112,7 +107,7 @@ const OpinionChatPage = () => {
         }}
       />
 
-      <S.ChatList>
+      <S.ChatList ref={elementRef}>
         {chatData.map((chat, index) => {
           if (chat.type === ChatType.RECEIVE) {
             const chatData = chat as ReceiveChatData;
