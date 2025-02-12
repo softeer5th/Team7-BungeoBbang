@@ -2,7 +2,7 @@ import { ChatCategoryType } from '@/types/ChatCategoryType';
 import { ChatOpinionType } from '@/types/ChatOpinionType';
 
 export interface ChatPreviewData {
-  roomId: string;
+  roomId: number;
   roomName?: string;
   opinionType?: ChatOpinionType;
   categoryType: ChatCategoryType;
@@ -10,5 +10,5 @@ export interface ChatPreviewData {
   lastMessage: string;
   numOfJoin?: number;
   isInProgress?: boolean;
-  isUnread: boolean;
+  hasNewChat: boolean;
 }
