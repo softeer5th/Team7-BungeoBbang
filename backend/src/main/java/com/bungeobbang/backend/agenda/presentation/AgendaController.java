@@ -8,7 +8,6 @@ import com.bungeobbang.backend.agenda.presentation.api.AgendaApi;
 import com.bungeobbang.backend.agenda.service.AgendaChatService;
 import com.bungeobbang.backend.agenda.service.AgendaService;
 import com.bungeobbang.backend.agenda.status.AgendaStatusType;
-import com.bungeobbang.backend.auth.admin.AdminOnly;
 import com.bungeobbang.backend.auth.common.Auth;
 import com.bungeobbang.backend.auth.domain.Accessor;
 import com.bungeobbang.backend.auth.member.MemberOnly;
