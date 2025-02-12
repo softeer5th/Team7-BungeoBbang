@@ -24,9 +24,9 @@ public interface AgendaRepository extends JpaRepository<Agenda, Long> {
     @Query("""
             SELECT a FROM Agenda a
                       JOIN a. agendaMembers am
-                                  WHERE a.startDate <= CURRENT_DATE
-                                               and a.endDate > CURRENT_DATE
-                                                           AND am.member.id = :memberId
+                      WHERE a.startDate <= CURRENT_DATE
+                      and a.endDate > CURRENT_DATE
+                      AND am.member.id = :memberId
             """)
         // 특정 memberId에 대한 필터링
     List<Agenda> findActiveAgendasByMemberId(@Param("memberId") Long memberId);
