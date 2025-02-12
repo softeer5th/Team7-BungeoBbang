@@ -187,6 +187,6 @@ public class AgendaRealTimeChatService {
         final Admin admin = adminRepository.findById(adminId)
                 .orElseThrow(() -> new AdminException(ErrorCode.INVALID_ADMIN));
         Long universityId = admin.getUniversity().getId();
-        return agendaRepository.findAllByUniversityId(universityId);
+        return agendaRepository.findActiveAgendasByUniversityId(universityId);
     }
 }

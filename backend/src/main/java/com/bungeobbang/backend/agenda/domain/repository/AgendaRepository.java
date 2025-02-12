@@ -13,13 +13,19 @@ import java.util.List;
 public interface AgendaRepository extends JpaRepository<Agenda, Long> {
     boolean existsByIdAndEndDateBefore(Long id, LocalDate endDate);
 
-    List<Agenda> findAllByUniversityId(Long universityId);
+    @Query("""
+            select a from Agenda a
+                where a.university.id = :universityId
+                and a.startDate <= current_date
+                and a.endDate > current_date
+            """)
+    List<Agenda> findActiveAgendasByUniversityId(Long universityId);
 
     @Query("""
             SELECT a FROM Agenda a
                       JOIN a. agendaMembers am
-                      WHERE a.endDate > CURRENT_DATE 
-                      AND a.startDate < CURRENT_DATE 
+                      WHERE a.startDate <= CURRENT_DATE
+                      and a.endDate > CURRENT_DATE
                       AND am.member.id = :memberId
             """)
         // 특정 memberId에 대한 필터링
