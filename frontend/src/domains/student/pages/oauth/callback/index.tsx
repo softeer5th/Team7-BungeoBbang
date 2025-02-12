@@ -42,7 +42,7 @@ const OAuthCallback = () => {
     handleOAuthCallback();
   }, [navigate]);
 
-  return <div>로그인 처리중...</div>;
+  return <div>로딩 스패너 넣기 </div>;
 };
 
 export default OAuthCallback;
