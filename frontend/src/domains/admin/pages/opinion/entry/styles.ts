@@ -45,7 +45,7 @@ export const EmptyStateIcon = styled.img`
 `;
 
 export const EmptyTitleText = styled(Typography)`
-  color: '#a3a3a3';
+  color: ${(props) => props.theme.colors.grayScale40};
 `;
 
 export const OpinionList = styled.div`

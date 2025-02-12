@@ -33,9 +33,10 @@ export const OpinionStep = ({ onOpinionSelect }: OpinionStepProps) => {
         >
           <S.ChipListWrapper>
             <ChipList
-              items={Object.entries(ChatOpinionType).map(([itemId, text]) => ({
+              items={Object.entries(ChatOpinionType).map(([itemId, { label, type }]) => ({
                 itemId,
-                text,
+                text: label,
+                type,
               }))}
               onChipClick={onOpinionSelect}
               backgroundColor="#FFFFFF"

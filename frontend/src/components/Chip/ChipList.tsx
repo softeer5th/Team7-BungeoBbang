@@ -11,7 +11,7 @@ interface ChipListProps {
   itemSelectedTextColor?: string;
   itemBorder?: BorderProps;
   onChipClick: (chipId: string) => void;
-  items: (ChipListItemProps & { itemId: string })[]; // 🔥 `itemId` 추가
+  items: (ChipListItemProps & { itemId: string })[];
   sidePadding?: string;
 }
 

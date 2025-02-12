@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 import { BorderProps } from '../border/BorderProps';
 import Typography from '../../styles/Typography';
-import { getBorderStyle } from '../border/getBorderType';
+import { getBorderStyle, getDefaultBorderStyle } from '../border/getBorderType';
 
 export interface ChipListItemProps {
   itemId: string;
@@ -26,6 +26,7 @@ export const ChipListItem: React.FC<ChipListItemProps & ChipListItemOnlyProps> =
   backgroundColor = '#F4F4F4',
   selectedBackgroundColor = '#E8F3FF',
   border = {
+    ...getDefaultBorderStyle(),
     borderWidth: '1px',
     borderColor: '#C6C6C6',
     selectedBorderColor: '#1F87FF',
