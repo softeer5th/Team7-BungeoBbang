@@ -3,6 +3,7 @@ package com.bungeobbang.backend.opinion.service;
 import com.bungeobbang.backend.common.exception.ErrorCode;
 import com.bungeobbang.backend.common.exception.OpinionException;
 import com.bungeobbang.backend.common.type.CategoryType;
+import com.bungeobbang.backend.common.type.ScrollType;
 import com.bungeobbang.backend.member.domain.Member;
 import com.bungeobbang.backend.opinion.domain.Opinion;
 import com.bungeobbang.backend.opinion.domain.OpinionChat;
@@ -64,7 +65,7 @@ class OpinionServiceTest {
                 .thenReturn(List.of(chat));
 
         // when
-        List<OpinionChatResponse> result = opinionService.findOpinionChat(opinionId, lastChatId, userId);
+        List<OpinionChatResponse> result = opinionService.findOpinionChat(opinionId, lastChatId, userId, null);
 
         // then
         assertThat(result).hasSize(1);
@@ -84,7 +85,6 @@ class OpinionServiceTest {
                 .categoryType(CategoryType.IT)
                 .isRemind(true)
                 .member(member)
-                .chatCount(1)
                 .build();
 
         when(opinionRepository.findByIdAndIsDeletedFalse(anyLong())).thenReturn(Optional.of(opinion));
