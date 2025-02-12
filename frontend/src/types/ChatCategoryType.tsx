@@ -13,7 +13,7 @@ export const ChatCategoryType = {
   },
   BUDGET: {
     label: '예산',
-    iconSrc: '/src/assets/icons/money.svg', 
+    iconSrc: '/src/assets/icons/money.svg',
     iconBackground: '#FFEFB3',
     type: 'BUDGET',
   },
