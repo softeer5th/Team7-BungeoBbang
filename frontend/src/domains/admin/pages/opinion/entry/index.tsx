@@ -7,10 +7,10 @@ import { EmptyState } from './EmptyState';
 import { OpinionItem } from './OpinionItem';
 import { ChatCategoryType } from '@/types/ChatCategoryType';
 import { ChatOpinionType } from '@/types/ChatOpinionType';
-import { bottomItems, moveToDestination } from '../../destinations.tsx';
 import { Opinion, OpinionResponse } from './types';
-import { useNavigate } from 'react-router-dom';
 import * as S from './styles';
+import { bottomItems, moveToDestination } from '../../destinations';
+import { useNavigate } from 'react-router-dom';
 
 const chipItems = [
   { itemId: 'ALL', text: '전체' },

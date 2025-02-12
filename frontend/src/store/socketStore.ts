@@ -8,7 +8,8 @@ export interface ChatMessage {
   agendaId?: number;
   message: string;
   images: string[];
-  memberId: number;
+  memberId?: number;
+  adminId?: number;
   createdAt: string;
 }
 
@@ -28,6 +29,7 @@ interface SocketState {
     roomId: number,
     message: string,
     images: string[],
+    isAdmin: boolean,
   ) => void;
 }
 
@@ -116,7 +118,7 @@ export const useSocketStore = create<SocketState>((set, get) => ({
     return () => {};
   },
 
-  sendMessage: async (roomType, roomId, messageContent, images) => {
+  sendMessage: async (roomType, roomId, messageContent, images, isAdmin) => {
     const socket = get().socket;
     const storedMemberId = localStorage.getItem('member_id');
     if (!socket || socket.readyState !== WebSocket.OPEN) {
@@ -130,7 +132,7 @@ export const useSocketStore = create<SocketState>((set, get) => ({
       ...(roomType === 'OPINION' ? { opinionId: roomId } : { agendaId: roomId }),
       message: messageContent,
       images,
-      memberId: storedMemberId,
+      ...(isAdmin ? { adminId: storedMemberId } : { memberId: storedMemberId }),
     };
     console.log('Sending message:', messageData);
 

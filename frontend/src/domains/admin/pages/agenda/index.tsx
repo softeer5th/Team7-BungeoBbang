@@ -28,17 +28,17 @@ const tabItems: TabBarItemProps[] = [
   },
 ];
 
-interface AgendaResponse {
-  agenda: {
-    id: number;
-    title: string;
-    categoryType: string;
-    status: 'ACTIVE' | 'UPCOMING' | 'CLOSED';
-    startDate: string;
-    endDate: string;
-  };
-  hasNewMessage: boolean;
-}
+// interface AgendaResponse {
+//   agenda: {
+//     id: number;
+//     title: string;
+//     categoryType: string;
+//     status: 'ACTIVE' | 'UPCOMING' | 'CLOSED';
+//     startDate: string;
+//     endDate: string;
+//   };
+//   hasNewMessage: boolean;
+// }
 
 const AgendaPage: React.FC = () => {
   const MAX_PAGE_ITEMS = 6;
@@ -133,7 +133,6 @@ const AgendaPage: React.FC = () => {
         inProgress: [...(prev.inProgress ?? []), ...newRooms],
       }));
 
-
       if (newRooms.length < MAX_PAGE_ITEMS) {
         if (!isInProgessEnd.current) {
           isInProgessEnd.current = true;
@@ -141,7 +140,6 @@ const AgendaPage: React.FC = () => {
           setProgressHasMore(false);
         }
       }
-
     } catch (error) {
       console.error('Error fetching progress chat rooms:', error);
     }

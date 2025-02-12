@@ -19,20 +19,9 @@ import { ExitDialog } from '../../chat-page/Exitdialog.tsx';
 import api from '@/utils/api.ts';
 import { formatChatData } from '@/utils/chat/formatChatData.ts';
 import { useImageUpload } from '@/hooks/useImageUpload.ts';
-import { useSocketStore } from '@/store/socketStore';
+import { useSocketStore, ChatMessage } from '@/store/socketStore';
 import { useSocketManager } from '@/hooks/useSocketManager.ts';
-
-interface ChatMessage {
-  roomType: 'OPINION' | 'AGENDA';
-  event: 'CHAT';
-  opinionId?: number;
-  agendaId?: number;
-  message: string;
-  images: string[];
-  memberId: number;
-  createdAt: string;
-}
-
+import { useScrollBottom } from '@/hooks/useScrollBottom.tsx';
 import { ImageFileSizeDialog } from '@/components/Dialog/ImageFileSizeDialog.tsx';
 
 const OpinionChatPage = () => {
@@ -93,11 +82,13 @@ const OpinionChatPage = () => {
 
   const handleSendMessage = useCallback(
     (message: string, images: string[] = []) => {
-      sendMessage('OPINION', Number(roomId), message, images);
+      sendMessage('OPINION', Number(roomId), message, images, false);
       setMessage('');
     },
     [roomId, sendMessage],
   );
+
+  useScrollBottom(chatData);
 
   return (
     <S.Container>
@@ -113,7 +104,7 @@ const OpinionChatPage = () => {
           setExitDialogOpen(true);
         }}
       />
-      <S.ChatList>
+      <S.ChatList ref={elementRef}>
         {chatData.map((chat) => {
           if (chat.type === ChatType.RECEIVE) {
             const chatData = chat as ReceiveChatData;
