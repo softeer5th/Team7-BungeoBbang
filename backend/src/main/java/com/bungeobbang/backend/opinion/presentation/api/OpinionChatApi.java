@@ -2,6 +2,7 @@ package com.bungeobbang.backend.opinion.presentation.api;
 
 import com.bungeobbang.backend.auth.common.Auth;
 import com.bungeobbang.backend.auth.domain.Accessor;
+import com.bungeobbang.backend.common.type.ScrollType;
 import com.bungeobbang.backend.opinion.dto.response.OpinionChatResponse;
 import com.bungeobbang.backend.opinion.dto.response.OpinionDetailResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -33,8 +34,10 @@ public interface OpinionChatApi {
                     
                     **✅ 사용 예시**
                     ```
-                    GET /api/opinions
-                    GET /api/opinions?lastChatId=67a04c4a6d8394488027b840
+                    GET /api/opinions/2/chat?lastChatId=67a04c4a6d8394488027b840
+                    GET /api/opinions/2/chat?lastChatId=67a04c4a6d8394488027b840&scroll=UP
+                    GET /api/opinions/2/chat?lastChatId=67a04c4a6d8394488027b840&scroll=DOWN
+                    
                     ```
                     """
     )
@@ -49,8 +52,11 @@ public interface OpinionChatApi {
             @Parameter(description = "조회할 말해요 ID", example = "2")
             @PathVariable @Valid Long opinionId,
 
-            @Parameter(description = "마지막으로 본 채팅 ID (선택 사항, 없으면 최신 메시지부터 조회)", example = "67a04c4a6d8394488027b840")
-            @RequestParam(required = false) ObjectId lastChatId,
+            @Parameter(description = "마지막으로 본 채팅 ID (필수, 첫 조회에는 채팅방 리스트 조회 때 받았던 lastChat의 chatId로 지정)", example = "67a04c4a6d8394488027b840")
+            @RequestParam(required = true) ObjectId lastChatId,
+
+            @Parameter(description = "스크롤 방향(선택 사항, 첫 채팅방 입장은 scroll 없이 요청.")
+            @RequestParam(required = false) final ScrollType scroll,
 
             @Parameter(description = "사용자 인증 정보", hidden = true)
             @Auth Accessor accessor
