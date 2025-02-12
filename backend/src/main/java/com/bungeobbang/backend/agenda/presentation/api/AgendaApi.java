@@ -5,8 +5,8 @@ import com.bungeobbang.backend.agenda.dto.response.AgendaDetailResponse;
 import com.bungeobbang.backend.agenda.dto.response.member.MemberAgendaResponse;
 import com.bungeobbang.backend.agenda.dto.response.member.MyAgendaResponse;
 import com.bungeobbang.backend.agenda.status.AgendaStatusType;
+import com.bungeobbang.backend.auth.common.Auth;
 import com.bungeobbang.backend.auth.domain.Accessor;
-import com.bungeobbang.backend.auth.member.MemberAuth;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -34,7 +34,7 @@ public interface AgendaApi {
     })
     @PostMapping("/{agendaId}")
     ResponseEntity<Void> participateAgenda(
-            @MemberAuth Accessor accessor,
+            @Auth Accessor accessor,
             @Parameter(description = "참여할 답해요의 ID") @PathVariable Long agendaId
     );
 
@@ -47,7 +47,7 @@ public interface AgendaApi {
     })
     @GetMapping
     ResponseEntity<List<MemberAgendaResponse>> getAgendasByStatus(
-            @MemberAuth Accessor accessor,
+            @Auth Accessor accessor,
             @Parameter(description = "조회할 답해요 상태") @RequestParam AgendaStatusType status,
             @Parameter(description = "마지막 조회된 답해요 마감일 (선택)") @RequestParam(required = false) LocalDate endDate,
             @Parameter(description = "마지막 조회된 답해요 ID (선택)") @RequestParam(required = false) Long agendaId
@@ -59,7 +59,7 @@ public interface AgendaApi {
     )
     @GetMapping("/{agendaId}")
     ResponseEntity<AgendaDetailResponse> getAgendaDetail(
-            @Parameter(hidden = true) @MemberAuth Accessor accessor,
+            @Parameter(hidden = true) @Auth Accessor accessor,
             @Parameter(description = "조회할 아젠다 ID", example = "123")
             @PathVariable Long agendaId
     );
@@ -70,7 +70,7 @@ public interface AgendaApi {
             @ApiResponse(responseCode = "401", description = "인증 필요", content = @Content),
     })
     @GetMapping("/my")
-    ResponseEntity<List<MyAgendaResponse>> getMyAgendas(@MemberAuth Accessor accessor);
+    ResponseEntity<List<MyAgendaResponse>> getMyAgendas(@Auth Accessor accessor);
 
     @Operation(summary = "답해요 나가기", description = "학생이 특정 답해요에서 나갑니다.")
     @ApiResponses({
@@ -81,7 +81,7 @@ public interface AgendaApi {
     })
     @DeleteMapping("/{agendaId}")
     ResponseEntity<Void> exitAgenda(
-            @MemberAuth Accessor accessor,
+            @Auth Accessor accessor,
             @Parameter(description = "탈퇴할 답해요의 ID") @PathVariable Long agendaId
     );
 
@@ -91,7 +91,7 @@ public interface AgendaApi {
     )
     @GetMapping("/{agendaId}/chat")
     ResponseEntity<AgendaChatResponses> getChats(
-            @Parameter(hidden = true) @MemberAuth Accessor accessor,
+            @Parameter(hidden = true) @Auth Accessor accessor,
             @Parameter(description = "조회할 답해요 ID", example = "123") @PathVariable Long agendaId,
             @Parameter(description = "특정 채팅 이후의 메시지를 가져오기 위한 chat ID", example = "65afc39b2d1e7c7a1f5b9123")
             @RequestParam(required = false) ObjectId chatId

@@ -8,7 +8,7 @@ import com.bungeobbang.backend.agenda.dto.response.AgendaResponse;
 import com.bungeobbang.backend.agenda.dto.response.admin.AdminAgendaResponse;
 import com.bungeobbang.backend.agenda.dto.response.admin.AgendaCreationResponse;
 import com.bungeobbang.backend.agenda.status.AgendaStatusType;
-import com.bungeobbang.backend.auth.admin.AdminAuth;
+import com.bungeobbang.backend.auth.common.Auth;
 import com.bungeobbang.backend.auth.domain.Accessor;
 import com.bungeobbang.backend.common.exception.response.ErrorResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -45,7 +45,7 @@ public interface AdminAgendaApi {
 
     @GetMapping
     ResponseEntity<List<AdminAgendaResponse>> getAgendasByStatus(
-            @AdminAuth Accessor accessor,
+            @Auth Accessor accessor,
             @RequestParam AgendaStatusType status,
             @RequestParam(required = false) LocalDate endDate,
             @RequestParam(required = false) Long agendaId
@@ -57,7 +57,7 @@ public interface AdminAgendaApi {
     )
     @GetMapping("/{agendaId}")
     ResponseEntity<AgendaDetailResponse> getAgendaDetail(
-            @Parameter(hidden = true) @AdminAuth Accessor accessor,
+            @Parameter(hidden = true) @Auth Accessor accessor,
             @Parameter(description = "조회할 아젠다 ID", example = "123") Long agendaId);
 
     @Operation(
@@ -73,7 +73,7 @@ public interface AdminAgendaApi {
     })
     @PostMapping
     ResponseEntity<AgendaCreationResponse> createAgenda(
-            @AdminAuth Accessor accessor,
+            @Auth Accessor accessor,
             @RequestBody @Valid AgendaCreationRequest request);
 
     @Operation(
@@ -88,7 +88,7 @@ public interface AdminAgendaApi {
     })
     @PatchMapping("/{agendaId}/close")
     ResponseEntity<Void> endAgenda(
-            @AdminAuth Accessor accessor,
+            @Auth Accessor accessor,
             @PathVariable Long agendaId);
 
     @Operation(
@@ -103,7 +103,7 @@ public interface AdminAgendaApi {
     })
     @DeleteMapping("/{agendaId}")
     ResponseEntity<Void> deleteAgenda(
-            @AdminAuth Accessor accessor,
+            @Auth Accessor accessor,
             @PathVariable Long agendaId);
 
     @Operation(
@@ -118,7 +118,7 @@ public interface AdminAgendaApi {
     })
     @PatchMapping("/{agendaId}")
     ResponseEntity<Void> editAgenda(
-            @AdminAuth Accessor accessor,
+            @Auth Accessor accessor,
             @PathVariable Long agendaId,
             @RequestBody @Valid AgendaEditRequest request);
 
@@ -131,7 +131,7 @@ public interface AdminAgendaApi {
     @GetMapping("/{agendaId}/chat")
     ResponseEntity<AgendaChatResponses> getAgendaChat(
             @Parameter(description = "관리자 인증 정보", hidden = true)
-            @AdminAuth Accessor accessor,
+            @Auth Accessor accessor,
 
             @Parameter(description = "조회할 답해요 ID", example = "123")
             @PathVariable Long agendaId,

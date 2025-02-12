@@ -1,7 +1,7 @@
 package com.bungeobbang.backend.opinion.presentation;
 
+import com.bungeobbang.backend.auth.common.Auth;
 import com.bungeobbang.backend.auth.domain.Accessor;
-import com.bungeobbang.backend.auth.member.MemberAuth;
 import com.bungeobbang.backend.auth.member.MemberOnly;
 import com.bungeobbang.backend.opinion.dto.request.OpinionCreationRequest;
 import com.bungeobbang.backend.opinion.dto.response.MemberOpinionsInfoResponse;
@@ -23,45 +23,45 @@ public class MemberOpinionController implements MemberOpinionApi {
 
     private final MemberOpinionService memberOpinionService;
 
-    @GetMapping()
     @MemberOnly
+    @GetMapping()
     public ResponseEntity<OpinionStatisticsResponse> getOpinionStatistics(
-            @MemberAuth final Accessor accessor) {
+            @Auth final Accessor accessor) {
         return ResponseEntity.ok()
                 .body(memberOpinionService.computeOpinionStatistics(accessor.id()));
     }
 
-    @PostMapping()
     @MemberOnly
+    @PostMapping()
     public ResponseEntity<OpinionCreationResponse> suggestOpinion(
             @RequestBody @Valid final OpinionCreationRequest creationRequest,
-            @MemberAuth final Accessor accessor) {
+            @Auth final Accessor accessor) {
         return ResponseEntity.ok()
                 .body(memberOpinionService.createOpinion(creationRequest, accessor.id()));
     }
 
-    @DeleteMapping("/{opinionId}")
     @MemberOnly
+    @DeleteMapping("/{opinionId}")
     public ResponseEntity<Void> deleteOpinion(
             @PathVariable @Valid final Long opinionId,
-            @MemberAuth final Accessor accessor) {
+            @Auth final Accessor accessor) {
         memberOpinionService.deleteOpinion(opinionId, accessor.id());
         return ResponseEntity.ok().build();
     }
 
-    @PatchMapping("/{opinionId}/remind")
     @MemberOnly
+    @PatchMapping("/{opinionId}/remind")
     public ResponseEntity<Void> patchOpinionRemind(
             @PathVariable @Valid final Long opinionId,
-            @MemberAuth final Accessor accessor) {
+            @Auth final Accessor accessor) {
         memberOpinionService.remindOpinion(opinionId, accessor.id());
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/my")
     @MemberOnly
+    @GetMapping("/my")
     public ResponseEntity<List<MemberOpinionsInfoResponse>> getMemberOpinionList(
-            @MemberAuth final Accessor accessor) {
+            @Auth final Accessor accessor) {
         return ResponseEntity.ok()
                 .body(memberOpinionService.findMemberOpinionList(accessor.id()));
     }
