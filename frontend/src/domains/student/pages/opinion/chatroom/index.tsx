@@ -76,7 +76,7 @@ const OpinionChatPage = () => {
         const enterResponse = await api.get(`/api/opinions/${roomId}`);
         console.log('채팅방 정보:', enterResponse);
         const response = await api.get(`/api/opinions/${roomId}/chat`);
-        const formattedData = formatChatData(response.data);
+        const formattedData = formatChatData(response.data, false);
         setChatData(formattedData);
       } catch (error) {
         console.error('채팅 데이터 불러오기 실패:', error);

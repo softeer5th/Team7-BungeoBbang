@@ -60,7 +60,8 @@ const AdminLogin: React.FC = () => {
       console.log('Login response:', response);
       const accessToken = response.headers['access-token'];
       const refreshToken = response.headers['refresh-token'];
-      await JWTManager.setTokens(refreshToken, accessToken, -1);
+      const memberId = response.data.adminId || -1;
+      await JWTManager.setTokens(refreshToken, accessToken, memberId);
 
       navigate('/opinion/entry');
     } catch (error) {
