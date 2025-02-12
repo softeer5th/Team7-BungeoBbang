@@ -49,7 +49,7 @@ const OpinionEntryPage: React.FC = () => {
           iconColor: '#FFC107',
           hasAlarm: item.hasNewChat,
           createdAt: item.lastChat.createdAt,
-          isReminded: item.opinioon.isReminded,
+          isReminded: item.opinion.isReminded,
         }));
 
         setOpinions(formattedOpinions);
@@ -95,6 +95,7 @@ const OpinionEntryPage: React.FC = () => {
                 hasAlarm={opinion.hasAlarm}
                 onClick={() => navigate('/opinion/chat/' + opinion.id)}
                 createdAt={opinion.createdAt}
+                isReminded={opinion.isReminded}
               />
             ))}
           </S.OpinionList>

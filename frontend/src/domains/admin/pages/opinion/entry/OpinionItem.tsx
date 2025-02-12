@@ -16,7 +16,7 @@ interface OpinionItemProps {
   onClick?: () => void;
 }
 
-const calculateDaysDifference = (dateString: string, now: Date): number => {
+const calculateDaysDifference = (dateString: Date, now: Date): number => {
   try {
     const date = new Date(dateString);
 
@@ -28,7 +28,7 @@ const calculateDaysDifference = (dateString: string, now: Date): number => {
 
     return diffDays;
   } catch (error) {
-    alert('fail to calculate days difference', error);
+    alert(error);
     return -1;
   }
 };

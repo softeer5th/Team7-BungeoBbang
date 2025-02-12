@@ -62,11 +62,11 @@ export const useSocketStore = create<SocketState>((set, get) => ({
       console.log('WebSocket connection closed');
       set({ socket: null });
 
-      setTimeout(() => {
-        if (!get().socket) {
-          get().connect(isAdmin);
-        }
-      }, 3000);
+      // setTimeout(() => {
+      //   if (!get().socket) {
+      //     get().connect(isAdmin);
+      //   }
+      // }, 3000);
     };
   },
 

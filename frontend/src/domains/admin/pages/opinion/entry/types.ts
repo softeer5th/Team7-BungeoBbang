@@ -14,6 +14,8 @@ export interface Opinion {
   time: string;
   iconColor: string;
   hasAlarm: boolean;
+  isReminded: boolean;
+  createdAt: Date;
 }
 
 export interface OpinionResponse {
@@ -21,6 +23,7 @@ export interface OpinionResponse {
     id: number;
     categoryType: keyof typeof ChatCategoryType;
     opinionType: keyof typeof ChatOpinionType;
+    isReminded: boolean;
   };
   lastChat: {
     content: string;
