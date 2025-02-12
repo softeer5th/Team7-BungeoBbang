@@ -52,8 +52,9 @@ public interface OpinionChatApi {
             @Parameter(description = "조회할 말해요 ID", example = "2")
             @PathVariable @Valid Long opinionId,
 
-            @Parameter(description = "마지막으로 본 채팅 ID (필수, 첫 조회에는 채팅방 리스트 조회 때 받았던 lastChat의 chatId로 지정)", example = "67a04c4a6d8394488027b840")
-            @RequestParam(required = true) ObjectId lastChatId,
+            @Parameter(description = "기준 chat ID. (필수, 첫 조회에는 채팅방 리스트 조회 때 받았던 lastChat의 chatId로 지정,\n" +
+                    "이후 조회의 up에서는 해당 chat 이전 채팅 10개, down에서는 해당 chat 이후 채팅 10개 조회)", example = "67a04c4a6d8394488027b840")
+            @RequestParam(required = true) ObjectId chatId,
 
             @Parameter(description = "스크롤 방향(선택 사항, 첫 채팅방 입장은 scroll 없이 요청.")
             @RequestParam(required = false) final ScrollType scroll,
