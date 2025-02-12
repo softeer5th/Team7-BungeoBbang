@@ -5,7 +5,7 @@ import com.bungeobbang.backend.agenda.domain.AgendaChat;
 import com.bungeobbang.backend.agenda.domain.AgendaMember;
 import com.bungeobbang.backend.agenda.domain.repository.AgendaMemberRepository;
 import com.bungeobbang.backend.agenda.domain.repository.AgendaRepository;
-import com.bungeobbang.backend.agenda.domain.repository.CustomAgendaChatRepository;
+import com.bungeobbang.backend.agenda.domain.repository.MemberAgendaChatRepository;
 import com.bungeobbang.backend.agenda.dto.AgendaLatestChat;
 import com.bungeobbang.backend.agenda.dto.response.AgendaDetailResponse;
 import com.bungeobbang.backend.agenda.dto.response.member.MemberAgendaResponse;
@@ -50,7 +50,7 @@ public class AgendaService {
     private final AgendaRepository agendaRepository;
     private final MemberRepository memberRepository;
     private final AgendaMemberRepository agendaMemberRepository;
-    private final CustomAgendaChatRepository customAgendaChatRepository;
+    private final MemberAgendaChatRepository memberAgendaChatRepository;
 
     private final static ObjectId MIN_OBJECT_ID = new ObjectId(0, 0);
 
@@ -83,9 +83,9 @@ public class AgendaService {
         agenda.increaseParticipantCount(1);
 
         // 현재 시점에서의 마지막 채팅을 마지막 읽은 채팅으로 저장
-        final AgendaChat lastChat = customAgendaChatRepository.findLastChatForMember(agendaId, memberId);
+        final AgendaChat lastChat = memberAgendaChatRepository.findLastChat(agendaId, memberId);
         ObjectId lastChatId = lastChat == null ? MIN_OBJECT_ID : lastChat.getId();
-        customAgendaChatRepository.upsertLastReadChat(agendaId, memberId, lastChatId);
+        memberAgendaChatRepository.upsertLastReadChat(agendaId, memberId, lastChatId);
     }
 
     /**
@@ -137,7 +137,7 @@ public class AgendaService {
         final Map<Long, Agenda> agendaMap = agendaList.stream()
                 .collect(Collectors.toMap(Agenda::getId, agenda -> agenda));
 
-        final List<AgendaLatestChat> lastChats = customAgendaChatRepository.findLastChats(agendaIds, memberId);
+        final List<AgendaLatestChat> lastChats = memberAgendaChatRepository.findLastChats(agendaIds, memberId);
 
         return lastChats.stream()
                 .map(lastChat ->

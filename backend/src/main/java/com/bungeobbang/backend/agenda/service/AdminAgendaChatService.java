@@ -1,8 +1,8 @@
 package com.bungeobbang.backend.agenda.service;
 
 import com.bungeobbang.backend.agenda.domain.AgendaChat;
+import com.bungeobbang.backend.agenda.domain.repository.AdminAgendaChatRepository;
 import com.bungeobbang.backend.agenda.domain.repository.AgendaChatRepository;
-import com.bungeobbang.backend.agenda.domain.repository.CustomAgendaChatRepository;
 import com.bungeobbang.backend.agenda.dto.request.AgendaChatRequest;
 import com.bungeobbang.backend.agenda.dto.response.AgendaChatResponse;
 import com.bungeobbang.backend.common.type.ScrollType;
@@ -25,10 +25,8 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class AdminAgendaChatService {
-
     private final AgendaChatRepository agendaChatRepository;
-    private static final ObjectId MIN_OBJECT_ID = new ObjectId(0, 0);
-    private final CustomAgendaChatRepository customAgendaChatRepository;
+    private final AdminAgendaChatRepository adminAgendaChatRepository;
     private static final ObjectId MAX_OBJECT_ID = new ObjectId("ffffffffffffffffffffffff");
 
     /**
@@ -41,7 +39,7 @@ public class AdminAgendaChatService {
      * @return `AgendaChatResponse` 리스트 (최대 10개)
      */
     public List<AgendaChatResponse> getChats(Long adminId, Long agendaId, ObjectId chatId, ScrollType scrollType) {
-        return customAgendaChatRepository.findChatsByParam(agendaId, chatId, scrollType)
+        return adminAgendaChatRepository.findChatsByScroll(agendaId, chatId, scrollType)
                 .stream()
                 .map(AgendaChatResponse::from)
                 .toList();
@@ -59,12 +57,12 @@ public class AdminAgendaChatService {
     }
 
     public void updateLastReadToMax(Long agendaId, Long adminId) {
-        customAgendaChatRepository.upsertAdminLastReadChat(agendaId, adminId, MAX_OBJECT_ID);
+        adminAgendaChatRepository.upsertAdminLastReadChat(agendaId, adminId, MAX_OBJECT_ID);
     }
 
     public void updateLastRead(Long agendaId, Long adminId) {
-        final AgendaChat lastChat = customAgendaChatRepository.findLastChat(agendaId);
-        customAgendaChatRepository.upsertAdminLastReadChat(agendaId, adminId, lastChat.getId());
+        final AgendaChat lastChat = adminAgendaChatRepository.findLastChat(agendaId);
+        adminAgendaChatRepository.upsertAdminLastReadChat(agendaId, adminId, lastChat.getId());
     }
 
     @TransactionalEventListener

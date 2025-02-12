@@ -1,6 +1,6 @@
 package com.bungeobbang.backend.agenda.presentation;
 
-import com.bungeobbang.backend.agenda.dto.response.AgendaChatResponses;
+import com.bungeobbang.backend.agenda.dto.response.AgendaChatResponse;
 import com.bungeobbang.backend.agenda.dto.response.AgendaDetailResponse;
 import com.bungeobbang.backend.agenda.dto.response.member.MemberAgendaResponse;
 import com.bungeobbang.backend.agenda.dto.response.member.MyAgendaResponse;
@@ -10,6 +10,7 @@ import com.bungeobbang.backend.agenda.service.AgendaService;
 import com.bungeobbang.backend.agenda.status.AgendaStatusType;
 import com.bungeobbang.backend.auth.domain.Accessor;
 import com.bungeobbang.backend.auth.member.Auth;
+import com.bungeobbang.backend.common.type.ScrollType;
 import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
 import org.springframework.http.ResponseEntity;
@@ -73,11 +74,12 @@ public class AgendaController implements AgendaApi {
 
     @Override
     @GetMapping("/{agendaId}/chat")
-    public ResponseEntity<AgendaChatResponses> getChats(
+    public ResponseEntity<List<AgendaChatResponse>> getChats(
             @Auth Accessor accessor,
             @PathVariable Long agendaId,
-            @RequestParam(required = false) ObjectId chatId
+            @RequestParam(required = false) ObjectId chatId,
+            @RequestParam(required = false, name = "scroll") ScrollType scrollType
     ) {
-        return ResponseEntity.ok(agendaChatService.getChats(accessor.id(), agendaId, chatId));
+        return ResponseEntity.ok(agendaChatService.getChats(accessor.id(), agendaId, chatId, scrollType));
     }
 }

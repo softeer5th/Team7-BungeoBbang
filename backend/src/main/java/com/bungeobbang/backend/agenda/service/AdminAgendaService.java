@@ -4,9 +4,9 @@ import com.bungeobbang.backend.admin.domain.Admin;
 import com.bungeobbang.backend.admin.domain.repository.AdminRepository;
 import com.bungeobbang.backend.agenda.domain.Agenda;
 import com.bungeobbang.backend.agenda.domain.AgendaImage;
+import com.bungeobbang.backend.agenda.domain.repository.AdminAgendaChatRepository;
 import com.bungeobbang.backend.agenda.domain.repository.AgendaImageRepository;
 import com.bungeobbang.backend.agenda.domain.repository.AgendaRepository;
-import com.bungeobbang.backend.agenda.domain.repository.CustomAgendaChatRepository;
 import com.bungeobbang.backend.agenda.dto.request.AgendaChatRequest;
 import com.bungeobbang.backend.agenda.dto.request.AgendaCreationRequest;
 import com.bungeobbang.backend.agenda.dto.request.AgendaEditRequest;
@@ -49,7 +49,7 @@ public class AdminAgendaService {
     private final AdminRepository adminRepository;
     private final AgendaRepository agendaRepository;
     private final AgendaImageRepository agendaImageRepository;
-    private final CustomAgendaChatRepository customAgendaChatRepository;
+    private final AdminAgendaChatRepository adminAgendaChatRepository;
 
     private final ApplicationEventPublisher eventPublisher;
 
@@ -81,7 +81,7 @@ public class AdminAgendaService {
         final AgendaFinder finder = agendaFinders.mapping(status);
         final List<AgendaResponse> agendaList = finder.findAllByStatus(admin.getUniversity().getId(), endDate, agendaId);
 
-        final Map<Long, Boolean> unreadStatus = customAgendaChatRepository.findUnreadStatus(
+        final Map<Long, Boolean> unreadStatus = adminAgendaChatRepository.findUnreadStatus(
                 agendaList.stream().map(AgendaResponse::agendaId).toList(),
                 adminId);
         return agendaList.stream()

@@ -2,9 +2,7 @@ package com.bungeobbang.backend.agenda.domain.infrastructure;
 
 import com.bungeobbang.backend.agenda.domain.AgendaAdminLastReadChat;
 import com.bungeobbang.backend.agenda.domain.AgendaChat;
-import com.bungeobbang.backend.agenda.domain.AgendaLastReadChat;
-import com.bungeobbang.backend.agenda.domain.repository.CustomAgendaChatRepository;
-import com.bungeobbang.backend.agenda.dto.AgendaLatestChat;
+import com.bungeobbang.backend.agenda.domain.repository.AdminAgendaChatRepository;
 import com.bungeobbang.backend.agenda.dto.LastChat;
 import com.bungeobbang.backend.common.type.ScrollType;
 import lombok.RequiredArgsConstructor;
@@ -35,122 +33,27 @@ import java.util.stream.Collectors;
 @Slf4j
 @Repository
 @RequiredArgsConstructor
-public class CustomAgendaChatRepositoryImpl implements CustomAgendaChatRepository {
+public class AdminAgendaChatRepositoryImpl implements AdminAgendaChatRepository {
     private final static String AGENDA_COLLECTION = "agenda_chat";
     private final static String AGENDA_LAST_READ_COLLECTION = "agenda_last_read_chat";
     private final static String AGENDA_ID = "agendaId";
-    private final static String MEMBER_ID = "memberId";
     private final static String ADMIN_ID = "adminId";
-    private static final String IS_ADMIN = "isAdmin";
     private static final String LAST_CHAT = "lastChat";
     private static final String LAST_READ_CHAT_ID = "lastReadChatId";
     private static final String ABOVE = "above";
     private static final String BELOW = "below";
-
+    private static final String ID = "_id";
     private final MongoTemplate mongoTemplate;
-
-    /***************************************************************************************<<<STUDENT>>>>**************************************************************************/
-    @Override
-    public List<AgendaLatestChat> findLastChats(List<Long> agendaIdList, Long memberId) {
-        // Match - 주어진 agendaId 리스트와 memberId 필터링
-        MatchOperation matchStage = Aggregation.match(
-                new Criteria(AGENDA_ID).in(agendaIdList)
-                        .orOperator(
-                                Criteria.where(MEMBER_ID).is(memberId),
-                                Criteria.where(IS_ADMIN).is(true)
-                        )
-        );
-
-        // Sort - 최신 메시지 순으로 정렬
-        SortOperation sortStage = Aggregation.sort(org.springframework.data.domain.Sort.Direction.DESC, "_id");
-
-        // Group - 각 채팅방(agendaId)별 최신 메시지 1개만 가져오기
-        GroupOperation groupStage = Aggregation.group(AGENDA_ID)
-                .first("$$ROOT").as(LAST_CHAT);
-
-        // Project - lastChat에서 _id, chat, createdAt만 유지
-        ProjectionOperation projectStage = Aggregation.project()
-                .and("_id").as(LastChat.AGENDA_ID)  // 원래 _id를 agendaId로 매핑
-                .and("lastChat._id").as(LastChat.CHAT_ID)
-                .and("lastChat.chat").as(LastChat.CONTENT)
-                .and("lastChat.createdAt").as(LastChat.CREATED_AT);
-
-        SortOperation finalSortStage = Aggregation.sort(Sort.Direction.DESC, LastChat.CHAT_ID);
-        // Aggregation 실행
-        Aggregation aggregation = Aggregation.newAggregation(
-                matchStage,
-                sortStage,
-                groupStage,
-                projectStage,
-                finalSortStage
-        );
-
-        final List<LastChat> lastChats = mongoTemplate.aggregate(aggregation, AGENDA_COLLECTION, LastChat.class).getMappedResults();
-
-        List<AgendaLastReadChat> lastReadChats = mongoTemplate.find(
-                new org.springframework.data.mongodb.core.query.Query(
-                        Criteria.where(AGENDA_ID).in(agendaIdList)
-                                .and(MEMBER_ID).is(memberId)
-                ), AgendaLastReadChat.class);
-
-        Map<Long, ObjectId> lastChatMap = lastChats.stream()
-                .collect(Collectors.toMap(LastChat::agendaId, LastChat::chatId, (a, b) -> b));
-
-        Map<Long, ObjectId> lastReadChatMap = lastReadChats.stream()
-                .collect(Collectors.toMap(AgendaLastReadChat::getAgendaId, AgendaLastReadChat::getLastReadChatId, (a, b) -> b));
-
-        Map<Long, Boolean> unreadMap = new HashMap<>();
-        for (Long agendaId : agendaIdList) {
-            ObjectId lastChatId = lastChatMap.get(agendaId);
-            ObjectId lastReadChatId = lastReadChatMap.get(agendaId);
-
-            if (lastChatId != null && lastReadChatId != null) {
-                unreadMap.put(agendaId, lastChatId.compareTo(lastReadChatId) > 0);
-            } else {
-                unreadMap.put(agendaId, lastChatId != null);
-            }
-        }
-
-        return lastChats.stream()
-                .map(chat -> new AgendaLatestChat(
-                        chat.agendaId(),
-                        chat.chatId(),
-                        chat.content(),
-                        chat.createdAt(),
-                        unreadMap.get(chat.agendaId())
-                ))
-                .toList();
-    }
-
-
-    @Override
-    public AgendaChat findLastChatForMember(Long agendaId, Long memberId) {
-        Query query = new Query();
-
-        // 조건 설정
-        query.addCriteria(Criteria.where("agendaId").is(agendaId)
-                .orOperator(
-                        Criteria.where("memberId").is(memberId),
-                        Criteria.where("isAdmin").is(true)
-                ));
-
-        // 내림차순 정렬 (_id가 가장 큰 것)
-        query.with(Sort.by(Sort.Direction.DESC, "_id"));
-
-        // 하나의 문서만 가져오기 (limit 1)
-        query.limit(1);
-
-        return mongoTemplate.findOne(query, AgendaChat.class);
-    }
+    private static final ObjectId MAX_OBJECT_ID = new ObjectId("ffffffffffffffffffffffff");
 
     @Override
     public AgendaChat findLastChat(Long agendaId) {
         Query query = new Query();
 
         // 조건 설정
-        query.addCriteria(Criteria.where("agendaId").is(agendaId));
+        query.addCriteria(Criteria.where(AGENDA_ID).is(agendaId));
         // 내림차순 정렬 (_id가 가장 큰 것)
-        query.with(Sort.by(Sort.Direction.DESC, "_id"));
+        query.with(Sort.by(Sort.Direction.DESC, ID));
 
         // 하나의 문서만 가져오기 (limit 1)
         query.limit(1);
@@ -158,33 +61,6 @@ public class CustomAgendaChatRepositoryImpl implements CustomAgendaChatRepositor
         return mongoTemplate.findOne(query, AgendaChat.class);
     }
 
-    /**
-     * 특정 멤버가 특정 아젠다에서 마지막으로 읽은 채팅 ID를 업데이트하거나, 문서가 없으면 새로 생성합니다.
-     *
-     * <p>이 메서드는 {@code agenda_chat_last_read} 컬렉션에서
-     * 주어진 {@code memberId}와 {@code agendaId} 값이 일치하는 문서를 찾아
-     * 해당 문서의 {@code lastReadChatId} 필드를 {@code lastChatId} 값으로 업데이트합니다.
-     * 만약 일치하는 문서가 없으면 새로운 문서를 생성하여 저장합니다.</p>
-     *
-     * @param agendaId   업데이트할 아젠다의 고유 ID
-     * @param memberId   업데이트할 멤버의 고유 ID
-     * @param lastChatId 마지막으로 읽은 채팅 메시지의 ObjectId
-     */
-    @Override
-    public void upsertLastReadChat(Long agendaId, Long memberId, ObjectId lastChatId) {
-        Query query = new Query();
-        query.addCriteria(Criteria.where(MEMBER_ID).is(memberId)
-                .and(AGENDA_ID).is(agendaId));
-
-        Update update = new Update();
-        update.set(LAST_READ_CHAT_ID, lastChatId);
-        update.setOnInsert(MEMBER_ID, memberId); // 삽입될 경우 기본값 설정
-        update.setOnInsert(AGENDA_ID, agendaId);
-
-        mongoTemplate.upsert(query, update, AGENDA_LAST_READ_COLLECTION); // upsert 사용
-    }
-
-    /***************************************************************************************<<<ADMIN>>>>**************************************************************************/
     public Map<Long, Boolean> findUnreadStatus(List<Long> agendaIdList, Long adminId) {
         Map<Long, Boolean> result = new HashMap<>();
 
@@ -196,7 +72,7 @@ public class CustomAgendaChatRepositoryImpl implements CustomAgendaChatRepositor
 
         // Project - lastChat에서 _id, chat, createdAt만 유지
         ProjectionOperation projectStage = Aggregation.project()
-                .and("_id").as(LastChat.AGENDA_ID)  // 원래 _id를 agendaId로 매핑
+                .and(ID).as(LastChat.AGENDA_ID)  // 원래 _id를 agendaId로 매핑
                 .and("lastChat._id").as(LastChat.CHAT_ID)
                 .and("lastChat.chat").as(LastChat.CONTENT)
                 .and("lastChat.createdAt").as(LastChat.CREATED_AT);
@@ -253,7 +129,7 @@ public class CustomAgendaChatRepositoryImpl implements CustomAgendaChatRepositor
     }
 
     @Override
-    public List<AgendaChat> findChatsByParam(Long agendaId, ObjectId chatId, ScrollType scrollType) {
+    public List<AgendaChat> findChatsByScroll(Long agendaId, ObjectId chatId, ScrollType scrollType) {
         Query query = new Query();
         query.addCriteria(Criteria.where(AGENDA_ID).is(agendaId));
 
@@ -263,27 +139,35 @@ public class CustomAgendaChatRepositoryImpl implements CustomAgendaChatRepositor
         }
 
         switch (scrollType) {
-            case DOWN -> query.addCriteria(Criteria.where("_id").gt(chatId));
-            case UP -> query.addCriteria(Criteria.where("_id").lt(chatId));
+            case DOWN -> query.addCriteria(Criteria.where(ID).gt(chatId));
+            case UP -> query.addCriteria(Criteria.where(ID).lt(chatId));
         }
-        query.with(Sort.by(Sort.Direction.ASC, "_id"));
+        query.with(Sort.by(Sort.Direction.ASC, ID));
         query.limit(10);
         return mongoTemplate.find(query, AgendaChat.class);
     }
 
-
     private List<AgendaChat> findChatsAround(Long agendaId, ObjectId chatId) {
+        if (chatId == MAX_OBJECT_ID) {
+            Query query = new Query();
+            query.addCriteria(Criteria.where(AGENDA_ID).is(agendaId));
+            query.with(Sort.by(Sort.Direction.ASC, ID));
+            query.limit(10);
+
+            return mongoTemplate.find(query, AgendaChat.class);
+        }
+
         // 위쪽 10개
         AggregationOperation matchAbove = Aggregation.match(
-                Criteria.where(AGENDA_ID).is(agendaId).and("_id").lt(chatId));
-        AggregationOperation sortAbove = Aggregation.sort(Sort.Direction.DESC, "_id"); // 최신순
+                Criteria.where(AGENDA_ID).is(agendaId).and(ID).lt(chatId));
+        AggregationOperation sortAbove = Aggregation.sort(Sort.Direction.DESC, ID); // 최신순
         AggregationOperation limitAbove = Aggregation.limit(10);
-        AggregationOperation lastSort = Aggregation.sort(Sort.by(Sort.Direction.ASC, "_id"));
+        AggregationOperation lastSort = Aggregation.sort(Sort.by(Sort.Direction.ASC, ID));
 
         // 아래쪽 10개 (_id >= chatId)
         AggregationOperation matchBelow = Aggregation.match(
-                Criteria.where(AGENDA_ID).is(agendaId).and("_id").gte(chatId));
-        AggregationOperation sortBelow = Aggregation.sort(Sort.Direction.ASC, "_id"); // 오래된 순
+                Criteria.where(AGENDA_ID).is(agendaId).and(ID).gte(chatId));
+        AggregationOperation sortBelow = Aggregation.sort(Sort.Direction.ASC, ID); // 오래된 순
         AggregationOperation limitBelow = Aggregation.limit(10);
 
         final FacetOperation facets = new FacetOperation()
