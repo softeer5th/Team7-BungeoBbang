@@ -1,9 +1,8 @@
 package com.bungeobbang.backend.opinion.presentation.api;
 
-import com.bungeobbang.backend.auth.admin.AdminAuth;
 import com.bungeobbang.backend.auth.admin.AdminOnly;
+import com.bungeobbang.backend.auth.common.Auth;
 import com.bungeobbang.backend.auth.domain.Accessor;
-import com.bungeobbang.backend.common.exception.response.ErrorResponse;
 import com.bungeobbang.backend.common.type.CategoryType;
 import com.bungeobbang.backend.opinion.dto.response.AdminOpinionsInfoResponse;
 import com.bungeobbang.backend.opinion.dto.response.OpinionChatResponse;
@@ -48,7 +47,7 @@ public interface AdminOpinionApi {
     @AdminOnly
     ResponseEntity<List<AdminOpinionsInfoResponse>> getAdminOpinionList(
             @Parameter(description = "학생회 인증 정보", hidden = true)
-            @AdminAuth Accessor accessor,
+            @Auth Accessor accessor,
 
             @Parameter(description = "조회할 말해요 카테고리 목록 (선택 사항)", example = "[\"FACILITIES\", \"BUDGET\"]")
             @RequestParam(required = false) Set<CategoryType> categoryTypes

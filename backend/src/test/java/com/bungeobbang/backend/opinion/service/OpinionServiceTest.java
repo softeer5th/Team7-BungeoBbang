@@ -87,7 +87,7 @@ class OpinionServiceTest {
                 .chatCount(1)
                 .build();
 
-        when(opinionRepository.findById(anyLong())).thenReturn(Optional.of(opinion));
+        when(opinionRepository.findByIdAndIsDeletedFalse(anyLong())).thenReturn(Optional.of(opinion));
 
         // when
         OpinionDetailResponse result = opinionService.findOpinionDetail(1L);
@@ -101,7 +101,7 @@ class OpinionServiceTest {
     @DisplayName("존재하지 않는 말해요 정보 조회 시 예외 발생")
     void findOpinionDetail_notFound() {
         // given
-        when(opinionRepository.findById(anyLong())).thenReturn(Optional.empty());
+        when(opinionRepository.findByIdAndIsDeletedFalse(anyLong())).thenReturn(Optional.empty());
 
         // when & then
         assertThatThrownBy(() -> opinionService.findOpinionDetail(100L))

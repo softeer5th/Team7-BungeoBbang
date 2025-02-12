@@ -1,4 +1,4 @@
-package com.bungeobbang.backend.auth.member;
+package com.bungeobbang.backend.auth.common;
 
 import com.bungeobbang.backend.auth.BearerAuthorizationExtractor;
 import com.bungeobbang.backend.auth.JwtProvider;
@@ -21,10 +21,10 @@ import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 @RequiredArgsConstructor
 @Component
-public class MemberLoginArgumentResolver implements HandlerMethodArgumentResolver {
-
+public class LoginArgumentResolver implements HandlerMethodArgumentResolver {
     private final JwtProvider jwtProvider;
     private static final String UUID = "uuid";
+    private static final String ROLE = "role";
     private final BearerAuthorizationExtractor extractor;
     private final UuidRepository uuidRepository;
 
@@ -44,12 +44,15 @@ public class MemberLoginArgumentResolver implements HandlerMethodArgumentResolve
         try {
             final String accessToken = extractor.extractAccessToken(webRequest.getHeader(AUTHORIZATION));
             jwtProvider.validateToken(accessToken);
-            final String memberId = jwtProvider.getSubject(accessToken);
-            String expected = jwtProvider.getClaim(accessToken, UUID);
-            String actual = uuidRepository.get(Authority.MEMBER, memberId)
+            final String userId = jwtProvider.getSubject(accessToken);
+
+            final String actual = jwtProvider.getClaim(accessToken, UUID);
+            final Authority authority = Authority.valueOf(jwtProvider.getClaim(accessToken, ROLE));
+            final String expected = uuidRepository.get(authority, userId)
                     .orElseThrow(() -> new AuthException(INVALID_UUID));
             validateUuid(actual, expected);
-            return new Accessor(Long.valueOf(memberId), Authority.MEMBER);
+
+            return new Accessor(Long.valueOf(userId), authority);
         } catch (AuthException e) {
             return new Accessor(0L, Authority.GUEST);
         }

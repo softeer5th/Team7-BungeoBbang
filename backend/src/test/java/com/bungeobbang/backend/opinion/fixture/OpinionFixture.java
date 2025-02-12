@@ -18,6 +18,7 @@ public class OpinionFixture {
             .member(NAVER_MEMBER)
             .isRemind(false)
             .chatCount(1)
+            .isDeleted(false)
             .build();
 
     public static Opinion NAVER_OPINION2 = Opinion.builder()
@@ -28,6 +29,7 @@ public class OpinionFixture {
             .member(NAVER_MEMBER)
             .isRemind(false)
             .chatCount(1)
+            .isDeleted(false)
             .build();
 
     public static Opinion KAKAO_OPINION1 = Opinion.builder()
@@ -38,5 +40,6 @@ public class OpinionFixture {
             .member(KAKAO_MEMBER)
             .isRemind(false)
             .chatCount(1)
+            .isDeleted(false)
             .build();
 }

@@ -1,7 +1,7 @@
 package com.bungeobbang.backend.opinion.presentation;
 
+import com.bungeobbang.backend.auth.common.Auth;
 import com.bungeobbang.backend.auth.domain.Accessor;
-import com.bungeobbang.backend.auth.member.Auth;
 import com.bungeobbang.backend.opinion.dto.response.OpinionChatResponse;
 import com.bungeobbang.backend.opinion.dto.response.OpinionDetailResponse;
 import com.bungeobbang.backend.opinion.presentation.api.OpinionChatApi;

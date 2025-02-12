@@ -1,4 +1,4 @@
-package com.bungeobbang.backend.auth.admin;
+package com.bungeobbang.backend.auth.common;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
@@ -8,5 +8,5 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 @Target(PARAMETER)
 @Retention(RUNTIME)
-public @interface AdminAuth {
+public @interface Auth {
 }
