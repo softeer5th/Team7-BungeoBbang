@@ -2,6 +2,7 @@ package com.bungeobbang.backend.opinion.presentation;
 
 import com.bungeobbang.backend.auth.common.Auth;
 import com.bungeobbang.backend.auth.domain.Accessor;
+import com.bungeobbang.backend.common.type.ScrollType;
 import com.bungeobbang.backend.opinion.dto.response.OpinionChatResponse;
 import com.bungeobbang.backend.opinion.dto.response.OpinionDetailResponse;
 import com.bungeobbang.backend.opinion.presentation.api.OpinionChatApi;
@@ -24,10 +25,11 @@ public class OpinionChatController implements OpinionChatApi {
     @GetMapping("/{opinionId}/chat")
     public ResponseEntity<List<OpinionChatResponse>> getOpinionChat(
             @PathVariable @Valid final Long opinionId,
-            @RequestParam(required = false) final ObjectId lastChatId,
+            @RequestParam(required = true) final ObjectId chatId,
+            @RequestParam(required = false) final ScrollType scroll,
             @Auth final Accessor accessor) {
         return ResponseEntity.ok().body(opinionService.findOpinionChat(
-                opinionId, lastChatId, accessor.id()
+                opinionId, chatId, accessor.id(), scroll
         ));
     }
 

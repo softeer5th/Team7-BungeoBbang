@@ -45,6 +45,7 @@ public class AdminWebSocketChatHandler extends TextWebSocketHandler {
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws IOException {
         final String accessToken = (String) session.getAttributes().get(ACCESS_TOKEN);
         try {
+            log.info("📚Received text message from admin: {}", message.getPayload());
             jwtProvider.validateToken(accessToken);
             final AdminWebsocketMessage request = objectMapper.readValue(message.getPayload(), AdminWebsocketMessage.class);
             // createdAt 생성하여 requestContainsCreatedAt 객체 생성

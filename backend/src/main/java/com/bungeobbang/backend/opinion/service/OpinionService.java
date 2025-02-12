@@ -2,9 +2,11 @@ package com.bungeobbang.backend.opinion.service;
 
 import com.bungeobbang.backend.common.exception.ErrorCode;
 import com.bungeobbang.backend.common.exception.OpinionException;
+import com.bungeobbang.backend.common.type.ScrollType;
 import com.bungeobbang.backend.opinion.domain.Opinion;
 import com.bungeobbang.backend.opinion.domain.OpinionChat;
 import com.bungeobbang.backend.opinion.domain.OpinionLastRead;
+import com.bungeobbang.backend.opinion.domain.repository.CustomOpinionChatRepository;
 import com.bungeobbang.backend.opinion.domain.repository.OpinionChatRepository;
 import com.bungeobbang.backend.opinion.domain.repository.OpinionLastReadRepository;
 import com.bungeobbang.backend.opinion.domain.repository.OpinionRepository;
@@ -15,7 +17,6 @@ import org.bson.types.ObjectId;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.Collections;
 import java.util.List;
 
 
@@ -35,24 +36,25 @@ public class OpinionService {
     private final OpinionLastReadRepository opinionLastReadRepository;
     private final OpinionChatRepository opinionChatRepository;
     private final OpinionRepository opinionRepository;
+    private final CustomOpinionChatRepository customOpinionChatRepository;
 
     /**
      * 특정 말해요(opinionId)의 채팅 내역을 조회하는 메서드.
      *
      * @param opinionId  조회할 말해요 채팅방의 ID
-     * @param lastChatId 마지막으로 조회한 채팅의 ID (Cursor 방식). 없을 경우 최신 메시지부터 조회
+     * @param chatId 조회를 시작할 채팅 메시지의 ID
      * @param userId   요청을 보낸 유저의 ID
+     * @param scroll 스크롤 방향
      * @return OpinionChatResponse 리스트 (해당 채팅방의 메시지 목록)
      */
-    public List<OpinionChatResponse> findOpinionChat(final Long opinionId, ObjectId lastChatId, final Long userId) {
-        if (lastChatId == null) lastChatId = new ObjectId(MAX_OBJECT_ID);
-        final List<OpinionChatResponse> opinionChatResponses = new java.util.ArrayList<>(opinionChatRepository.findByOpinionIdAndLastChatId(opinionId, lastChatId)
+    public List<OpinionChatResponse> findOpinionChat(final Long opinionId, ObjectId chatId, final Long userId, ScrollType scroll) {
+        // scroll 이 없으면 lastChatId 기준으로 위아래 10개씩,
+        // scroll=up 이면 과거 채팅 10개 조회, down 이면 최신 채팅 10개 조회
+
+        return customOpinionChatRepository.findOpinionChats(opinionId, chatId, scroll)
                 .stream()
                 .map(opinionChat -> OpinionChatResponse.of(opinionChat, userId, opinionId))
-                .toList());
-        Collections.reverse(opinionChatResponses);
-
-        return opinionChatResponses;
+                .toList();
     }
 
     public OpinionDetailResponse findOpinionDetail(final Long opinionId) {

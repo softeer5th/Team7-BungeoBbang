@@ -17,7 +17,6 @@ public class OpinionFixture {
             .categoryType(CategoryType.IT)
             .member(NAVER_MEMBER)
             .isRemind(false)
-            .chatCount(1)
             .isDeleted(false)
             .build();
 
@@ -28,7 +27,6 @@ public class OpinionFixture {
             .categoryType(CategoryType.EVENTS)
             .member(NAVER_MEMBER)
             .isRemind(false)
-            .chatCount(1)
             .isDeleted(false)
             .build();
 
@@ -39,7 +37,6 @@ public class OpinionFixture {
             .categoryType(CategoryType.EVENTS)
             .member(KAKAO_MEMBER)
             .isRemind(false)
-            .chatCount(1)
             .isDeleted(false)
             .build();
 }
