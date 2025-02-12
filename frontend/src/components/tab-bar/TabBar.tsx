@@ -31,7 +31,7 @@ export const TabBar: React.FC<TabBarProps> = ({
   const tabBarRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-   setSelectedItem(currentDestination);
+    setSelectedItem(currentDestination);
   }, [currentDestination]);
 
   useEffect(() => {

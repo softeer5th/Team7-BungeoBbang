@@ -6,6 +6,7 @@ import OpinionEntryPage from './pages/opinion/entry';
 import { useSocketStore } from '@/store/socketStore';
 import { useEffect } from 'react';
 import CreateAgendaPage from './pages/agenda/create';
+import OpinionChatPage from './pages/opinion/chatroom';
 
 function AdminApp() {
   const { connect, disconnect } = useSocketStore();
@@ -24,6 +25,7 @@ function AdminApp() {
         <Route path="/agenda/create/:roomId" element={<CreateAgendaPage />} />
         <Route path="/agenda/chat/:roomId" element={<AgendaChatPage />} />
         <Route path="/opinion/entry" element={<OpinionEntryPage />} />
+        <Route path="/opinion/chat/:roomId" element={<OpinionChatPage />} />
         {/* <Route path="/statistics" element={<StatisticsPage />} /> */}
       </Routes>
     </BrowserRouter>

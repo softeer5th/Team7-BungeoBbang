@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from 'react';
-import { useSocketStore } from '@/store/socket/socketStore';
+import { useSocketStore } from '@/store/socketStore';
 
 interface ChatMessage {
   roomType: 'OPINION' | 'AGENDA';

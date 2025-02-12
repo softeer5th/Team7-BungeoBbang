@@ -5,7 +5,7 @@ const findCategory = (type: string) => {
   return Object.values(ChatCategoryType).find((category) => category.type === type) ?? null;
 };
 
-export const mapToChatCreateData = (data: any): ChatCreateData => ({
+export const mapToChatCreateData = (data): ChatCreateData => ({
   roomId: data.agendaId ?? null,
   title: data.title ?? '',
   category: findCategory(data.categoryType),

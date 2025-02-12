@@ -15,7 +15,10 @@ interface ServerChatData {
   createdAt: string;
 }
 
-export const formatChatData = (serverData: ServerChatData[]): ChatData[] => {
+export const formatChatData = (
+  serverData: ServerChatData[],
+  fromAdminPage: boolean,
+): ChatData[] => {
   // 날짜순으로 정렬
   const sortedData = [...serverData].sort(
     (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
@@ -25,7 +28,13 @@ export const formatChatData = (serverData: ServerChatData[]): ChatData[] => {
   const formattedChats: ChatData[] = sortedData.map((item) => {
     const baseChat = {
       chatId: item.chatId,
-      type: item.isAdmin ? ChatType.RECEIVE : ChatType.SEND,
+      type: fromAdminPage
+        ? item.isAdmin
+          ? ChatType.SEND
+          : ChatType.RECEIVE
+        : item.memberId === Number(localStorage.getItem('member_id'))
+          ? ChatType.RECEIVE
+          : ChatType.SEND,
       message: item.chat,
       time: new Date(item.createdAt).toLocaleTimeString('ko-KR', {
         hour: '2-digit',

@@ -1,6 +1,7 @@
 import { ChatCategoryType } from '@/types/ChatCategoryType';
 import { ChatRoomListCardData, ProgressState } from '../components/ChatRoomCardData';
 
+
 export interface ServerData {
   agenda: {
     agendaId: number;
@@ -14,6 +15,7 @@ export interface ServerData {
 }
 
 export const mapResponseToChatRoomListCardData = (response: ServerData): ChatRoomListCardData => {
+
   return {
     roomId: response.agenda.agendaId,
     hasNew: response.hasNewMessage,

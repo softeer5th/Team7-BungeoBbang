@@ -9,8 +9,9 @@ import '@/styles/reset.css';
 import StudentApp from './domains/student/App.tsx';
 import AdminApp from './domains/admin/App.tsx';
 
-const isAdmin = window.location.pathname.startsWith('/admin');
+const isAdmin = window.location.hostname.startsWith('admin');
 
 createRoot(document.getElementById('root')!).render(
-  <ThemeProvider theme={theme}>{isAdmin ? <AdminApp /> : <StudentApp />}</ThemeProvider>,
+  // <StrictMode>
+  <ThemeProvider theme={theme}>{!isAdmin ? <AdminApp /> : <StudentApp />}</ThemeProvider>,
 );
