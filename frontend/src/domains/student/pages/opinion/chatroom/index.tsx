@@ -93,7 +93,7 @@ const OpinionChatPage = () => {
 
   const handleSendMessage = useCallback(
     (message: string, images: string[] = []) => {
-      sendMessage('OPINION', Number(roomId), message, images);
+      sendMessage('OPINION', Number(roomId), message, images, false);
       setMessage('');
     },
     [roomId, sendMessage],
