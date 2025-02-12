@@ -4,6 +4,8 @@ import com.bungeobbang.backend.admin.config.PasswordEncoder;
 import com.bungeobbang.backend.admin.domain.Admin;
 import com.bungeobbang.backend.admin.domain.repository.AdminRepository;
 import com.bungeobbang.backend.admin.dto.request.AdminLoginRequest;
+import com.bungeobbang.backend.admin.dto.response.AdminLoginResponse;
+import com.bungeobbang.backend.admin.dto.response.AdminLoginResult;
 import com.bungeobbang.backend.auth.JwtProvider;
 import com.bungeobbang.backend.auth.domain.repository.RefreshTokenRepository;
 import com.bungeobbang.backend.auth.domain.repository.UuidRepository;
@@ -26,7 +28,7 @@ public class AdminLoginService {
     private final RefreshTokenRepository refreshTokenRepository;
     private final UuidRepository uuidRepository;
 
-    public MemberTokens login(final AdminLoginRequest adminLoginRequest) {
+    public AdminLoginResult login(final AdminLoginRequest adminLoginRequest) {
         final Admin admin = adminRepository.findByLoginId(adminLoginRequest.loginId())
                 .orElseThrow(() -> new AuthException(ErrorCode.INVALID_ADMIN));
 
@@ -44,7 +46,7 @@ public class AdminLoginService {
         );
         refreshTokenRepository.saveRefreshToken(ADMIN, String.valueOf(admin.getId()), memberTokens.refreshToken());
 
-        return memberTokens;
+        return new AdminLoginResult(memberTokens, new AdminLoginResponse(admin.getId()));
     }
 
 }
