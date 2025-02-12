@@ -93,7 +93,9 @@ const OpinionEntryPage: React.FC = () => {
                 text={opinion.text}
                 time={opinion.time}
                 hasAlarm={opinion.hasAlarm}
-                onClick={() => navigate('/opinion/chat/' + opinion.id)}
+                onClick={() =>
+                  navigate('/opinion/chat/' + opinion.id, { state: { opinionType: opinion.title } })
+                }
                 createdAt={opinion.createdAt}
                 isReminded={opinion.isReminded}
               />

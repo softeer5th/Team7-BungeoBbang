@@ -1,4 +1,4 @@
-import { useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useEffect, useState, useCallback } from 'react';
 import * as S from '@/domains/student/pages/chat-page/styles';
 import { TopAppBar } from '@/components/TopAppBar';
@@ -46,6 +46,8 @@ const OpinionChatPage = () => {
   const { subscribe, sendMessage } = useSocketStore();
   const memberId = localStorage.getItem('member_id');
   const socketManager = useSocketManager();
+  const location = useLocation();
+  const opinionType = location.state?.opinionType || '';
 
   const handleMessageReceive = useCallback(
     (message: ChatMessage) => {
@@ -71,7 +73,8 @@ const OpinionChatPage = () => {
     const fetchData = async () => {
       try {
         const response = await api.get(`/api/opinions/${roomId}/chat`);
-        const formattedData = formatChatData(response.data);
+        const formattedData = formatChatData(response.data, true);
+        console.log('formattedData', response);
         setChatData(formattedData);
       } catch (error) {
         console.error('채팅 데이터 불러오기 실패:', error);
@@ -98,6 +101,7 @@ const OpinionChatPage = () => {
     <S.Container>
       <TopAppBar
         leftIconSrc="/src/assets/icons/arrow-left.svg"
+        title={opinionType}
         rightIconSrc="/src/assets/icons/close.svg"
         onLeftIconClick={() => {
           navigate(-1);
