@@ -24,13 +24,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 
 @DataMongoTest()
-@Import(AdminAgendaChatRepositoryImpl.class)
-class AdminAgendaChatRepositoryImplTest {
+@Import(MemberAgendaChatRepositoryImpl.class)
+class MemberAgendaChatRepositoryImplTest {
     private final ObjectMapper objectMapper = new ObjectMapper();
     @Autowired
     private MongoTemplate mongoTemplate;
-    @Autowired
-    private AdminAgendaChatRepositoryImpl customAgendaChatRepository;
     @Autowired
     private MemberAgendaChatRepositoryImpl memberAgendaChatRepository;
 
