@@ -11,6 +11,9 @@ import { bottomItems } from '../../destinations.tsx';
 import { Opinion, OpinionResponse } from './types';
 import { useNavigate } from 'react-router-dom';
 import * as S from './styles';
+import { bottomItems, moveToDestination } from '../../destinations';
+import { useNavigate } from 'react-router-dom';
+
 
 const chipItems = [
   { itemId: 'ALL', text: '전체' },
@@ -19,6 +22,7 @@ const chipItems = [
     text: ChatCategoryType[key as keyof typeof ChatCategoryType].label,
   })),
 ];
+
 
 const OpinionEntryPage: React.FC = () => {
   const [selectedChip, setSelectedChip] = useState('ALL');
@@ -105,8 +109,15 @@ const OpinionEntryPage: React.FC = () => {
           <EmptyState />
         )}
       </S.OpinionEntryContainer>
-      <BottomNavigation startDestination="home" destinations={bottomItems} />
-    </S.Container>
+
+
+      <BottomNavigation
+        startDestination="opinion"
+        destinations={bottomItems}
+        onItemClick={(itemId) => navigate(moveToDestination(itemId))}
+      />
+    </>
+
   );
 };
 

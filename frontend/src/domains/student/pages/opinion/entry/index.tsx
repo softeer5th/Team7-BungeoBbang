@@ -11,26 +11,9 @@ import api from '@/utils/api';
 import { motion } from 'framer-motion';
 import { LogoutDialog as Logout } from '@/components/Dialog/LogoutDialog';
 import JwtManager from '@/utils/jwtManager';
+import { bottomItems, moveToDestination } from '../../destinations';
 
 const OpinionEntryPage = () => {
-  const destinations = [
-    {
-      itemId: 'home',
-      iconSrc: '/src/assets/icons/message.svg',
-      title: '답해요',
-    },
-    {
-      itemId: 'search',
-      iconSrc: '/src/assets/icons/home.svg',
-      title: '말해요',
-    },
-    {
-      itemId: 'profile',
-      iconSrc: '/src/assets/icons/profile.svg',
-      title: '내의견',
-      hasAlarm: true,
-    },
-  ];
   const navigate = useNavigate();
 
   const [statistic, setStatistic] = useState({ opinionCount: 0, adminResponseRate: 0 });
@@ -132,7 +115,11 @@ const OpinionEntryPage = () => {
           </S.StatisticWrapper>
         )}
       </S.OpinionEntryContainer>
-      <BottomNavigation startDestination="home" destinations={destinations} />
+      <BottomNavigation
+        startDestination="opinion"
+        destinations={bottomItems}
+        onItemClick={(itemId) => navigate(moveToDestination(itemId))}
+      />
       {showLogoutDialog && (
         <Logout
           onDismiss={() => setShowLogoutDialog(false)}

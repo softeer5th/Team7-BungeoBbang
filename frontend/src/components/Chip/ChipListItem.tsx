@@ -22,7 +22,7 @@ export const ChipListItem: React.FC<ChipListItemProps & ChipListItemOnlyProps> =
   text,
   textColor = '#A8A8A8',
   selectedTextColor = '#1F87FF',
-  backgroundColor = '#F5F5F5',
+  backgroundColor = '#F4F4F4',
   selectedBackgroundColor = '#E8F3FF',
   border = {
     borderWidth: '1px',
@@ -65,7 +65,7 @@ const ChipItemContainer = styled.div<{
   align-items: center;
   cursor: pointer;
 
-  flex-shrink: 0; /* ✅ 크기 축소 방지 (스크롤 문제 해결) */
+  flex-shrink: 0;
 `;
 
 const ItemText = styled(Typography)<{ textColor: string }>`

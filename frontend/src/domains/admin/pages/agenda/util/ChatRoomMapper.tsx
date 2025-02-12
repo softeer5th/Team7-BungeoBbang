@@ -1,7 +1,21 @@
 import { ChatCategoryType } from '@/types/ChatCategoryType';
 import { ChatRoomListCardData, ProgressState } from '../components/ChatRoomCardData';
 
-export const mapResponseToChatRoomListCardData = (response): ChatRoomListCardData => {
+
+export interface ServerData {
+  agenda: {
+    agendaId: number;
+    categoryType: string;
+    title: string;
+    startDate: string;
+    endDate: string;
+    count: number;
+  };
+  hasNewMessage: boolean;
+}
+
+export const mapResponseToChatRoomListCardData = (response: ServerData): ChatRoomListCardData => {
+
   return {
     roomId: response.agenda.agendaId,
     hasNew: response.hasNewMessage,
@@ -9,8 +23,8 @@ export const mapResponseToChatRoomListCardData = (response): ChatRoomListCardDat
     numOfJoin: response.agenda.count,
     chatCategoryType: findChatCategoryType(response.agenda.categoryType),
     title: response.agenda.title,
-    startDate: formatDate(response.agenda.startDate),
-    endDate: formatDate(response.agenda.endDate),
+    startDate: formatServerDate(response.agenda.startDate),
+    endDate: formatServerDate(response.agenda.endDate),
   };
 };
 
@@ -31,9 +45,17 @@ const findChatCategoryType = (categoryType: string): ChatCategoryType => {
   );
 };
 
-const formatDate = (date: string): string => {
+export const formatDate = (date: string): string => {
   const d = new Date(date);
   const month = String(d.getMonth() + 1).padStart(2, '0');
   const day = String(d.getDate()).padStart(2, '0');
   return `${month}.${day}`;
+};
+
+const formatServerDate = (date: string): string => {
+  const d = new Date(date);
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
 };

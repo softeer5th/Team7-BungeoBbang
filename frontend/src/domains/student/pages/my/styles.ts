@@ -34,7 +34,7 @@ export const ChatPreviewList = styled.div`
   width: 100%;
   height: 100%;
   overflow: auto;
-  padding: 25px 16px 25px 16px;
+  padding: 26px 16px 26px 16px;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;

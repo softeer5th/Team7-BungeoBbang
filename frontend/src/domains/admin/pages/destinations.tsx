@@ -17,3 +17,16 @@ export const bottomItems: BottomNavigationItemProps[] = [
     title: '통계',
   },
 ];
+
+export const moveToDestination = (itemId: string): string => {
+  switch (itemId) {
+    case 'agenda':
+      return '/agenda';
+    case 'opinion':
+      return '/opinion/entry';
+    case 'statistics':
+      return '/statistics';
+    default:
+      return '/';
+  }
+};

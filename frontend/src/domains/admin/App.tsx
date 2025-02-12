@@ -26,6 +26,7 @@ function AdminApp() {
         <Route path="/agenda/chat/:roomId" element={<AgendaChatPage />} />
         <Route path="/opinion/entry" element={<OpinionEntryPage />} />
         <Route path="/opinion/chat/:roomId" element={<OpinionChatPage />} />
+        {/* <Route path="/statistics" element={<StatisticsPage />} /> */}
       </Routes>
     </BrowserRouter>
   );
