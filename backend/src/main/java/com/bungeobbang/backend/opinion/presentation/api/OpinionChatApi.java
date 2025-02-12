@@ -33,7 +33,7 @@ public interface OpinionChatApi {
                     
                     **✅ 사용 예시**
                     ```
-                    GET /api/opinions\n
+                    GET /api/opinions
                     GET /api/opinions?lastChatId=67a04c4a6d8394488027b840
                     ```
                     """

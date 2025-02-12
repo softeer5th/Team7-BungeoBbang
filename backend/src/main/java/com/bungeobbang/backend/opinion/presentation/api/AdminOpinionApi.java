@@ -14,7 +14,9 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 import java.util.Set;
@@ -26,7 +28,7 @@ public interface AdminOpinionApi {
     @Operation(
             summary = "학생회 말해요 목록 조회",
             description = """
-                    학생회가 모든 말해요 채팅방 목록을 조회합니다. 
+                    학생회가 모든 말해요 채팅방 목록을 조회합니다.
                     - `categoryTypes`를 전달하면 해당 카테고리에 해당하는 말해요 채팅방만 필터링됩니다.
                     - 선택하지 않으면 전체 채팅방 목록을 반환합니다.
                     

@@ -2,7 +2,7 @@ package com.bungeobbang.backend.agenda.presentation.api;
 
 import com.bungeobbang.backend.agenda.dto.request.AgendaCreationRequest;
 import com.bungeobbang.backend.agenda.dto.request.AgendaEditRequest;
-import com.bungeobbang.backend.agenda.dto.response.AgendaChatResponses;
+import com.bungeobbang.backend.agenda.dto.response.AgendaChatResponse;
 import com.bungeobbang.backend.agenda.dto.response.AgendaDetailResponse;
 import com.bungeobbang.backend.agenda.dto.response.AgendaResponse;
 import com.bungeobbang.backend.agenda.dto.response.admin.AdminAgendaResponse;
@@ -11,6 +11,7 @@ import com.bungeobbang.backend.agenda.status.AgendaStatusType;
 import com.bungeobbang.backend.auth.common.Auth;
 import com.bungeobbang.backend.auth.domain.Accessor;
 import com.bungeobbang.backend.common.exception.response.ErrorResponse;
+import com.bungeobbang.backend.common.type.ScrollType;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -129,7 +130,7 @@ public interface AdminAgendaApi {
                     "chatId를 전달하면 해당 채팅부터 이후의 메시지를 가져옵니다."
     )
     @GetMapping("/{agendaId}/chat")
-    ResponseEntity<AgendaChatResponses> getAgendaChat(
+    ResponseEntity<List<AgendaChatResponse>> getAgendaChat(
             @Parameter(description = "관리자 인증 정보", hidden = true)
             @Auth Accessor accessor,
 
@@ -137,6 +138,8 @@ public interface AdminAgendaApi {
             @PathVariable Long agendaId,
 
             @Parameter(description = "마지막으로 본 채팅 ID (선택 사항, 없으면 최신 메시지부터 조회)", example = "65a3f8e2b93e4c23dc8e3a90")
-            @RequestParam(required = false) ObjectId chatId
+            @RequestParam(required = false) ObjectId chatId,
+
+            @RequestParam(required = false, name = "scroll") ScrollType scrollType
     );
 }

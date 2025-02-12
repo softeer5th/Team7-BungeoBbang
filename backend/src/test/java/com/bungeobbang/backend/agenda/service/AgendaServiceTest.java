@@ -2,10 +2,9 @@ package com.bungeobbang.backend.agenda.service;
 
 import com.bungeobbang.backend.agenda.domain.Agenda;
 import com.bungeobbang.backend.agenda.domain.AgendaMember;
-import com.bungeobbang.backend.agenda.domain.repository.AgendaLastReadChatRepository;
 import com.bungeobbang.backend.agenda.domain.repository.AgendaMemberRepository;
 import com.bungeobbang.backend.agenda.domain.repository.AgendaRepository;
-import com.bungeobbang.backend.agenda.domain.repository.CustomAgendaChatRepository;
+import com.bungeobbang.backend.agenda.domain.repository.MemberAgendaChatRepository;
 import com.bungeobbang.backend.agenda.dto.AgendaLatestChat;
 import com.bungeobbang.backend.agenda.dto.response.AgendaDetailResponse;
 import com.bungeobbang.backend.agenda.dto.response.member.MyAgendaResponse;
@@ -46,10 +45,7 @@ class AgendaServiceTest {
     @Mock
     private AgendaMemberRepository agendaMemberRepository;
     @Mock
-    private CustomAgendaChatRepository customAgendaChatRepository;
-
-    @Mock
-    private AgendaLastReadChatRepository agendaLastReadChatRepository;
+    private MemberAgendaChatRepository memberAgendaChatRepository;
     @Mock
     private AgendaRepository agendaRepository;
     @Mock
@@ -192,11 +188,11 @@ class AgendaServiceTest {
                 .thenReturn(Optional.of(member));
         when(agendaMemberRepository.findAllByMember(member))
                 .thenReturn(List.of(new AgendaMember(1L, agenda, member), new AgendaMember(1L, agenda2, member)));
-        when(customAgendaChatRepository.findLastChats(List.of(1L, 2L), member.getId()))
+        when(memberAgendaChatRepository.findLastChats(List.of(1L, 2L), member.getId()))
                 .thenReturn(
                         List.of(
-                                new AgendaLatestChat(1L, new ObjectId(0, 0), "1번 마지막 채팅", LocalDateTime.now(), false),
-                                new AgendaLatestChat(2L, new ObjectId(0, 0), null, LocalDateTime.now(), false)
+                                new AgendaLatestChat(1L, new ObjectId(0, 0), "1번 마지막 채팅", LocalDateTime.now(), false, null),
+                                new AgendaLatestChat(2L, new ObjectId(0, 0), null, LocalDateTime.now(), false, null)
                         ));
         // when
         final List<MyAgendaResponse> myAgenda = agendaService.getMyAgenda(member.getId());

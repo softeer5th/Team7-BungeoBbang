@@ -1,8 +1,8 @@
 package com.bungeobbang.backend.agenda.domain.infrastructure;
 
 import com.bungeobbang.backend.agenda.domain.repository.CustomAgendaRepository;
+import com.bungeobbang.backend.agenda.dto.MemberAgendaSubResult;
 import com.bungeobbang.backend.agenda.dto.response.AgendaResponse;
-import com.bungeobbang.backend.agenda.dto.response.member.MemberAgendaResponse;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -59,8 +59,8 @@ public class CustomAgendaRepositoryImpl implements CustomAgendaRepository {
     }
 
     @Override
-    public List<MemberAgendaResponse> getUpcomingAgendasWithParticipation(Long universityId, LocalDate endDate, Long agendaId, Long memberId) {
-        return queryFactory.select(Projections.constructor(MemberAgendaResponse.class,
+    public List<MemberAgendaSubResult> getUpcomingAgendasWithParticipation(Long universityId, LocalDate endDate, Long agendaId, Long memberId) {
+        return queryFactory.select(Projections.constructor(MemberAgendaSubResult.class,
                         agenda.id,
                         agenda.categoryType,
                         agenda.title,
@@ -115,8 +115,8 @@ public class CustomAgendaRepositoryImpl implements CustomAgendaRepository {
                 .fetch();
     }
 
-    public List<MemberAgendaResponse> getActiveAgendasWithParticipation(Long universityId, LocalDate endDate, Long agendaId, Long memberId) {
-        return queryFactory.select(Projections.constructor(MemberAgendaResponse.class,
+    public List<MemberAgendaSubResult> getActiveAgendasWithParticipation(Long universityId, LocalDate endDate, Long agendaId, Long memberId) {
+        return queryFactory.select(Projections.constructor(MemberAgendaSubResult.class,
                         agenda.id,
                         agenda.categoryType,
                         agenda.title,
@@ -128,6 +128,7 @@ public class CustomAgendaRepositoryImpl implements CustomAgendaRepository {
                                 .where(agendaMember.agenda.id.eq(agenda.id)
                                         .and(agendaMember.member.id.eq(memberId)))
                                 .exists()
+
                 ))
                 .from(agenda)
                 .where(
@@ -171,8 +172,8 @@ public class CustomAgendaRepositoryImpl implements CustomAgendaRepository {
                 .fetch();
     }
 
-    public List<MemberAgendaResponse> getClosedAgendasWithParticipation(Long universityId, LocalDate endDate, Long agendaId, Long memberId) {
-        return queryFactory.select(Projections.constructor(MemberAgendaResponse.class,
+    public List<MemberAgendaSubResult> getClosedAgendasWithParticipation(Long universityId, LocalDate endDate, Long agendaId, Long memberId) {
+        return queryFactory.select(Projections.constructor(MemberAgendaSubResult.class,
                         agenda.id,
                         agenda.categoryType,
                         agenda.title,

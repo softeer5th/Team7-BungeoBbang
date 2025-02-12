@@ -1,8 +1,10 @@
 package com.bungeobbang.backend.agenda.dto.response.member;
 
 import com.bungeobbang.backend.common.type.CategoryType;
+import com.bungeobbang.backend.common.util.ObjectIdSerializer;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.Builder;
 import org.bson.types.ObjectId;
 
@@ -13,15 +15,19 @@ public record MyAgendaResponse(
         @JsonIgnore
         ObjectId lastChatId,
         LastChat lastChat,
-        boolean hasNewChat
+        boolean hasNewChat,
+        @JsonSerialize(using = ObjectIdSerializer.class)
+        ObjectId lastReadChatId
 ) {
     @Builder
-    public static MyAgendaResponse of(ObjectId lastChatId, Long agendaId, String title, CategoryType categoryType, int count, boolean isEnd, String lastChat, LocalDateTime createdAt, boolean hasNew) {
+    public static MyAgendaResponse of(ObjectId lastChatId, Long agendaId, String title, CategoryType categoryType, int count, boolean isEnd, String lastChat, LocalDateTime createdAt, boolean hasNew, ObjectId lastReadChatId) {
         return new MyAgendaResponse(
                 new Agenda(agendaId, title, categoryType, count, isEnd),
                 lastChatId,
                 new LastChat(lastChat, createdAt),
-                hasNew
+                hasNew,
+                lastReadChatId
+
         );
     }
 

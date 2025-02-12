@@ -17,7 +17,4 @@ public interface AgendaMemberRepository extends JpaRepository<AgendaMember, Long
 
     @Query("SELECT am FROM AgendaMember am JOIN FETCH am.agenda WHERE am.member = :member")
     List<AgendaMember> findAllByMember(@Param("member") Member member);
-
-    List<AgendaMember> findAllByMemberId(Long memberId);
-
 }
