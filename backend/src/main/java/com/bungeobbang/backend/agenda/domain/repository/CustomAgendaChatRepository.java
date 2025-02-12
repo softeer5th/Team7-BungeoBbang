@@ -2,6 +2,7 @@ package com.bungeobbang.backend.agenda.domain.repository;
 
 import com.bungeobbang.backend.agenda.domain.AgendaChat;
 import com.bungeobbang.backend.agenda.dto.AgendaLatestChat;
+import com.bungeobbang.backend.common.type.ScrollType;
 import org.bson.types.ObjectId;
 
 import java.util.List;
@@ -20,4 +21,6 @@ public interface CustomAgendaChatRepository {
     void upsertLastReadChat(Long agendaId, Long memberId, ObjectId lastChatId);
 
     void upsertAdminLastReadChat(Long agendaId, Long adminId, ObjectId lastChatId);
+
+    List<AgendaChat> findChatsByParam(Long agendaId, ObjectId chatId, ScrollType scrollType);
 }
