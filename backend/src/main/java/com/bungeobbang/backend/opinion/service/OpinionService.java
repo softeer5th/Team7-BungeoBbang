@@ -42,16 +42,16 @@ public class OpinionService {
      * 특정 말해요(opinionId)의 채팅 내역을 조회하는 메서드.
      *
      * @param opinionId  조회할 말해요 채팅방의 ID
-     * @param lastChatId 마지막으로 조회한 채팅의 ID
+     * @param chatId 조회를 시작할 채팅 메시지의 ID
      * @param userId   요청을 보낸 유저의 ID
      * @param scroll 스크롤 방향
      * @return OpinionChatResponse 리스트 (해당 채팅방의 메시지 목록)
      */
-    public List<OpinionChatResponse> findOpinionChat(final Long opinionId, ObjectId lastChatId, final Long userId, ScrollType scroll) {
+    public List<OpinionChatResponse> findOpinionChat(final Long opinionId, ObjectId chatId, final Long userId, ScrollType scroll) {
         // scroll 이 없으면 lastChatId 기준으로 위아래 10개씩,
         // scroll=up 이면 과거 채팅 10개 조회, down 이면 최신 채팅 10개 조회
 
-        return customOpinionChatRepository.findOpinionChats(opinionId, lastChatId, scroll)
+        return customOpinionChatRepository.findOpinionChats(opinionId, chatId, scroll)
                 .stream()
                 .map(opinionChat -> OpinionChatResponse.of(opinionChat, userId, opinionId))
                 .toList();

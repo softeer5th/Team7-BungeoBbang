@@ -5,6 +5,7 @@ import com.bungeobbang.backend.opinion.domain.OpinionChat;
 import lombok.RequiredArgsConstructor;
 import org.bson.Document;
 import org.bson.types.ObjectId;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
@@ -22,35 +23,35 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class CustomOpinionChatRepository {
 
+    public static final String OPINION_ID = "opinionId";
+    public static final String ID = "_id";
+    public static final String UP_CHATS = "upChats";
+    public static final String DOWN_CHATS = "downChats";
     private final MongoTemplate mongoTemplate;
 
-    public List<OpinionChat> findOpinionChats(Long opinionId, ObjectId lastChatId, ScrollType scroll) {
+    public List<OpinionChat> findOpinionChats(Long opinionId, ObjectId chatId, ScrollType scroll) {
         List<AggregationOperation> operations = new ArrayList<>();
 
         // 기본 match 조건 (opinionId 일치)
-        Criteria criteria = Criteria.where("opinionId").is(opinionId);
+        Criteria criteria = Criteria.where(OPINION_ID).is(opinionId);
         if (scroll == null) {
-            // lastChatId를 기준으로 위쪽 10개 가져오기 (ID < lastChatId)
+            // lastChatId를 기준으로 위쪽 10개 가져오기 (ID < chatId)
             Aggregation aggregation = Aggregation.newAggregation(
-                    Aggregation.match(Criteria.where("opinionId").is(opinionId)), // opinionId 필터
+                    Aggregation.match(Criteria.where(OPINION_ID).is(opinionId)), // opinionId 필터
                     Aggregation.facet(
-                                    // 위쪽 데이터 (ID < lastChatId, 내림차순 후 10개)
-                                    Aggregation.match(Criteria.where("_id").lt(lastChatId)),
-                                    Aggregation.sort(org.springframework.data.domain.Sort.Direction.DESC, "_id"),
-                                    Aggregation.limit(10)
-                            ).as("upChats")
+                                    // 위쪽 데이터 (ID < chatId, 내림차순 후 10개)
+                                    Aggregation.match(Criteria.where(ID).lt(chatId)),
+                                    Aggregation.sort(Sort.Direction.DESC, ID),
+                                    Aggregation.limit(10),
+                                    Aggregation.sort(Sort.Direction.ASC, ID)
+                            ).as(UP_CHATS)
 
                             .and(
-                                    // 현재 lastChatId에 해당하는 데이터 (중앙)
-                                    Aggregation.match(Criteria.where("_id").is(lastChatId))
-                            ).as("lastReadChat")
-
-                            .and(
-                                    // 아래쪽 데이터 (ID > lastChatId, 오름차순 후 10개)
-                                    Aggregation.match(Criteria.where("_id").gt(lastChatId)),
-                                    Aggregation.sort(org.springframework.data.domain.Sort.Direction.ASC, "_id"),
-                                    Aggregation.limit(10)
-                            ).as("downChats")
+                                    // 아래쪽 데이터 (ID >= chatId, 오름차순 후 11개)
+                                    Aggregation.match(Criteria.where(ID).gte(chatId)),
+                                    Aggregation.sort(Sort.Direction.ASC, ID),
+                                    Aggregation.limit(11)
+                            ).as(DOWN_CHATS)
             );
 
             // Aggregation 실행
@@ -61,17 +62,15 @@ public class CustomOpinionChatRepository {
             }
 
             Document resultDoc = results.getMappedResults().get(0);
-            List<OpinionChat> upChats = extractChats(resultDoc, "upChats");
-            List<OpinionChat> lastReadChat = extractChats(resultDoc, "lastReadChat");
-            List<OpinionChat> downChats = extractChats(resultDoc, "downChats");
+            List<OpinionChat> upChats = extractChats(resultDoc, UP_CHATS);
+            List<OpinionChat> downChats = extractChats(resultDoc, DOWN_CHATS);
 
             // upChats는 다시 정렬 (내림차순 → 오름차순)
-            Collections.reverse(upChats);
+//            Collections.reverse(upChats);
 
             // 최종 결과 조합: (UP 10개) + (lastReadChat) + (DOWN 10개)
             List<OpinionChat> result = new ArrayList<>();
             result.addAll(upChats);
-            result.addAll(lastReadChat);
             result.addAll(downChats);
 
             return result;
@@ -81,10 +80,10 @@ public class CustomOpinionChatRepository {
         // scroll 값에 따라 조건 추가
         if (scroll.equals(ScrollType.UP)) {
             // 위로 스크롤 (lastChatId보다 작은 데이터)
-            criteria.and("_id").lt(lastChatId);
+            criteria.and(ID).lt(chatId);
         } else if (scroll.equals(ScrollType.DOWN)) {
             // 아래로 스크롤 (lastChatId보다 큰 데이터)
-            criteria.and("_id").gt(lastChatId);
+            criteria.and(ID).gt(chatId);
         }
 
         // Match 적용
@@ -92,8 +91,8 @@ public class CustomOpinionChatRepository {
 
         // 정렬 (오름차순 또는 내림차순)
         SortOperation sortOperation = scroll.equals(ScrollType.UP) ?
-                Aggregation.sort(org.springframework.data.domain.Sort.Direction.DESC, "_id") :
-                Aggregation.sort(org.springframework.data.domain.Sort.Direction.ASC, "_id");
+                Aggregation.sort(Sort.Direction.DESC, ID) :
+                Aggregation.sort(Sort.Direction.ASC, ID);
 
         operations.add(sortOperation);
 
