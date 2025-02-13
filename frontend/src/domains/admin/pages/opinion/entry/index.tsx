@@ -103,7 +103,7 @@ const OpinionEntryPage: React.FC = () => {
                   navigate('/opinion/chat/' + opinion.id, {
                     state: { opinionType: opinion.title, lastChatId: opinion.lastChatId },
                   });
-                  socketManager('OPINION', 'ENTER', opinion.id, 'ADMIN');
+                  socketManager('OPINION', 'ENTER', Number(opinion.id), 'ADMIN');
                 }}
                 createdAt={opinion.createdAt}
                 isReminded={opinion.isReminded}

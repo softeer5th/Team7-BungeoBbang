@@ -29,6 +29,7 @@ const OpinionChatPage = () => {
   const [chatData, setChatData] = useState<ChatData[]>([]);
   const [isExitDialogOpen, setExitDialogOpen] = useState(false);
   const [message, setMessage] = useState('');
+  const [isReminded, setIsReminded] = useState(false);
 
   const { images, showSizeDialog, handleImageDelete, handleImageUpload, closeSizeDialog } =
     useImageUpload(10, 5);
@@ -65,6 +66,8 @@ const OpinionChatPage = () => {
 
     const fetchData = async () => {
       try {
+        const res = await api.get(`/api/opinions/${roomId}`);
+        setIsReminded(res.data.isReminded);
         const response = await api.get(`/api/opinions/${roomId}/chat`, {
           params: { chatId: lastChatId },
         });
@@ -89,6 +92,7 @@ const OpinionChatPage = () => {
       sendMessage('OPINION', Number(roomId), message, images, true);
       setMessage('');
       handleImageDelete(-1);
+      setIsReminded(false);
     },
     [roomId, sendMessage],
   );
@@ -166,6 +170,9 @@ const OpinionChatPage = () => {
           }
           return null;
         })}
+        {isReminded ? (
+          <TextBadge text="답변을 기다리고 있어요" backgroundColor="#FF4B4B" textColor="#fff" />
+        ) : null}
       </S.ChatList>
 
       <ChatSendField
