@@ -39,6 +39,7 @@ const OpinionChatPage = () => {
   const socketManager = useSocketManager();
   const location = useLocation();
   const opinionType = location.state?.opinionType || '';
+  const lastChatId = location.state?.lastChatId || 0;
 
   const handleMessageReceive = useCallback(
     (message: ChatMessage) => {
@@ -63,9 +64,11 @@ const OpinionChatPage = () => {
 
     const fetchData = async () => {
       try {
-        const response = await api.get(`/api/opinions/${roomId}/chat`);
+        const response = await api.get(`/api/opinions/${roomId}/chat`, {
+          params: { chatId: lastChatId },
+        });
+        console.log('채팅 데이터:', response);
         const formattedData = formatChatData(response.data, true);
-        console.log('formattedData', response);
         setChatData(formattedData);
       } catch (error) {
         console.error('채팅 데이터 불러오기 실패:', error);
@@ -78,12 +81,13 @@ const OpinionChatPage = () => {
   useEffect(() => {
     const unsubscribe = subscribe('OPINION', Number(roomId), handleMessageReceive);
     return () => unsubscribe();
-  }, [roomId, subscribe, handleMessageReceive]);
+  }, [roomId, handleMessageReceive, subscribe]);
 
   const handleSendMessage = useCallback(
     (message: string, images: string[] = []) => {
       sendMessage('OPINION', Number(roomId), message, images, true);
       setMessage('');
+      handleImageDelete(-1);
     },
     [roomId, sendMessage],
   );
@@ -100,7 +104,7 @@ const OpinionChatPage = () => {
         rightIconSrc="/src/assets/icons/close.svg"
         onLeftIconClick={() => {
           navigate(-1);
-          socketManager('OPINION', 'LEAVE', Number(roomId));
+          socketManager('OPINION', 'LEAVE', Number(roomId), 'ADMIN');
         }}
         onRightIconClick={() => {
           setExitDialogOpen(true);

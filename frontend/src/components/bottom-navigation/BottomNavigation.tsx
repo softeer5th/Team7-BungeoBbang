@@ -2,7 +2,7 @@ import styled from 'styled-components';
 import { useState, forwardRef } from 'react';
 import { BottomNavigationItem, BottomNavigationItemProps } from './BottomNavigationItem';
 import { BorderProps } from '../border/BorderProps';
-import { getBorderStyle } from '../border/getBorderType';
+// import { getBorderStyle } from '../border/getBorderType';
 
 interface BottomNavigationProps {
   startDestination: string;

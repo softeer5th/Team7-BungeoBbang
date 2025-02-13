@@ -28,7 +28,8 @@ const OpinionChatPage = () => {
   const [chatData, setChatData] = useState<ChatData[]>([]);
   const [isExitDialogOpen, setExitDialogOpen] = useState(false);
   const [message, setMessage] = useState('');
-
+  const [isRemindEnabled, setIsRemindEnabled] = useState(false);
+  const [isReminded, setIsReminded] = useState(false);
   const { images, showSizeDialog, handleImageDelete, handleImageUpload, closeSizeDialog } =
     useImageUpload(10, 5);
 
@@ -57,14 +58,29 @@ const OpinionChatPage = () => {
     [roomId, memberId],
   );
 
+  const checkLastThreeChats = useCallback(() => {
+    if (chatData.length < 3) return false;
+
+    const lastThreeChats = chatData.slice(-3);
+    const isAllStudentMessages = lastThreeChats.every((chat) => chat.type === ChatType.SEND);
+    return isAllStudentMessages;
+  }, [chatData]);
+
+  const handleSendRemind = async () => {
+    await api.patch(`/student/opinions/${roomId}/remind`);
+    setIsReminded(true);
+  };
+
   useEffect(() => {
     if (!roomId) return;
 
     const fetchData = async () => {
       try {
         const enterResponse = await api.get(`/api/opinions/${roomId}`);
-        console.log('채팅방 정보:', enterResponse);
-        const response = await api.get(`/api/opinions/${roomId}/chat`);
+        enterResponse.data.isReminded && setIsReminded(true);
+        const response = await api.get(`/api/opinions/${roomId}/chat`, {
+          params: { chatId: '000000000000000000000000' },
+        });
         const formattedData = formatChatData(response.data, false);
         setChatData(formattedData);
       } catch (error) {
@@ -80,16 +96,21 @@ const OpinionChatPage = () => {
     return () => unsubscribe();
   }, [roomId, subscribe, handleMessageReceive]);
 
+  // chatData가 변경될 때마다 버튼 상태 업데이트
+  useEffect(() => {
+    setIsRemindEnabled(checkLastThreeChats());
+  }, [chatData, checkLastThreeChats]);
+
   const handleSendMessage = useCallback(
     (message: string, images: string[] = []) => {
       sendMessage('OPINION', Number(roomId), message, images, false);
       setMessage('');
+      handleImageDelete(-1);
     },
     [roomId, sendMessage],
   );
 
   const { elementRef, useScrollOnUpdate } = useScrollBottom<HTMLDivElement>();
-
   useScrollOnUpdate(chatData);
 
   return (
@@ -100,7 +121,7 @@ const OpinionChatPage = () => {
         rightIconSrc="/src/assets/icons/logout.svg"
         onLeftIconClick={() => {
           navigate(-1);
-          socketManager('OPINION', 'LEAVE', Number(roomId));
+          socketManager('OPINION', 'LEAVE', Number(roomId), 'STUDENT');
         }}
         onRightIconClick={() => {
           setExitDialogOpen(true);
@@ -147,11 +168,16 @@ const OpinionChatPage = () => {
       <ChatSendField
         initialText={message}
         onChange={setMessage}
-        onSendMessage={handleSendMessage}
+        onSendMessage={isRemindEnabled ? handleSendRemind : handleSendMessage}
         images={images}
         onImageDelete={handleImageDelete}
         onImageUpload={handleImageUpload}
         maxLength={500}
+        // sendDisabled={isRemindEnabled}
+        textDisabled={isRemindEnabled}
+        disabledPlaceHolder={
+          isReminded ? '리마인드를 전송한 상태입니다.' : '답장이 없을 시 리마인드 버튼을 눌러주세요'
+        }
       />
 
       {isExitDialogOpen && (
@@ -159,7 +185,7 @@ const OpinionChatPage = () => {
           onConfirm={async () => {
             setExitDialogOpen(false);
             try {
-              socketManager('OPINION', 'EXIT', Number(roomId));
+              socketManager('OPINION', 'EXIT', Number(roomId), 'STUDENT');
               await api.delete(`/student/opinion/${roomId}`);
               navigate('/opinion/entry');
             } catch (error) {
