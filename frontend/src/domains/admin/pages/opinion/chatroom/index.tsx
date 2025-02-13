@@ -39,6 +39,7 @@ const OpinionChatPage = () => {
   const socketManager = useSocketManager();
   const location = useLocation();
   const opinionType = location.state?.opinionType || '';
+  const lastChatId = location.state?.lastChatId || 0;
 
   const handleMessageReceive = useCallback(
     (message: ChatMessage) => {
@@ -63,7 +64,10 @@ const OpinionChatPage = () => {
 
     const fetchData = async () => {
       try {
-        const response = await api.get(`/api/opinions/${roomId}/chat`);
+        const response = await api.get(`/api/opinions/${roomId}/chat`, {
+          params: { chatId: lastChatId },
+        });
+        console.log(lastChatId);
         const formattedData = formatChatData(response.data, true);
         console.log('formattedData', response);
         setChatData(formattedData);

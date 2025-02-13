@@ -51,6 +51,7 @@ const OpinionEntryPage: React.FC = () => {
           hasAlarm: item.hasNewChat,
           createdAt: item.lastChat.createdAt,
           isReminded: item.opinion.isReminded,
+          lastChatId: item.lastReadChatId,
         }));
 
         setOpinions(formattedOpinions);
@@ -66,6 +67,7 @@ const OpinionEntryPage: React.FC = () => {
       ? opinions
       : opinions.filter((opinion) => opinion.category.type === selectedChip);
 
+  console.log('filteredOpinions', filteredOpinions);
   return (
     <S.Container>
       <TopAppBar
@@ -96,7 +98,9 @@ const OpinionEntryPage: React.FC = () => {
                 time={opinion.time}
                 hasAlarm={opinion.hasAlarm}
                 onClick={() =>
-                  navigate('/opinion/chat/' + opinion.id, { state: { opinionType: opinion.title } })
+                  navigate('/opinion/chat/' + opinion.id, {
+                    state: { opinionType: opinion.title, lastChatId: opinion.lastChatId },
+                  })
                 }
                 createdAt={opinion.createdAt}
                 isReminded={opinion.isReminded}

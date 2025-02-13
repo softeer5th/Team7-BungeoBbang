@@ -64,7 +64,9 @@ const OpinionChatPage = () => {
       try {
         const enterResponse = await api.get(`/api/opinions/${roomId}`);
         console.log('채팅방 정보:', enterResponse);
-        const response = await api.get(`/api/opinions/${roomId}/chat`);
+        const response = await api.get(`/api/opinions/${roomId}/chat`, {
+          params: { chatId: '000000000000000000000000' },
+        });
         const formattedData = formatChatData(response.data, false);
         setChatData(formattedData);
       } catch (error) {
