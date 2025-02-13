@@ -23,11 +23,13 @@ import { useSocketStore, ChatMessage } from '@/store/socketStore';
 import { useSocketManager } from '@/hooks/useSocketManager';
 import { ImageFileSizeDialog } from '@/components/Dialog/ImageFileSizeDialog';
 import { useScrollBottom } from '@/hooks/useScrollBottom';
+import { ImagePreview } from '@/components/Chat/ImagePreview';
 
 const OpinionChatPage = () => {
   const [chatData, setChatData] = useState<ChatData[]>([]);
   const [isExitDialogOpen, setExitDialogOpen] = useState(false);
   const [message, setMessage] = useState('');
+  const [isReminded, setIsReminded] = useState(false);
 
   const { images, showSizeDialog, handleImageDelete, handleImageUpload, closeSizeDialog } =
     useImageUpload(10, 5);
@@ -64,6 +66,8 @@ const OpinionChatPage = () => {
 
     const fetchData = async () => {
       try {
+        const res = await api.get(`/api/opinions/${roomId}`);
+        setIsReminded(res.data.isReminded);
         const response = await api.get(`/api/opinions/${roomId}/chat`, {
           params: { chatId: lastChatId },
         });
@@ -88,6 +92,7 @@ const OpinionChatPage = () => {
       sendMessage('OPINION', Number(roomId), message, images, true);
       setMessage('');
       handleImageDelete(-1);
+      setIsReminded(false);
     },
     [roomId, sendMessage],
   );
@@ -95,6 +100,19 @@ const OpinionChatPage = () => {
   const { elementRef, useScrollOnUpdate } = useScrollBottom<HTMLDivElement>();
   // chatData가 업데이트될 때마다 스크롤
   useScrollOnUpdate(chatData);
+
+  // 이미지 클릭 시 이미지 프리뷰 열기
+  const [selectedImage, setSelectedImage] = useState<{ url: string; index: number } | null>(null);
+  const [currentImageList, setCurrentImageList] = useState<string[]>([]);
+
+  const handleImageClick = (imageUrl: string, images: string[]) => {
+    const clickedIndex = images.indexOf(imageUrl);
+    setSelectedImage({
+      url: imageUrl,
+      index: clickedIndex,
+    });
+    setCurrentImageList(images);
+  };
 
   return (
     <S.Container>
@@ -122,6 +140,7 @@ const OpinionChatPage = () => {
                 message={chatData.message}
                 images={chatData.images}
                 timeText={chatData.time}
+                onImageClick={(imageUrl) => handleImageClick(imageUrl, chatData.images || [])}
               />
             );
           } else if (chat.type === ChatType.SEND) {
@@ -132,6 +151,7 @@ const OpinionChatPage = () => {
                 message={chatData.message}
                 images={chatData.images}
                 timeText={chatData.time}
+                onImageClick={(imageUrl) => handleImageClick(imageUrl, chatData.images || [])}
               />
             );
           } else if (chat.type === ChatType.INFO) {
@@ -150,6 +170,9 @@ const OpinionChatPage = () => {
           }
           return null;
         })}
+        {isReminded ? (
+          <TextBadge text="답변을 기다리고 있어요" backgroundColor="#FF4B4B" textColor="#fff" />
+        ) : null}
       </S.ChatList>
 
       <ChatSendField
@@ -175,6 +198,14 @@ const OpinionChatPage = () => {
       )}
       {showSizeDialog && (
         <ImageFileSizeDialog onConfirm={closeSizeDialog} onDismiss={closeSizeDialog} />
+      )}
+      {selectedImage && (
+        <ImagePreview
+          imageUrl={selectedImage.url}
+          currentIndex={selectedImage.index}
+          totalImages={currentImageList.length}
+          onClose={() => setSelectedImage(null)}
+        />
       )}
     </S.Container>
   );

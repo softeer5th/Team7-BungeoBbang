@@ -14,6 +14,7 @@ interface ReceiverChatProps {
   backgroundColor?: string;
   textColor?: string;
   timeTextColor?: string;
+  onImageClick?: (imageUrl: string) => void;
 }
 
 export const ReceiverChat = forwardRef<HTMLDivElement, ReceiverChatProps>(
@@ -30,6 +31,7 @@ export const ReceiverChat = forwardRef<HTMLDivElement, ReceiverChatProps>(
       backgroundColor = '#F4F4F4',
       textColor = '#393939',
       timeTextColor = '#C6C6C6',
+      onImageClick,
     },
     ref,
   ) => {
@@ -46,7 +48,7 @@ export const ReceiverChat = forwardRef<HTMLDivElement, ReceiverChatProps>(
         {images && (
           <ImageContainer>
             {images.map((image, index) => {
-              return <ImageBox src={image} key={`${image}${index}`} />;
+              return <ImageBox src={image} key={`${image}${index}`} onClick={() => onImageClick?.(image)} />;
             })}
           </ImageContainer>
         )}
@@ -64,6 +66,7 @@ export const ReceiverChat = forwardRef<HTMLDivElement, ReceiverChatProps>(
     );
   },
 );
+
 
 const ReceiverChatContainer = styled.div`
   width: 100%;

@@ -10,6 +10,7 @@ interface SenderChatProps {
   backgroundColor?: string;
   textColor?: string;
   timeTextColor?: string;
+  onImageClick?: (imageUrl: string) => void;
 }
 
 export const SenderChat = forwardRef<HTMLDivElement, SenderChatProps>(
@@ -22,6 +23,7 @@ export const SenderChat = forwardRef<HTMLDivElement, SenderChatProps>(
       backgroundColor = '#1F87FF',
       textColor = '#FFFFFF',
       timeTextColor = '#C6C6C6',
+      onImageClick,
     },
     ref,
   ) => {
@@ -30,7 +32,7 @@ export const SenderChat = forwardRef<HTMLDivElement, SenderChatProps>(
         {images && images.length > 0 && (
           <ImageContainer>
             {images.map((image, index) => {
-              return <ImageBox src={image} key={`${image}${index}`} />;
+              return <ImageBox src={image} key={`${image}${index}`} onClick={() => onImageClick?.(image)/>;
             })}
           </ImageContainer>
         )}
@@ -48,6 +50,7 @@ export const SenderChat = forwardRef<HTMLDivElement, SenderChatProps>(
     );
   },
 );
+
 
 const SenderChatContainer = styled.div`
   width: 100%;
