@@ -36,4 +36,12 @@ public class BadWordService {
             throw new BadWordException(BADWORD_INCLUDED);
         }
     }
+
+    public void validate(String... texts) {
+        for (String text : texts) {
+            if (!trie.parseText(text).isEmpty()) {
+                throw new BadWordException(BADWORD_INCLUDED);
+            }
+        }
+    }
 }
