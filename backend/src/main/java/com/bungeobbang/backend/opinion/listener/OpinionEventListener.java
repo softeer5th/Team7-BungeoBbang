@@ -27,7 +27,6 @@ public class OpinionEventListener {
                 opinionService.updateLastReadToMax(event.websocketMessage().opinionId(), false);
             }
             // 채팅 금칙어 필터링, 해당 채팅방 존재 여부 검증, 메시지 전송/저장
-            //
             case CHAT -> {
                 opinionRealTimeChatService.validateExistOpinion(event.websocketMessage().opinionId());
                 badWordService.validate(event.websocketMessage().message());
@@ -54,7 +53,12 @@ public class OpinionEventListener {
     @EventListener
     public void handleAdminOpinionEvent(OpinionAdminEvent event) {
         switch (event.websocketMessage().event()) {
-            case ENTER -> opinionService.updateLastReadToMax(event.websocketMessage().opinionId(), true);
+            case ENTER -> {
+                opinionRealTimeChatService.validateExistOpinion(event.websocketMessage().opinionId());
+
+                opinionService.updateLastReadToMax(event.websocketMessage().opinionId(), true);
+            }
+
             case CHAT -> {
                 opinionRealTimeChatService.validateExistOpinion(event.websocketMessage().opinionId());
                 badWordService.validate(event.websocketMessage().message());
@@ -69,9 +73,7 @@ public class OpinionEventListener {
                 );
                 adminOpinionService.unsetRemindOpinion(event.websocketMessage().opinionId());
             }
-            case LEAVE -> opinionService.updateLastReadToLastChatId(event.websocketMessage().adminId(), false);
-            case START ->
-                    opinionRealTimeChatService.subscribeToOpinion(event.session(), event.websocketMessage().opinionId());
+            case LEAVE -> opinionService.updateLastReadToLastChatId(event.websocketMessage().opinionId(), true);
         }
     }
 }
