@@ -56,7 +56,7 @@ const TitleText = styled(Typography)`
 const CategoryList = styled.div`
   width: 100%;
   margin-top: 20px;
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
   gap: 14px;
 `;

@@ -1,6 +1,5 @@
 import * as S from './styles.ts';
 import { TopAppBar } from '@/components/TopAppBar';
-import { useEffect, useState } from 'react';
 import {
   ChatData,
   ChatType,
@@ -14,30 +13,14 @@ import { ReceiverChat } from '@/components/Chat/ReceiverChat.tsx';
 import { SenderChat } from '@/components/Chat/SenderChat.tsx';
 import { TextBadge } from '@/components/Chat/TextBadge.tsx';
 import MoreChatButton from './MoreChatButton.tsx';
-import { useNavigate, useParams } from 'react-router-dom';
-import { formatChatData } from '@/utils/chat/formatChatData.ts';
-import api from '@/utils/api.ts';
+import { useNavigate } from 'react-router-dom';
 
-const ChatPage = () => {
-  const roomId = useParams();
+interface ChatPageProps {
+  chatData: ChatData[];
+}
 
-  const [chatData, setChatData] = useState<ChatData[]>([]);
-
+const ChatPage = ({ chatData }: ChatPageProps) => {
   const navigate = useNavigate();
-
-  const getChatData = async () => {
-    try {
-      const response = await api.get(`/admin/agendas/${roomId}/chat`);
-      const formattedData = formatChatData(response.data, true);
-      setChatData(formattedData);
-    } catch (error) {
-      console.error('fail to get chat data', error);
-    }
-  };
-
-  useEffect(() => {
-    getChatData();
-  }, []);
 
   return (
     <S.Container>

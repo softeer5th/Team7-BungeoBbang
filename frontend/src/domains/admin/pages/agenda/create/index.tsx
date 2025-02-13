@@ -259,39 +259,37 @@ const CreateAgendaPage = () => {
         </S.ImageContainer>
       </S.BodyContainer>
 
-      {isCategoryBottomSheetOpen && (
-        <BottomSheet
-          onClose={() => {
+      <BottomSheet
+        isOpen={isCategoryBottomSheetOpen}
+        onClose={() => {
+          setCategoryBottomSheetOpen(false);
+        }}
+      >
+        <CategoryContent
+          selectedType={chatValue.category}
+          onItemClick={(type: ChatCategoryType) => {
+            setChatValue((prev) => ({ ...prev, category: type }));
             setCategoryBottomSheetOpen(false);
           }}
-        >
-          <CategoryContent
-            selectedType={chatValue.category}
-            onItemClick={(type: ChatCategoryType) => {
-              setChatValue((prev) => ({ ...prev, category: type }));
-              setCategoryBottomSheetOpen(false);
-            }}
-          />
-        </BottomSheet>
-      )}
+        />
+      </BottomSheet>
 
-      {isDurationBottomSheetOpen && (
-        <BottomSheet
-          onClose={() => {
+      <BottomSheet
+        isOpen={isDurationBottomSheetOpen}
+        onClose={() => {
+          setDurationBottomSheetOpen(false);
+        }}
+      >
+        <DurationContent
+          currentDate={
+            chatValue.startDate && chatValue.endDate && [chatValue.startDate, chatValue.endDate]
+          }
+          onDurationSelected={(start: Date, end: Date) => {
             setDurationBottomSheetOpen(false);
+            setChatValue((prev: ChatCreateData) => ({ ...prev, startDate: start, endDate: end }));
           }}
-        >
-          <DurationContent
-            currentDate={
-              chatValue.startDate && chatValue.endDate && [chatValue.startDate, chatValue.endDate]
-            }
-            onDurationSelected={(start: Date, end: Date) => {
-              setDurationBottomSheetOpen(false);
-              setChatValue((prev: ChatCreateData) => ({ ...prev, startDate: start, endDate: end }));
-            }}
-          />
-        </BottomSheet>
-      )}
+        />
+      </BottomSheet>
 
       {showSizeDialog && (
         <ImageFileSizeDialog onConfirm={closeSizeDialog} onDismiss={closeSizeDialog} />

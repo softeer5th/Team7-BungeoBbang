@@ -333,6 +333,7 @@ const TextFieldInputWrapper = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
+  resize: none;
 `;
 
 const TextFieldInput = styled(Typography).attrs({ as: 'textarea' })<{
@@ -344,7 +345,6 @@ const TextFieldInput = styled(Typography).attrs({ as: 'textarea' })<{
   color: ${(props) => props.textColor};
   outline: none;
   border: none;
-  resize: none;
   background-color: transparent;
 
   &::placeholder {
