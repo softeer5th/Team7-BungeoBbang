@@ -105,7 +105,7 @@ public class AdminAgendaChatRepositoryImpl implements AdminAgendaChatRepository 
 
         // ✅ 4. 최종 결과 계산
         for (Long agendaId : agendaIdList) {
-            ObjectId lastChatId = lastChatMap.get(agendaId);
+            ObjectId lastChatId = lastChatMap.getOrDefault(agendaId, MIN_OBJECT_ID);
             ObjectId lastReadChatId = lastReadChatMap.getOrDefault(agendaId, MIN_OBJECT_ID);
 
             result.put(agendaId, new AdminAgendaSubResult(lastChatId.compareTo(lastReadChatId) > 0, lastReadChatId));

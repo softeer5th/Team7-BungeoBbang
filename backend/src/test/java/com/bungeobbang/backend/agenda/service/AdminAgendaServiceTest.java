@@ -8,6 +8,7 @@ import com.bungeobbang.backend.agenda.domain.repository.AgendaImageRepository;
 import com.bungeobbang.backend.agenda.domain.repository.AgendaRepository;
 import com.bungeobbang.backend.agenda.dto.request.AgendaCreationRequest;
 import com.bungeobbang.backend.agenda.dto.request.AgendaEditRequest;
+import com.bungeobbang.backend.badword.service.BadWordService;
 import com.bungeobbang.backend.common.exception.AgendaException;
 import com.bungeobbang.backend.common.type.CategoryType;
 import org.junit.jupiter.api.DisplayName;
@@ -31,8 +32,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class AdminAgendaServiceTest {
@@ -44,6 +44,9 @@ class AdminAgendaServiceTest {
     private AgendaImageRepository agendaImageRepository;
     @Mock
     private AdminRepository adminRepository;
+    @Mock
+    private BadWordService badWordService;
+
 
     @Mock
     ApplicationEventPublisher applicationEventPublisher;
@@ -82,6 +85,7 @@ class AdminAgendaServiceTest {
                 .thenReturn(Optional.of(admin));
         when(agendaRepository.save(any()))
                 .thenReturn(agenda);
+        doNothing().when(badWordService).validate(anyString(), anyString());
 
         adminAgendaService.createAgenda(admin.getId(), request);
 
