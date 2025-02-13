@@ -55,7 +55,8 @@ public class OpinionEventListener {
         switch (event.websocketMessage().event()) {
             case ENTER -> {
                 opinionRealTimeChatService.validateExistOpinion(event.websocketMessage().opinionId());
-
+                // 학생이 새로 생성한 채팅방인 경우, 입장할 때 구독해야 한다.
+                opinionRealTimeChatService.subscribeToOpinion(event.session(), event.websocketMessage().opinionId());
                 opinionService.updateLastReadToMax(event.websocketMessage().opinionId(), true);
             }
 
