@@ -28,6 +28,7 @@ const OpinionChatPage = () => {
   const [chatData, setChatData] = useState<ChatData[]>([]);
   const [isExitDialogOpen, setExitDialogOpen] = useState(false);
   const [message, setMessage] = useState('');
+  const [isRemindEnabled, setIsRemindEnabled] = useState(false);
 
   const { images, showSizeDialog, handleImageDelete, handleImageUpload, closeSizeDialog } =
     useImageUpload(10, 5);
@@ -57,6 +58,20 @@ const OpinionChatPage = () => {
     [roomId, memberId],
   );
 
+  const checkLastThreeChats = useCallback(() => {
+    if (chatData.length < 3) return false;
+
+    const lastThreeChats = chatData.slice(-3);
+    const isAllStudentMessages = lastThreeChats.every((chat) => chat.type === ChatType.SEND);
+
+    return isAllStudentMessages;
+  }, [chatData]);
+
+  const handleSendRemind = async () => {
+    await api.post(`/student/opinions/${roomId}/remind`);
+    console.log('리마인드 전송');
+  };
+
   useEffect(() => {
     if (!roomId) return;
 
@@ -82,6 +97,11 @@ const OpinionChatPage = () => {
     return () => unsubscribe();
   }, [roomId, subscribe, handleMessageReceive]);
 
+  // chatData가 변경될 때마다 버튼 상태 업데이트
+  useEffect(() => {
+    setIsRemindEnabled(checkLastThreeChats());
+  }, [chatData, checkLastThreeChats]);
+
   const handleSendMessage = useCallback(
     (message: string, images: string[] = []) => {
       sendMessage('OPINION', Number(roomId), message, images, false);
@@ -92,7 +112,6 @@ const OpinionChatPage = () => {
   );
 
   const { elementRef, useScrollOnUpdate } = useScrollBottom<HTMLDivElement>();
-
   useScrollOnUpdate(chatData);
 
   return (
@@ -150,11 +169,12 @@ const OpinionChatPage = () => {
       <ChatSendField
         initialText={message}
         onChange={setMessage}
-        onSendMessage={handleSendMessage}
+        onSendMessage={isRemindEnabled ? handleSendMessage : handleSendRemind}
         images={images}
         onImageDelete={handleImageDelete}
         onImageUpload={handleImageUpload}
         maxLength={500}
+        sendDisabled={isRemindEnabled}
       />
 
       {isExitDialogOpen && (
