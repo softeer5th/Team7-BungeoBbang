@@ -23,7 +23,7 @@ const AdminLogin: React.FC = () => {
     password: '',
   });
   const [errors, setErrors] = useState<FormError>({});
-  const [isLoading, setIsLoading] = useState(false);
+  const [isValidate, setValidate] = useState(false);
 
   const validateForm = (): boolean => {
     const newErrors: FormError = {};
@@ -47,14 +47,18 @@ const AdminLogin: React.FC = () => {
     if (errors[name as keyof FormError]) {
       setErrors((prev) => ({ ...prev, [name]: undefined }));
     }
+
+    setValidate(value.trim() !== '' && validateForm());
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!validateForm()) return;
+    if (!validateForm()) {
+      setValidate(false);
+      return;
+    }
 
-    setIsLoading(true);
     try {
       const response = await api.post('/admin/auth/login', form);
       console.log('Login response:', response);
@@ -69,8 +73,7 @@ const AdminLogin: React.FC = () => {
       setErrors({
         general: '아이디 또는 비밀번호가 올바르지 않습니다.',
       });
-    } finally {
-      setIsLoading(false);
+      setValidate(false);
     }
   };
 
@@ -108,8 +111,8 @@ const AdminLogin: React.FC = () => {
 
         {errors.general && <S.ErrorText>{errors.general}</S.ErrorText>}
 
-        <S.LoginButton type="submit" disabled={isLoading}>
-          {isLoading ? '로그인 중...' : '로그인'}
+        <S.LoginButton type="submit" disabled={!isValidate}>
+          로그인
         </S.LoginButton>
       </S.Form>
       <S.OnuLogoWrapper>

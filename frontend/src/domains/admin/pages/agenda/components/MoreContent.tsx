@@ -1,6 +1,7 @@
 import Typography from '@/styles/Typography';
 import styled, { useTheme } from 'styled-components';
 import { ProgressState } from './ChatRoomCardData';
+import { forwardRef } from 'react';
 
 interface MoreContentProps {
   progressState: ProgressState;
@@ -9,51 +10,51 @@ interface MoreContentProps {
   onDeleteClick: () => void;
 }
 
-export const MoreContent = ({
-  progressState,
-  onEditClick = () => {},
-  onEndClick = () => {},
-  onDeleteClick = () => {},
-}: MoreContentProps) => {
-  const theme = useTheme();
+export const MoreContent = forwardRef<HTMLDivElement, MoreContentProps>(
+  (
+    { progressState, onEditClick = () => {}, onEndClick = () => {}, onDeleteClick = () => {} },
+    ref,
+  ) => {
+    const theme = useTheme();
 
-  return (
-    <Container>
-      {progressState === ProgressState.BEFORE && (
-        <MoreContentItem onClick={onEditClick}>
-          <ItemIcon src="/src/assets/icons/edit.svg" />
-          <ItemText variant="body1" textColor={theme.colors.grayScale90}>
-            수정
-          </ItemText>
-        </MoreContentItem>
-      )}
-
-      {progressState === ProgressState.IN_PROGRESS && (
-        <>
+    return (
+      <Container ref={ref}>
+        {progressState === ProgressState.BEFORE && (
           <MoreContentItem onClick={onEditClick}>
             <ItemIcon src="/src/assets/icons/edit.svg" />
             <ItemText variant="body1" textColor={theme.colors.grayScale90}>
               수정
             </ItemText>
           </MoreContentItem>
-          <MoreContentItem onClick={onEndClick}>
-            <ItemIcon src="/src/assets/icons/trash.svg" />
-            <ItemText variant="body1" textColor={theme.colors.red}>
-              종료
-            </ItemText>
-          </MoreContentItem>
-        </>
-      )}
+        )}
 
-      <MoreContentItem onClick={onDeleteClick}>
-        <ItemIcon src="/src/assets/icons/power.svg" />
-        <ItemText variant="body1" textColor={theme.colors.red}>
-          삭제
-        </ItemText>
-      </MoreContentItem>
-    </Container>
-  );
-};
+        {progressState === ProgressState.IN_PROGRESS && (
+          <>
+            <MoreContentItem onClick={onEditClick}>
+              <ItemIcon src="/src/assets/icons/edit.svg" />
+              <ItemText variant="body1" textColor={theme.colors.grayScale90}>
+                수정
+              </ItemText>
+            </MoreContentItem>
+            <MoreContentItem onClick={onEndClick}>
+              <ItemIcon src="/src/assets/icons/trash.svg" />
+              <ItemText variant="body1" textColor={theme.colors.red}>
+                종료
+              </ItemText>
+            </MoreContentItem>
+          </>
+        )}
+
+        <MoreContentItem onClick={onDeleteClick}>
+          <ItemIcon src="/src/assets/icons/power.svg" />
+          <ItemText variant="body1" textColor={theme.colors.red}>
+            삭제
+          </ItemText>
+        </MoreContentItem>
+      </Container>
+    );
+  },
+);
 
 const Container = styled.div`
   position: absolute;

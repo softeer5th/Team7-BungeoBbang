@@ -1,7 +1,9 @@
 import styled from 'styled-components';
 import Typography from '../../styles/Typography';
+import { forwardRef } from 'react';
 
 interface SenderChatProps {
+  chatId: string;
   message: string;
   images?: string[];
   timeText: string;
@@ -10,36 +12,42 @@ interface SenderChatProps {
   timeTextColor?: string;
 }
 
-export const SenderChat: React.FC<SenderChatProps> = ({
-  message,
-  images,
-  timeText,
-  backgroundColor = '#1F87FF',
-  textColor = '#FFFFFF',
-  timeTextColor = '#C6C6C6',
-}) => {
-  return (
-    <SenderChatContainer>
-      {images && images.length > 0 && (
-        <ImageContainer>
-          {images.map((image, index) => {
-            return <ImageBox src={image} key={`${image}${index}`} />;
-          })}
-        </ImageContainer>
-      )}
-      <MessageContainer>
-        <TimeText variant="caption3" timeTextColor={timeTextColor}>
-          {timeText}
-        </TimeText>
-        <ChatContainer backgroundColor={backgroundColor}>
-          <ChatMessageText variant="body1" textColor={textColor}>
-            {message}
-          </ChatMessageText>
-        </ChatContainer>
-      </MessageContainer>
-    </SenderChatContainer>
-  );
-};
+export const SenderChat = forwardRef<HTMLDivElement, SenderChatProps>(
+  (
+    {
+      chatId,
+      message,
+      images,
+      timeText,
+      backgroundColor = '#1F87FF',
+      textColor = '#FFFFFF',
+      timeTextColor = '#C6C6C6',
+    },
+    ref,
+  ) => {
+    return (
+      <SenderChatContainer id={chatId} ref={ref}>
+        {images && images.length > 0 && (
+          <ImageContainer>
+            {images.map((image, index) => {
+              return <ImageBox src={image} key={`${image}${index}`} />;
+            })}
+          </ImageContainer>
+        )}
+        <MessageContainer>
+          <TimeText variant="caption3" timeTextColor={timeTextColor}>
+            {timeText}
+          </TimeText>
+          <ChatContainer backgroundColor={backgroundColor}>
+            <ChatMessageText variant="body1" textColor={textColor}>
+              {message}
+            </ChatMessageText>
+          </ChatContainer>
+        </MessageContainer>
+      </SenderChatContainer>
+    );
+  },
+);
 
 const SenderChatContainer = styled.div`
   width: 100%;
