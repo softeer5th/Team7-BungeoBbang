@@ -57,7 +57,7 @@ class AgendaServiceTest {
         // given
         Member member = KAKAO_MEMBER;
         Agenda agenda = NAVER_AGENDA;
-        when(agendaRepository.findById(anyLong()))
+        when(agendaRepository.findByIdWithLock(anyLong()))
                 .thenReturn(Optional.of(agenda));
         when(memberRepository.findById(anyLong()))
                 .thenReturn(Optional.of(member));
@@ -74,7 +74,7 @@ class AgendaServiceTest {
         // given
         Member member = NAVER_MEMBER;
         Agenda agenda = NAVER_AGENDA;
-        when(agendaRepository.findById(anyLong()))
+        when(agendaRepository.findByIdWithLock(anyLong()))
                 .thenReturn(Optional.of(agenda));
         when(memberRepository.findById(anyLong()))
                 .thenReturn(Optional.of(member));
@@ -94,7 +94,7 @@ class AgendaServiceTest {
         Member member = NAVER_MEMBER;
         Agenda agenda = NAVER_AGENDA;
 
-        when(agendaRepository.findById(anyLong()))
+        when(agendaRepository.findByIdWithLock(anyLong()))
                 .thenReturn(Optional.of(agenda));
         when(memberRepository.findById(anyLong()))
                 .thenReturn(Optional.of(member));

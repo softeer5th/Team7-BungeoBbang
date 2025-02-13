@@ -107,7 +107,7 @@ public class CustomAgendaRepositoryImpl implements CustomAgendaRepository {
                 .where(
                         agenda.university.id.eq(universityId)
                                 .and(agenda.startDate.loe(LocalDate.now())) // 이미 시작됨
-                                .and(agenda.endDate.gt(LocalDate.now())) // 아직 종료되지 않음
+                                .and(agenda.endDate.goe(LocalDate.now())) // 아직 종료되지 않음
                                 .and(gtEndDateOrEqEndDateAndGtId(endDate, agendaId)) // 무한 스크롤
                 )
                 .orderBy(agenda.endDate.asc(), agenda.id.asc()) // 종료 날짜 오름차순 정렬
@@ -134,7 +134,7 @@ public class CustomAgendaRepositoryImpl implements CustomAgendaRepository {
                 .where(
                         agenda.university.id.eq(universityId)
                                 .and(agenda.startDate.loe(LocalDate.now())) // 이미 시작됨
-                                .and(agenda.endDate.gt(LocalDate.now())) // 아직 종료되지 않음
+                                .and(agenda.endDate.goe(LocalDate.now())) // 아직 종료되지 않음
                                 .and(gtEndDateOrEqEndDateAndGtId(endDate, agendaId)) // 무한 스크롤
                 )
                 .orderBy(agenda.endDate.asc(), agenda.id.asc()) // 종료 날짜 오름차순 정렬
@@ -164,7 +164,7 @@ public class CustomAgendaRepositoryImpl implements CustomAgendaRepository {
                 .from(agenda)
                 .where(
                         agenda.university.id.eq(universityId)
-                                .and(agenda.endDate.loe(LocalDate.now())) // 종료된 상태
+                                .and(agenda.endDate.lt(LocalDate.now())) // 종료된 상태
                                 .and(ltEndDateOrEqEndDateAndGtId(endDate, agendaId)) // 무한 스크롤
                 )
                 .orderBy(agenda.endDate.desc(), agenda.id.asc()) // 종료 날짜 내림차순 정렬
@@ -189,7 +189,7 @@ public class CustomAgendaRepositoryImpl implements CustomAgendaRepository {
                 .from(agenda)
                 .where(
                         agenda.university.id.eq(universityId)
-                                .and(agenda.endDate.loe(LocalDate.now())) // 종료된 상태
+                                .and(agenda.endDate.lt(LocalDate.now())) // 종료된 상태
                                 .and(ltEndDateOrEqEndDateAndGtId(endDate, agendaId)) // 무한 스크롤
                 )
                 .orderBy(agenda.endDate.desc(), agenda.id.asc()) // 종료 날짜 내림차순 정렬
