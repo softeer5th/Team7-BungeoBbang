@@ -100,8 +100,8 @@ public class MemberAgendaChatRepositoryImpl implements MemberAgendaChatRepositor
 
         Map<Long, Boolean> unreadMap = new HashMap<>();
         for (Long agendaId : agendaIdList) {
-            ObjectId lastChatId = lastChatMap.get(agendaId);
-            ObjectId lastReadChatId = lastReadChatMap.get(agendaId);
+            ObjectId lastChatId = lastChatMap.getOrDefault(agendaId, MIN_OBJECT_ID);
+            ObjectId lastReadChatId = lastReadChatMap.getOrDefault(agendaId, MIN_OBJECT_ID);
 
             if (lastChatId != null && lastReadChatId != null) {
                 unreadMap.put(agendaId, lastChatId.compareTo(lastReadChatId) > 0);
