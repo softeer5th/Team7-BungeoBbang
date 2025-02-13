@@ -3,6 +3,7 @@ import * as S from './styles';
 import { ChatPreviewData } from '../data/ChatPreviewData';
 import { formatDate, formatTime } from '../util/AgendaChatRoomMapper';
 import { useNavigate } from 'react-router-dom';
+import { useSocketManager } from '@/hooks/useSocketManager';
 
 interface ChatPreviewItemProps {
   chatData: ChatPreviewData;
@@ -12,13 +13,19 @@ export const ChatPreviewItem: React.FC<ChatPreviewItemProps> = ({
   chatData,
 }: ChatPreviewItemProps) => {
   const navigate = useNavigate();
+  const socketManager = useSocketManager();
 
   return (
     <S.ItemBox
       onClick={() => {
-        chatData.opinionType
-          ? navigate(`/opinion/chat/${chatData.roomId}`)
-          : navigate(`/agenda/chat/${chatData.roomId}`);
+        const roomId = chatData.roomId;
+        if (chatData.opinionType) {
+          socketManager('OPINION', 'ENTER', Number(roomId), 'STUDENT');
+          navigate(`/opinion/chat/${roomId}`);
+        } else {
+          socketManager('AGENDA', 'ENTER', Number(roomId), 'STUDENT');
+          navigate(`/agenda/chat/${roomId}`);
+        }
       }}
     >
       <S.HeaderContainer>
