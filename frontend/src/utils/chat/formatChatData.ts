@@ -33,8 +33,8 @@ export const formatChatData = (
           ? ChatType.SEND
           : ChatType.RECEIVE
         : item.memberId === Number(localStorage.getItem('member_id'))
-          ? ChatType.RECEIVE
-          : ChatType.SEND,
+          ? ChatType.SEND
+          : ChatType.RECEIVE,
       message: item.chat,
       time: new Date(item.createdAt).toLocaleTimeString('ko-KR', {
         hour: '2-digit',
