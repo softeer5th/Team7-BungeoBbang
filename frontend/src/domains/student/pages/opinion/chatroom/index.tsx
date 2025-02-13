@@ -145,6 +145,7 @@ const OpinionChatPage = () => {
             const chatData = chat as ReceiveChatData;
             return (
               <ReceiverChat
+                chatId={chatData.chatId}
                 receiverName={chatData.name}
                 message={chatData.message}
                 images={chatData.images}
@@ -156,6 +157,7 @@ const OpinionChatPage = () => {
             const chatData = chat as SendChatData;
             return (
               <SenderChat
+                chatId={chatData.chatId}
                 message={chatData.message}
                 images={chatData.images}
                 timeText={chatData.time}

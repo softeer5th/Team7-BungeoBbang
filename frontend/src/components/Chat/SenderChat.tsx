@@ -32,7 +32,13 @@ export const SenderChat = forwardRef<HTMLDivElement, SenderChatProps>(
         {images && images.length > 0 && (
           <ImageContainer>
             {images.map((image, index) => {
-              return <ImageBox src={image} key={`${image}${index}`} onClick={() => onImageClick?.(image)/>;
+              return (
+                <ImageBox
+                  src={image}
+                  key={`${image}${index}`}
+                  onClick={() => onImageClick?.(image)}
+                />
+              );
             })}
           </ImageContainer>
         )}
@@ -50,7 +56,6 @@ export const SenderChat = forwardRef<HTMLDivElement, SenderChatProps>(
     );
   },
 );
-
 
 const SenderChatContainer = styled.div`
   width: 100%;

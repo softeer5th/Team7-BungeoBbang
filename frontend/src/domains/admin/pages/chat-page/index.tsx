@@ -4,7 +4,7 @@ import {
   ChatData,
   ChatType,
   InfoChatData,
-  MoreChatData,
+  // MoreChatData,
   ReceiveChatData,
   SendChatData,
 } from './ChatData.tsx';
@@ -14,8 +14,8 @@ import { SenderChat } from '@/components/Chat/SenderChat.tsx';
 import { TextBadge } from '@/components/Chat/TextBadge.tsx';
 import { useNavigate } from 'react-router-dom';
 import { forwardRef } from 'react';
-import { getDefaultBorderStyle } from '@/components/border/getBorderType.tsx';
-import { BorderType } from '@/components/border/BorderProps.tsx';
+// import { getDefaultBorderStyle } from '@/components/border/getBorderType.tsx';
+// import { BorderType } from '@/components/border/BorderProps.tsx';
 
 interface ChatPageProps {
   chatData: ChatData[];
