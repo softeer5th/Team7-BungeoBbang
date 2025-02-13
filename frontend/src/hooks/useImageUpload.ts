@@ -1,6 +1,6 @@
-// src/hooks/useImageUpload.ts
 import { useState } from 'react';
 import api from '@/utils/api';
+import { AUTH_CONFIG } from '@/config/auth';
 
 interface UseImageUploadReturn {
   images: string[];
@@ -29,7 +29,12 @@ export const useImageUpload = (
           'Content-Type': 'multipart/form-data',
         },
       });
-      return response.data.names;
+      const imageUrls = response.data.names.map(
+        (name: string) => `${AUTH_CONFIG.API.S3_URL}/${name}`,
+      );
+
+      console.log('이미지 업로드 성공:', imageUrls);
+      return imageUrls;
     } catch (error) {
       console.error('이미지 업로드 실패:', error);
       return [];
@@ -37,7 +42,7 @@ export const useImageUpload = (
   };
 
   const handleImageDelete = (index: number) => {
-    setImages((prev) => prev.filter((_, i) => i !== index));
+    index === -1 ? setImages([]) : setImages((prev) => prev.filter((_, i) => i !== index));
   };
 
   const handleImageUpload = async (files: FileList) => {

@@ -10,8 +10,7 @@ import StudentApp from './domains/student/App.tsx';
 import AdminApp from './domains/admin/App.tsx';
 
 const isAdmin = window.location.hostname.startsWith('admin');
-
 createRoot(document.getElementById('root')!).render(
   // <StrictMode>
-  <ThemeProvider theme={theme}>{!isAdmin ? <AdminApp /> : <StudentApp />}</ThemeProvider>,
+  <ThemeProvider theme={theme}>{isAdmin ? <AdminApp /> : <StudentApp />}</ThemeProvider>,
 );

@@ -84,7 +84,7 @@ const OpinionCategoryPage: React.FC = () => {
     try {
       const response = await api.post('/student/opinions', messageData);
       if (response.status === 200) {
-        socketManager('OPINION', 'START', response.data.opinionId);
+        socketManager('OPINION', 'START', response.data.opinionId, 'STUDENT');
         navigate('/opinion/chat/' + response.data.opinionId);
       }
     } catch (error) {

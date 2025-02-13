@@ -107,7 +107,7 @@ export const ChatSendField: React.FC<ChatSendFieldProps> = ({
   };
 
   const handleSend = () => {
-    if (message.trim()) {
+    if (message.trim() || textDisabled) {
       onSendMessage(message, images);
       setMessage('');
     }
