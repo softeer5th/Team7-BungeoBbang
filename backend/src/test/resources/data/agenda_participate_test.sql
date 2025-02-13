@@ -7,7 +7,8 @@ VALUES (1, 'admin', '관리자', '$2a$10$8O1QVz06uF47OVPa.lpZxO5ErUzG1OShT/1rb.g
 
 INSERT INTO agenda (id, university_id, admin_id, title, start_date, end_date, content, is_end, participant_count,
                     category_type, created_at, modified_at)
-VALUES (1, 1, 1, '학사 일정 조정 논의', '2025-02-10', '2025-02-27', '학사 일정 조정 논의에 대한 논의.', false, 0, 'ACADEMICS',
+VALUES (1, 1, 1, '학사 일정 조정 논의', DATEADD(DAY, -5, CURRENT_DATE), DATEADD(DAY, 5, CURRENT_DATE), '학사 일정 조정 논의에 대한 논의.',
+        false, 0, 'ACADEMICS',
         CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 
 INSERT INTO member (id, login_id, email, provider, university_id, created_at, modified_at)

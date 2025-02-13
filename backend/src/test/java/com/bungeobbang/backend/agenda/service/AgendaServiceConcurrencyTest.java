@@ -15,7 +15,8 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-@Sql(scripts = "/data/agenda_participate_test.sql")
+@Sql(scripts = "/data/agenda_participate_test.sql",
+        executionPhase = Sql.ExecutionPhase.BEFORE_TEST_CLASS)
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
 public class AgendaServiceConcurrencyTest {
