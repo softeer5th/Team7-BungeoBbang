@@ -18,6 +18,7 @@ import com.bungeobbang.backend.agenda.dto.response.admin.AgendaCreationResponse;
 import com.bungeobbang.backend.agenda.service.strategies.AgendaFinder;
 import com.bungeobbang.backend.agenda.service.strategies.AgendaFinders;
 import com.bungeobbang.backend.agenda.status.AgendaStatusType;
+import com.bungeobbang.backend.badword.service.BadWordService;
 import com.bungeobbang.backend.common.exception.AdminException;
 import com.bungeobbang.backend.common.exception.AgendaException;
 import com.bungeobbang.backend.common.exception.ErrorCode;
@@ -51,6 +52,8 @@ public class AdminAgendaService {
     private final AgendaRepository agendaRepository;
     private final AgendaImageRepository agendaImageRepository;
     private final AdminAgendaChatRepository adminAgendaChatRepository;
+
+    private final BadWordService badWordService;
 
     private final ApplicationEventPublisher eventPublisher;
 
@@ -108,6 +111,7 @@ public class AdminAgendaService {
      */
     @Transactional
     public AgendaCreationResponse createAgenda(final Long adminId, final AgendaCreationRequest request) {
+        badWordService.validate(request.title(), request.content());
         final Admin admin = adminRepository.findById(adminId)
                 .orElseThrow(() -> new AdminException(ErrorCode.INVALID_ADMIN));
 
@@ -191,6 +195,7 @@ public class AdminAgendaService {
      */
     @Transactional
     public void editAgenda(Long adminId, final Long agendaId, final AgendaEditRequest request) {
+        badWordService.validate(request.title(), request.content());
         Admin admin = getAdmin(adminId);
         Agenda agenda = getAgenda(agendaId);
 

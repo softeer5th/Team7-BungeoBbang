@@ -30,6 +30,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import static com.bungeobbang.backend.common.exception.ErrorCode.AGENDA_PARTICIPATION_NOT_FOUND;
+import static com.bungeobbang.backend.common.exception.ErrorCode.INVALID_AGENDA;
 
 /**
  * <h2>AgendaService</h2>
@@ -67,7 +68,8 @@ public class AgendaService {
     @Transactional
     public void participateAgenda(final Long memberId, final Long agendaId) {
         final Member member = getMember(memberId);
-        final Agenda agenda = getAgenda(agendaId);
+        final Agenda agenda = agendaRepository.findByIdWithLock(agendaId)
+                .orElseThrow(() -> new AgendaException(INVALID_AGENDA));
 
         if (!agenda.getUniversity().equals(member.getUniversity())) {
             throw new AgendaException(ErrorCode.FORBIDDEN_UNIVERSITY_ACCESS);
