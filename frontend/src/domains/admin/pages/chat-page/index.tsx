@@ -1,21 +1,12 @@
 import * as S from './styles.ts';
 import { TopAppBar } from '@/components/TopAppBar';
-import {
-  ChatData,
-  ChatType,
-  InfoChatData,
-  MoreChatData,
-  ReceiveChatData,
-  SendChatData,
-} from './ChatData.tsx';
 import { ChatSendField } from '@/components/Chat/ChatSendField.tsx';
 import { ReceiverChat } from '@/components/Chat/ReceiverChat.tsx';
 import { SenderChat } from '@/components/Chat/SenderChat.tsx';
 import { TextBadge } from '@/components/Chat/TextBadge.tsx';
 import { useNavigate } from 'react-router-dom';
 import { forwardRef } from 'react';
-import { getDefaultBorderStyle } from '@/components/border/getBorderType.tsx';
-import { BorderType } from '@/components/border/BorderProps.tsx';
+import { ChatData, ChatType, InfoChatData, ReceiveChatData, SendChatData } from '@/utils/chat/ChatData.tsx';
 
 interface ChatPageProps {
   chatData: ChatData[];

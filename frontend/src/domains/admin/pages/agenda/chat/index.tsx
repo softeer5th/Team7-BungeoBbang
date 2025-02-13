@@ -1,10 +1,10 @@
-import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useLayoutEffect, useRef, useState } from 'react';
 import ChatPage, { ChatRoomInfo } from '../../chat-page';
 import { useParams, useSearchParams } from 'react-router-dom';
 import { formatChatData } from '@/utils/chat/formatChatData.ts';
 import api from '@/utils/api.ts';
-import { ChatData, ChatType } from '../../chat-page/ChatData';
 import useInfiniteScroll from '@/hooks/useInfiniteScroll';
+import { ChatData, ChatType } from '@/utils/chat/ChatData';
 
 const AgendaChatPage = () => {
   const MAX_CHAT_DATA = 10;
@@ -24,13 +24,23 @@ const AgendaChatPage = () => {
   const lastUpChatId = useRef<string | null>(lastReadChatId);
   const lastDownChatId = useRef<string | null>(lastReadChatId);
   const chatListRef = useRef<HTMLDivElement>(null);
+  const isInitialLoading = useRef<boolean>(true);
+
+  // 이전 스크롤 위치를 저장
+  const previousScrollHeight = useRef<number>(0);
 
   const findLastChatId = () => {
+    if(chatData.length ===0) return null;
+
+    if(lastReadChatId === '000000000000000000000000' ) return chatData[0].chatId;
+    if(lastReadChatId === 'ffffffffffffffffffffffff' ) return chatData[chatData.length-1].chatId;
+    
     const chat = chatData.find(
-      (chat) => chat.type !== ChatType.INFO && chat.chatId === lastReadChatId,
+      (chat) => chat.chatId === lastReadChatId,
     );
+    console.log("chat", chat?.chatId, lastReadChatId);
     return (
-      chat?.chatId ?? (lastReadChatId === '000000000000000000000000' ? chatData[0].chatId : null)
+      chat?.chatId ?? null
     );
   };
 
@@ -60,12 +70,15 @@ const AgendaChatPage = () => {
 
   const getMoreChatData = async (direction: string) => {
     try {
+      previousScrollHeight.current = chatListRef.current?.scrollHeight ?? 0;
+
       const response = await api.get(`/admin/agendas/${roomId}/chat`, {
         params: {
           chatId: direction === 'UP' ? lastUpChatId.current : lastDownChatId.current,
           scroll: direction,
         },
       });
+
 
       console.log('up!!!', response);
       const formattedData = formatChatData(response.data, true);
@@ -83,6 +96,13 @@ const AgendaChatPage = () => {
           return [...prev, ...formattedData];
         }
       });
+
+      // if (chatListRef.current) {
+      //   const newScrollHeight = chatListRef.current.scrollHeight;
+      //   const scrollDifference = newScrollHeight - previousScrollHeight.current;
+      //   chatListRef.current.scrollTo(top: previousScrollHeight,) += scrollDifference;
+      // }
+
     } catch (error) {
       console.error('fail to get chat data', error);
     }
@@ -95,13 +115,18 @@ const AgendaChatPage = () => {
   });
 
   useLayoutEffect(() => {
-    const lastChatElement = document.querySelector(`#id${focusChatItemId.current}`);
+    if(!focusChatItemId.current) return;
 
-    console.log('last', lastChatElement);
-    if (lastChatElement) {
-      lastChatElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      clearInterval(interval);
+    const lastChatElement = document.getElementById(focusChatItemId.current);
+
+    console.log('lastfocus', lastChatElement, focusChatItemId.current);
+    if (lastChatElement && chatListRef.current) {
+      
+      chatListRef.current.scrollTo({ top: lastChatElement.offsetHeight, behavior: 'auto' });
+
     }
+
+    if(isInitialLoading) isInitialLoading.current = false;
   }, [chatData]);
 
   return (
@@ -112,7 +137,7 @@ const AgendaChatPage = () => {
       onUpLastItemChange={(lastItemRef, lastChatId: string) => {
         lastUpChatId.current = lastChatId;
 
-        focusChatItemId.current = lastItemRef.id;
+        if(!isInitialLoading) focusChatItemId.current = lastItemRef.id;
         console.log('uplats', lastItemRef, lastChatId);
         setTriggerUpItem(lastItemRef);
       }}

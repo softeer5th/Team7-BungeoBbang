@@ -9,7 +9,7 @@ import {
   MoreChatData,
   ReceiveChatData,
   SendChatData,
-} from '@/domains/student/pages/chat-page/ChatData';
+} from '@/utils/chat/ChatData';
 import { ChatSendField } from '@/components/Chat/ChatSendField';
 import { ReceiverChat } from '@/components/Chat/ReceiverChat';
 import { SenderChat } from '@/components/Chat/SenderChat';

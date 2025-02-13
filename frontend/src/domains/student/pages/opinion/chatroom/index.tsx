@@ -9,7 +9,7 @@ import {
   MoreChatData,
   ReceiveChatData,
   SendChatData,
-} from '../../chat-page/ChatData';
+} from '../../../../../utils/chat/ChatData.tsx';
 import { ChatSendField } from '@/components/Chat/ChatSendField.tsx';
 import { ReceiverChat } from '@/components/Chat/ReceiverChat.tsx';
 import { SenderChat } from '@/components/Chat/SenderChat.tsx';
