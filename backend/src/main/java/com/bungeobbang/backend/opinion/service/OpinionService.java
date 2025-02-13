@@ -5,11 +5,7 @@ import com.bungeobbang.backend.common.exception.OpinionException;
 import com.bungeobbang.backend.common.type.ScrollType;
 import com.bungeobbang.backend.opinion.domain.Opinion;
 import com.bungeobbang.backend.opinion.domain.OpinionChat;
-import com.bungeobbang.backend.opinion.domain.OpinionLastRead;
-import com.bungeobbang.backend.opinion.domain.repository.CustomOpinionChatRepository;
-import com.bungeobbang.backend.opinion.domain.repository.OpinionChatRepository;
-import com.bungeobbang.backend.opinion.domain.repository.OpinionLastReadRepository;
-import com.bungeobbang.backend.opinion.domain.repository.OpinionRepository;
+import com.bungeobbang.backend.opinion.domain.repository.*;
 import com.bungeobbang.backend.opinion.dto.response.OpinionChatResponse;
 import com.bungeobbang.backend.opinion.dto.response.OpinionDetailResponse;
 import lombok.RequiredArgsConstructor;
@@ -37,6 +33,7 @@ public class OpinionService {
     private final OpinionChatRepository opinionChatRepository;
     private final OpinionRepository opinionRepository;
     private final CustomOpinionChatRepository customOpinionChatRepository;
+    private final CustomOpinionLastReadRepository customOpinionLastReadRepository;
 
     /**
      * 특정 말해요(opinionId)의 채팅 내역을 조회하는 메서드.
@@ -64,21 +61,13 @@ public class OpinionService {
     }
 
     public void updateLastReadToMax(final Long opinionId, final boolean isAdmin) {
-        OpinionLastRead lastRead = opinionLastReadRepository.findByOpinionIdAndIsAdmin(opinionId, isAdmin)
-                .orElseThrow(() -> new OpinionException(ErrorCode.INVALID_OPINION_LAST_READ));
-        lastRead.updateLastReadChatId(new ObjectId(MAX_OBJECT_ID));
-        opinionLastReadRepository.save(lastRead);
+        customOpinionLastReadRepository.updateLastRead(opinionId, isAdmin, new ObjectId(MAX_OBJECT_ID));
     }
 
     public void updateLastReadToLastChatId(final Long opinionId, final boolean isAdmin) {
-        OpinionLastRead lastRead = opinionLastReadRepository.findByOpinionIdAndIsAdmin(opinionId, isAdmin)
-                .orElseThrow(() -> new OpinionException(ErrorCode.INVALID_OPINION_LAST_READ));
-
-        OpinionChat lastCHat = opinionChatRepository.findTop1ByOpinionIdOrderByIdDesc(opinionId)
+        OpinionChat lastChat = opinionChatRepository.findTop1ByOpinionIdOrderByIdDesc(opinionId)
                 .orElseThrow(() -> new OpinionException(ErrorCode.INVALID_OPINION_CHAT));
-
-        lastRead.updateLastReadChatId(lastCHat.getId());
-        opinionLastReadRepository.save(lastRead);
+        customOpinionLastReadRepository.updateLastRead(opinionId, isAdmin, lastChat.getId());
     }
 
     public void saveChat(
