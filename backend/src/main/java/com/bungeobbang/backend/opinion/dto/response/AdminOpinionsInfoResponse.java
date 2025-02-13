@@ -25,8 +25,8 @@ public record AdminOpinionsInfoResponse(
         return new AdminOpinionsInfoResponse(
                 new OpinionInfo(opinion.getId(), opinion.getOpinionType(), opinion.getCategoryType(), opinion.isRemind()),
                 new OpinionLastChatInfo(lastChat.getId(), lastChat.getChat(), ObjectIdTimestampConverter.getLocalDateTimeFromObjectId(lastChat.getId())),
-                !lastRead.getLastReadChatId().equals(lastChat.getId()),
-                lastRead.getId()
+                lastChat.getId().compareTo(lastRead.getLastReadChatId()) > 0,
+                lastRead.getLastReadChatId()
         );
     }
 

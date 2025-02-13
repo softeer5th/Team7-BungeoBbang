@@ -27,8 +27,8 @@ public record MemberOpinionsInfoResponse(
         return new MemberOpinionsInfoResponse(
                 new OpinionInfo(opinion.getId(), opinion.getOpinionType(), opinion.getCategoryType()),
                 new OpinionLastChatInfo(lastChat.getId(), lastChat.getChat(), ObjectIdTimestampConverter.getLocalDateTimeFromObjectId(lastChat.getId())),
-                !lastRead.getLastReadChatId().equals(lastChat.getId()),
-                lastRead.getId()
+                lastChat.getId().compareTo(lastRead.getLastReadChatId()) > 0,
+                lastRead.getLastReadChatId()
         );
     }
 

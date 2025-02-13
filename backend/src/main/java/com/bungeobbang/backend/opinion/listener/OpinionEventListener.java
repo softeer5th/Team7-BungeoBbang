@@ -72,7 +72,7 @@ public class OpinionEventListener {
                 );
                 adminOpinionService.unsetRemindOpinion(event.websocketMessage().opinionId());
             }
-            case LEAVE -> opinionService.updateLastReadToLastChatId(event.websocketMessage().adminId(), true);
+            case LEAVE -> opinionService.updateLastReadToLastChatId(event.websocketMessage().opinionId(), true);
             case START -> opinionRealTimeChatService.subscribeToOpinion(event.session(), event.websocketMessage().opinionId());
         }
     }
