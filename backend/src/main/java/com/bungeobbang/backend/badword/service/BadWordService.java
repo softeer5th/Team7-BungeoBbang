@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.ahocorasick.trie.Trie;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
 import java.util.List;
 
 import static com.bungeobbang.backend.common.exception.ErrorCode.BADWORD_INCLUDED;
@@ -33,6 +34,12 @@ public class BadWordService {
 
     public void validate(String text) {
         if (!trie.parseText(text).isEmpty()) {
+            throw new BadWordException(BADWORD_INCLUDED);
+        }
+    }
+
+    public void validate(String... texts) {
+        if (Arrays.stream(texts).anyMatch(text -> !trie.parseText(text).isEmpty())) {
             throw new BadWordException(BADWORD_INCLUDED);
         }
     }

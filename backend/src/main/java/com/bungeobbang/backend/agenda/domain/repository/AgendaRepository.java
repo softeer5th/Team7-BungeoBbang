@@ -1,16 +1,23 @@
 package com.bungeobbang.backend.agenda.domain.repository;
 
 import com.bungeobbang.backend.agenda.domain.Agenda;
+import jakarta.persistence.LockModeType;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface AgendaRepository extends JpaRepository<Agenda, Long> {
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT a FROM Agenda a WHERE a.id = :agendaId")
+    Optional<Agenda> findByIdWithLock(@Param("agendaId") Long id);
+
     boolean existsByIdAndEndDateBefore(Long id, LocalDate endDate);
 
     @Query("""
