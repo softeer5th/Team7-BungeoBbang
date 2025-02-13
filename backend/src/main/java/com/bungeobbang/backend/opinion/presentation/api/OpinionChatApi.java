@@ -34,9 +34,9 @@ public interface OpinionChatApi {
                     
                     **✅ 사용 예시**
                     ```
-                    GET /api/opinions/2/chat?lastChatId=67a04c4a6d8394488027b840
-                    GET /api/opinions/2/chat?lastChatId=67a04c4a6d8394488027b840&scroll=UP
-                    GET /api/opinions/2/chat?lastChatId=67a04c4a6d8394488027b840&scroll=DOWN
+                    GET /api/opinions/2/chat?chatId=67a04c4a6d8394488027b840
+                    GET /api/opinions/2/chat?chatId=67a04c4a6d8394488027b840&scroll=UP
+                    GET /api/opinions/2/chat?chatId=67a04c4a6d8394488027b840&scroll=DOWN
                     
                     ```
                     """
