@@ -32,7 +32,7 @@ export const formatChatData = (
         ? item.isAdmin
           ? ChatType.SEND
           : ChatType.RECEIVE
-        : item.memberId === Number(localStorage.getItem('member_id'))
+        : !item.isAdmin
           ? ChatType.SEND
           : ChatType.RECEIVE,
       message: item.chat,
