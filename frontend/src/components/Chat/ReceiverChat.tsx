@@ -12,6 +12,7 @@ interface SenderChatProps {
   backgroundColor?: string;
   textColor?: string;
   timeTextColor?: string;
+  onImageClick?: (imageUrl: string) => void;
 }
 
 export const ReceiverChat: React.FC<SenderChatProps> = ({
@@ -25,6 +26,7 @@ export const ReceiverChat: React.FC<SenderChatProps> = ({
   backgroundColor = '#F4F4F4',
   textColor = '#393939',
   timeTextColor = '#C6C6C6',
+  onImageClick,
 }) => {
   return (
     <ReceiverChatContainer>
@@ -39,7 +41,13 @@ export const ReceiverChat: React.FC<SenderChatProps> = ({
       {images && (
         <ImageContainer>
           {images.map((image, index) => {
-            return <ImageBox src={image} key={`${image}${index}`} />;
+            return (
+              <ImageBox
+                src={image}
+                key={`${image}${index}`}
+                onClick={() => onImageClick?.(image)}
+              />
+            );
           })}
         </ImageContainer>
       )}

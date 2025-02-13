@@ -23,6 +23,7 @@ import { useSocketStore, ChatMessage } from '@/store/socketStore';
 import { useSocketManager } from '@/hooks/useSocketManager';
 import { ImageFileSizeDialog } from '@/components/Dialog/ImageFileSizeDialog';
 import { useScrollBottom } from '@/hooks/useScrollBottom';
+import { ImagePreview } from '@/components/Chat/ImagePreview';
 
 const OpinionChatPage = () => {
   const [chatData, setChatData] = useState<ChatData[]>([]);
@@ -96,6 +97,19 @@ const OpinionChatPage = () => {
   // chatData가 업데이트될 때마다 스크롤
   useScrollOnUpdate(chatData);
 
+  // 이미지 클릭 시 이미지 프리뷰 열기
+  const [selectedImage, setSelectedImage] = useState<{ url: string; index: number } | null>(null);
+  const [currentImageList, setCurrentImageList] = useState<string[]>([]);
+
+  const handleImageClick = (imageUrl: string, images: string[]) => {
+    const clickedIndex = images.indexOf(imageUrl);
+    setSelectedImage({
+      url: imageUrl,
+      index: clickedIndex,
+    });
+    setCurrentImageList(images);
+  };
+
   return (
     <S.Container>
       <TopAppBar
@@ -122,6 +136,7 @@ const OpinionChatPage = () => {
                 message={chatData.message}
                 images={chatData.images}
                 timeText={chatData.time}
+                onImageClick={(imageUrl) => handleImageClick(imageUrl, chatData.images || [])}
               />
             );
           } else if (chat.type === ChatType.SEND) {
@@ -132,6 +147,7 @@ const OpinionChatPage = () => {
                 message={chatData.message}
                 images={chatData.images}
                 timeText={chatData.time}
+                onImageClick={(imageUrl) => handleImageClick(imageUrl, chatData.images || [])}
               />
             );
           } else if (chat.type === ChatType.INFO) {
@@ -175,6 +191,14 @@ const OpinionChatPage = () => {
       )}
       {showSizeDialog && (
         <ImageFileSizeDialog onConfirm={closeSizeDialog} onDismiss={closeSizeDialog} />
+      )}
+      {selectedImage && (
+        <ImagePreview
+          imageUrl={selectedImage.url}
+          currentIndex={selectedImage.index}
+          totalImages={currentImageList.length}
+          onClose={() => setSelectedImage(null)}
+        />
       )}
     </S.Container>
   );
