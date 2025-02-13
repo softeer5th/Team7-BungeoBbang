@@ -200,8 +200,8 @@ const OpinionChatPage = () => {
             setExitDialogOpen(false);
             try {
               socketManager('OPINION', 'EXIT', Number(roomId), 'STUDENT');
-              await api.delete(`/student/opinion/${roomId}`);
-              navigate('/opinion/entry');
+              await api.delete(`/student/opinions/${roomId}`);
+              navigate('/my');
             } catch (error) {
               console.error('채팅방 삭제 실패:', error);
             }
