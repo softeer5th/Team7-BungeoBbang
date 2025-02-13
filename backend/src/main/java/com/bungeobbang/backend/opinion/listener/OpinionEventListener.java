@@ -54,8 +54,9 @@ public class OpinionEventListener {
     public void handleAdminOpinionEvent(OpinionAdminEvent event) {
         switch (event.websocketMessage().event()) {
             case ENTER -> {
-                opinionService.updateLastReadToMax(event.websocketMessage().opinionId(), true);
                 opinionRealTimeChatService.validateExistOpinion(event.websocketMessage().opinionId());
+
+                opinionService.updateLastReadToMax(event.websocketMessage().opinionId(), true);
             }
 
             case CHAT -> {
@@ -73,7 +74,6 @@ public class OpinionEventListener {
                 adminOpinionService.unsetRemindOpinion(event.websocketMessage().opinionId());
             }
             case LEAVE -> opinionService.updateLastReadToLastChatId(event.websocketMessage().opinionId(), true);
-            case START -> opinionRealTimeChatService.subscribeToOpinion(event.session(), event.websocketMessage().opinionId());
         }
     }
 }
