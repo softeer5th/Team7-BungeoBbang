@@ -29,7 +29,7 @@ const OpinionChatPage = () => {
   const [isExitDialogOpen, setExitDialogOpen] = useState(false);
   const [message, setMessage] = useState('');
   const [isRemindEnabled, setIsRemindEnabled] = useState(false);
-
+  const [isReminded, setIsReminded] = useState(false);
   const { images, showSizeDialog, handleImageDelete, handleImageUpload, closeSizeDialog } =
     useImageUpload(10, 5);
 
@@ -63,13 +63,12 @@ const OpinionChatPage = () => {
 
     const lastThreeChats = chatData.slice(-3);
     const isAllStudentMessages = lastThreeChats.every((chat) => chat.type === ChatType.SEND);
-
     return isAllStudentMessages;
   }, [chatData]);
 
   const handleSendRemind = async () => {
-    await api.post(`/student/opinions/${roomId}/remind`);
-    console.log('리마인드 전송');
+    await api.patch(`/student/opinions/${roomId}/remind`);
+    setIsReminded(true);
   };
 
   useEffect(() => {
@@ -78,7 +77,7 @@ const OpinionChatPage = () => {
     const fetchData = async () => {
       try {
         const enterResponse = await api.get(`/api/opinions/${roomId}`);
-        console.log('채팅방 정보:', enterResponse);
+        enterResponse.data.isReminded && setIsReminded(true);
         const response = await api.get(`/api/opinions/${roomId}/chat`, {
           params: { chatId: '000000000000000000000000' },
         });
@@ -169,12 +168,16 @@ const OpinionChatPage = () => {
       <ChatSendField
         initialText={message}
         onChange={setMessage}
-        onSendMessage={isRemindEnabled ? handleSendMessage : handleSendRemind}
+        onSendMessage={isRemindEnabled ? handleSendRemind : handleSendMessage}
         images={images}
         onImageDelete={handleImageDelete}
         onImageUpload={handleImageUpload}
         maxLength={500}
-        sendDisabled={isRemindEnabled}
+        // sendDisabled={isRemindEnabled}
+        textDisabled={isRemindEnabled}
+        disabledPlaceHolder={
+          isReminded ? '리마인드를 전송한 상태입니다.' : '답장이 없을 시 리마인드 버튼을 눌러주세요'
+        }
       />
 
       {isExitDialogOpen && (
