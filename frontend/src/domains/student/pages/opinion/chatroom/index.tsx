@@ -86,6 +86,7 @@ const OpinionChatPage = () => {
     (message: string, images: string[] = []) => {
       sendMessage('OPINION', Number(roomId), message, images, false);
       setMessage('');
+      handleImageDelete(-1);
     },
     [roomId, sendMessage],
   );
