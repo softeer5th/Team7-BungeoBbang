@@ -102,7 +102,7 @@ const OpinionChatPage = () => {
         rightIconSrc="/src/assets/icons/logout.svg"
         onLeftIconClick={() => {
           navigate(-1);
-          socketManager('OPINION', 'LEAVE', Number(roomId));
+          socketManager('OPINION', 'LEAVE', Number(roomId), 'STUDENT');
         }}
         onRightIconClick={() => {
           setExitDialogOpen(true);
@@ -161,7 +161,7 @@ const OpinionChatPage = () => {
           onConfirm={async () => {
             setExitDialogOpen(false);
             try {
-              socketManager('OPINION', 'EXIT', Number(roomId));
+              socketManager('OPINION', 'EXIT', Number(roomId), 'STUDENT');
               await api.delete(`/student/opinion/${roomId}`);
               navigate('/opinion/entry');
             } catch (error) {

@@ -12,6 +12,7 @@ import * as S from './styles';
 import { bottomItems, moveToDestination } from '../../destinations';
 import { useNavigate } from 'react-router-dom';
 import { findChatCategoryType } from '@/utils/findChatCategoryType';
+import { useSocketManager } from '@/hooks/useSocketManager';
 
 const chipItems = [
   { itemId: 'ALL', text: '전체' },
@@ -25,6 +26,7 @@ const OpinionEntryPage: React.FC = () => {
   const [selectedChip, setSelectedChip] = useState('ALL');
   const [opinions, setOpinions] = useState<Opinion[]>([]);
   const navigate = useNavigate();
+  const socketManager = useSocketManager();
 
   const handleChipClick = (chipId: string) => {
     setSelectedChip(chipId);
@@ -97,11 +99,12 @@ const OpinionEntryPage: React.FC = () => {
                 text={opinion.text}
                 time={opinion.time}
                 hasAlarm={opinion.hasAlarm}
-                onClick={() =>
+                onClick={() => {
                   navigate('/opinion/chat/' + opinion.id, {
                     state: { opinionType: opinion.title, lastChatId: opinion.lastChatId },
-                  })
-                }
+                  });
+                  socketManager('OPINION', 'START', opinion.id, 'ADMIN');
+                }}
                 createdAt={opinion.createdAt}
                 isReminded={opinion.isReminded}
               />

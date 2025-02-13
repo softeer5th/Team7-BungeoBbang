@@ -13,6 +13,7 @@ interface SocketManagerProps {
     | 'DELETE'
     | 'ERROR';
   roomId: number;
+  userType: 'ADMIN' | 'STUDENT';
 }
 
 export const useSocketManager = () => {
@@ -23,6 +24,7 @@ export const useSocketManager = () => {
     roomType: SocketManagerProps['roomType'],
     event: SocketManagerProps['event'],
     roomId: number,
+    userType: SocketManagerProps['userType'],
   ) => {
     if (storedMemberId === null) {
       alert('로그인이 필요합니다');
@@ -40,7 +42,9 @@ export const useSocketManager = () => {
       roomType,
       event: event,
       ...(roomType === 'OPINION' ? { opinionId: roomId } : { agendaId: roomId }),
-      memberId: storedMemberId,
+      ...(userType === 'ADMIN'
+        ? { adminId: Number(storedMemberId) }
+        : { memberId: Number(storedMemberId) }),
     };
     console.log('Sending message:', messageData);
 
