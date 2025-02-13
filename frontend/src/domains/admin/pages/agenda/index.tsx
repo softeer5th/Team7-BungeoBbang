@@ -16,6 +16,7 @@ import { LogoutDialog } from '@/components/Dialog/LogoutDialog';
 import { AgendaEndDialog } from './components/ChatEndDialog';
 import { AgendaDeleteDialog } from './components/AgendaDeleteDialog';
 import useInfiniteScroll from '@/hooks/useInfiniteScroll';
+import JwtManager from '@/utils/jwtManager';
 
 const tabItems: TabBarItemProps[] = [
   {
@@ -27,18 +28,6 @@ const tabItems: TabBarItemProps[] = [
     title: '종료',
   },
 ];
-
-// interface AgendaResponse {
-//   agenda: {
-//     id: number;
-//     title: string;
-//     categoryType: string;
-//     status: 'ACTIVE' | 'UPCOMING' | 'CLOSED';
-//     startDate: string;
-//     endDate: string;
-//   };
-//   hasNewMessage: boolean;
-// }
 
 const AgendaPage: React.FC = () => {
   const MAX_PAGE_ITEMS = 6;
@@ -107,6 +96,8 @@ const AgendaPage: React.FC = () => {
   const fetchProgressChatRooms = async () => {
     try {
       const status = isInProgessEnd.current ? 'UPCOMING' : 'ACTIVE';
+      const access = await JwtManager.getAccessToken();
+      console.log('access', access);
       const params =
         status == 'ACTIVE'
           ? {
@@ -157,6 +148,7 @@ const AgendaPage: React.FC = () => {
 
       const newRooms = closed.data.map(mapResponseToChatRoomListCardData);
 
+      console.log('newrooms', closed);
       setTabContents((prev) => ({
         ...prev,
         complete: [...(prev.complete ?? []), ...newRooms],
@@ -236,16 +228,16 @@ const AgendaPage: React.FC = () => {
     }
   };
 
-  const { setTriggerItem: setProgressTriggerItem, setHasMore: setProgressHasMore } =
+  const { setTriggerDownItem: setProgressTriggerItem, setHasDownMore: setProgressHasMore } =
     useInfiniteScroll({
-      fetchMore: fetchProgressChatRooms,
-      hasMore: isInProgessEnd.current === false,
+      initialFetch: fetchProgressChatRooms,
+      fetchDownMore: fetchProgressChatRooms,
     });
 
-  const { setTriggerItem: setCompleteTriggerItem, setHasMore: setCompleteHasMore } =
+  const { setTriggerDownItem: setCompleteTriggerItem, setHasDownMore: setCompleteHasMore } =
     useInfiniteScroll({
-      fetchMore: fetchCompleteChatRooms,
-      hasMore: true,
+      initialFetch: fetchCompleteChatRooms,
+      fetchDownMore: fetchCompleteChatRooms,
     });
 
   return (
@@ -320,7 +312,7 @@ const AgendaPage: React.FC = () => {
             </S.TabContent>
           );
         })}
-        <S.FloatingActionButton bottom={bottomPx} onClick={() => navigate(`/agenda/create/-1`)}>
+        <S.FloatingActionButton bottom={bottomPx} onClick={() => navigate(`/agenda/create`)}>
           <img src="/src/assets/icons/plus.svg" />
         </S.FloatingActionButton>
       </S.TabContainer>

@@ -22,7 +22,7 @@ function AdminApp() {
       <Routes>
         <Route path="/" element={<AdminLogin />} />
         <Route path="/agenda" element={<AgendaPage />} />
-        <Route path="/agenda/create/:roomId" element={<CreateAgendaPage />} />
+        <Route path="/agenda/create/:roomId?" element={<CreateAgendaPage />} />
         <Route path="/agenda/chat/:roomId" element={<AgendaChatPage />} />
         <Route path="/opinion/entry" element={<OpinionEntryPage />} />
         <Route path="/opinion/chat/:roomId" element={<OpinionChatPage />} />

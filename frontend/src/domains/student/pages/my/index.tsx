@@ -58,8 +58,6 @@ const MyPage = () => {
       result.agenda = agenda.data.map((data: AgendaServerData) =>
         mapAgendaResponseToChatPreviewData(data),
       );
-
-      console.log('response', result);
       setTabBarContent(result);
     } catch (error) {
       console.error('fail to fetch agenda data', error);

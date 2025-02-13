@@ -50,13 +50,13 @@ export const InputContainer = styled.div`
 export const Input = styled.input<{ error?: boolean }>`
   width: 100%;
   padding: 14px;
-  border: 1px solid ${({ error }) => (error ? '#FF0000' : '#E5E5EA')};
+  border: 1px solid ${({ error }) => (error ? '#FF0000' : '#E0E0E0')};
   border-radius: 12px;
   font-size: 16px;
   outline: none;
 
   &:focus {
-    border-color: ${({ error }) => (error ? '#FF0000' : '#007AFF')};
+    border-color: ${({ error }) => (error ? '#FF0000' : '#393939')};
   }
 `;
 
@@ -70,7 +70,7 @@ export const ErrorText = styled.p`
 export const LoginButton = styled.button<{ disabled: boolean }>`
   width: 100%;
   padding: 16px;
-  background-color: ${({ disabled }) => (disabled ? '#E5E5EA' : '#007AFF')};
+  background-color: ${({ disabled }) => (disabled ? '#E0E0E0' : '#1F87FF')};
   color: white;
   border: none;
   border-radius: 12px;

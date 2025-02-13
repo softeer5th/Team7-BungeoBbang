@@ -31,7 +31,8 @@ export interface ChatCreateData {
 const CreateAgendaPage = () => {
   const NEW_CHAT = '-1';
 
-  const { roomId } = useParams(); // 모든 URL 파라미터 가져오기
+  const params = useParams(); // 모든 URL 파라미터 가져오기
+  const roomId = params.roomId ?? '-1';
 
   const theme = useTheme();
   const navigate = useNavigate();
@@ -97,6 +98,7 @@ const CreateAgendaPage = () => {
       };
 
       await api.patch(`/admin/agendas/${roomId}`, body);
+      navigate(-1);
     } catch (error) {
       console.error('Failed to send data:', error);
     }
@@ -142,8 +144,6 @@ const CreateAgendaPage = () => {
             } else {
               editChatValue();
             }
-
-            navigate(-1);
           }}
         >
           등록
