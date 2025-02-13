@@ -29,7 +29,6 @@ public class OpinionService {
      */
     private static final String MAX_OBJECT_ID = "ffffffffffffffffffffffff";
 
-    private final OpinionLastReadRepository opinionLastReadRepository;
     private final OpinionChatRepository opinionChatRepository;
     private final OpinionRepository opinionRepository;
     private final CustomOpinionChatRepository customOpinionChatRepository;
@@ -70,11 +69,11 @@ public class OpinionService {
         customOpinionLastReadRepository.updateLastRead(opinionId, isAdmin, lastChat.getId());
     }
 
-    public void saveChat(
+    public OpinionChat saveChat(
             final Long userId, final Long opinionId,
             final String chat, final List<String> images,
             final boolean isAdmin, final LocalDateTime createdAt) {
-        opinionChatRepository.save(
+        return opinionChatRepository.save(
                 OpinionChat.builder()
                         .memberId(userId)
                         .opinionId(opinionId)

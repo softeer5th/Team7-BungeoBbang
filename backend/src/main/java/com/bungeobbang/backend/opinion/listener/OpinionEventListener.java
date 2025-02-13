@@ -3,6 +3,7 @@ package com.bungeobbang.backend.opinion.listener;
 import com.bungeobbang.backend.badword.service.BadWordService;
 import com.bungeobbang.backend.chat.event.opinion.OpinionAdminEvent;
 import com.bungeobbang.backend.chat.event.opinion.OpinionMemberEvent;
+import com.bungeobbang.backend.opinion.domain.OpinionChat;
 import com.bungeobbang.backend.opinion.service.AdminOpinionService;
 import com.bungeobbang.backend.opinion.service.OpinionRealTimeChatService;
 import com.bungeobbang.backend.opinion.service.OpinionService;
@@ -64,7 +65,7 @@ public class OpinionEventListener {
                 opinionRealTimeChatService.validateExistOpinion(event.websocketMessage().opinionId());
                 badWordService.validate(event.websocketMessage().message());
                 opinionRealTimeChatService.sendMessageFromAdmin(event.websocketMessage());
-                opinionService.saveChat(
+                final OpinionChat savedChat = opinionService.saveChat(
                         event.websocketMessage().adminId(),
                         event.websocketMessage().opinionId(),
                         event.websocketMessage().message(),
@@ -72,6 +73,8 @@ public class OpinionEventListener {
                         true,
                         event.websocketMessage().createdAt()
                 );
+                // 통계를 위해 answered_opinion 컬렉션 업데이트(upsert)
+                adminOpinionService.updateAnsweredOpinion(savedChat);
                 adminOpinionService.unsetRemindOpinion(event.websocketMessage().opinionId());
             }
             case LEAVE -> opinionService.updateLastReadToLastChatId(event.websocketMessage().opinionId(), true);
