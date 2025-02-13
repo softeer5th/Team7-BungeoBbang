@@ -1,7 +1,9 @@
 import styled from 'styled-components';
 import Typography from '../../styles/Typography';
+import { forwardRef } from 'react';
 
-interface SenderChatProps {
+interface ReceiverChatProps {
+  chatId: string;
   receiverName?: string;
   receiverIconSrc?: string;
   receiverIconBackgroundColor?: string;
@@ -15,55 +17,56 @@ interface SenderChatProps {
   onImageClick?: (imageUrl: string) => void;
 }
 
-export const ReceiverChat: React.FC<SenderChatProps> = ({
-  receiverName,
-  receiverIconSrc,
-  receiverIconBackgroundColor = '#FFEFB3',
-  message,
-  timeText,
-  images,
-  nameTextColor = '#393939',
-  backgroundColor = '#F4F4F4',
-  textColor = '#393939',
-  timeTextColor = '#C6C6C6',
-  onImageClick,
-}) => {
-  return (
-    <ReceiverChatContainer>
-      <NameContainer>
-        {receiverName && (
-          <NameText variant="body2" nameTextColor={nameTextColor}>
-            {receiverName}
-          </NameText>
+export const ReceiverChat = forwardRef<HTMLDivElement, ReceiverChatProps>(
+  (
+    {
+      chatId,
+      receiverName,
+      receiverIconSrc,
+      receiverIconBackgroundColor = '#FFEFB3',
+      message,
+      timeText,
+      images,
+      nameTextColor = '#393939',
+      backgroundColor = '#F4F4F4',
+      textColor = '#393939',
+      timeTextColor = '#C6C6C6',
+      onImageClick,
+    },
+    ref,
+  ) => {
+    return (
+      <ReceiverChatContainer id={chatId} ref={ref}>
+        <NameContainer>
+          {receiverName && (
+            <NameText variant="body2" nameTextColor={nameTextColor}>
+              {receiverName}
+            </NameText>
+          )}
+          {receiverIconSrc && <IconBox backgroundColor={receiverIconBackgroundColor}></IconBox>}
+        </NameContainer>
+        {images && (
+          <ImageContainer>
+            {images.map((image, index) => {
+              return <ImageBox src={image} key={`${image}${index}`} onClick={() => onImageClick?.(image)} />;
+            })}
+          </ImageContainer>
         )}
-        {receiverIconSrc && <IconBox backgroundColor={receiverIconBackgroundColor}></IconBox>}
-      </NameContainer>
-      {images && (
-        <ImageContainer>
-          {images.map((image, index) => {
-            return (
-              <ImageBox
-                src={image}
-                key={`${image}${index}`}
-                onClick={() => onImageClick?.(image)}
-              />
-            );
-          })}
-        </ImageContainer>
-      )}
-      <MessageContainer>
-        <ChatContainer backgroundColor={backgroundColor}>
-          <ChatMessageText variant="body1" textColor={textColor}>
-            {message}
-          </ChatMessageText>
-        </ChatContainer>
-        <TimeText variant="caption3" timeTextColor={timeTextColor}>
-          {timeText}
-        </TimeText>
-      </MessageContainer>
-    </ReceiverChatContainer>
-  );
-};
+        <MessageContainer>
+          <ChatContainer backgroundColor={backgroundColor}>
+            <ChatMessageText variant="body1" textColor={textColor}>
+              {message}
+            </ChatMessageText>
+          </ChatContainer>
+          <TimeText variant="caption3" timeTextColor={timeTextColor}>
+            {timeText}
+          </TimeText>
+        </MessageContainer>
+      </ReceiverChatContainer>
+    );
+  },
+);
+
 
 const ReceiverChatContainer = styled.div`
   width: 100%;

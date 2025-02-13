@@ -2,54 +2,97 @@ import { useEffect, useRef } from 'react';
 
 interface InfiniteScrollOptions {
   threshold?: number;
-  fetchMore: () => Promise<void>;
-  hasMore: boolean;
+  initialFetch: () => Promise<void>;
+  fetchUpMore?: () => Promise<void>;
+  fetchDownMore?: () => Promise<void>;
 }
 
-const useInfiniteScroll = ({ threshold = 1.0, fetchMore, hasMore }: InfiniteScrollOptions) => {
-  const triggerRef = useRef<HTMLDivElement | null>(null);
-  const observer = useRef<IntersectionObserver | null>(null);
-  const more = useRef<boolean>(hasMore);
+const useInfiniteScroll = ({
+  threshold = 1.0,
+  initialFetch,
+  fetchUpMore,
+  fetchDownMore,
+}: InfiniteScrollOptions) => {
+  const upTriggerRef = useRef<HTMLDivElement | null>(null);
+  const downTriggerRef = useRef<HTMLDivElement | null>(null);
+  const upObserver = useRef<IntersectionObserver | null>(null);
+  const downObserver = useRef<IntersectionObserver | null>(null);
+  const hasUpMore = useRef<boolean>(true);
+  const hasDownMore = useRef<boolean>(true);
 
-  const setHasMore = (newHasMore: boolean) => {
-    more.current = newHasMore;
+  const setHasUpMore = (newHasUpMore: boolean) => {
+    hasUpMore.current = newHasUpMore;
   };
 
-  const setTriggerItem = (element: HTMLDivElement) => {
-    if (observer.current && element) {
-      observer.current.disconnect();
-      observer.current.observe(element);
-      triggerRef.current = element;
+  const setHasDownMore = (newHasDownMore: boolean) => {
+    hasDownMore.current = newHasDownMore;
+  };
+
+  const setTriggerUpItem = (element: HTMLDivElement) => {
+    if (upObserver.current && element) {
+      upObserver.current.disconnect();
+      upObserver.current.observe(element);
+      upTriggerRef.current = element;
+    }
+  };
+
+  const setTriggerDownItem = (element: HTMLDivElement) => {
+    if (downObserver.current && element) {
+      downObserver.current.disconnect();
+      downObserver.current.observe(element);
+      downTriggerRef.current = element;
     }
   };
 
   useEffect(() => {
-    fetchMore();
-    if (!observer.current) {
-      observer.current = new IntersectionObserver(
+    initialFetch();
+    if (!upObserver.current) {
+      upObserver.current = new IntersectionObserver(
         (entries) => {
           const [entry] = entries;
-          if (entry.isIntersecting && more.current) {
-            fetchMore();
+          if (entry.isIntersecting && hasUpMore.current && fetchUpMore) {
+            console.log('!!!!!');
+            fetchUpMore();
           }
         },
         { threshold },
       );
 
-      if (triggerRef.current) {
-        observer.current.disconnect();
-        observer.current.observe(triggerRef.current);
+      if (upTriggerRef.current) {
+        upObserver.current.disconnect();
+        upObserver.current.observe(upTriggerRef.current);
+      }
+    }
+
+    if (!downObserver.current) {
+      downObserver.current = new IntersectionObserver(
+        (entries) => {
+          const [entry] = entries;
+          if (entry.isIntersecting && hasDownMore.current && fetchDownMore) {
+            fetchDownMore();
+          }
+        },
+        { threshold },
+      );
+
+      if (downTriggerRef.current) {
+        downObserver.current.disconnect();
+        downObserver.current.observe(downTriggerRef.current);
       }
     }
 
     return () => {
-      if (observer.current && triggerRef.current) {
-        observer.current.disconnect();
+      if (upObserver.current && upTriggerRef.current) {
+        upObserver.current.disconnect();
+      }
+
+      if (downObserver.current && downTriggerRef.current) {
+        downObserver.current.disconnect();
       }
     };
   }, []);
 
-  return { setTriggerItem, setHasMore };
+  return { setTriggerUpItem, setTriggerDownItem, setHasUpMore, setHasDownMore };
 };
 
 export default useInfiniteScroll;

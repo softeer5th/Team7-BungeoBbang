@@ -86,9 +86,9 @@ const AgendaPage = () => {
     }
   };
 
-  const { setTriggerItem, setHasMore } = useInfiniteScroll({
-    fetchMore: fetchChatRooms,
-    hasMore: isInProgessEnd.current == false || hasMore.current === true,
+  const { setTriggerDownItem: setTriggerItem, setHasDownMore: setHasMore } = useInfiniteScroll({
+    initialFetch: fetchChatRooms,
+    fetchDownMore: fetchChatRooms,
   });
 
   return (

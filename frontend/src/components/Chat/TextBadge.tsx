@@ -1,5 +1,6 @@
 import styled from 'styled-components';
 import Typography from '../../styles/Typography';
+import { forwardRef } from 'react';
 
 interface TextBadgeProps {
   text?: string;
@@ -7,19 +8,17 @@ interface TextBadgeProps {
   textColor?: string;
 }
 
-export const TextBadge: React.FC<TextBadgeProps> = ({
-  text,
-  backgroundColor = '#E8F3FF',
-  textColor = '#51A2FF',
-}) => {
-  return (
-    <TextBadgeContainer backgroundColor={backgroundColor}>
-      <Text variant="caption2" textColor={textColor}>
-        {text}
-      </Text>
-    </TextBadgeContainer>
-  );
-};
+export const TextBadge = forwardRef<HTMLDivElement, TextBadgeProps>(
+  ({ text, backgroundColor = '#E8F3FF', textColor = '#51A2FF' }, ref) => {
+    return (
+      <TextBadgeContainer ref={ref} backgroundColor={backgroundColor}>
+        <Text variant="caption2" textColor={textColor}>
+          {text}
+        </Text>
+      </TextBadgeContainer>
+    );
+  },
+);
 
 const TextBadgeContainer = styled.div<{
   backgroundColor: string;

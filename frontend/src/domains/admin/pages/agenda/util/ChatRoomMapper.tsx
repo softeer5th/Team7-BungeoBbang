@@ -11,12 +11,14 @@ export interface ServerData {
     count: number;
   };
   hasNewMessage: boolean;
+  lastReadChatId: string;
 }
 
 export const mapResponseToChatRoomListCardData = (response: ServerData): ChatRoomListCardData => {
   return {
     roomId: response.agenda.agendaId,
     hasNew: response.hasNewMessage,
+    lastReadChatId: response.lastReadChatId,
     progressState: getProgressState(response.agenda.startDate, response.agenda.endDate),
     numOfJoin: response.agenda.count,
     chatCategoryType: findChatCategoryType(response.agenda.categoryType),
