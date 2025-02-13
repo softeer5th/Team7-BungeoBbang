@@ -1,9 +1,9 @@
-import { useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import ChatPage, { ChatRoomInfo } from '../../chat-page';
 import { useParams, useSearchParams } from 'react-router-dom';
 import { formatChatData } from '@/utils/chat/formatChatData.ts';
 import api from '@/utils/api.ts';
-import { ChatData } from '../../chat-page/ChatData';
+import { ChatData, ChatType } from '../../chat-page/ChatData';
 import useInfiniteScroll from '@/hooks/useInfiniteScroll';
 
 const AgendaChatPage = () => {
@@ -25,10 +25,18 @@ const AgendaChatPage = () => {
   const lastDownChatId = useRef<string | null>(lastReadChatId);
   const chatListRef = useRef<HTMLDivElement>(null);
 
-  const focusChatItem = useRef<HTMLDivElement | null>(null);
+  const findLastChatId = () => {
+    const chat = chatData.find(
+      (chat) => chat.type !== ChatType.INFO && chat.chatId === lastReadChatId,
+    );
+    return (
+      chat?.chatId ?? (lastReadChatId === '000000000000000000000000' ? chatData[0].chatId : null)
+    );
+  };
+
+  const focusChatItemId = useRef<string | null | undefined>(findLastChatId());
 
   const getInitialChatData = async () => {
-    console.log('initititititit', chatListRef);
     try {
       const [response, chatInfo] = await Promise.all([
         api.get(`/admin/agendas/${roomId}/chat`, {
@@ -51,8 +59,6 @@ const AgendaChatPage = () => {
   };
 
   const getMoreChatData = async (direction: string) => {
-    s;
-
     try {
       const response = await api.get(`/admin/agendas/${roomId}/chat`, {
         params: {
@@ -77,14 +83,6 @@ const AgendaChatPage = () => {
           return [...prev, ...formattedData];
         }
       });
-
-      // const newScrollHeight = chatListRef.current?.scrollHeight || 0;
-      // const scrollDifference = newScrollHeight - prevScrollHeight;
-      // console.log('scroll!!!', chatListRef.current, newScrollHeight);
-      // if (chatListRef.current) {
-      //   chatListRef.current.scrollTop = scrollDifference;
-      // }
-      scrollToLastChat();
     } catch (error) {
       console.error('fail to get chat data', error);
     }
@@ -96,21 +94,15 @@ const AgendaChatPage = () => {
     fetchDownMore: () => getMoreChatData('DOWN'),
   });
 
-  const scrollToLastChat = () => {
-    if (!chatListRef.current) return;
+  useLayoutEffect(() => {
+    const lastChatElement = document.querySelector(`#id${focusChatItemId.current}`);
 
-    // // Find the element for lastChatId
-    // if (focusChatItem.current) {
-    //   const lastChatElement = document.querySelector(focusChatItem.current?.id);
-
-    //   console.log('lastCHatElement', lastChatElement);
-
-    //   focusChatItem.current.scrollIntoView({
-    //     behavior: 'smooth',
-    //     block: 'center',
-    //   });
-    // }
-  };
+    console.log('last', lastChatElement);
+    if (lastChatElement) {
+      lastChatElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      clearInterval(interval);
+    }
+  }, [chatData]);
 
   return (
     <ChatPage
@@ -119,6 +111,8 @@ const AgendaChatPage = () => {
       chatRoomInfo={chatRoomInfo}
       onUpLastItemChange={(lastItemRef, lastChatId: string) => {
         lastUpChatId.current = lastChatId;
+
+        focusChatItemId.current = lastItemRef.id;
         console.log('uplats', lastItemRef, lastChatId);
         setTriggerUpItem(lastItemRef);
       }}
@@ -126,7 +120,6 @@ const AgendaChatPage = () => {
         lastDownChatId.current = lastChatId;
         console.log('downlast', lastItemRef, lastChatId);
 
-        focusChatItem.current = lastItemRef;
         setTriggerDownItem(lastItemRef);
       }}
     />

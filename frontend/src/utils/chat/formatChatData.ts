@@ -83,6 +83,7 @@ export const formatChatData = (
 
     if (currentDate !== chatDate) {
       chatsWithDateDividers.push({
+        chatId: '',
         type: ChatType.INFO,
         message: chatDate,
       });

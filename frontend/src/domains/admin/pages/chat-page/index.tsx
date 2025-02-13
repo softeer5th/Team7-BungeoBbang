@@ -36,7 +36,7 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
   ) => {
     const navigate = useNavigate();
 
-    const FIRST_REMAIN_ITEMS = 1;
+    const FIRST_REMAIN_ITEMS = 3;
     const LAST_REMAIN_ITEMS = 3;
 
     let upLastItemId: string = '';
