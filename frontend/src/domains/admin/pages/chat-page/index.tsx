@@ -8,9 +8,10 @@ import {
   ChatData,
   ChatType,
   InfoChatData,
+  // MoreChatData,
   ReceiveChatData,
   SendChatData,
-} from '@/utils/chat/ChatData.tsx';
+} from './ChatData.tsx';
 import { useNavigate, useParams } from 'react-router-dom';
 import { forwardRef, useCallback, useState, useEffect } from 'react';
 // import { getDefaultBorderStyle } from '@/components/border/getBorderType.tsx';

@@ -4,7 +4,7 @@ import { useParams, useSearchParams } from 'react-router-dom';
 import { formatChatData } from '@/utils/chat/formatChatData.ts';
 import api from '@/utils/api.ts';
 import useInfiniteScroll from '@/hooks/useInfiniteScroll';
-import { ChatData } from '@/utils/chat/ChatData';
+import { ChatData } from '../../chat-page/ChatData';
 
 const AgendaChatPage = () => {
   const MAX_CHAT_DATA = 10;

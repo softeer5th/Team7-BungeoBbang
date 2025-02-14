@@ -3,7 +3,7 @@ import {
   ChatType,
   ReceiveChatData,
   SendChatData,
-} from '@/utils/chat/ChatData';
+} from '@/domains/student/pages/chat-page/ChatData';
 
 interface ServerOpinionChatData {
   chatId: string;
