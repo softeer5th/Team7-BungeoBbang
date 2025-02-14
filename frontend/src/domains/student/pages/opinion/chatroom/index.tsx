@@ -133,7 +133,7 @@ const OpinionChatPage = () => {
 
   const handleLeave = useCallback(() => {
     if (!hasLeft.current) {
-      socketManager('AGENDA', 'LEAVE', Number(localStorage.getItem('member_id')), 'ADMIN');
+      socketManager('OPINION', 'LEAVE', Number(localStorage.getItem('member_id')), 'STUDENT');
       hasLeft.current = true;
     }
   }, [socketManager]);

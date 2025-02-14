@@ -125,7 +125,7 @@ const ChatPage = ({ roomId, isEnd, isParticipate, lastChatId }: ChatPageProps) =
 
   const handleLeave = useCallback(() => {
     if (!hasLeft.current) {
-      socketManager('AGENDA', 'LEAVE', Number(localStorage.getItem('member_id')), 'ADMIN');
+      socketManager('AGENDA', 'LEAVE', Number(localStorage.getItem('member_id')), 'STUDENT');
       hasLeft.current = true;
     }
   }, [socketManager]);
