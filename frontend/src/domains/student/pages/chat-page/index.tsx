@@ -62,7 +62,7 @@ const ChatPage = ({ roomId, isEnd, isParticipate, lastChatId }: ChatPageProps) =
       try {
         console.log('lastchatID', lastChatId);
         const response = await api.get(`/student/agendas/${roomId}/chat`, {
-          params: { chatId: lastChatId },
+          params: { chatId: lastChatId, scroll: 'INITIAL' },
         });
 
         const formattedData = formatChatData(response.data, false);

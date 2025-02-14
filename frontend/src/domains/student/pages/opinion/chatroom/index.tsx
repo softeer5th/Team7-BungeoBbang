@@ -81,7 +81,7 @@ const OpinionChatPage = () => {
         const enterResponse = await api.get(`/api/opinions/${roomId}`);
         enterResponse.data.isReminded && setIsReminded(true);
         const response = await api.get(`/api/opinions/${roomId}/chat`, {
-          params: { chatId: lastChatId },
+          params: { chatId: lastChatId, scroll: 'INITIAL' },
         });
 
         const formattedData = formatChatData(response.data, false);

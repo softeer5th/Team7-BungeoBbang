@@ -69,7 +69,7 @@ const OpinionChatPage = () => {
         const res = await api.get(`/api/opinions/${roomId}`);
         setIsReminded(res.data.isReminded);
         const response = await api.get(`/api/opinions/${roomId}/chat`, {
-          params: { chatId: lastChatId },
+          params: { chatId: lastChatId, scroll: 'INITIAL' },
         });
         console.log('채팅 데이터:', response);
         const formattedData = formatChatData(response.data, true);
