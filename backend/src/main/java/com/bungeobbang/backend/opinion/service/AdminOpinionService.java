@@ -195,7 +195,7 @@ public class AdminOpinionService {
     }
 
     public void updateAnsweredOpinion(final OpinionChat savedChat) {
-        customAnsweredOpinionRepository.saveIfNotExists(
+        customAnsweredOpinionRepository.upsert(
                 savedChat.getOpinionId(),
                 getAdminUniversityId(savedChat.getMemberId()));
     }

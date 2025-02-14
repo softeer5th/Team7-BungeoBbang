@@ -19,7 +19,7 @@ public class CustomAnsweredOpinionRepository {
     /**
      * 중복된 (opinionId, universityId) 데이터가 없을 경우만 저장
      */
-    public void saveIfNotExists(Long opinionId, Long universityId) {
+    public void upsert(Long opinionId, Long universityId) {
         Query query = new Query();
         query.addCriteria(Criteria.where(OPINION_ID).is(opinionId)
                 .and(UNIVERSITY_ID).is(universityId));
