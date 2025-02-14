@@ -29,8 +29,6 @@ const AgendaChatPage = () => {
 
   const previousScrollHeight = useRef<number | null>(null);
 
-  const focusChatItemId = useRef<string | null | undefined>(lastReadChatId);
-
   const getInitialChatData = async () => {
     try {
       const [response, chatInfo] = await Promise.all([
@@ -41,7 +39,6 @@ const AgendaChatPage = () => {
         }),
         api.get(`/admin/agendas/${roomId}`),
       ]);
-      console.log('initial!!!', response);
       const formattedData = formatChatData(response.data, true);
       setChatData(formattedData);
       setChatRoomInfo({
@@ -56,8 +53,6 @@ const AgendaChatPage = () => {
 
   const getMoreChatData = async (direction: string) => {
     try {
-      // previousScrollHeight.current = chatListRef.current?.scrollHeight ?? 0;
-
       if (direction === 'UP') isUpDirection.current = true;
       const response = await api.get(`/admin/agendas/${roomId}/chat`, {
         params: {
@@ -82,12 +77,6 @@ const AgendaChatPage = () => {
           return [...prev, ...formattedData];
         }
       });
-
-      // if (chatListRef.current) {
-      //   const newScrollHeight = chatListRef.current.scrollHeight;
-      //   const scrollDifference = newScrollHeight - previousScrollHeight.current;
-      //   chatListRef.current.scrollTo(top: previousScrollHeight,) += scrollDifference;
-      // }
     } catch (error) {
       console.error('fail to get chat data', error);
     }
@@ -126,16 +115,10 @@ const AgendaChatPage = () => {
       chatRoomInfo={chatRoomInfo}
       onUpLastItemChange={(lastItemRef, lastChatId: string) => {
         lastUpChatId.current = lastChatId;
-
-        if (!isInitialLoading) focusChatItemId.current = lastItemRef.id;
-        console.log('uplats', lastItemRef, lastChatId);
-
         setTriggerUpItem(lastItemRef);
       }}
       onDownLastItemChange={(lastItemRef, lastChatId) => {
         lastDownChatId.current = lastChatId;
-        // console.log('downlast', lastItemRef, lastChatId);
-
         setTriggerDownItem(lastItemRef);
       }}
     />
