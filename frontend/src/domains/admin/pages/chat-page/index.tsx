@@ -22,7 +22,7 @@ import { useImageUpload } from '@/hooks/useImageUpload';
 import { ImageFileSizeDialog } from '@/components/Dialog/ImageFileSizeDialog.tsx';
 
 interface ChatPageProps {
-  chatData: ChatData[];
+  apiChatData: ChatData[];
   chatRoomInfo: ChatRoomInfo;
   onUpLastItemChange?: (lastItemRef: HTMLDivElement, lastItemId: string) => void;
   onDownLastItemChange?: (lastItemRef: HTMLDivElement, lastItemId: string) => void;
@@ -35,11 +35,12 @@ export interface ChatRoomInfo {
 
 const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
   (
-    { chatData, chatRoomInfo, onUpLastItemChange = () => {}, onDownLastItemChange = () => {} },
+    { apiChatData, chatRoomInfo, onUpLastItemChange = () => {}, onDownLastItemChange = () => {} },
     ref,
   ) => {
+    console.log('apichatdata', apiChatData);
     const [message, setMessage] = useState('');
-
+    const [chatData, setChatData] = useState<ChatData[]>(apiChatData);
     const memberId = localStorage.getItem('member_id');
     const { roomId } = useParams();
 
@@ -60,29 +61,29 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
     const handleMessageReceive = useCallback(
       (message: ChatMessage) => {
         if (message.roomType === 'OPINION' && message.opinionId === Number(roomId)) {
-          // const newChat = {
-          //   type: message.adminId === Number(memberId) ? ChatType.SEND : ChatType.RECEIVE,
-          //   message: message.message,
-          //   time: new Date(message.createdAt).toLocaleTimeString('ko-KR', {
-          //     hour: '2-digit',
-          //     minute: '2-digit',
-          //   }),
-          //   images: message.images || [],
-          // };
-          // setChatData((prev) => [...prev, newChat]);
+          const newChat = {
+            type: message.adminId === Number(memberId) ? ChatType.SEND : ChatType.RECEIVE,
+            message: message.message,
+            time: new Date(message.createdAt).toLocaleTimeString('ko-KR', {
+              hour: '2-digit',
+              minute: '2-digit',
+            }),
+            images: message.images || [],
+          };
+          setChatData((prev) => [...prev, newChat]);
         }
       },
       [roomId, memberId],
     );
 
     useEffect(() => {
-      const unsubscribe = subscribe('OPINION', Number(roomId), handleMessageReceive);
+      const unsubscribe = subscribe('AGENDA', Number(roomId), handleMessageReceive);
       return () => unsubscribe();
     }, [roomId, handleMessageReceive, subscribe]);
 
     const handleSendMessage = useCallback(
       (message: string, images: string[] = []) => {
-        sendMessage('OPINION', Number(roomId), message, images, true);
+        sendMessage('AGENDA', Number(roomId), message, images, true);
         setMessage('');
         handleImageDelete(-1);
       },
@@ -96,7 +97,7 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
           title={chatRoomInfo.title}
           rightIconSrc="/src/assets/icons/information-circle-contained.svg"
           onLeftIconClick={() => {
-            socketManager('OPINION', 'LEAVE', Number(localStorage.getItem('member_id')), 'ADMIN');
+            socketManager('AGENDA', 'LEAVE', Number(localStorage.getItem('member_id')), 'ADMIN');
             navigate(-1);
           }}
           onRightIconClick={() => {}}
@@ -106,7 +107,7 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
             const isUpTriggerItem = chatIndex === FIRST_REMAIN_ITEMS;
             const isDownTriggerItem = chatIndex === chatData.length - LAST_REMAIN_ITEMS;
 
-            // console.log('chat', chat, isUpTriggerItem, isDownTriggerItem);
+            console.log('chat', chat, isUpTriggerItem, isDownTriggerItem);
             if (chat.type === ChatType.RECEIVE) {
               const chatData = chat as ReceiveChatData;
               if (upLastItemId.length === 0) upLastItemId = chatData.chatId;

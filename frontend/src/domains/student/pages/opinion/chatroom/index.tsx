@@ -1,5 +1,5 @@
 import * as S from '@/domains/student/pages/chat-page/styles';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { TopAppBar } from '@/components/TopAppBar';
 import { useEffect, useState, useCallback } from 'react';
 import {
@@ -40,6 +40,7 @@ const OpinionChatPage = () => {
   const memberId = localStorage.getItem('member_id');
   const { socket } = useSocketStore();
   const socketManager = useSocketManager();
+  const lastChatId = useLocation().state?.lastChatId || '000000000000000000000000';
 
   const handleMessageReceive = useCallback(
     (message: ChatMessage) => {
@@ -80,8 +81,9 @@ const OpinionChatPage = () => {
         const enterResponse = await api.get(`/api/opinions/${roomId}`);
         enterResponse.data.isReminded && setIsReminded(true);
         const response = await api.get(`/api/opinions/${roomId}/chat`, {
-          params: { chatId: '000000000000000000000000' },
+          params: { chatId: lastChatId },
         });
+
         const formattedData = formatChatData(response.data, false);
         setChatData(formattedData);
       } catch (error) {

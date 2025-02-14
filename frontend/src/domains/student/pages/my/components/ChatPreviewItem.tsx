@@ -12,6 +12,7 @@ interface ChatPreviewItemProps {
 export const ChatPreviewItem: React.FC<ChatPreviewItemProps> = ({
   chatData,
 }: ChatPreviewItemProps) => {
+  console.log('chatData', chatData);
   const navigate = useNavigate();
   const socketManager = useSocketManager();
 
@@ -21,10 +22,10 @@ export const ChatPreviewItem: React.FC<ChatPreviewItemProps> = ({
         const roomId = chatData.roomId;
         if (chatData.opinionType) {
           socketManager('OPINION', 'ENTER', Number(roomId), 'STUDENT');
-          navigate(`/opinion/chat/${roomId}`);
+          navigate(`/opinion/chat/${roomId}`, { state: { lastChatId: chatData.lastChatId } });
         } else {
           socketManager('AGENDA', 'ENTER', Number(roomId), 'STUDENT');
-          navigate(`/agenda/chat/${roomId}`);
+          navigate(`/agenda/chat/${roomId} `, { state: { lastChatId: chatData.lastChatId } });
         }
       }}
     >

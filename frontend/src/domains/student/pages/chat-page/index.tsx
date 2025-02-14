@@ -29,9 +29,10 @@ interface ChatPageProps {
   roomId: number;
   isEnd: boolean;
   isParticipate: boolean;
+  lastChatId: string;
 }
 
-const ChatPage = ({ roomId, isEnd, isParticipate }: ChatPageProps) => {
+const ChatPage = ({ roomId, isEnd, isParticipate, lastChatId }: ChatPageProps) => {
   const [chatData, setChatData] = useState<ChatData[]>([]);
   const [isExitDialogOpen, setExitDialogOpen] = useState(false);
   const [selectedImage, setSelectedImage] = useState<{ url: string; index: number } | null>(null);
@@ -42,6 +43,7 @@ const ChatPage = ({ roomId, isEnd, isParticipate }: ChatPageProps) => {
     useImageUpload(10, 5);
 
   const navigate = useNavigate();
+
   const socketManager = useSocketManager();
   const { subscribe, sendMessage } = useSocketStore();
   const memberId = localStorage.getItem('member_id');
@@ -58,7 +60,11 @@ const ChatPage = ({ roomId, isEnd, isParticipate }: ChatPageProps) => {
   useEffect(() => {
     const getChatData = async () => {
       try {
-        const response = await api.get(`/student/agendas/${roomId}/chat`);
+        console.log('lastchatID', lastChatId);
+        const response = await api.get(`/student/agendas/${roomId}/chat`, {
+          params: { chatId: lastChatId },
+        });
+
         const formattedData = formatChatData(response.data, false);
         setChatData(formattedData);
       } catch (error) {
@@ -92,6 +98,7 @@ const ChatPage = ({ roomId, isEnd, isParticipate }: ChatPageProps) => {
         setChatData((prev) => [...prev, newChat]);
       }
     },
+
     [roomId, memberId],
   );
 
