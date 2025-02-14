@@ -28,7 +28,7 @@ export const SenderChat = forwardRef<HTMLDivElement, SenderChatProps>(
     ref,
   ) => {
     return (
-      <SenderChatContainer id={chatId} ref={ref}>
+      <SenderChatContainer id={`id${chatId}`} ref={ref}>
         {images && images.length > 0 && (
           <ImageContainer>
             {images.map((image, index) => {
