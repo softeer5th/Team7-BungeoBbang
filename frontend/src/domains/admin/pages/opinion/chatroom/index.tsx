@@ -1,5 +1,5 @@
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
-import { useEffect, useState, useCallback, useRef } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import * as S from '@/domains/student/pages/chat-page/styles';
 import { TopAppBar } from '@/components/TopAppBar';
 import {
@@ -20,10 +20,10 @@ import api from '@/utils/api';
 import { formatChatData } from '@/utils/chat/formatChatData';
 import { useImageUpload } from '@/hooks/useImageUpload';
 import { useSocketStore, ChatMessage } from '@/store/socketStore';
-import { useSocketManager } from '@/hooks/useSocketManager';
 import { ImageFileSizeDialog } from '@/components/Dialog/ImageFileSizeDialog';
 import { useScrollBottom } from '@/hooks/useScrollBottom';
 import { ImagePreview } from '@/components/Chat/ImagePreview';
+import { useEnterLeaveHandler } from '@/hooks/useEnterLeaveHandler';
 
 const OpinionChatPage = () => {
   const [chatData, setChatData] = useState<ChatData[]>([]);
@@ -38,7 +38,6 @@ const OpinionChatPage = () => {
   const { roomId } = useParams();
   const { subscribe, sendMessage } = useSocketStore();
   const memberId = localStorage.getItem('member_id');
-  const socketManager = useSocketManager();
   const location = useLocation();
   const opinionType = location.state?.opinionType || '';
   const lastChatId = location.state?.lastChatId || 0;
@@ -114,21 +113,7 @@ const OpinionChatPage = () => {
     setCurrentImageList(images);
   };
 
-  //모바일 뒤로가기 스와이프 시 채팅방 나가기
-  const hasLeft = useRef(false);
-
-  const handleLeave = useCallback(() => {
-    if (!hasLeft.current) {
-      socketManager('OPINION', 'LEAVE', Number(localStorage.getItem('member_id')), 'ADMIN');
-      hasLeft.current = true;
-    }
-  }, [socketManager]);
-
-  useEffect(() => {
-    return () => {
-      handleLeave();
-    };
-  }, [handleLeave]);
+  useEnterLeaveHandler('OPINION', 'ADMIN');
 
   return (
     <S.Container>
@@ -138,7 +123,6 @@ const OpinionChatPage = () => {
         rightIconSrc="/src/assets/icons/close.svg"
         onLeftIconClick={() => {
           navigate(-1);
-          socketManager('OPINION', 'LEAVE', Number(roomId), 'ADMIN');
         }}
         onRightIconClick={() => {
           setExitDialogOpen(true);
@@ -207,7 +191,6 @@ const OpinionChatPage = () => {
         <ExitDialog
           onConfirm={() => {
             setExitDialogOpen(false);
-            handleLeave();
             navigate(-1);
           }}
           onDismiss={() => {

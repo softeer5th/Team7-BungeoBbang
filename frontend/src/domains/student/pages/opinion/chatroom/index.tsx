@@ -1,7 +1,7 @@
 import * as S from '@/domains/student/pages/chat-page/styles';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { TopAppBar } from '@/components/TopAppBar';
-import { useEffect, useState, useCallback, useRef } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import {
   ChatData,
   ChatType,
@@ -24,6 +24,7 @@ import { useSocketManager } from '@/hooks/useSocketManager.ts';
 import { useScrollBottom } from '@/hooks/useScrollBottom.tsx';
 import { ImageFileSizeDialog } from '@/components/Dialog/ImageFileSizeDialog.tsx';
 import { ImagePreview } from '@/components/Chat/ImagePreview.tsx';
+import { useEnterLeaveHandler } from '@/hooks/useEnterLeaveHandler.ts';
 
 const OpinionChatPage = () => {
   const [chatData, setChatData] = useState<ChatData[]>([]);
@@ -128,21 +129,7 @@ const OpinionChatPage = () => {
     setCurrentImageList(images);
   };
 
-  //모바일 뒤로가기 스와이프 시 채팅방 나가기
-  const hasLeft = useRef(false);
-
-  const handleLeave = useCallback(() => {
-    if (!hasLeft.current) {
-      socketManager('OPINION', 'LEAVE', Number(localStorage.getItem('member_id')), 'STUDENT');
-      hasLeft.current = true;
-    }
-  }, [socketManager]);
-
-  useEffect(() => {
-    return () => {
-      handleLeave();
-    };
-  }, [handleLeave]);
+  useEnterLeaveHandler('OPINION', 'STUDENT');
 
   return (
     <S.Container>
@@ -152,7 +139,6 @@ const OpinionChatPage = () => {
         rightIconSrc="/src/assets/icons/logout.svg"
         onLeftIconClick={() => {
           navigate(-1);
-          handleLeave();
         }}
         onRightIconClick={() => {
           setExitDialogOpen(true);
