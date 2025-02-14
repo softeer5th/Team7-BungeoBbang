@@ -100,13 +100,15 @@ const AgendaChatPage = () => {
     }
   };
 
-  const { setTriggerUpItem, setTriggerDownItem, setHasUpMore, setHasDownMore } = useInfiniteScroll({
-    initialFetch: getInitialChatData,
-    fetchUpMore: getMoreUpChatData,
-    fetchDownMore: getMoreDownChatData,
-  });
+  const { setTriggerUpItem, setTriggerDownItem, getHasDownMore, setHasUpMore, setHasDownMore } =
+    useInfiniteScroll({
+      initialFetch: getInitialChatData,
+      fetchUpMore: getMoreUpChatData,
+      fetchDownMore: getMoreDownChatData,
+    });
 
   useLayoutEffect(() => {
+    console.log('getchasdata', chatData);
     if (!elementRef.current || isInitialLoading.current) return;
 
     if (isUpDirection.current === true) {
@@ -129,8 +131,17 @@ const AgendaChatPage = () => {
         lastDownChatId.current = lastChatId;
         setTriggerDownItem(lastItemRef);
       }}
-      onMessageSend={() => {
-        scrollToBottom();
+      onMessageSend={(data: ChatData) => {
+        if (!getHasDownMore()) {
+          setChatData((prev) => [...prev, data]);
+          scrollToBottom();
+        }
+      }}
+      onMessageReceive={(data: ChatData) => {
+        if (!getHasDownMore()) {
+          setChatData((prev) => [...prev, data]);
+          scrollToBottom();
+        }
       }}
     />
   );

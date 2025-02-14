@@ -20,6 +20,9 @@ const useInfiniteScroll = ({
   const hasUpMore = useRef<boolean>(true);
   const hasDownMore = useRef<boolean>(true);
 
+  const getHasUpMore = () => hasUpMore.current;
+  const getHasDownMore = () => hasDownMore.current;
+
   const setHasUpMore = (newHasUpMore: boolean) => {
     hasUpMore.current = newHasUpMore;
   };
@@ -30,7 +33,7 @@ const useInfiniteScroll = ({
 
   const setTriggerUpItem = (element: HTMLDivElement) => {
     if (upObserver.current && element) {
-      console.log('up item~~~', element);
+      // console.log('up item~~~', element);
       upObserver.current.disconnect();
       upObserver.current.observe(element);
       upTriggerRef.current = element;
@@ -52,7 +55,7 @@ const useInfiniteScroll = ({
       upObserver.current = new IntersectionObserver(
         (entries) => {
           const [entry] = entries;
-          console.log(' up observer', hasUpMore, fetchUpMore);
+          // console.log(' up observer', hasUpMore, fetchUpMore);
           if (entry.isIntersecting && hasUpMore.current && fetchUpMore) {
             console.log('!!!!!');
             fetchUpMore();
@@ -71,9 +74,9 @@ const useInfiniteScroll = ({
       downObserver.current = new IntersectionObserver(
         (entries) => {
           const [entry] = entries;
-          console.log(' down observer', entry.isIntersecting, hasDownMore, fetchDownMore);
+          // console.log(' down observer', entry.isIntersecting, hasDownMore, fetchDownMore);
           if (entry.isIntersecting && hasDownMore.current && fetchDownMore) {
-            console.log('!!!!!! down!!!!!');
+            // console.log('!!!!!! down!!!!!');
             fetchDownMore();
           }
         },
@@ -87,7 +90,6 @@ const useInfiniteScroll = ({
     }
 
     return () => {
-      console.log('unmount???');
       if (upObserver.current && upTriggerRef.current) {
         upObserver.current.disconnect();
       }
@@ -98,7 +100,14 @@ const useInfiniteScroll = ({
     };
   }, []);
 
-  return { setTriggerUpItem, setTriggerDownItem, setHasUpMore, setHasDownMore };
+  return {
+    setTriggerUpItem,
+    setTriggerDownItem,
+    getHasUpMore,
+    getHasDownMore,
+    setHasUpMore,
+    setHasDownMore,
+  };
 };
 
 export default useInfiniteScroll;

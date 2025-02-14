@@ -26,7 +26,8 @@ interface ChatPageProps {
   chatRoomInfo: ChatRoomInfo;
   onUpLastItemChange?: (lastItemRef: HTMLDivElement, lastItemId: string) => void;
   onDownLastItemChange?: (lastItemRef: HTMLDivElement, lastItemId: string) => void;
-  onMessageSend: () => void;
+  onMessageSend: (data: ChatData) => void;
+  onMessageReceive: (data: ChatData) => void;
 }
 
 export interface ChatRoomInfo {
@@ -42,6 +43,7 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
       onUpLastItemChange = () => {},
       onDownLastItemChange = () => {},
       onMessageSend = () => {},
+      onMessageReceive = () => {},
     },
     ref,
   ) => {
@@ -82,9 +84,10 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
             }),
             images: message.images || [],
           };
-          setChatData((prev) => [...prev, newChat]);
           if (message.adminId === Number(memberId)) {
-            onMessageSend();
+            onMessageSend(newChat);
+          } else {
+            onMessageReceive(newChat);
           }
         }
       },
