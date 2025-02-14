@@ -71,9 +71,9 @@ public class AdminOpinionService {
      */
     private List<Opinion> getOpinionsByCategories(final Set<CategoryType> categoryTypes, final Long universityId) {
         if (categoryTypes == null || categoryTypes.isEmpty()) {
-            return opinionRepository.findAllByUniversityIdAndIsDeletedFalse(universityId); // 카테고리가 없으면 해당 대학 말해요 전체 조회
+            return opinionRepository.findAllByUniversityId(universityId); // 카테고리가 없으면 해당 대학 말해요 전체 조회
         }
-        return opinionRepository.findAllByCategoryTypeInAndUniversityIdAndIsDeletedFalse(categoryTypes, universityId); // 선택된 카테고리에 해당하는 목록 조회
+        return opinionRepository.findAllByCategoryTypeInAndUniversityId(categoryTypes, universityId); // 선택된 카테고리에 해당하는 목록 조회
     }
 
     /**
@@ -124,7 +124,7 @@ public class AdminOpinionService {
 
     @Transactional
     public void unsetRemindOpinion(final Long opinionId) {
-        final Opinion opinion = opinionRepository.findByIdAndIsDeletedFalse(opinionId)
+        final Opinion opinion = opinionRepository.findById(opinionId)
                 .orElseThrow(() -> new OpinionException(ErrorCode.INVALID_OPINION));
         opinion.unsetRemind();
     }

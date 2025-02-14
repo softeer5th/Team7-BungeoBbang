@@ -113,10 +113,10 @@ public class MemberOpinionService {
 
     @Transactional
     public void deleteOpinion(final Long opinionId, final Long memberId) {
-        final Opinion opinion = opinionRepository.findByIdAndIsDeletedFalse(opinionId)
+        final Opinion opinion = opinionRepository.findById(opinionId)
                 .orElseThrow(() -> new OpinionException(ErrorCode.INVALID_OPINION));
         validateOpinionAuthor(opinion, memberId);
-        opinion.delete();
+        opinionRepository.delete(opinion);
     }
 
     /**
@@ -127,7 +127,7 @@ public class MemberOpinionService {
      */
     @Transactional
     public void remindOpinion(final Long opinionId, final Long memberId) {
-        final Opinion opinion = opinionRepository.findByIdAndIsDeletedFalse(opinionId)
+        final Opinion opinion = opinionRepository.findById(opinionId)
                 .orElseThrow(() -> new OpinionException(ErrorCode.INVALID_OPINION));
         validateOpinionAuthor(opinion, memberId);
         if (opinion.isRemind()) throw new OpinionException(ErrorCode.ALREADY_REMINDED);
@@ -146,7 +146,7 @@ public class MemberOpinionService {
      * @return MemberOpinionListResponse 학생이 생성한 말해요 채팅방 목록 응답 객체
      */
     public List<MemberOpinionsInfoResponse> findMemberOpinionList(final Long memberId) {
-        final List<Opinion> opinions = opinionRepository.findAllByMemberIdAndIsDeletedFalse(memberId);
+        final List<Opinion> opinions = opinionRepository.findAllByMemberId(memberId);
         return convertToMemberOpinionInfoList(opinions);
     }
 
@@ -165,7 +165,6 @@ public class MemberOpinionService {
                 .categoryType(creationRequest.categoryType())
                 .member(member)
                 .isRemind(false)
-                .isDeleted(false)
                 .build();
     }
 

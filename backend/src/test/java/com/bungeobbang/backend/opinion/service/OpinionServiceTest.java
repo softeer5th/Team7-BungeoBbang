@@ -6,7 +6,6 @@ import com.bungeobbang.backend.common.type.CategoryType;
 import com.bungeobbang.backend.member.domain.Member;
 import com.bungeobbang.backend.opinion.domain.Opinion;
 import com.bungeobbang.backend.opinion.domain.OpinionChat;
-import com.bungeobbang.backend.opinion.domain.OpinionLastRead;
 import com.bungeobbang.backend.opinion.domain.OpinionType;
 import com.bungeobbang.backend.opinion.domain.repository.*;
 import com.bungeobbang.backend.opinion.dto.response.OpinionChatResponse;
@@ -87,7 +86,7 @@ class OpinionServiceTest {
                 .member(member)
                 .build();
 
-        when(opinionRepository.findByIdAndIsDeletedFalse(anyLong())).thenReturn(Optional.of(opinion));
+        when(opinionRepository.findById(anyLong())).thenReturn(Optional.of(opinion));
 
         // when
         OpinionDetailResponse result = opinionService.findOpinionDetail(1L);
@@ -101,7 +100,7 @@ class OpinionServiceTest {
     @DisplayName("존재하지 않는 말해요 정보 조회 시 예외 발생")
     void findOpinionDetail_notFound() {
         // given
-        when(opinionRepository.findByIdAndIsDeletedFalse(anyLong())).thenReturn(Optional.empty());
+        when(opinionRepository.findById(anyLong())).thenReturn(Optional.empty());
 
         // when & then
         assertThatThrownBy(() -> opinionService.findOpinionDetail(100L))

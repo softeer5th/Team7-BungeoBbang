@@ -53,7 +53,7 @@ public class OpinionService {
     }
 
     public OpinionDetailResponse findOpinionDetail(final Long opinionId) {
-        final Opinion opinion = opinionRepository.findByIdAndIsDeletedFalse(opinionId)
+        final Opinion opinion = opinionRepository.findById(opinionId)
                 .orElseThrow(() -> new OpinionException(ErrorCode.INVALID_OPINION));
         return new OpinionDetailResponse(opinion.getUniversity().getName(), opinion.isRemind());
     }
