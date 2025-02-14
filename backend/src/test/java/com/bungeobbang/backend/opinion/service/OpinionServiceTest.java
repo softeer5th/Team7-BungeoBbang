@@ -3,16 +3,12 @@ package com.bungeobbang.backend.opinion.service;
 import com.bungeobbang.backend.common.exception.ErrorCode;
 import com.bungeobbang.backend.common.exception.OpinionException;
 import com.bungeobbang.backend.common.type.CategoryType;
-import com.bungeobbang.backend.common.type.ScrollType;
 import com.bungeobbang.backend.member.domain.Member;
 import com.bungeobbang.backend.opinion.domain.Opinion;
 import com.bungeobbang.backend.opinion.domain.OpinionChat;
 import com.bungeobbang.backend.opinion.domain.OpinionLastRead;
 import com.bungeobbang.backend.opinion.domain.OpinionType;
-import com.bungeobbang.backend.opinion.domain.repository.CustomOpinionChatRepository;
-import com.bungeobbang.backend.opinion.domain.repository.OpinionChatRepository;
-import com.bungeobbang.backend.opinion.domain.repository.OpinionLastReadRepository;
-import com.bungeobbang.backend.opinion.domain.repository.OpinionRepository;
+import com.bungeobbang.backend.opinion.domain.repository.*;
 import com.bungeobbang.backend.opinion.dto.response.OpinionChatResponse;
 import com.bungeobbang.backend.opinion.dto.response.OpinionDetailResponse;
 import com.bungeobbang.backend.university.domain.University;
@@ -46,9 +42,9 @@ class OpinionServiceTest {
     @Mock
     private OpinionRepository opinionRepository;
     @Mock
-    private OpinionLastReadRepository opinionLastReadRepository;
-    @Mock
     private CustomOpinionChatRepository customOpinionChatRepository;
+    @Mock
+    private CustomOpinionLastReadRepository customOpinionLastReadRepository;
 
     @Test
     @DisplayName("말해요 채팅 내역 조회 - 정상 조회")
@@ -116,18 +112,17 @@ class OpinionServiceTest {
     @Test
     @DisplayName("마지막 읽은 채팅 ID를 최대값으로 업데이트")
     void updateLastReadToMax() {
-        // given
-        OpinionLastRead lastRead = new OpinionLastRead(new ObjectId(), 1L, false, new ObjectId());
+        // Given
+        Long opinionId = 1L;
+        boolean isAdmin = false;
+        ObjectId maxObjectId = new ObjectId("ffffffffffffffffffffffff");
 
-        when(opinionLastReadRepository.findByOpinionIdAndIsAdmin(anyLong(), anyBoolean()))
-                .thenReturn(Optional.of(lastRead));
+        // When
+        opinionService.updateLastReadToMax(opinionId, isAdmin);
 
-        // when
-        opinionService.updateLastReadToMax(1L, false);
-
-        // then
-        assertThat(lastRead.getLastReadChatId().toHexString()).isEqualTo("ffffffffffffffffffffffff");
-        verify(opinionLastReadRepository).save(lastRead);
+        // Then
+        verify(customOpinionLastReadRepository, times(1))
+                .updateLastRead(eq(opinionId), eq(isAdmin), eq(maxObjectId));
     }
 
     @Test
@@ -136,11 +131,8 @@ class OpinionServiceTest {
         // given
         Long opinionId = 1L;
         boolean isAdmin = false;
-        OpinionLastRead lastRead = new OpinionLastRead(new ObjectId(), opinionId, isAdmin, null);
         OpinionChat lastChat = new OpinionChat(new ObjectId(), 1L, opinionId, "최신 채팅", emptyList(), false, LocalDateTime.now());
 
-        when(opinionLastReadRepository.findByOpinionIdAndIsAdmin(anyLong(), anyBoolean()))
-                .thenReturn(Optional.of(lastRead));
         when(opinionChatRepository.findTop1ByOpinionIdOrderByIdDesc(anyLong()))
                 .thenReturn(Optional.of(lastChat));
 
@@ -148,9 +140,8 @@ class OpinionServiceTest {
         opinionService.updateLastReadToLastChatId(opinionId, isAdmin);
 
         // then
-        assertThat(lastRead.getLastReadChatId()).isEqualTo(lastChat.getId());
-        // ~repository save 메서드가 한 번 호출되었는 지 검증
-        verify(opinionLastReadRepository).save(lastRead);
+        verify(customOpinionLastReadRepository, times(1))
+                .updateLastRead(eq(opinionId), eq(isAdmin), eq(lastChat.getId()));
     }
 
     @Test
@@ -159,10 +150,7 @@ class OpinionServiceTest {
         // given
         Long opinionId = 1L;
         boolean isAdmin = false;
-        OpinionLastRead lastRead = new OpinionLastRead(new ObjectId(), opinionId, isAdmin, new ObjectId());
 
-        when(opinionLastReadRepository.findByOpinionIdAndIsAdmin(anyLong(), anyBoolean()))
-                .thenReturn(Optional.of(lastRead));
         when(opinionChatRepository.findTop1ByOpinionIdOrderByIdDesc(anyLong()))
                 .thenReturn(Optional.empty());
 

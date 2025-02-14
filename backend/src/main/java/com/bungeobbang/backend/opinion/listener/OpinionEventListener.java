@@ -3,6 +3,7 @@ package com.bungeobbang.backend.opinion.listener;
 import com.bungeobbang.backend.badword.service.BadWordService;
 import com.bungeobbang.backend.chat.event.opinion.OpinionAdminEvent;
 import com.bungeobbang.backend.chat.event.opinion.OpinionMemberEvent;
+import com.bungeobbang.backend.opinion.domain.OpinionChat;
 import com.bungeobbang.backend.opinion.service.AdminOpinionService;
 import com.bungeobbang.backend.opinion.service.OpinionRealTimeChatService;
 import com.bungeobbang.backend.opinion.service.OpinionService;
@@ -55,7 +56,8 @@ public class OpinionEventListener {
         switch (event.websocketMessage().event()) {
             case ENTER -> {
                 opinionRealTimeChatService.validateExistOpinion(event.websocketMessage().opinionId());
-
+                // 학생이 새로 생성한 채팅방인 경우, 입장할 때 구독해야 한다.
+                opinionRealTimeChatService.subscribeToOpinion(event.session(), event.websocketMessage().opinionId());
                 opinionService.updateLastReadToMax(event.websocketMessage().opinionId(), true);
             }
 
@@ -63,7 +65,7 @@ public class OpinionEventListener {
                 opinionRealTimeChatService.validateExistOpinion(event.websocketMessage().opinionId());
                 badWordService.validate(event.websocketMessage().message());
                 opinionRealTimeChatService.sendMessageFromAdmin(event.websocketMessage());
-                opinionService.saveChat(
+                final OpinionChat savedChat = opinionService.saveChat(
                         event.websocketMessage().adminId(),
                         event.websocketMessage().opinionId(),
                         event.websocketMessage().message(),
@@ -71,6 +73,8 @@ public class OpinionEventListener {
                         true,
                         event.websocketMessage().createdAt()
                 );
+                // 통계를 위해 answered_opinion 컬렉션 업데이트(upsert)
+                adminOpinionService.updateAnsweredOpinion(savedChat);
                 adminOpinionService.unsetRemindOpinion(event.websocketMessage().opinionId());
             }
             case LEAVE -> opinionService.updateLastReadToLastChatId(event.websocketMessage().opinionId(), true);
