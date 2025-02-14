@@ -9,8 +9,9 @@ export interface ServerData {
     startDate: string;
     endDate: string;
     count: number;
+    isParticipate: boolean;
   };
-  isParticipate: boolean;
+
   lastReadChatId: string;
 }
 
@@ -28,7 +29,7 @@ export const mapResponseToChatListCardData = (
     title: response.agenda.title,
     numOfJoin: response.agenda.count,
     isInProgress: status == 'ACTIVE',
-    isParticipate: response.isParticipate,
+    isParticipate: response.agenda.isParticipate,
   };
 };
 
