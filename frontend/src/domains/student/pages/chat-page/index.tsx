@@ -1,6 +1,6 @@
 import * as S from './styles.ts';
 import { TopAppBar } from '@/components/TopAppBar';
-import { useEffect, useState, useCallback, useRef } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import {
   ChatData,
   ChatType,
@@ -18,12 +18,12 @@ import { useNavigate } from 'react-router-dom';
 import { ExitDialog } from './Exitdialog.tsx';
 import api from '@/utils/api.ts';
 import { formatChatData } from '@/utils/chat/formatChatData.ts';
-import { useSocketManager } from '@/hooks/useSocketManager';
 import { ImagePreview } from '@/components/Chat/ImagePreview.tsx';
 import { useImageUpload } from '@/hooks/useImageUpload.ts';
 import { ImageFileSizeDialog } from '@/components/Dialog/ImageFileSizeDialog.tsx';
 import { useSocketStore, ChatMessage } from '@/store/socketStore.ts';
 import { useScrollBottom } from '@/hooks/useScrollBottom';
+import { useEnterLeaveHandler } from '@/hooks/useEnterLeaveHandler.ts';
 
 interface ChatPageProps {
   roomId: number;
@@ -44,7 +44,6 @@ const ChatPage = ({ roomId, isEnd, isParticipate, lastChatId }: ChatPageProps) =
 
   const navigate = useNavigate();
 
-  const socketManager = useSocketManager();
   const { subscribe, sendMessage } = useSocketStore();
   const memberId = localStorage.getItem('member_id');
 
@@ -120,21 +119,7 @@ const ChatPage = ({ roomId, isEnd, isParticipate, lastChatId }: ChatPageProps) =
   const { elementRef, useScrollOnUpdate } = useScrollBottom<HTMLDivElement>();
   useScrollOnUpdate(chatData);
 
-  //모바일 뒤로가기 스와이프 시 채팅방 나가기
-  const hasLeft = useRef(false);
-
-  const handleLeave = useCallback(() => {
-    if (!hasLeft.current) {
-      socketManager('AGENDA', 'LEAVE', Number(localStorage.getItem('member_id')), 'STUDENT');
-      hasLeft.current = true;
-    }
-  }, [socketManager]);
-
-  useEffect(() => {
-    return () => {
-      handleLeave();
-    };
-  }, [handleLeave]);
+  useEnterLeaveHandler('AGENDA', 'STUDENT');
 
   return (
     <S.Container>
@@ -144,7 +129,6 @@ const ChatPage = ({ roomId, isEnd, isParticipate, lastChatId }: ChatPageProps) =
         rightIconSrc={isParticipate ? '/src/assets/icons/logout.svg' : undefined}
         onLeftIconClick={() => {
           navigate(-1);
-          handleLeave();
         }}
         onRightIconClick={() => {
           setExitDialogOpen(true);
