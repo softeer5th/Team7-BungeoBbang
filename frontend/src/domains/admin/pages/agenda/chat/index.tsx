@@ -122,7 +122,7 @@ const AgendaChatPage = () => {
   return (
     <ChatPage
       ref={chatListRef}
-      chatData={chatData}
+      apiChatData={chatData}
       chatRoomInfo={chatRoomInfo}
       onUpLastItemChange={(lastItemRef, lastChatId: string) => {
         lastUpChatId.current = lastChatId;
@@ -134,7 +134,7 @@ const AgendaChatPage = () => {
       }}
       onDownLastItemChange={(lastItemRef, lastChatId) => {
         lastDownChatId.current = lastChatId;
-        console.log('downlast', lastItemRef, lastChatId);
+        // console.log('downlast', lastItemRef, lastChatId);
 
         setTriggerDownItem(lastItemRef);
       }}

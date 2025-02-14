@@ -11,4 +11,5 @@ export interface ChatPreviewData {
   numOfJoin?: number;
   isInProgress?: boolean;
   hasNewChat: boolean;
+  lastChatId: string;
 }
