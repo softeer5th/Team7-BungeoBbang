@@ -6,7 +6,13 @@ import { SenderChat } from '@/components/Chat/SenderChat.tsx';
 import { TextBadge } from '@/components/Chat/TextBadge.tsx';
 import { useNavigate } from 'react-router-dom';
 import { forwardRef } from 'react';
-import { ChatData, ChatType, InfoChatData, ReceiveChatData, SendChatData } from '@/utils/chat/ChatData.tsx';
+import {
+  ChatData,
+  ChatType,
+  InfoChatData,
+  ReceiveChatData,
+  SendChatData,
+} from '@/utils/chat/ChatData.tsx';
 
 interface ChatPageProps {
   chatData: ChatData[];
@@ -27,8 +33,8 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
   ) => {
     const navigate = useNavigate();
 
-    const FIRST_REMAIN_ITEMS = 3;
-    const LAST_REMAIN_ITEMS = 3;
+    const FIRST_REMAIN_ITEMS = 1;
+    const LAST_REMAIN_ITEMS = 1;
 
     let upLastItemId: string = '';
     let downLatItemId: string = '';
