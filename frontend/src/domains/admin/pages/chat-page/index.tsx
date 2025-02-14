@@ -38,9 +38,13 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
     { apiChatData, chatRoomInfo, onUpLastItemChange = () => {}, onDownLastItemChange = () => {} },
     ref,
   ) => {
-    console.log('apichatdata', apiChatData);
     const [message, setMessage] = useState('');
-    const [chatData, setChatData] = useState<ChatData[]>(apiChatData);
+    const [chatData, setChatData] = useState<ChatData[]>([]);
+
+    useEffect(() => {
+      setChatData(apiChatData);
+    }, [apiChatData]);
+
     const memberId = localStorage.getItem('member_id');
     const { roomId } = useParams();
 
@@ -60,7 +64,8 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
 
     const handleMessageReceive = useCallback(
       (message: ChatMessage) => {
-        if (message.roomType === 'OPINION' && message.opinionId === Number(roomId)) {
+        console.log('message', message);
+        if (message.roomType === 'AGENDA' && message.agendaId === Number(roomId)) {
           const newChat = {
             type: message.adminId === Number(memberId) ? ChatType.SEND : ChatType.RECEIVE,
             message: message.message,
@@ -107,7 +112,6 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
             const isUpTriggerItem = chatIndex === FIRST_REMAIN_ITEMS;
             const isDownTriggerItem = chatIndex === chatData.length - LAST_REMAIN_ITEMS;
 
-            console.log('chat', chat, isUpTriggerItem, isDownTriggerItem);
             if (chat.type === ChatType.RECEIVE) {
               const chatData = chat as ReceiveChatData;
               if (upLastItemId.length === 0) upLastItemId = chatData.chatId;
