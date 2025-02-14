@@ -1,5 +1,5 @@
+import { ChatData } from '@/domains/student/pages/chat-page/ChatData';
 import { useRef, useCallback, useEffect } from 'react';
-import { ChatData } from '@/utils/chat/ChatData';
 
 export const useScrollBottom = <T extends HTMLElement>() => {
   const elementRef = useRef<T>(null);
@@ -9,6 +9,10 @@ export const useScrollBottom = <T extends HTMLElement>() => {
       elementRef.current.scrollTop = elementRef.current.scrollHeight;
     }
   }, []);
+
+  // const scrollToTop = useCallback(() => {});
+
+  // const remainCurrentScroll = useCallback(() => {});
 
   // ChatData[] 타입으로 제한
   const useScrollOnUpdate = (dependency: ChatData[]) => {
