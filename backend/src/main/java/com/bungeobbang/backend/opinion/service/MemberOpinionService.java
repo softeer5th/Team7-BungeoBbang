@@ -129,8 +129,8 @@ public class MemberOpinionService {
     public void remindOpinion(final Long opinionId, final Long memberId) {
         final Opinion opinion = opinionRepository.findByIdAndIsDeletedFalse(opinionId)
                 .orElseThrow(() -> new OpinionException(ErrorCode.INVALID_OPINION));
-        if (opinion.isRemind()) throw new OpinionException(ErrorCode.ALREADY_REMINDED);
         validateOpinionAuthor(opinion, memberId);
+        if (opinion.isRemind()) throw new OpinionException(ErrorCode.ALREADY_REMINDED);
         opinion.setRemind();
     }
 
