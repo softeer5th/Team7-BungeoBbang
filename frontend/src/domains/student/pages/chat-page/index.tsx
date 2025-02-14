@@ -120,6 +120,22 @@ const ChatPage = ({ roomId, isEnd, isParticipate, lastChatId }: ChatPageProps) =
   const { elementRef, useScrollOnUpdate } = useScrollBottom<HTMLDivElement>();
   useScrollOnUpdate(chatData);
 
+  //모바일 뒤로가기 스와이프 시 채팅방 나가기
+  const hasLeft = useRef(false);
+
+  const handleLeave = useCallback(() => {
+    if (!hasLeft.current) {
+      socketManager('AGENDA', 'LEAVE', Number(localStorage.getItem('member_id')), 'ADMIN');
+      hasLeft.current = true;
+    }
+  }, [socketManager]);
+
+  useEffect(() => {
+    return () => {
+      handleLeave();
+    };
+  }, [handleLeave]);
+
   return (
     <S.Container>
       <TopAppBar
@@ -128,7 +144,7 @@ const ChatPage = ({ roomId, isEnd, isParticipate, lastChatId }: ChatPageProps) =
         rightIconSrc={isParticipate ? '/src/assets/icons/logout.svg' : undefined}
         onLeftIconClick={() => {
           navigate(-1);
-          socketManager('AGENDA', 'LEAVE', Number(roomId), 'STUDENT');
+          handleLeave();
         }}
         onRightIconClick={() => {
           setExitDialogOpen(true);
