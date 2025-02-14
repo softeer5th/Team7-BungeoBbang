@@ -69,7 +69,7 @@ const OpinionChatPage = () => {
   }, [chatData]);
 
   const handleSendRemind = async () => {
-    await api.patch(`/student/opinions/${roomId}/remind`);
+    !isReminded && (await api.patch(`/student/opinions/${roomId}/remind`));
     setIsReminded(true);
   };
 
