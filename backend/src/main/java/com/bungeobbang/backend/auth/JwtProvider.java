@@ -35,8 +35,8 @@ public class JwtProvider {
     public MemberTokens generateLoginToken(final String subject,
                                            final Authority authority,
                                            final String uuid) {
-        final String accessToken = createTokenWithRole(subject, authority, uuid, refreshExpirationTime);
-        final String refreshToken = createToken(EMPTY_SUBJECT, accessExpirationTime);
+        final String accessToken = createTokenWithRole(subject, authority, uuid, accessExpirationTime);
+        final String refreshToken = createToken(EMPTY_SUBJECT, refreshExpirationTime);
         return new MemberTokens(accessToken, refreshToken);
     }
 
