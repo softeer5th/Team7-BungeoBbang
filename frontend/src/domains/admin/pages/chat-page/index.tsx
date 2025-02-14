@@ -62,15 +62,6 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
     const socketManager = useSocketManager();
     const { subscribe, sendMessage } = useSocketStore();
 
-    const hasLeft = useRef(false);
-
-    const handleLeave = useCallback(() => {
-      if (!hasLeft.current) {
-        socketManager('AGENDA', 'LEAVE', Number(localStorage.getItem('member_id')), 'ADMIN');
-        hasLeft.current = true;
-      }
-    }, [socketManager]);
-
     const handleMessageReceive = useCallback(
       (message: ChatMessage) => {
         console.log('message', message);
@@ -89,6 +80,15 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
       },
       [roomId, memberId],
     );
+
+    const hasLeft = useRef(false);
+
+    const handleLeave = useCallback(() => {
+      if (!hasLeft.current) {
+        socketManager('AGENDA', 'LEAVE', Number(localStorage.getItem('member_id')), 'ADMIN');
+        hasLeft.current = true;
+      }
+    }, [socketManager]);
 
     useEffect(() => {
       return () => {
