@@ -132,7 +132,11 @@ public class AdminAgendaChatRepositoryImpl implements AdminAgendaChatRepository 
         switch (scrollType) {
             case DOWN -> query.addCriteria(Criteria.where(ID).gt(chatId));
             case UP -> query.addCriteria(Criteria.where(ID).lt(chatId));
-            case INITIAL -> query.addCriteria(Criteria.where(ID).gte(chatId));
+            case INITIAL -> {
+                if (!chatId.equals(MAX_OBJECT_ID)) {
+                    query.addCriteria(Criteria.where(ID).gte(chatId));
+                }
+            }
         }
         query.with(Sort.by(Sort.Direction.ASC, ID));
         query.limit(10);
