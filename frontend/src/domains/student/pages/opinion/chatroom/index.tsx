@@ -24,6 +24,7 @@ import { useSocketManager } from '@/hooks/useSocketManager.ts';
 import { useScroll } from '@/hooks/useScrollBottom.tsx';
 import { ImageFileSizeDialog } from '@/components/Dialog/ImageFileSizeDialog.tsx';
 import { ImagePreview } from '@/components/Chat/ImagePreview.tsx';
+import { useEnterLeaveHandler } from '@/hooks/useEnterLeaveHandler.ts';
 
 const OpinionChatPage = () => {
   const [chatData, setChatData] = useState<ChatData[]>([]);
@@ -69,7 +70,7 @@ const OpinionChatPage = () => {
   }, [chatData]);
 
   const handleSendRemind = async () => {
-    await api.patch(`/student/opinions/${roomId}/remind`);
+    !isReminded && (await api.patch(`/student/opinions/${roomId}/remind`));
     setIsReminded(true);
   };
 
@@ -81,7 +82,7 @@ const OpinionChatPage = () => {
         const enterResponse = await api.get(`/api/opinions/${roomId}`);
         enterResponse.data.isReminded && setIsReminded(true);
         const response = await api.get(`/api/opinions/${roomId}/chat`, {
-          params: { chatId: lastChatId },
+          params: { chatId: lastChatId, scroll: 'INITIAL' },
         });
 
         const formattedData = formatChatData(response.data, false);
@@ -127,6 +128,9 @@ const OpinionChatPage = () => {
     });
     setCurrentImageList(images);
   };
+
+  useEnterLeaveHandler('OPINION', 'STUDENT');
+
   return (
     <S.Container>
       <TopAppBar
@@ -135,7 +139,6 @@ const OpinionChatPage = () => {
         rightIconSrc="/src/assets/icons/logout.svg"
         onLeftIconClick={() => {
           navigate(-1);
-          socketManager('OPINION', 'LEAVE', Number(roomId), 'STUDENT');
         }}
         onRightIconClick={() => {
           setExitDialogOpen(true);

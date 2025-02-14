@@ -18,12 +18,12 @@ import { useNavigate } from 'react-router-dom';
 import { ExitDialog } from './Exitdialog.tsx';
 import api from '@/utils/api.ts';
 import { formatChatData } from '@/utils/chat/formatChatData.ts';
-import { useSocketManager } from '@/hooks/useSocketManager';
 import { ImagePreview } from '@/components/Chat/ImagePreview.tsx';
 import { useImageUpload } from '@/hooks/useImageUpload.ts';
 import { ImageFileSizeDialog } from '@/components/Dialog/ImageFileSizeDialog.tsx';
 import { useSocketStore, ChatMessage } from '@/store/socketStore.ts';
 import { useScroll } from '@/hooks/useScrollBottom';
+import { useEnterLeaveHandler } from '@/hooks/useEnterLeaveHandler.ts';
 
 interface ChatPageProps {
   roomId: number;
@@ -44,7 +44,6 @@ const ChatPage = ({ roomId, isEnd, isParticipate, lastChatId }: ChatPageProps) =
 
   const navigate = useNavigate();
 
-  const socketManager = useSocketManager();
   const { subscribe, sendMessage } = useSocketStore();
   const memberId = localStorage.getItem('member_id');
 
@@ -62,7 +61,7 @@ const ChatPage = ({ roomId, isEnd, isParticipate, lastChatId }: ChatPageProps) =
       try {
         console.log('lastchatID', lastChatId);
         const response = await api.get(`/student/agendas/${roomId}/chat`, {
-          params: { chatId: lastChatId },
+          params: { chatId: lastChatId, scroll: 'INITIAL' },
         });
 
         const formattedData = formatChatData(response.data, false);
@@ -120,6 +119,8 @@ const ChatPage = ({ roomId, isEnd, isParticipate, lastChatId }: ChatPageProps) =
   const { elementRef, useScrollOnUpdate } = useScroll<HTMLDivElement>();
   useScrollOnUpdate(chatData);
 
+  useEnterLeaveHandler('AGENDA', 'STUDENT');
+
   return (
     <S.Container>
       <TopAppBar
@@ -128,7 +129,6 @@ const ChatPage = ({ roomId, isEnd, isParticipate, lastChatId }: ChatPageProps) =
         rightIconSrc={isParticipate ? '/src/assets/icons/logout.svg' : undefined}
         onLeftIconClick={() => {
           navigate(-1);
-          socketManager('AGENDA', 'LEAVE', Number(roomId), 'STUDENT');
         }}
         onRightIconClick={() => {
           setExitDialogOpen(true);

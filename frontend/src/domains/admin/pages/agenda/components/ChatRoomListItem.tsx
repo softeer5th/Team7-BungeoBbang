@@ -6,7 +6,6 @@ import { forwardRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MoreContent } from './MoreContent';
 import { formatDate } from '../util/ChatRoomMapper';
-import { useSocketManager } from '@/hooks/useSocketManager';
 
 interface ChatRoomListItemProps {
   cardData: ChatRoomListCardData;
@@ -19,7 +18,6 @@ export const ChatRoomListItem = forwardRef<HTMLDivElement, ChatRoomListItemProps
   ({ cardData, onCardEdit = () => {}, onCardEnd = () => {}, onCardDelete = () => {} }, ref) => {
     const theme = useTheme();
     const navigate = useNavigate();
-    const socketManager = useSocketManager();
 
     const [isMoreContentVisible, setMoreContentVisible] = useState(false);
 
@@ -56,7 +54,6 @@ export const ChatRoomListItem = forwardRef<HTMLDivElement, ChatRoomListItemProps
           <BodyContainer
             isBeforeProgress={cardData.progressState === ProgressState.BEFORE}
             onClick={() => {
-              socketManager('AGENDA', 'ENTER', Number(localStorage.getItem('member_id')), 'ADMIN');
               navigate(`/agenda/chat/${cardData.roomId}?lastReadChatId=${cardData.lastReadChatId}`);
             }}
           >

@@ -20,10 +20,10 @@ import api from '@/utils/api';
 import { formatChatData } from '@/utils/chat/formatChatData';
 import { useImageUpload } from '@/hooks/useImageUpload';
 import { useSocketStore, ChatMessage } from '@/store/socketStore';
-import { useSocketManager } from '@/hooks/useSocketManager';
 import { ImageFileSizeDialog } from '@/components/Dialog/ImageFileSizeDialog';
 import { useScroll } from '@/hooks/useScrollBottom';
 import { ImagePreview } from '@/components/Chat/ImagePreview';
+import { useEnterLeaveHandler } from '@/hooks/useEnterLeaveHandler';
 
 const OpinionChatPage = () => {
   const [chatData, setChatData] = useState<ChatData[]>([]);
@@ -38,7 +38,6 @@ const OpinionChatPage = () => {
   const { roomId } = useParams();
   const { subscribe, sendMessage } = useSocketStore();
   const memberId = localStorage.getItem('member_id');
-  const socketManager = useSocketManager();
   const location = useLocation();
   const opinionType = location.state?.opinionType || '';
   const lastChatId = location.state?.lastChatId || 0;
@@ -69,7 +68,7 @@ const OpinionChatPage = () => {
         const res = await api.get(`/api/opinions/${roomId}`);
         setIsReminded(res.data.isReminded);
         const response = await api.get(`/api/opinions/${roomId}/chat`, {
-          params: { chatId: lastChatId },
+          params: { chatId: lastChatId, scroll: 'INITIAL' },
         });
         console.log('채팅 데이터:', response);
         const formattedData = formatChatData(response.data, true);
@@ -114,6 +113,8 @@ const OpinionChatPage = () => {
     setCurrentImageList(images);
   };
 
+  useEnterLeaveHandler('OPINION', 'ADMIN');
+
   return (
     <S.Container>
       <TopAppBar
@@ -122,7 +123,6 @@ const OpinionChatPage = () => {
         rightIconSrc="/src/assets/icons/close.svg"
         onLeftIconClick={() => {
           navigate(-1);
-          socketManager('OPINION', 'LEAVE', Number(roomId), 'ADMIN');
         }}
         onRightIconClick={() => {
           setExitDialogOpen(true);

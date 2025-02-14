@@ -16,10 +16,10 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { forwardRef, useCallback, useState, useEffect } from 'react';
 // import { getDefaultBorderStyle } from '@/components/border/getBorderType.tsx';
 // import { BorderType } from '@/components/border/BorderProps.tsx';
-import { useSocketManager } from '@/hooks/useSocketManager';
 import { useSocketStore, ChatMessage } from '@/store/socketStore';
 import { useImageUpload } from '@/hooks/useImageUpload';
 import { ImageFileSizeDialog } from '@/components/Dialog/ImageFileSizeDialog.tsx';
+import { useEnterLeaveHandler } from '@/hooks/useEnterLeaveHandler.ts';
 
 interface ChatPageProps {
   apiChatData: ChatData[];
@@ -68,7 +68,6 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
     let upLastItemId: string = '';
     let downLatItemId: string = '';
 
-    const socketManager = useSocketManager();
     const { subscribe, sendMessage } = useSocketStore();
 
     const handleMessageReceive = useCallback(
@@ -94,6 +93,8 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
       [roomId, memberId],
     );
 
+    useEnterLeaveHandler('AGENDA', 'ADMIN');
+
     useEffect(() => {
       const unsubscribe = subscribe('AGENDA', Number(roomId), handleMessageReceive);
       return () => unsubscribe();
@@ -115,7 +116,6 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
           title={chatRoomInfo.title}
           rightIconSrc="/src/assets/icons/information-circle-contained.svg"
           onLeftIconClick={() => {
-            socketManager('AGENDA', 'LEAVE', Number(localStorage.getItem('member_id')), 'ADMIN');
             navigate(-1);
           }}
           onRightIconClick={() => {}}
