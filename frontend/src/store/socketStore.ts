@@ -68,7 +68,7 @@ export const useSocketStore = create<SocketState>((set, get) => ({
         if (!get().socket) {
           get().connect(isAdmin);
         }
-      }, 3000);
+      }, 10);
     };
   },
 

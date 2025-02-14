@@ -51,8 +51,6 @@ const AgendaChatPage = () => {
   };
 
   const getMoreChatData = async (direction: string) => {
-    s;
-
     try {
       const response = await api.get(`/admin/agendas/${roomId}/chat`, {
         params: {

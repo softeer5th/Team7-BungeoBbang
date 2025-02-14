@@ -13,6 +13,7 @@ import { bottomItems, moveToDestination } from '../destinations';
 import { mapResponseToChatListCardData, ServerData } from './util/ChatRoomCardMapper';
 import useInfiniteScroll from '@/hooks/useInfiniteScroll';
 import { ChatEnterDialog } from './components/ChatEnterDialog';
+import { useSocketManager } from '@/hooks/useSocketManager';
 
 const AgendaPage = () => {
   const MAX_PAGE_ITEMS = 6;
@@ -20,6 +21,7 @@ const AgendaPage = () => {
 
   const theme = useTheme();
   const navigate = useNavigate();
+  const socketManager = useSocketManager();
 
   const [isLogoutDialogOpen, setLogoutDialogOpen] = useState(false);
   const [selectedChatRoomEnter, setSelectedChatRoomEnter] = useState<number | null>(null);
@@ -57,6 +59,7 @@ const AgendaPage = () => {
       const response = await api.get('/student/agendas', {
         params: params,
       });
+      console.log('response:', response);
 
       const newRooms = response.data.map((data: ServerData) =>
         mapResponseToChatListCardData(data, status),
@@ -79,7 +82,7 @@ const AgendaPage = () => {
   const enterChatRoom = async () => {
     try {
       await api.post(`/student/agendas/${selectedChatRoomEnter}`);
-
+      socketManager('AGENDA', 'PARTICIPATE', selectedChatRoomEnter || -1, 'STUDENT');
       navigate(`/agenda/chat/${selectedChatRoomEnter}?isEnd=false&isParticipate=true`);
     } catch (error) {
       console.error('Error fetching data:', error);
