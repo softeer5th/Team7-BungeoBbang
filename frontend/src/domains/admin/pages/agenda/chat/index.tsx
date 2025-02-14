@@ -35,6 +35,7 @@ const AgendaChatPage = () => {
         api.get(`/admin/agendas/${roomId}/chat`, {
           params: {
             chatId: lastUpChatId.current,
+            scroll: 'INITIAL',
           },
         }),
         api.get(`/admin/agendas/${roomId}`),
