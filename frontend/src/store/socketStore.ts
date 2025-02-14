@@ -151,7 +151,7 @@ export const useSocketStore = create<SocketState>((set, get) => ({
       ...(roomType === 'OPINION' ? { opinionId: roomId } : { agendaId: roomId }),
       message: messageContent,
       images,
-      ...(isAdmin ? { adminId: storedMemberId } : { memberId: storedMemberId }),
+      ...(isAdmin ? { adminId: Number(storedMemberId) } : { memberId: Number(storedMemberId) }),
     };
     console.log('Sending message:', messageData);
 
