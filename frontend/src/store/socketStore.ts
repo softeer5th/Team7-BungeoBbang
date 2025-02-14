@@ -31,6 +31,7 @@ interface SocketState {
     images: string[],
     isAdmin: boolean,
   ) => void;
+  heartbeatInterval?: NodeJS.Timeout | null;
 }
 
 export const useSocketStore = create<SocketState>((set, get) => ({
@@ -51,9 +52,27 @@ export const useSocketStore = create<SocketState>((set, get) => ({
 
     const ws = new WebSocket(socketUrl.toString(), [accessToken]);
 
+    const startHeartbeat = () => {
+      // 기존 인터벌이 있다면 제거
+      const currentInterval = get().heartbeatInterval;
+      if (currentInterval !== null && currentInterval !== undefined) {
+        clearInterval(currentInterval);
+      }
+
+      const interval = setInterval(() => {
+        if (ws.readyState === WebSocket.OPEN) {
+          ws.send(JSON.stringify({ type: 'PING' }));
+          console.log('Sent heartbeat');
+        }
+      }, 10000);
+
+      set({ heartbeatInterval: interval });
+    };
+
     ws.onopen = () => {
       console.log('WebSocket connected successfully');
       set({ socket: ws });
+      startHeartbeat();
     };
 
     ws.onerror = (error) => {
@@ -68,7 +87,7 @@ export const useSocketStore = create<SocketState>((set, get) => ({
         if (!get().socket) {
           get().connect(isAdmin);
         }
-      }, 10);
+      }, 100);
     };
   },
 
