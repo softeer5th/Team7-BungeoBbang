@@ -19,7 +19,7 @@ export const AdminProtectedRoute = () => {
     return () => {
       disconnect();
     };
-  }, []);
+  }, [connect, disconnect]);
 
   if (!JWTManager.getAccessToken()) {
     return <Navigate to="/" state={{ from: location }} replace />;
