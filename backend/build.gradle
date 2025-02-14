@@ -50,8 +50,6 @@ dependencies {
     implementation group: 'org.mindrot', name: 'jbcrypt', version: '0.4'
     // S3
     implementation group: 'software.amazon.awssdk', name: 's3', version: '2.30.14'
-    implementation 'software.amazon.awssdk:sts:2.30.14'
-
     // Lombok
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
