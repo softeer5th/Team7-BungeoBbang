@@ -1,5 +1,5 @@
 import { useRef, useCallback, useEffect } from 'react';
-import { ChatData } from '@/utils/chat/ChatData';
+import { ChatData } from '@/domains/student/pages/chat-page/ChatData';
 
 export const useScrollBottom = <T extends HTMLElement>() => {
   const elementRef = useRef<T>(null);

@@ -249,7 +249,6 @@ const AgendaPage: React.FC = () => {
         onRightIconClick={() => setLogoutDialogShow(true)}
         onLeftIconClick={() => {
           navigate(-1);
-          socketManager('OPINION', 'LEAVE', Number(roomId), 'ADMIN');
         }}
       />
       <TabBar
