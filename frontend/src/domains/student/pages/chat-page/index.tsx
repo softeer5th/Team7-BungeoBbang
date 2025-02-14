@@ -1,6 +1,6 @@
 import * as S from './styles.ts';
 import { TopAppBar } from '@/components/TopAppBar';
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import {
   ChatData,
   ChatType,
