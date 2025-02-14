@@ -172,17 +172,6 @@ public class AgendaRealTimeChatService {
         messageQueueService.unsubscribe(AGENDA_MEMBER_PREFIX + agendaId);
     }
 
-    /**
-     * 특정 답해요(Agenda)와 관련된 모든 연결을 제거한다.
-     * <p>이 작업은 해당 답해요의 모든 채팅 활동을 중단시킨다.</p>
-     *
-     * @param agendaId 연결을 제거할 답해요의 ID
-     */
-    public void removeAgendaConnection(Long agendaId) {
-        messageQueueService.unsubscribe(AGENDA_ADMIN_PREFIX + agendaId);
-        messageQueueService.unsubscribe(AGENDA_MEMBER_PREFIX + agendaId);
-    }
-
     private List<Agenda> getAgenda(Long adminId) {
         final Admin admin = adminRepository.findById(adminId)
                 .orElseThrow(() -> new AdminException(ErrorCode.INVALID_ADMIN));

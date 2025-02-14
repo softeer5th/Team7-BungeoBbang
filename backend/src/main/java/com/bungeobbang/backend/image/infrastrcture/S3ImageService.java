@@ -3,6 +3,7 @@ package com.bungeobbang.backend.image.infrastrcture;
 import com.bungeobbang.backend.common.exception.ImageException;
 import com.bungeobbang.backend.image.domain.ImageFile;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.core.sync.RequestBody;
@@ -25,6 +26,7 @@ import static com.bungeobbang.backend.common.exception.ErrorCode.*;
  * - 비동기 처리를 통해 성능을 최적화합니다.
  */
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class S3ImageService {
 
@@ -95,6 +97,7 @@ public class S3ImageService {
         try {
             s3Client.putObject(putObjectRequest, RequestBody.fromBytes(image.getInputStream().readAllBytes()));
         } catch (S3Exception e) {
+            log.error(e.getMessage());
             throw new ImageException(INVALID_IMG_PATH);
         } catch (IOException e) {
             throw new ImageException(IMAGE_UPLOAD_FAIL);
