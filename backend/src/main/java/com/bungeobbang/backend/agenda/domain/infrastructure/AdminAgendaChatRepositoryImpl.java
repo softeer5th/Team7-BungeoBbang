@@ -17,7 +17,6 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Repository;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -41,8 +40,6 @@ public class AdminAgendaChatRepositoryImpl implements AdminAgendaChatRepository 
     private final static String ADMIN_ID = "adminId";
     private static final String LAST_CHAT = "lastChat";
     private static final String LAST_READ_CHAT_ID = "lastReadChatId";
-    private static final String ABOVE = "above";
-    private static final String BELOW = "below";
     private static final String ID = "_id";
     private final MongoTemplate mongoTemplate;
     private static final ObjectId MAX_OBJECT_ID = new ObjectId("ffffffffffffffffffffffff");
@@ -131,63 +128,14 @@ public class AdminAgendaChatRepositoryImpl implements AdminAgendaChatRepository 
         Query query = new Query();
         query.addCriteria(Criteria.where(AGENDA_ID).is(agendaId));
 
-        if (scrollType == null) {
-            // 마지막 읽은 채팅을 기준으로 위로 10개 + 아래료 10개
-            return findChatsAround(agendaId, chatId);
-        }
 
         switch (scrollType) {
             case DOWN -> query.addCriteria(Criteria.where(ID).gt(chatId));
             case UP -> query.addCriteria(Criteria.where(ID).lt(chatId));
+            case INITIAL -> query.addCriteria(Criteria.where(ID).gte(chatId));
         }
         query.with(Sort.by(Sort.Direction.ASC, ID));
         query.limit(10);
         return mongoTemplate.find(query, AgendaChat.class);
-    }
-
-    private List<AgendaChat> findChatsAround(Long agendaId, ObjectId chatId) {
-        if (chatId == MAX_OBJECT_ID) {
-            Query query = new Query();
-            query.addCriteria(Criteria.where(AGENDA_ID).is(agendaId));
-            query.with(Sort.by(Sort.Direction.ASC, ID));
-            query.limit(10);
-
-            return mongoTemplate.find(query, AgendaChat.class);
-        }
-
-        // 위쪽 10개
-        AggregationOperation matchAbove = Aggregation.match(
-                Criteria.where(AGENDA_ID).is(agendaId).and(ID).lt(chatId));
-        AggregationOperation sortAbove = Aggregation.sort(Sort.Direction.DESC, ID); // 최신순
-        AggregationOperation limitAbove = Aggregation.limit(10);
-        AggregationOperation lastSort = Aggregation.sort(Sort.by(Sort.Direction.ASC, ID));
-
-        // 아래쪽 10개 (_id >= chatId)
-        AggregationOperation matchBelow = Aggregation.match(
-                Criteria.where(AGENDA_ID).is(agendaId).and(ID).gte(chatId));
-        AggregationOperation sortBelow = Aggregation.sort(Sort.Direction.ASC, ID); // 오래된 순
-        AggregationOperation limitBelow = Aggregation.limit(10);
-
-        final FacetOperation facets = new FacetOperation()
-                .and(matchAbove, sortAbove, limitAbove, lastSort).as(ABOVE)
-                .and(matchBelow, sortBelow, limitBelow).as(BELOW);
-        Aggregation aggregation = Aggregation.newAggregation(facets);
-        AggregationResults<ChatsFacetResult> result = mongoTemplate.aggregate(aggregation, AGENDA_COLLECTION, ChatsFacetResult.class);
-
-        if (result.getMappedResults().isEmpty()) {
-            return new ArrayList<>();
-        }
-        List<AgendaChat> aboveChats = new ArrayList<>(result.getMappedResults().get(0).above);
-        List<AgendaChat> belowChats = result.getMappedResults().get(0).below;
-
-        // 위쪽 + 아래쪽 합치기
-        aboveChats.addAll(belowChats);
-        return aboveChats;
-    }
-
-    // $facet 결과를 매핑하기 위한 DTO
-    private static class ChatsFacetResult {
-        private List<AgendaChat> above;
-        private List<AgendaChat> below;
     }
 }
