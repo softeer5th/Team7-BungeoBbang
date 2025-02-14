@@ -22,6 +22,7 @@ public class CustomOpinionChatRepository {
 
     public static final String OPINION_ID = "opinionId";
     public static final String ID = "_id";
+    private static final ObjectId MAX_OBJECT_ID = new ObjectId("ffffffffffffffffffffffff");
     private final MongoTemplate mongoTemplate;
 
     public List<OpinionChat> findOpinionChats(Long opinionId, ObjectId chatId, ScrollType scroll) {
@@ -38,8 +39,12 @@ public class CustomOpinionChatRepository {
             // 아래로 스크롤 (lastChatId보다 큰 데이터)
             criteria.and(ID).gt(chatId);
         } else if (scroll.equals(ScrollType.INITIAL)) {
+            if (chatId.equals(MAX_OBJECT_ID)) {
+                // 만약 lastChatId == MAX인 경우 (이미 채팅방 접속해있는 경우) 최신 10개 조회
+                criteria.and(ID).lt(MAX_OBJECT_ID);
+            }
             // 첫 접속 (lastChatID 포함해서 조회)
-            criteria.and(ID).gte(chatId);
+            else criteria.and(ID).gte(chatId);
         }
 
         // Match 적용
