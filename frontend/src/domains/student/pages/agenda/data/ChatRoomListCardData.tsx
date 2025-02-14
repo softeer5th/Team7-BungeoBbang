@@ -10,4 +10,5 @@ export interface ChatRoomListCardData {
   numOfJoin: number;
   isInProgress: boolean;
   isParticipate: boolean;
+  lastChatId: string;
 }

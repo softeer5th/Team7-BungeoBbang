@@ -15,6 +15,7 @@ export interface AgendaServerData {
     createdAt: string;
   };
   hasNewChat: boolean;
+  lastReadChatId: string;
 }
 
 export interface OpinionServerData {
@@ -28,6 +29,7 @@ export interface OpinionServerData {
     createdAt: string; // ISO date string
   };
   hasNewChat: boolean;
+  lastReadChatId: string;
 }
 
 export const mapOpinionResponseToChatPreviewData = (
@@ -41,6 +43,7 @@ export const mapOpinionResponseToChatPreviewData = (
     lastSendTime: response.lastChat.createdAt,
     lastMessage: response.lastChat.content,
     hasNewChat: response.hasNewChat,
+    lastChatId: response.lastReadChatId,
   };
 };
 
@@ -54,6 +57,7 @@ export const mapAgendaResponseToChatPreviewData = (response: AgendaServerData): 
     numOfJoin: response.agenda.count,
     isInProgress: response.agenda.isEnd,
     hasNewChat: response.hasNewChat,
+    lastChatId: response.lastReadChatId,
   };
 };
 

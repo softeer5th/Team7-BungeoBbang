@@ -11,6 +11,7 @@ export interface ServerData {
     count: number;
   };
   isParticipate: boolean;
+  lastReadChatId: string;
 }
 
 export const mapResponseToChatListCardData = (
@@ -18,6 +19,7 @@ export const mapResponseToChatListCardData = (
   status: string,
 ): ChatRoomListCardData => {
   return {
+    lastChatId: response.lastReadChatId,
     roomId: response.agenda.agendaId,
     dday: formatDate(response.agenda.endDate),
     startDate: response.agenda.startDate,
