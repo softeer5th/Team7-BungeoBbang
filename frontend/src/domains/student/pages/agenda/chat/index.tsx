@@ -10,7 +10,14 @@ const AgendaChatPage = () => {
   const isParticipate = searchParams.get('isParticipate') === 'true';
   const lastChatId = useLocation().state?.lastChatId;
 
-  return <ChatPage roomId={Number(roomId)} isEnd={isEnd} isParticipate={isParticipate} lastChatId={lastChatId}/>;
+  return (
+    <ChatPage
+      roomId={Number(roomId)}
+      isEnd={isEnd}
+      isParticipate={isParticipate}
+      lastChatId={lastChatId}
+    />
+  );
 };
 
 export default AgendaChatPage;
