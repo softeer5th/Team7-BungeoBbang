@@ -1,5 +1,5 @@
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import * as S from '@/domains/student/pages/chat-page/styles';
 import { TopAppBar } from '@/components/TopAppBar';
 import {
@@ -114,6 +114,22 @@ const OpinionChatPage = () => {
     setCurrentImageList(images);
   };
 
+  //모바일 뒤로가기 스와이프 시 채팅방 나가기
+  const hasLeft = useRef(false);
+
+  const handleLeave = useCallback(() => {
+    if (!hasLeft.current) {
+      socketManager('AGENDA', 'LEAVE', Number(localStorage.getItem('member_id')), 'ADMIN');
+      hasLeft.current = true;
+    }
+  }, [socketManager]);
+
+  useEffect(() => {
+    return () => {
+      handleLeave();
+    };
+  }, [handleLeave]);
+
   return (
     <S.Container>
       <TopAppBar
@@ -191,6 +207,7 @@ const OpinionChatPage = () => {
         <ExitDialog
           onConfirm={() => {
             setExitDialogOpen(false);
+            handleLeave();
             navigate(-1);
           }}
           onDismiss={() => {

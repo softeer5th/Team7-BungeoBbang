@@ -13,7 +13,7 @@ import {
   SendChatData,
 } from './ChatData.tsx';
 import { useNavigate, useParams } from 'react-router-dom';
-import { forwardRef, useCallback, useState, useEffect } from 'react';
+import { forwardRef, useCallback, useState, useEffect, useRef } from 'react';
 // import { getDefaultBorderStyle } from '@/components/border/getBorderType.tsx';
 // import { BorderType } from '@/components/border/BorderProps.tsx';
 import { useSocketManager } from '@/hooks/useSocketManager';
@@ -62,6 +62,15 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
     const socketManager = useSocketManager();
     const { subscribe, sendMessage } = useSocketStore();
 
+    const hasLeft = useRef(false);
+
+    const handleLeave = useCallback(() => {
+      if (!hasLeft.current) {
+        socketManager('AGENDA', 'LEAVE', Number(localStorage.getItem('member_id')), 'ADMIN');
+        hasLeft.current = true;
+      }
+    }, [socketManager]);
+
     const handleMessageReceive = useCallback(
       (message: ChatMessage) => {
         console.log('message', message);
@@ -80,6 +89,12 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
       },
       [roomId, memberId],
     );
+
+    useEffect(() => {
+      return () => {
+        handleLeave();
+      };
+    }, [handleLeave]);
 
     useEffect(() => {
       const unsubscribe = subscribe('AGENDA', Number(roomId), handleMessageReceive);
@@ -102,7 +117,7 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
           title={chatRoomInfo.title}
           rightIconSrc="/src/assets/icons/information-circle-contained.svg"
           onLeftIconClick={() => {
-            socketManager('AGENDA', 'LEAVE', Number(localStorage.getItem('member_id')), 'ADMIN');
+            handleLeave();
             navigate(-1);
           }}
           onRightIconClick={() => {}}
