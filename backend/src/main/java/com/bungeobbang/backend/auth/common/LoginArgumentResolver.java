@@ -1,6 +1,7 @@
 package com.bungeobbang.backend.auth.common;
 
 import com.bungeobbang.backend.auth.BearerAuthorizationExtractor;
+import com.bungeobbang.backend.auth.Claim;
 import com.bungeobbang.backend.auth.JwtProvider;
 import com.bungeobbang.backend.auth.domain.Accessor;
 import com.bungeobbang.backend.auth.domain.Authority;
@@ -23,8 +24,6 @@ import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 @Component
 public class LoginArgumentResolver implements HandlerMethodArgumentResolver {
     private final JwtProvider jwtProvider;
-    private static final String UUID = "uuid";
-    private static final String ROLE = "role";
     private final BearerAuthorizationExtractor extractor;
     private final UuidRepository uuidRepository;
 
@@ -46,8 +45,8 @@ public class LoginArgumentResolver implements HandlerMethodArgumentResolver {
             jwtProvider.validateToken(accessToken);
             final String userId = jwtProvider.getSubject(accessToken);
 
-            final String actual = jwtProvider.getClaim(accessToken, UUID);
-            final Authority authority = Authority.valueOf(jwtProvider.getClaim(accessToken, ROLE));
+            final String actual = jwtProvider.getClaim(accessToken, Claim.UUID);
+            final Authority authority = Authority.valueOf(jwtProvider.getClaim(accessToken, Claim.ROLE));
             final String expected = uuidRepository.get(authority, userId)
                     .orElseThrow(() -> new AuthException(INVALID_UUID));
             validateUuid(actual, expected);
