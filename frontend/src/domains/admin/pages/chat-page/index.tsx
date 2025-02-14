@@ -1,5 +1,9 @@
 import * as S from './styles.ts';
 import { TopAppBar } from '@/components/TopAppBar';
+import { ChatSendField } from '@/components/Chat/ChatSendField.tsx';
+import { ReceiverChat } from '@/components/Chat/ReceiverChat.tsx';
+import { SenderChat } from '@/components/Chat/SenderChat.tsx';
+import { TextBadge } from '@/components/Chat/TextBadge.tsx';
 import {
   ChatData,
   ChatType,
@@ -8,10 +12,6 @@ import {
   ReceiveChatData,
   SendChatData,
 } from './ChatData.tsx';
-import { ChatSendField } from '@/components/Chat/ChatSendField.tsx';
-import { ReceiverChat } from '@/components/Chat/ReceiverChat.tsx';
-import { SenderChat } from '@/components/Chat/SenderChat.tsx';
-import { TextBadge } from '@/components/Chat/TextBadge.tsx';
 import { useNavigate, useParams } from 'react-router-dom';
 import { forwardRef, useCallback, useState, useEffect } from 'react';
 // import { getDefaultBorderStyle } from '@/components/border/getBorderType.tsx';
@@ -50,7 +50,7 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
     const navigate = useNavigate();
 
     const FIRST_REMAIN_ITEMS = 1;
-    const LAST_REMAIN_ITEMS = 3;
+    const LAST_REMAIN_ITEMS = 1;
 
     let upLastItemId: string = '';
     let downLatItemId: string = '';

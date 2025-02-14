@@ -1,10 +1,10 @@
-import { useRef, useState } from 'react';
+import { useLayoutEffect, useRef, useState } from 'react';
 import ChatPage, { ChatRoomInfo } from '../../chat-page';
 import { useParams, useSearchParams } from 'react-router-dom';
 import { formatChatData } from '@/utils/chat/formatChatData.ts';
 import api from '@/utils/api.ts';
-import { ChatData } from '../../chat-page/ChatData';
 import useInfiniteScroll from '@/hooks/useInfiniteScroll';
+import { ChatData } from '../../chat-page/ChatData';
 
 const AgendaChatPage = () => {
   const MAX_CHAT_DATA = 10;
@@ -24,11 +24,12 @@ const AgendaChatPage = () => {
   const lastUpChatId = useRef<string | null>(lastReadChatId);
   const lastDownChatId = useRef<string | null>(lastReadChatId);
   const chatListRef = useRef<HTMLDivElement>(null);
+  const isInitialLoading = useRef<boolean>(true);
+  const isUpDirection = useRef<boolean>(false);
 
-  const focusChatItem = useRef<HTMLDivElement | null>(null);
+  const previousScrollHeight = useRef<number | null>(null);
 
   const getInitialChatData = async () => {
-    console.log('initititititit', chatListRef);
     try {
       const [response, chatInfo] = await Promise.all([
         api.get(`/admin/agendas/${roomId}/chat`, {
@@ -38,13 +39,13 @@ const AgendaChatPage = () => {
         }),
         api.get(`/admin/agendas/${roomId}`),
       ]);
-      console.log('initial!!!', response);
       const formattedData = formatChatData(response.data, true);
       setChatData(formattedData);
       setChatRoomInfo({
         title: chatInfo.data.title,
         adminName: chatInfo.data.adminName,
       });
+      isInitialLoading.current = false;
     } catch (error) {
       console.error('fail to get chat data', error);
     }
@@ -52,6 +53,7 @@ const AgendaChatPage = () => {
 
   const getMoreChatData = async (direction: string) => {
     try {
+      if (direction === 'UP') isUpDirection.current = true;
       const response = await api.get(`/admin/agendas/${roomId}/chat`, {
         params: {
           chatId: direction === 'UP' ? lastUpChatId.current : lastDownChatId.current,
@@ -59,7 +61,7 @@ const AgendaChatPage = () => {
         },
       });
 
-      console.log('up!!!', response);
+      console.log('!!!! ', direction, response);
       const formattedData = formatChatData(response.data, true);
 
       setChatData((prev: ChatData[]) => {
@@ -75,14 +77,6 @@ const AgendaChatPage = () => {
           return [...prev, ...formattedData];
         }
       });
-
-      // const newScrollHeight = chatListRef.current?.scrollHeight || 0;
-      // const scrollDifference = newScrollHeight - prevScrollHeight;
-      // console.log('scroll!!!', chatListRef.current, newScrollHeight);
-      // if (chatListRef.current) {
-      //   chatListRef.current.scrollTop = scrollDifference;
-      // }
-      scrollToLastChat();
     } catch (error) {
       console.error('fail to get chat data', error);
     }
@@ -94,21 +88,25 @@ const AgendaChatPage = () => {
     fetchDownMore: () => getMoreChatData('DOWN'),
   });
 
-  const scrollToLastChat = () => {
-    if (!chatListRef.current) return;
+  useLayoutEffect(() => {
+    if (!chatListRef.current || isInitialLoading.current) return;
 
-    // // Find the element for lastChatId
-    // if (focusChatItem.current) {
-    //   const lastChatElement = document.querySelector(focusChatItem.current?.id);
+    if (isUpDirection.current === true) {
+      const previousHeight = previousScrollHeight.current ?? chatListRef.current.scrollHeight;
+      const currentHeight = chatListRef.current.scrollHeight;
+      const scrollTop = chatListRef.current.scrollTop + (currentHeight - previousHeight);
 
-    //   console.log('lastCHatElement', lastChatElement);
+      chatListRef.current.scrollTop = scrollTop;
+      previousScrollHeight.current = currentHeight;
+      console.log('Adjusted scrollTop for UP direction:', scrollTop);
 
-    //   focusChatItem.current.scrollIntoView({
-    //     behavior: 'smooth',
-    //     block: 'center',
-    //   });
-    // }
-  };
+      // Reset the direction flag to avoid repeated adjustments
+      isUpDirection.current = false;
+    } else {
+      // Update the previous height for future calculations
+      previousScrollHeight.current = chatListRef.current.scrollHeight;
+    }
+  }, [chatData]);
 
   return (
     <ChatPage
@@ -117,14 +115,10 @@ const AgendaChatPage = () => {
       chatRoomInfo={chatRoomInfo}
       onUpLastItemChange={(lastItemRef, lastChatId: string) => {
         lastUpChatId.current = lastChatId;
-        // console.log('uplats', lastItemRef, lastChatId);
         setTriggerUpItem(lastItemRef);
       }}
       onDownLastItemChange={(lastItemRef, lastChatId) => {
         lastDownChatId.current = lastChatId;
-        // console.log('downlast', lastItemRef, lastChatId);
-
-        focusChatItem.current = lastItemRef;
         setTriggerDownItem(lastItemRef);
       }}
     />

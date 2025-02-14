@@ -36,7 +36,7 @@ export const ReceiverChat = forwardRef<HTMLDivElement, ReceiverChatProps>(
     ref,
   ) => {
     return (
-      <ReceiverChatContainer id={chatId} ref={ref}>
+      <ReceiverChatContainer id={`id${chatId}`} ref={ref}>
         <NameContainer>
           {receiverName && (
             <NameText variant="body2" nameTextColor={nameTextColor}>
