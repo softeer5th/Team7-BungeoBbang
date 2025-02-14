@@ -30,6 +30,7 @@ const useInfiniteScroll = ({
 
   const setTriggerUpItem = (element: HTMLDivElement) => {
     if (upObserver.current && element) {
+      console.log('up item~~~', element);
       upObserver.current.disconnect();
       upObserver.current.observe(element);
       upTriggerRef.current = element;
@@ -38,6 +39,7 @@ const useInfiniteScroll = ({
 
   const setTriggerDownItem = (element: HTMLDivElement) => {
     if (downObserver.current && element) {
+      console.log('down item~~~', element);
       downObserver.current.disconnect();
       downObserver.current.observe(element);
       downTriggerRef.current = element;
@@ -50,6 +52,7 @@ const useInfiniteScroll = ({
       upObserver.current = new IntersectionObserver(
         (entries) => {
           const [entry] = entries;
+          console.log(' up observer', hasUpMore, fetchUpMore);
           if (entry.isIntersecting && hasUpMore.current && fetchUpMore) {
             console.log('!!!!!');
             fetchUpMore();
@@ -68,7 +71,9 @@ const useInfiniteScroll = ({
       downObserver.current = new IntersectionObserver(
         (entries) => {
           const [entry] = entries;
+          console.log(' down observer', entry.isIntersecting, hasDownMore, fetchDownMore);
           if (entry.isIntersecting && hasDownMore.current && fetchDownMore) {
+            console.log('!!!!!! down!!!!!');
             fetchDownMore();
           }
         },
@@ -82,6 +87,7 @@ const useInfiniteScroll = ({
     }
 
     return () => {
+      console.log('unmount???');
       if (upObserver.current && upTriggerRef.current) {
         upObserver.current.disconnect();
       }

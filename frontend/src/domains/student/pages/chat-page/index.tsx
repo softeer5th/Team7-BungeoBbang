@@ -23,7 +23,7 @@ import { ImagePreview } from '@/components/Chat/ImagePreview.tsx';
 import { useImageUpload } from '@/hooks/useImageUpload.ts';
 import { ImageFileSizeDialog } from '@/components/Dialog/ImageFileSizeDialog.tsx';
 import { useSocketStore, ChatMessage } from '@/store/socketStore.ts';
-import { useScrollBottom } from '@/hooks/useScrollBottom';
+import { useScroll } from '@/hooks/useScrollBottom';
 
 interface ChatPageProps {
   roomId: number;
@@ -117,7 +117,7 @@ const ChatPage = ({ roomId, isEnd, isParticipate, lastChatId }: ChatPageProps) =
     [roomId, sendMessage],
   );
 
-  const { elementRef, useScrollOnUpdate } = useScrollBottom<HTMLDivElement>();
+  const { elementRef, useScrollOnUpdate } = useScroll<HTMLDivElement>();
   useScrollOnUpdate(chatData);
 
   return (

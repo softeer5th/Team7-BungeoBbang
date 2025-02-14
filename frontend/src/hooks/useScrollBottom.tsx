@@ -1,20 +1,38 @@
-import { ChatData } from '@/domains/student/pages/chat-page/ChatData';
 import { useRef, useCallback, useEffect } from 'react';
+import { ChatData } from '@/domains/student/pages/chat-page/ChatData';
 
-export const useScrollBottom = <T extends HTMLElement>() => {
+export const useScroll = <T extends HTMLElement>() => {
+  const previousScrollHeight = useRef<number | null>(null);
   const elementRef = useRef<T>(null);
 
+  // Scroll to the bottom
   const scrollToBottom = useCallback(() => {
     if (elementRef.current) {
       elementRef.current.scrollTop = elementRef.current.scrollHeight;
     }
   }, []);
 
-  // const scrollToTop = useCallback(() => {});
+  // Scroll to the top
+  const scrollToTop = useCallback(() => {
+    if (elementRef.current) {
+      elementRef.current.scrollTop = 0;
+    }
+  }, []);
 
-  // const remainCurrentScroll = useCallback(() => {});
+  // Retain the current scroll position when data is added at the top
+  const remainCurrentScroll = useCallback(() => {
+    if (elementRef.current) {
+      const currentHeight = elementRef.current.scrollHeight;
 
-  // ChatData[] 타입으로 제한
+      const previousHeight = previousScrollHeight.current ?? currentHeight;
+      const scrollTop = elementRef.current.scrollTop + (currentHeight - previousHeight);
+
+      elementRef.current.scrollTop = scrollTop;
+      previousScrollHeight.current = currentHeight;
+    }
+  }, []);
+
+  // Automatically handle scroll adjustments on dependency change
   const useScrollOnUpdate = (dependency: ChatData[]) => {
     useEffect(() => {
       scrollToBottom();
@@ -24,6 +42,8 @@ export const useScrollBottom = <T extends HTMLElement>() => {
   return {
     elementRef,
     scrollToBottom,
+    scrollToTop,
+    remainCurrentScroll,
     useScrollOnUpdate,
   };
 };

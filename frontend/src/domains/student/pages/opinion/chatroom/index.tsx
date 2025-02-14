@@ -21,7 +21,7 @@ import { formatChatData } from '@/utils/chat/formatChatData.ts';
 import { useImageUpload } from '@/hooks/useImageUpload.ts';
 import { useSocketStore, ChatMessage } from '@/store/socketStore';
 import { useSocketManager } from '@/hooks/useSocketManager.ts';
-import { useScrollBottom } from '@/hooks/useScrollBottom.tsx';
+import { useScroll } from '@/hooks/useScrollBottom.tsx';
 import { ImageFileSizeDialog } from '@/components/Dialog/ImageFileSizeDialog.tsx';
 import { ImagePreview } from '@/components/Chat/ImagePreview.tsx';
 
@@ -113,7 +113,7 @@ const OpinionChatPage = () => {
     [roomId, sendMessage],
   );
 
-  const { elementRef, useScrollOnUpdate } = useScrollBottom<HTMLDivElement>();
+  const { elementRef, useScrollOnUpdate } = useScroll<HTMLDivElement>();
   useScrollOnUpdate(chatData);
 
   const [selectedImage, setSelectedImage] = useState<{ url: string; index: number } | null>(null);

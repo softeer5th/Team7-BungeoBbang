@@ -22,7 +22,7 @@ import { useImageUpload } from '@/hooks/useImageUpload';
 import { useSocketStore, ChatMessage } from '@/store/socketStore';
 import { useSocketManager } from '@/hooks/useSocketManager';
 import { ImageFileSizeDialog } from '@/components/Dialog/ImageFileSizeDialog';
-import { useScrollBottom } from '@/hooks/useScrollBottom';
+import { useScroll } from '@/hooks/useScrollBottom';
 import { ImagePreview } from '@/components/Chat/ImagePreview';
 
 const OpinionChatPage = () => {
@@ -97,7 +97,7 @@ const OpinionChatPage = () => {
     [roomId, sendMessage],
   );
 
-  const { elementRef, useScrollOnUpdate } = useScrollBottom<HTMLDivElement>();
+  const { elementRef, useScrollOnUpdate } = useScroll<HTMLDivElement>();
   // chatData가 업데이트될 때마다 스크롤
   useScrollOnUpdate(chatData);
 
