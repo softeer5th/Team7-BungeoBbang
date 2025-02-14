@@ -1,5 +1,5 @@
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import * as S from '@/domains/student/pages/chat-page/styles';
 import { TopAppBar } from '@/components/TopAppBar';
 import {
@@ -23,11 +23,13 @@ import { useSocketStore, ChatMessage } from '@/store/socketStore';
 import { useSocketManager } from '@/hooks/useSocketManager';
 import { ImageFileSizeDialog } from '@/components/Dialog/ImageFileSizeDialog';
 import { useScrollBottom } from '@/hooks/useScrollBottom';
+import { ImagePreview } from '@/components/Chat/ImagePreview';
 
 const OpinionChatPage = () => {
   const [chatData, setChatData] = useState<ChatData[]>([]);
   const [isExitDialogOpen, setExitDialogOpen] = useState(false);
   const [message, setMessage] = useState('');
+  const [isReminded, setIsReminded] = useState(false);
 
   const { images, showSizeDialog, handleImageDelete, handleImageUpload, closeSizeDialog } =
     useImageUpload(10, 5);
@@ -39,6 +41,7 @@ const OpinionChatPage = () => {
   const socketManager = useSocketManager();
   const location = useLocation();
   const opinionType = location.state?.opinionType || '';
+  const lastChatId = location.state?.lastChatId || 0;
 
   const handleMessageReceive = useCallback(
     (message: ChatMessage) => {
@@ -63,9 +66,13 @@ const OpinionChatPage = () => {
 
     const fetchData = async () => {
       try {
-        const response = await api.get(`/api/opinions/${roomId}/chat`);
+        const res = await api.get(`/api/opinions/${roomId}`);
+        setIsReminded(res.data.isReminded);
+        const response = await api.get(`/api/opinions/${roomId}/chat`, {
+          params: { chatId: lastChatId },
+        });
+        console.log('채팅 데이터:', response);
         const formattedData = formatChatData(response.data, true);
-        console.log('formattedData', response);
         setChatData(formattedData);
       } catch (error) {
         console.error('채팅 데이터 불러오기 실패:', error);
@@ -78,12 +85,14 @@ const OpinionChatPage = () => {
   useEffect(() => {
     const unsubscribe = subscribe('OPINION', Number(roomId), handleMessageReceive);
     return () => unsubscribe();
-  }, [roomId, subscribe, handleMessageReceive]);
+  }, [roomId, handleMessageReceive, subscribe]);
 
   const handleSendMessage = useCallback(
     (message: string, images: string[] = []) => {
       sendMessage('OPINION', Number(roomId), message, images, true);
       setMessage('');
+      handleImageDelete(-1);
+      setIsReminded(false);
     },
     [roomId, sendMessage],
   );
@@ -91,6 +100,35 @@ const OpinionChatPage = () => {
   const { elementRef, useScrollOnUpdate } = useScrollBottom<HTMLDivElement>();
   // chatData가 업데이트될 때마다 스크롤
   useScrollOnUpdate(chatData);
+
+  // 이미지 클릭 시 이미지 프리뷰 열기
+  const [selectedImage, setSelectedImage] = useState<{ url: string; index: number } | null>(null);
+  const [currentImageList, setCurrentImageList] = useState<string[]>([]);
+
+  const handleImageClick = (imageUrl: string, images: string[]) => {
+    const clickedIndex = images.indexOf(imageUrl);
+    setSelectedImage({
+      url: imageUrl,
+      index: clickedIndex,
+    });
+    setCurrentImageList(images);
+  };
+
+  //모바일 뒤로가기 스와이프 시 채팅방 나가기
+  const hasLeft = useRef(false);
+
+  const handleLeave = useCallback(() => {
+    if (!hasLeft.current) {
+      socketManager('AGENDA', 'LEAVE', Number(localStorage.getItem('member_id')), 'ADMIN');
+      hasLeft.current = true;
+    }
+  }, [socketManager]);
+
+  useEffect(() => {
+    return () => {
+      handleLeave();
+    };
+  }, [handleLeave]);
 
   return (
     <S.Container>
@@ -100,7 +138,7 @@ const OpinionChatPage = () => {
         rightIconSrc="/src/assets/icons/close.svg"
         onLeftIconClick={() => {
           navigate(-1);
-          socketManager('OPINION', 'LEAVE', Number(roomId));
+          socketManager('OPINION', 'LEAVE', Number(roomId), 'ADMIN');
         }}
         onRightIconClick={() => {
           setExitDialogOpen(true);
@@ -113,21 +151,25 @@ const OpinionChatPage = () => {
             const chatData = chat as ReceiveChatData;
             return (
               <ReceiverChat
+                chatId={chatData.chatId}
                 key={index}
                 receiverName={chatData.name}
                 message={chatData.message}
                 images={chatData.images}
                 timeText={chatData.time}
+                onImageClick={(imageUrl) => handleImageClick(imageUrl, chatData.images || [])}
               />
             );
           } else if (chat.type === ChatType.SEND) {
             const chatData = chat as SendChatData;
             return (
               <SenderChat
+                chatId={chatData.chatId}
                 key={index}
                 message={chatData.message}
                 images={chatData.images}
                 timeText={chatData.time}
+                onImageClick={(imageUrl) => handleImageClick(imageUrl, chatData.images || [])}
               />
             );
           } else if (chat.type === ChatType.INFO) {
@@ -146,6 +188,9 @@ const OpinionChatPage = () => {
           }
           return null;
         })}
+        {isReminded ? (
+          <TextBadge text="답변을 기다리고 있어요" backgroundColor="#FF4B4B" textColor="#fff" />
+        ) : null}
       </S.ChatList>
 
       <ChatSendField
@@ -162,6 +207,7 @@ const OpinionChatPage = () => {
         <ExitDialog
           onConfirm={() => {
             setExitDialogOpen(false);
+            handleLeave();
             navigate(-1);
           }}
           onDismiss={() => {
@@ -171,6 +217,14 @@ const OpinionChatPage = () => {
       )}
       {showSizeDialog && (
         <ImageFileSizeDialog onConfirm={closeSizeDialog} onDismiss={closeSizeDialog} />
+      )}
+      {selectedImage && (
+        <ImagePreview
+          imageUrl={selectedImage.url}
+          currentIndex={selectedImage.index}
+          totalImages={currentImageList.length}
+          onClose={() => setSelectedImage(null)}
+        />
       )}
     </S.Container>
   );

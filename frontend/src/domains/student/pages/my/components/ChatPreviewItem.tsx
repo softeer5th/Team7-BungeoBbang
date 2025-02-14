@@ -1,6 +1,9 @@
 import React from 'react';
 import * as S from './styles';
 import { ChatPreviewData } from '../data/ChatPreviewData';
+import { formatDate, formatTime } from '../util/AgendaChatRoomMapper';
+import { useNavigate } from 'react-router-dom';
+import { useSocketManager } from '@/hooks/useSocketManager';
 
 interface ChatPreviewItemProps {
   chatData: ChatPreviewData;
@@ -9,8 +12,23 @@ interface ChatPreviewItemProps {
 export const ChatPreviewItem: React.FC<ChatPreviewItemProps> = ({
   chatData,
 }: ChatPreviewItemProps) => {
+  console.log('chatData', chatData);
+  const navigate = useNavigate();
+  const socketManager = useSocketManager();
+
   return (
-    <S.ItemBox>
+    <S.ItemBox
+      onClick={() => {
+        const roomId = chatData.roomId;
+        if (chatData.opinionType) {
+          socketManager('OPINION', 'ENTER', Number(roomId), 'STUDENT');
+          navigate(`/opinion/chat/${roomId}`, { state: { lastChatId: chatData.lastChatId } });
+        } else {
+          socketManager('AGENDA', 'ENTER', Number(roomId), 'STUDENT');
+          navigate(`/agenda/chat/${roomId} `, { state: { lastChatId: chatData.lastChatId } });
+        }
+      }}
+    >
       <S.HeaderContainer>
         <S.TitleContainer>
           <S.IconBox backgroundColor={chatData.categoryType.iconBackground}>
@@ -18,7 +36,7 @@ export const ChatPreviewItem: React.FC<ChatPreviewItemProps> = ({
           </S.IconBox>
           <S.TitleTextContainer>
             {chatData.opinionType ? (
-              <S.TitleText variant="heading3">{chatData.opinionType}</S.TitleText>
+              <S.TitleText variant="heading3">{chatData.roomName}</S.TitleText>
             ) : (
               <>
                 <S.TitleText variant="heading3">{chatData.roomName}</S.TitleText>
@@ -30,11 +48,15 @@ export const ChatPreviewItem: React.FC<ChatPreviewItemProps> = ({
             )}
           </S.TitleTextContainer>
         </S.TitleContainer>
-        <S.LastSendTimeText variant="caption2">{chatData.lastSendTime}</S.LastSendTimeText>
+        <S.LastSendTimeText variant="caption2">
+          {chatData.opinionType
+            ? formatTime(chatData.lastSendTime)
+            : formatDate(chatData.lastSendTime)}
+        </S.LastSendTimeText>
       </S.HeaderContainer>
       <S.MessageBox>
         <S.MessageText variant="body3">{chatData.lastMessage}</S.MessageText>
-        {chatData.isUnread ? (
+        {chatData.hasNewChat ? (
           <S.UnreadAlarmBox>
             <S.UnreadText variant="caption1">N</S.UnreadText>
           </S.UnreadAlarmBox>

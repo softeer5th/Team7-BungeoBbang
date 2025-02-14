@@ -1,6 +1,7 @@
 import styled from 'styled-components';
-import { BorderProps } from '../BorderProps';
+import { BorderProps } from '../border/BorderProps';
 import Typography from '../../styles/Typography';
+import { getBorderStyle, getDefaultBorderStyle } from '../border/getBorderType';
 
 export interface ChipListItemProps {
   itemId: string;
@@ -25,6 +26,7 @@ export const ChipListItem: React.FC<ChipListItemProps & ChipListItemOnlyProps> =
   backgroundColor = '#F4F4F4',
   selectedBackgroundColor = '#E8F3FF',
   border = {
+    ...getDefaultBorderStyle(),
     borderWidth: '1px',
     borderColor: '#C6C6C6',
     selectedBorderColor: '#1F87FF',
@@ -55,10 +57,13 @@ const ChipItemContainer = styled.div<{
   padding: 8px 12px;
   box-sizing: border-box;
   background-color: ${(props) => props.backgroundColor};
-  border: ${(props) =>
+  ${(props) =>
     props.border
-      ? `${props.border.borderWidth || '1px'} solid ${props.selected ? props.border.selectedBorderColor : props.border.borderColor}`
-      : 'none'};
+      ? getBorderStyle({
+          ...props.border,
+          borderColor: props.selected ? props.border.selectedBorderColor : props.border.borderColor,
+        })
+      : 'border: none;'}
   border-radius: ${(props) => props.border?.borderRadius || '100px'};
   display: flex;
   justify-content: center;

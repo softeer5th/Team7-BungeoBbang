@@ -1,4 +1,4 @@
-import { useParams, useSearchParams } from 'react-router-dom';
+import { useParams, useSearchParams, useLocation } from 'react-router-dom';
 import ChatPage from '../../chat-page';
 
 const AgendaChatPage = () => {
@@ -6,10 +6,18 @@ const AgendaChatPage = () => {
 
   const [searchParams] = useSearchParams();
 
-  const isEnd = searchParams.get('isEnd') === 'true'; // 쿼리 파라미터
+  const isEnd = searchParams.get('isEnd') === 'true';
   const isParticipate = searchParams.get('isParticipate') === 'true';
+  const lastChatId = useLocation().state?.lastChatId;
 
-  return <ChatPage roomId={Number(roomId)} isEnd={isEnd} isParticipate={isParticipate} />;
+  return (
+    <ChatPage
+      roomId={Number(roomId)}
+      isEnd={isEnd}
+      isParticipate={isParticipate}
+      lastChatId={lastChatId}
+    />
+  );
 };
 
 export default AgendaChatPage;

@@ -3,6 +3,7 @@ export interface Chat {
 }
 
 export interface ReceiveChatData extends Chat {
+  chatId: string;
   name?: string;
   iconSrc?: string;
   iconBackgroundColor?: string;
@@ -12,6 +13,7 @@ export interface ReceiveChatData extends Chat {
 }
 
 export interface SendChatData extends Chat {
+  chatId: string;
   images?: string[];
   message: string;
   time: string;

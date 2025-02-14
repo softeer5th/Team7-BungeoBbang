@@ -1,6 +1,7 @@
 import styled from 'styled-components';
-import { BorderProps } from '../BorderProps';
+import { BorderProps } from '../border/BorderProps';
 import Typography from '../../styles/Typography';
+import { getBorderStyle, getDefaultBorderStyle } from '../border/getBorderType';
 
 interface TextFieldProps {
   value: string;
@@ -25,7 +26,12 @@ export const TextField: React.FC<TextFieldProps> = ({
   onClick,
   placeholderColor = '#A8A8A8',
   textColor = '#262626',
-  border,
+  border = {
+    ...getDefaultBorderStyle(),
+    borderColor: '#E0E0E0',
+    disabledBorderColor: 'E0E0E0',
+    borderRadius: '12px',
+  },
   errorText,
   errorTextColor = '#FF4B4B',
   isError = false,
@@ -81,12 +87,17 @@ const TextFieldInput = styled(Typography).attrs({ as: 'textarea' })<{
   box-sizing: border-box;
   background-color: ${(props) => (props.disabled ? '#F4F4F4' : '#FFFFFF')};
   color: ${(props) => (props.disabled ? '#C6C6C6' : props.textColor)};
-  border: ${(props) =>
-    `${props.border?.borderWidth || '1px'} solid ${
-      props.hasError
-        ? props.border?.errorBorderColor || '#FF4B4B'
-        : props.border?.borderColor || '#E0E0E0'
-    }`};
+  ${(props) =>
+    props.border
+      ? getBorderStyle({
+          ...props.border,
+          borderColor: props.hasError
+            ? props.border.errorBorderColor
+            : props.disabled
+              ? props.border.disabledBorderColor
+              : props.border.borderColor,
+        })
+      : 'border: none;'}
   border-radius: ${(props) => props.border?.borderRadius || '12px'};
   outline: none;
 

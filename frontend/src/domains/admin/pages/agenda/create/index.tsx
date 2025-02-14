@@ -31,7 +31,8 @@ export interface ChatCreateData {
 const CreateAgendaPage = () => {
   const NEW_CHAT = '-1';
 
-  const { roomId } = useParams(); // 모든 URL 파라미터 가져오기
+  const params = useParams(); // 모든 URL 파라미터 가져오기
+  const roomId = params.roomId ?? '-1';
 
   const theme = useTheme();
   const navigate = useNavigate();
@@ -97,6 +98,7 @@ const CreateAgendaPage = () => {
       };
 
       await api.patch(`/admin/agendas/${roomId}`, body);
+      navigate(-1);
     } catch (error) {
       console.error('Failed to send data:', error);
     }
@@ -142,8 +144,6 @@ const CreateAgendaPage = () => {
             } else {
               editChatValue();
             }
-
-            navigate(-1);
           }}
         >
           등록
@@ -259,39 +259,37 @@ const CreateAgendaPage = () => {
         </S.ImageContainer>
       </S.BodyContainer>
 
-      {isCategoryBottomSheetOpen && (
-        <BottomSheet
-          onClose={() => {
+      <BottomSheet
+        isOpen={isCategoryBottomSheetOpen}
+        onClose={() => {
+          setCategoryBottomSheetOpen(false);
+        }}
+      >
+        <CategoryContent
+          selectedType={chatValue.category}
+          onItemClick={(type: ChatCategoryType) => {
+            setChatValue((prev) => ({ ...prev, category: type }));
             setCategoryBottomSheetOpen(false);
           }}
-        >
-          <CategoryContent
-            selectedType={chatValue.category}
-            onItemClick={(type: ChatCategoryType) => {
-              setChatValue((prev) => ({ ...prev, category: type }));
-              setCategoryBottomSheetOpen(false);
-            }}
-          />
-        </BottomSheet>
-      )}
+        />
+      </BottomSheet>
 
-      {isDurationBottomSheetOpen && (
-        <BottomSheet
-          onClose={() => {
+      <BottomSheet
+        isOpen={isDurationBottomSheetOpen}
+        onClose={() => {
+          setDurationBottomSheetOpen(false);
+        }}
+      >
+        <DurationContent
+          currentDate={
+            chatValue.startDate && chatValue.endDate && [chatValue.startDate, chatValue.endDate]
+          }
+          onDurationSelected={(start: Date, end: Date) => {
             setDurationBottomSheetOpen(false);
+            setChatValue((prev: ChatCreateData) => ({ ...prev, startDate: start, endDate: end }));
           }}
-        >
-          <DurationContent
-            currentDate={
-              chatValue.startDate && chatValue.endDate && [chatValue.startDate, chatValue.endDate]
-            }
-            onDurationSelected={(start: Date, end: Date) => {
-              setDurationBottomSheetOpen(false);
-              setChatValue((prev: ChatCreateData) => ({ ...prev, startDate: start, endDate: end }));
-            }}
-          />
-        </BottomSheet>
-      )}
+        />
+      </BottomSheet>
 
       {showSizeDialog && (
         <ImageFileSizeDialog onConfirm={closeSizeDialog} onDismiss={closeSizeDialog} />

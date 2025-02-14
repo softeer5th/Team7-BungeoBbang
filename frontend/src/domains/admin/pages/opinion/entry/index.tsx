@@ -11,6 +11,8 @@ import { Opinion, OpinionResponse } from './types';
 import * as S from './styles';
 import { bottomItems, moveToDestination } from '../../destinations';
 import { useNavigate } from 'react-router-dom';
+import { findChatCategoryType } from '@/utils/findChatCategoryType';
+import { useSocketManager } from '@/hooks/useSocketManager';
 
 const chipItems = [
   { itemId: 'ALL', text: '전체' },
@@ -24,6 +26,7 @@ const OpinionEntryPage: React.FC = () => {
   const [selectedChip, setSelectedChip] = useState('ALL');
   const [opinions, setOpinions] = useState<Opinion[]>([]);
   const navigate = useNavigate();
+  const socketManager = useSocketManager();
 
   const handleChipClick = (chipId: string) => {
     setSelectedChip(chipId);
@@ -37,8 +40,8 @@ const OpinionEntryPage: React.FC = () => {
         console.log('response', response);
         const formattedOpinions = response.data.map((item: OpinionResponse) => ({
           id: String(item.opinion.id),
-          category: ChatCategoryType[item.opinion.categoryType],
-          title: ChatOpinionType[item.opinion.opinionType],
+          category: findChatCategoryType(item.opinion.categoryType),
+          title: ChatOpinionType[item.opinion.opinionType]?.label,
           text: item.lastChat.content,
           time: new Date(item.lastChat.createdAt).toLocaleTimeString('ko-KR', {
             hour: '2-digit',
@@ -50,6 +53,7 @@ const OpinionEntryPage: React.FC = () => {
           hasAlarm: item.hasNewChat,
           createdAt: item.lastChat.createdAt,
           isReminded: item.opinion.isReminded,
+          lastChatId: item.lastReadChatId,
         }));
 
         setOpinions(formattedOpinions);
@@ -65,6 +69,7 @@ const OpinionEntryPage: React.FC = () => {
       ? opinions
       : opinions.filter((opinion) => opinion.category.type === selectedChip);
 
+  console.log('filteredOpinions', filteredOpinions);
   return (
     <S.Container>
       <TopAppBar
@@ -76,6 +81,7 @@ const OpinionEntryPage: React.FC = () => {
       <S.TopAppBarBorder></S.TopAppBarBorder>
       <S.ChipListContainer>
         <ChipList
+          startItem="ALL"
           itemBackgroundColor="#fff"
           onChipClick={handleChipClick}
           items={chipItems}
@@ -93,9 +99,12 @@ const OpinionEntryPage: React.FC = () => {
                 text={opinion.text}
                 time={opinion.time}
                 hasAlarm={opinion.hasAlarm}
-                onClick={() =>
-                  navigate('/opinion/chat/' + opinion.id, { state: { opinionType: opinion.title } })
-                }
+                onClick={() => {
+                  navigate('/opinion/chat/' + opinion.id, {
+                    state: { opinionType: opinion.title, lastChatId: opinion.lastChatId },
+                  });
+                  socketManager('OPINION', 'ENTER', Number(opinion.id), 'ADMIN');
+                }}
                 createdAt={opinion.createdAt}
                 isReminded={opinion.isReminded}
               />

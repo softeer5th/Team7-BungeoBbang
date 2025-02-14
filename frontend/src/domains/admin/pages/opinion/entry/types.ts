@@ -3,12 +3,7 @@ import { ChatOpinionType } from '@/types/ChatOpinionType';
 
 export interface Opinion {
   id: string;
-  category: {
-    label: string;
-    type: string;
-    iconSrc: string;
-    iconBackground: string;
-  };
+  category: ChatCategoryType;
   title: string;
   text: string;
   time: string;
@@ -16,6 +11,7 @@ export interface Opinion {
   hasAlarm: boolean;
   isReminded: boolean;
   createdAt: Date;
+  lastChatId: boolean;
 }
 
 export interface OpinionResponse {
@@ -29,5 +25,6 @@ export interface OpinionResponse {
     content: string;
     createdAt: string;
   };
+  lastReadChatId: boolean;
   hasNewChat: boolean;
 }

@@ -5,7 +5,7 @@ import {
   SendChatData,
 } from '@/domains/student/pages/chat-page/ChatData';
 
-interface ServerChatData {
+interface ServerOpinionChatData {
   chatId: string;
   memberId: number;
   opinionId: number;
@@ -15,9 +15,20 @@ interface ServerChatData {
   createdAt: string;
 }
 
+interface ServerAgendaChatData {
+  chatId: string;
+  memberId: number;
+  agendaId: number;
+  chat: string;
+  isAdmin: boolean;
+  images: string[];
+  createdAt: string;
+}
+
 export const formatChatData = (
-  serverData: ServerChatData[],
+  serverData: (ServerOpinionChatData | ServerAgendaChatData)[],
   fromAdminPage: boolean,
+  adminName?: string,
 ): ChatData[] => {
   // 날짜순으로 정렬
   const sortedData = [...serverData].sort(
@@ -32,7 +43,7 @@ export const formatChatData = (
         ? item.isAdmin
           ? ChatType.SEND
           : ChatType.RECEIVE
-        : item.memberId === Number(localStorage.getItem('member_id'))
+        : !item.isAdmin
           ? ChatType.SEND
           : ChatType.RECEIVE,
       message: item.chat,
@@ -46,7 +57,7 @@ export const formatChatData = (
     if (item.isAdmin) {
       return {
         ...baseChat,
-        name: '00대학교 총학생회',
+        name: adminName,
       } as ReceiveChatData;
     }
 
@@ -72,6 +83,7 @@ export const formatChatData = (
 
     if (currentDate !== chatDate) {
       chatsWithDateDividers.push({
+        chatId: '',
         type: ChatType.INFO,
         message: chatDate,
       });
