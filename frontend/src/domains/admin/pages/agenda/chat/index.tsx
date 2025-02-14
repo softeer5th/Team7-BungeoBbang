@@ -26,9 +26,9 @@ const AgendaChatPage = () => {
   const lastDownChatId = useRef<string | null>(lastReadChatId);
   const isInitialLoading = useRef<boolean>(true);
   const isUpDirection = useRef<boolean>(false);
+  const isLive = useRef<boolean>(false);
 
-  const { elementRef, scrollToBottom, scrollToTop, remainCurrentScroll } =
-    useScroll<HTMLDivElement>();
+  const { elementRef, scrollToBottom, remainCurrentScroll } = useScroll<HTMLDivElement>();
 
   const getInitialChatData = async () => {
     try {
@@ -115,6 +115,12 @@ const AgendaChatPage = () => {
       remainCurrentScroll();
 
       isUpDirection.current = false;
+      return;
+    }
+
+    console.log('isLive', isLive);
+    if (isLive.current) {
+      scrollToBottom();
     }
   }, [chatData]);
 
@@ -132,15 +138,17 @@ const AgendaChatPage = () => {
         setTriggerDownItem(lastItemRef);
       }}
       onMessageSend={(data: ChatData) => {
+        // console.log('gethasmore', getHasDownMore());
         if (!getHasDownMore()) {
+          isLive.current = true;
           setChatData((prev) => [...prev, data]);
-          scrollToBottom();
+        } else {
+          isLive.current = false;
         }
       }}
       onMessageReceive={(data: ChatData) => {
         if (!getHasDownMore()) {
           setChatData((prev) => [...prev, data]);
-          scrollToBottom();
         }
       }}
     />

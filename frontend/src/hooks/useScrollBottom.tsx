@@ -8,6 +8,7 @@ export const useScroll = <T extends HTMLElement>() => {
   // Scroll to the bottom
   const scrollToBottom = useCallback(() => {
     if (elementRef.current) {
+      console.log('scrollToBottom', elementRef.current, previousScrollHeight.current);
       elementRef.current.scrollTop = elementRef.current.scrollHeight;
     }
   }, []);
