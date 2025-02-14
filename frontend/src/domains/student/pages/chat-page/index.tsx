@@ -85,9 +85,10 @@ const ChatPage = ({ roomId, isEnd, isParticipate, lastChatId }: ChatPageProps) =
 
   const handleMessageReceive = useCallback(
     (message: ChatMessage) => {
-      if (message.roomType === 'OPINION' && message.opinionId === Number(roomId)) {
+      console.log('message', message);
+      if (message.roomType === 'AGENDA' && message.agendaId === Number(roomId)) {
         const newChat = {
-          type: message.adminId === Number(memberId) ? ChatType.SEND : ChatType.RECEIVE,
+          type: message.memberId === Number(memberId) ? ChatType.SEND : ChatType.RECEIVE,
           message: message.message,
           time: new Date(message.createdAt).toLocaleTimeString('ko-KR', {
             hour: '2-digit',
@@ -103,7 +104,7 @@ const ChatPage = ({ roomId, isEnd, isParticipate, lastChatId }: ChatPageProps) =
   );
 
   useEffect(() => {
-    const unsubscribe = subscribe('OPINION', Number(roomId), handleMessageReceive);
+    const unsubscribe = subscribe('AGENDA', Number(roomId), handleMessageReceive);
     return () => unsubscribe();
   }, [roomId, handleMessageReceive, subscribe]);
 

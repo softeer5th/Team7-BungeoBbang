@@ -60,6 +60,7 @@ const AgendaPage = () => {
         params: params,
       });
 
+      console.log('response', response);
       const newRooms = response.data.map((data: ServerData) =>
         mapResponseToChatListCardData(data, status),
       );
@@ -125,6 +126,7 @@ const AgendaPage = () => {
                   onClick={() => {
                     const isEnd = !room.isInProgress;
                     const isParticipate = room.isParticipate;
+                    console.log(isEnd, isParticipate);
                     if (isEnd || isParticipate) {
                       console.log('여기', room.lastChatId);
                       navigate(
