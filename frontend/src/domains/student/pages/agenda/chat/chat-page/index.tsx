@@ -26,19 +26,12 @@ import { useSocketStore, ChatMessage } from '@/store/socketStore.ts';
 import { useEnterLeaveHandler } from '@/hooks/useEnterLeaveHandler.ts';
 import useInfiniteScroll from '@/hooks/useInfiniteScroll.tsx';
 import { useScroll } from '@/hooks/useScrollBottom.tsx';
-import { Download } from 'react-feather';
 
 interface ChatPageProps {
   roomId: number;
   isEnd: boolean;
   isParticipate: boolean;
   lastChatId: string;
-  // chatData: ChatData[];
-  // chatRoomInfo: ChatRoomInfo;
-  onUpLastItemChange?: (lastItemRef: HTMLDivElement, lastItemId: string) => void;
-  onDownLastItemChange?: (lastItemRef: HTMLDivElement, lastItemId: string) => void;
-  onMessageSend: (data: ChatData) => void;
-  onMessageReceive: (data: ChatData) => void;
 }
 
 export interface ChatRoomInfo {
@@ -53,12 +46,6 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
       isEnd,
       isParticipate,
       lastChatId,
-      // chatData,
-      // chatRoomInfo,
-      // onUpLastItemChange = () => {},
-      // onDownLastItemChange = () => {},
-      // onMessageSend = () => {},
-      // onMessageReceive = () => {},
     },
     // ref,
   ) => {
@@ -118,6 +105,7 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
             }
           } else {
             if (!getHasDownMore()) {
+              isLiveReceive.current = true;
               setChatData((prev) => [...prev, newChat]);
             }
           }
@@ -170,6 +158,7 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
     const isUpDirection = useRef<boolean>(false);
     const isDownDirection = useRef<boolean>(false);
     const isLive = useRef<boolean>(false);
+    const isLiveReceive = useRef<boolean>(false);
 
     let upLastItemId: string = '';
     let downLatItemId: string = '';
@@ -288,6 +277,10 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
       }
 
       if (isLive.current) {
+        if(isLiveReceive.current){
+          isLiveReceive.current = false;
+          return;
+        }
           scrollToBottom();
       }
 

@@ -26,9 +26,11 @@ const AgendaChatPage = () => {
   const lastDownChatId = useRef<string | null>(lastReadChatId);
   const isInitialLoading = useRef<boolean>(true);
   const isUpDirection = useRef<boolean>(false);
+  const isDownDirection = useRef<boolean>(false);
   const isLive = useRef<boolean>(false);
+  const isLiveReceive = useRef<boolean>(false);
 
-  const { elementRef, scrollToBottom, remainCurrentScroll } = useScroll<HTMLDivElement>();
+  const { elementRef, scrollToTop,scrollToBottom, remainCurrentScroll,rememberCurrentScrollHeight } = useScroll<HTMLDivElement>();
 
   const getInitialChatData = async () => {
     try {
@@ -109,7 +111,12 @@ const AgendaChatPage = () => {
 
   useLayoutEffect(() => {
     console.log('getchasdata', chatData);
-    if (!elementRef.current || isInitialLoading.current) return;
+    if (!elementRef.current) return;
+
+    if (isInitialLoading.current === true) {
+      scrollToTop();
+      return;
+    }
 
     if (isUpDirection.current === true) {
       remainCurrentScroll();
@@ -118,9 +125,17 @@ const AgendaChatPage = () => {
       return;
     }
 
-    console.log('isLive', isLive);
     if (isLive.current) {
+      if(isLiveReceive.current){
+        isLiveReceive.current = false;
+        return;
+      }
       scrollToBottom();
+    }
+
+    if (isDownDirection.current) {
+      rememberCurrentScrollHeight();
+      isDownDirection.current = false;
     }
   }, [chatData]);
 
@@ -147,6 +162,7 @@ const AgendaChatPage = () => {
       }}
       onMessageReceive={(data: ChatData) => {
         if (!getHasDownMore()) {
+          isLiveReceive.current = true;
           setChatData((prev) => [...prev, data]);
         }
       }}

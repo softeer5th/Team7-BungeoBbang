@@ -1,11 +1,5 @@
 import { useParams, useSearchParams, useLocation } from 'react-router-dom';
-import ChatPage, { ChatRoomInfo } from './chat-page';
-import { ChatData } from './chat-page/ChatData';
-import { useScroll } from '@/hooks/useScrollBottom';
-import { useEffect, useLayoutEffect, useRef, useState } from 'react';
-import useInfiniteScroll from '@/hooks/useInfiniteScroll';
-import api from '@/utils/api';
-import { formatChatData } from '@/utils/chat/formatChatData';
+import ChatPage from './chat-page';
 
 const AgendaChatPage = () => {
   // const MAX_CHAT_DATA = 10;
@@ -163,26 +157,6 @@ const AgendaChatPage = () => {
     lastChatId = {lastChatId}
     // chatData={chatData}
     // chatRoomInfo={chatRoomInfo}
-    onUpLastItemChange={(lastItemRef, lastChatId: string) => {
-      // lastUpChatId.current = lastChatId;
-      // setTriggerUpItem(lastItemRef);
-    }}
-    onDownLastItemChange={(lastItemRef, lastChatId) => {
-      // lastDownChatId.current = lastChatId;
-      // setTriggerDownItem(lastItemRef);
-    }}
-    onMessageSend={(data: ChatData) => {
-      console.log("???????,", data);
-      if (!getHasDownMore()) {
-        isLive.current = true;
-        setChatData((prev) => [...prev, data]);
-      }
-    }}
-    onMessageReceive={(data: ChatData) => {
-      if (!getHasDownMore()) {
-        setChatData((prev) => [...prev, data]);
-      }
-    }}
     />
   );
 };
