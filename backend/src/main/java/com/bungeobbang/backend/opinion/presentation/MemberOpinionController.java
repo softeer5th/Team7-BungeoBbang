@@ -3,6 +3,7 @@ package com.bungeobbang.backend.opinion.presentation;
 import com.bungeobbang.backend.auth.common.Auth;
 import com.bungeobbang.backend.auth.domain.Accessor;
 import com.bungeobbang.backend.auth.member.MemberOnly;
+import com.bungeobbang.backend.badword.service.BadWordService;
 import com.bungeobbang.backend.opinion.dto.request.OpinionCreationRequest;
 import com.bungeobbang.backend.opinion.dto.response.MemberOpinionsInfoResponse;
 import com.bungeobbang.backend.opinion.dto.response.OpinionCreationResponse;
@@ -22,6 +23,7 @@ import java.util.List;
 public class MemberOpinionController implements MemberOpinionApi {
 
     private final MemberOpinionService memberOpinionService;
+    private final BadWordService badWordService;
 
     @MemberOnly
     @GetMapping()
@@ -36,6 +38,7 @@ public class MemberOpinionController implements MemberOpinionApi {
     public ResponseEntity<OpinionCreationResponse> suggestOpinion(
             @RequestBody @Valid final OpinionCreationRequest creationRequest,
             @Auth final Accessor accessor) {
+        badWordService.validate(creationRequest.content());
         return ResponseEntity.ok()
                 .body(memberOpinionService.createOpinion(creationRequest, accessor.id()));
     }

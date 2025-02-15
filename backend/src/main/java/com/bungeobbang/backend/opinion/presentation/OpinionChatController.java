@@ -25,8 +25,8 @@ public class OpinionChatController implements OpinionChatApi {
     @GetMapping("/{opinionId}/chat")
     public ResponseEntity<List<OpinionChatResponse>> getOpinionChat(
             @PathVariable @Valid final Long opinionId,
-            @RequestParam(required = true) final ObjectId chatId,
-            @RequestParam(required = false) final ScrollType scroll,
+            @RequestParam(required = true) @Valid final ObjectId chatId,
+            @RequestParam(required = true) @Valid final ScrollType scroll,
             @Auth final Accessor accessor) {
         return ResponseEntity.ok().body(opinionService.findOpinionChat(
                 opinionId, chatId, accessor.id(), scroll

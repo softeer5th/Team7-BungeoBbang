@@ -12,14 +12,14 @@ import java.util.Set;
 public interface OpinionRepository extends JpaRepository<Opinion, Long> {
 
 
-    Optional<Opinion> findByIdAndIsDeletedFalse(Long id);
+    Optional<Opinion> findById(Long id);
 
     List<Opinion> findAllByCreatedAtBetweenAndUniversityId(LocalDateTime startDate, LocalDateTime endDate, Long universityId);
 
-    List<Opinion> findAllByCategoryTypeInAndUniversityIdAndIsDeletedFalse(Set<CategoryType> categoryTypes, Long universityId);
+    List<Opinion> findAllByCategoryTypeInAndUniversityId(Set<CategoryType> categoryTypes, Long universityId);
 
 
-    List<Opinion> findAllByMemberIdAndIsDeletedFalse(Long memberId);
+    List<Opinion> findAllByMemberId(Long memberId);
 
-    List<Opinion> findAllByUniversityIdAndIsDeletedFalse(Long universityId);
+    List<Opinion> findAllByUniversityId(Long universityId);
 }

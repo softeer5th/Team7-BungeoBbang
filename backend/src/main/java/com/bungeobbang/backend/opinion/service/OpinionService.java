@@ -44,9 +44,8 @@ public class OpinionService {
      * @return OpinionChatResponse 리스트 (해당 채팅방의 메시지 목록)
      */
     public List<OpinionChatResponse> findOpinionChat(final Long opinionId, ObjectId chatId, final Long userId, ScrollType scroll) {
-        // scroll 이 없으면 lastChatId 기준으로 위아래 10개씩,
+        // scroll == INITIAL 이면 마지막읽은 채팅 포함 10개 조회
         // scroll=up 이면 과거 채팅 10개 조회, down 이면 최신 채팅 10개 조회
-
         return customOpinionChatRepository.findOpinionChats(opinionId, chatId, scroll)
                 .stream()
                 .map(opinionChat -> OpinionChatResponse.of(opinionChat, userId, opinionId))
@@ -54,7 +53,7 @@ public class OpinionService {
     }
 
     public OpinionDetailResponse findOpinionDetail(final Long opinionId) {
-        final Opinion opinion = opinionRepository.findByIdAndIsDeletedFalse(opinionId)
+        final Opinion opinion = opinionRepository.findById(opinionId)
                 .orElseThrow(() -> new OpinionException(ErrorCode.INVALID_OPINION));
         return new OpinionDetailResponse(opinion.getUniversity().getName(), opinion.isRemind());
     }

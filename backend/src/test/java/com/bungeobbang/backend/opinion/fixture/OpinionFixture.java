@@ -17,7 +17,6 @@ public class OpinionFixture {
             .categoryType(CategoryType.IT)
             .member(NAVER_MEMBER)
             .isRemind(false)
-            .isDeleted(false)
             .build();
 
     public static Opinion NAVER_OPINION2 = Opinion.builder()
@@ -27,7 +26,6 @@ public class OpinionFixture {
             .categoryType(CategoryType.EVENTS)
             .member(NAVER_MEMBER)
             .isRemind(false)
-            .isDeleted(false)
             .build();
 
     public static Opinion KAKAO_OPINION1 = Opinion.builder()
@@ -37,6 +35,5 @@ public class OpinionFixture {
             .categoryType(CategoryType.EVENTS)
             .member(KAKAO_MEMBER)
             .isRemind(false)
-            .isDeleted(false)
             .build();
 }
