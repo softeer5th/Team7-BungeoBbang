@@ -1,7 +1,7 @@
 package com.bungeobbang.backend.opinion.dto.response;
 
 public record OpinionStatisticsResponse(
-        Integer opinionCount,
+        Long opinionCount,
         Integer adminResponseRate
 ) {
 }

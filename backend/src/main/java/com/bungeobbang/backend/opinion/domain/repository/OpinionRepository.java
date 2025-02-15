@@ -22,4 +22,7 @@ public interface OpinionRepository extends JpaRepository<Opinion, Long> {
     List<Opinion> findAllByMemberId(Long memberId);
 
     List<Opinion> findAllByUniversityId(Long universityId);
+
+    Long countByCreatedAtBetweenAndUniversityId(LocalDateTime localDateTime, LocalDateTime now, Long id);
+
 }
