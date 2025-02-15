@@ -159,7 +159,7 @@ public class AgendaService {
                                     .isEnd(agenda.getEndDate().isAfter(LocalDate.now()))
                                     .title(agenda.getTitle())
                                     .categoryType(agenda.getCategoryType())
-                                    .createdAt(agenda.getCreatedAt())
+                                    .createdAt(lastChat.createdAt())
                                     .hasNew(lastChat.hasNewChat())
                                     .lastChat(lastChat.content())
                                     .lastReadChatId(lastChat.lastReadChatId())
