@@ -1,5 +1,5 @@
 import { useRef, useCallback, useEffect } from 'react';
-import { ChatData } from '@/domains/student/pages/chat-page/ChatData';
+import { ChatData } from '@/domains/student/pages/agenda/chat/chat-page/ChatData';
 
 export const useScroll = <T extends HTMLElement>() => {
   const previousScrollHeight = useRef<number | null>(null);
@@ -8,20 +8,24 @@ export const useScroll = <T extends HTMLElement>() => {
   // Scroll to the bottom
   const scrollToBottom = useCallback(() => {
     if (elementRef.current) {
-      console.log('scrollToBottom', elementRef.current, previousScrollHeight.current);
+      // console.log('scrollToBottom', elementRef.current?.scrollHeight, previousScrollHeight.current);
       elementRef.current.scrollTop = elementRef.current.scrollHeight;
+      previousScrollHeight.current = elementRef.current.scrollHeight;
     }
   }, []);
 
   // Scroll to the top
   const scrollToTop = useCallback(() => {
+    console.log('scrolltotop');
     if (elementRef.current) {
       elementRef.current.scrollTop = 0;
+     
+      previousScrollHeight.current = elementRef.current.scrollHeight;
     }
   }, []);
 
-  // Retain the current scroll position when data is added at the top
-  const remainCurrentScroll = useCallback(() => {
+  const remainCurrentScroll = () => {
+    console.log('remain', elementRef.current?.scrollHeight, previousScrollHeight.current);
     if (elementRef.current) {
       const currentHeight = elementRef.current.scrollHeight;
 
@@ -31,8 +35,13 @@ export const useScroll = <T extends HTMLElement>() => {
       elementRef.current.scrollTop = scrollTop;
       previousScrollHeight.current = currentHeight;
     }
-  }, []);
+  };
 
+  const rememberCurrentScrollHeight = () => {
+    if(elementRef.current){
+      previousScrollHeight.current = elementRef.current.scrollHeight;
+    }
+  }
   // Automatically handle scroll adjustments on dependency change
   const useScrollOnUpdate = (dependency: ChatData[]) => {
     useEffect(() => {
@@ -46,5 +55,6 @@ export const useScroll = <T extends HTMLElement>() => {
     scrollToTop,
     remainCurrentScroll,
     useScrollOnUpdate,
+    rememberCurrentScrollHeight
   };
 };

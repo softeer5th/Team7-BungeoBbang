@@ -1,6 +1,6 @@
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useEffect, useState, useCallback } from 'react';
-import * as S from '@/domains/student/pages/chat-page/styles';
+import * as S from '@/domains/student/pages/agenda/chat/chat-page/styles';
 import { TopAppBar } from '@/components/TopAppBar';
 import {
   ChatData,
@@ -9,13 +9,13 @@ import {
   MoreChatData,
   ReceiveChatData,
   SendChatData,
-} from '@/domains/student/pages/chat-page/ChatData';
+} from '@/domains/student/pages/agenda/chat/chat-page/ChatData';
 import { ChatSendField } from '@/components/Chat/ChatSendField';
 import { ReceiverChat } from '@/components/Chat/ReceiverChat';
 import { SenderChat } from '@/components/Chat/SenderChat';
 import { TextBadge } from '@/components/Chat/TextBadge';
-import MoreChatButton from '@/domains/student/pages/chat-page/MoreChatButton';
-import { ExitDialog } from '@/domains/student/pages/chat-page/Exitdialog';
+import MoreChatButton from '@/domains/student/pages/agenda/chat/chat-page/MoreChatButton';
+import { ExitDialog } from '@/domains/student/pages/agenda/chat/chat-page/Exitdialog';
 import api from '@/utils/api';
 import { formatChatData } from '@/utils/chat/formatChatData';
 import { useImageUpload } from '@/hooks/useImageUpload';
