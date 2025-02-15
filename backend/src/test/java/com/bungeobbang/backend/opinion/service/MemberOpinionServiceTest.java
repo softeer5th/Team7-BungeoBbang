@@ -70,7 +70,7 @@ class MemberOpinionServiceTest {
         when(opinionChatRepository.findDistinctOpinionIdByIsAdminTrue(opinionIds)).thenReturn(List.of(1L));
 
         // when
-        OpinionStatisticsResponse response = memberOpinionService.computeOpinionStatistics(1L);
+        OpinionStatisticsResponse response = memberOpinionService.computeRecentMonthlyOpinionStatistics(1L);
 
         // then
         assertThat(response.opinionCount()).isEqualTo(2);
@@ -82,7 +82,7 @@ class MemberOpinionServiceTest {
     void computeOpinionStatistics_InvalidMember() {
         when(memberRepository.findById(anyLong())).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> memberOpinionService.computeOpinionStatistics(1L))
+        assertThatThrownBy(() -> memberOpinionService.computeRecentMonthlyOpinionStatistics(1L))
                 .isInstanceOf(MemberException.class)
                 .hasMessage(ErrorCode.INVALID_MEMBER.getMessage());
     }

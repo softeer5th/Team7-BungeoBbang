@@ -27,10 +27,10 @@ public class MemberOpinionController implements MemberOpinionApi {
 
     @MemberOnly
     @GetMapping()
-    public ResponseEntity<OpinionStatisticsResponse> getOpinionStatistics(
+    public ResponseEntity<OpinionStatisticsResponse> getRecentMonthlyOpinionStatistics(
             @Auth final Accessor accessor) {
         return ResponseEntity.ok()
-                .body(memberOpinionService.computeOpinionStatistics(accessor.id()));
+                .body(memberOpinionService.computeRecentMonthlyOpinionStatistics(accessor.id()));
     }
 
     @MemberOnly

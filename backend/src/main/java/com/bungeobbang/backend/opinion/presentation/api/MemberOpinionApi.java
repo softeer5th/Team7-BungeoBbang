@@ -43,7 +43,7 @@ public interface MemberOpinionApi {
     })
     @GetMapping
     @MemberOnly
-    ResponseEntity<OpinionStatisticsResponse> getOpinionStatistics(
+    ResponseEntity<OpinionStatisticsResponse> getRecentMonthlyOpinionStatistics(
             @Parameter(hidden = true) @Auth Accessor accessor
     );
 
