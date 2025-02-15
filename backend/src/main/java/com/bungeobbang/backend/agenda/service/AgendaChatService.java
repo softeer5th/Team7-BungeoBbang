@@ -44,7 +44,7 @@ public class AgendaChatService {
     public List<AgendaChatResponse> getChats(Long memberId, Long agendaId, ObjectId chatId, ScrollType scrollType) {
         final boolean isEnd = agendaRepository.existsByIdAndEndDateBefore(agendaId, LocalDate.now());
         // 종료된 답해요는 누구나 조회 가능
-        if (!isEnd && !agendaMemberRepository.existsByMemberIdAndAgendaId(memberId, agendaId)) {
+        if (!isEnd && !agendaMemberRepository.existsByMemberIdAndAgendaIdAndIsDeletedFalse(memberId, agendaId)) {
             throw new AgendaException(ErrorCode.NOT_PARTICIPATED);
         }
 
@@ -76,7 +76,7 @@ public class AgendaChatService {
 
     public void validAgenda(Long agendaId) {
         final Agenda agenda = agendaRepository.findById(agendaId)
-                .orElseThrow(() -> new AgendaException(ErrorCode.AGENDA_DELETED));
+                .orElseThrow(() -> new AgendaException(ErrorCode.INVALID_AGENDA));
 
         if (agenda.getStartDate().isAfter(LocalDate.now()))
             throw new AgendaException(ErrorCode.AGENDA_NOT_STARTED);
