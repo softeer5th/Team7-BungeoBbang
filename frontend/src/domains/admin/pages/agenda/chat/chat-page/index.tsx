@@ -47,6 +47,8 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
     },
     ref,
   ) => {
+    const [isToolTipVisible, setToolTipVisible] = useState(false);
+
     const [message, setMessage] = useState('');
     const [chatData, setChatData] = useState<ChatData[]>([]);
 
@@ -118,8 +120,18 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
           onLeftIconClick={() => {
             navigate(-1);
           }}
-          onRightIconClick={() => {}}
+          onRightIconClick={() => {
+            console.log("Clic!!");
+            setToolTipVisible((prev) => !prev);
+          }}
         />
+        {
+          isToolTipVisible && (
+            <S.ToolTip>
+              <S.ToolTipText variant = "caption1">안건에 대해 학생의 이야기를 듣고 학생회가 답변을 할 수 있어요.</S.ToolTipText>
+            </S.ToolTip>
+          )
+        }
         <S.ChatList ref={ref}>
           {chatData.map((chat, chatIndex) => {
             const isUpTriggerItem = chatIndex === FIRST_REMAIN_ITEMS;
