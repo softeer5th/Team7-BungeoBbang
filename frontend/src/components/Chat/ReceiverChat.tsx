@@ -43,7 +43,9 @@ export const ReceiverChat = forwardRef<HTMLDivElement, ReceiverChatProps>(
               {receiverName}
             </NameText>
           )}
-          {receiverIconSrc && <IconBox backgroundColor={receiverIconBackgroundColor}></IconBox>}
+          {receiverIconSrc && <IconBox backgroundColor={receiverIconBackgroundColor}>
+              <img width = "24px" height = "24px" src = {receiverIconSrc}/>
+            </IconBox>}
         </NameContainer>
         {images && (
           <ImageContainer>
@@ -97,6 +99,9 @@ const IconBox = styled.div<{
   height: 28px;
   border-radius: 50%;
   background-color: ${(props) => props.backgroundColor};
+  display: flex;
+  justify-content: center;
+  align-items: center;
 `;
 
 const ImageContainer = styled.div`
@@ -119,6 +124,7 @@ const ImageBox = styled.img`
   width: 164px;
   height: 230px;
   border-radius: 16px;
+  object-fit: cover;
 `;
 
 const MessageContainer = styled.div`

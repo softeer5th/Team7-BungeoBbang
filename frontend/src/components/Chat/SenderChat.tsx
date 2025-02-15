@@ -88,6 +88,7 @@ const ImageBox = styled.img`
   width: 164px;
   height: 230px;
   border-radius: 16px;
+  object-fit: cover;
 `;
 
 const MessageContainer = styled.div`

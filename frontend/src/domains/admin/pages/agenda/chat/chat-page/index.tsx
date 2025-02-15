@@ -20,6 +20,7 @@ import { useSocketStore, ChatMessage } from '@/store/socketStore';
 import { useImageUpload } from '@/hooks/useImageUpload';
 import { ImageFileSizeDialog } from '@/components/Dialog/ImageFileSizeDialog.tsx';
 import { useEnterLeaveHandler } from '@/hooks/useEnterLeaveHandler.ts';
+import { useTheme } from 'styled-components';
 
 interface ChatPageProps {
   apiChatData: ChatData[];
@@ -48,6 +49,28 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
     ref,
   ) => {
     const [isToolTipVisible, setToolTipVisible] = useState(false);
+    const theme = useTheme();
+    const randomBackgroundColor = [
+      theme.colors.icnOrange,
+      theme.colors.icnRed,
+      theme.colors.icnPurple,
+      theme.colors.icnGreen,
+      theme.colors.blueScale10,
+      theme.colors.icnYellow,
+      theme.colors.icnPink,
+      theme.colors.icnGray,
+    ];
+
+    const randomIcon = [
+      '/src/assets/imgs/face1.png',
+      '/src/assets/imgs/face2.png',
+      '/src/assets/imgs/face3.png',
+      '/src/assets/imgs/face4.png',
+      '/src/assets/imgs/face5.png',
+      '/src/assets/imgs/face6.png',
+      '/src/assets/imgs/face7.png',
+      '/src/assets/imgs/face8.png'
+    ];
 
     const [message, setMessage] = useState('');
     const [chatData, setChatData] = useState<ChatData[]>([]);
@@ -121,17 +144,17 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
             navigate(-1);
           }}
           onRightIconClick={() => {
-            console.log("Clic!!");
+            console.log('Clic!!');
             setToolTipVisible((prev) => !prev);
           }}
         />
-        {
-          isToolTipVisible && (
-            <S.ToolTip>
-              <S.ToolTipText variant = "caption1">안건에 대해 학생의 이야기를 듣고 학생회가 답변을 할 수 있어요.</S.ToolTipText>
-            </S.ToolTip>
-          )
-        }
+        {isToolTipVisible && (
+          <S.ToolTip>
+            <S.ToolTipText variant="caption1">
+              안건에 대해 학생의 이야기를 듣고 학생회가 답변을 할 수 있어요.
+            </S.ToolTipText>
+          </S.ToolTip>
+        )}
         <S.ChatList ref={ref}>
           {chatData.map((chat, chatIndex) => {
             const isUpTriggerItem = chatIndex === FIRST_REMAIN_ITEMS;
@@ -142,6 +165,9 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
               if (upLastItemId.length === 0) upLastItemId = chatData.chatId;
               downLatItemId = chatData.chatId;
 
+              const randomColor = randomBackgroundColor[Math.floor(Math.random() * randomBackgroundColor.length)];
+              const randomImg = randomIcon[Math.floor(Math.random() * randomIcon.length)];
+              
               return (
                 <ReceiverChat
                   chatId={chatData.chatId}
@@ -160,7 +186,8 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
                           }
                         : null
                   }
-                  receiverName={chatData.name}
+                  receiverIconBackgroundColor={randomColor}
+                  receiverIconSrc={randomImg}
                   message={chatData.message}
                   images={chatData.images}
                   timeText={chatData.time}
