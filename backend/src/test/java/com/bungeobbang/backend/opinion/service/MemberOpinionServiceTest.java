@@ -10,6 +10,7 @@ import com.bungeobbang.backend.opinion.domain.Opinion;
 import com.bungeobbang.backend.opinion.domain.OpinionChat;
 import com.bungeobbang.backend.opinion.domain.OpinionLastRead;
 import com.bungeobbang.backend.opinion.domain.OpinionType;
+import com.bungeobbang.backend.opinion.domain.repository.AnsweredOpinionRepository;
 import com.bungeobbang.backend.opinion.domain.repository.OpinionChatRepository;
 import com.bungeobbang.backend.opinion.domain.repository.OpinionLastReadRepository;
 import com.bungeobbang.backend.opinion.domain.repository.OpinionRepository;
@@ -52,22 +53,20 @@ class MemberOpinionServiceTest {
     private MemberRepository memberRepository;
     @Mock
     private OpinionLastReadRepository opinionLastReadRepository;
+    @Mock
+    private AnsweredOpinionRepository answeredOpinionRepository;
 
     @Test
     @DisplayName("1개월 동안의 의견 통계를 계산한다.")
     void computeOpinionStatistics() {
         // given
         Member member = NAVER_MEMBER;
-        Opinion opinion1 = NAVER_OPINION1;
-        Opinion opinion2 = NAVER_OPINION2;
-
-        List<Opinion> opinions = List.of(opinion1, opinion2);
-        List<Long> opinionIds = opinions.stream().map(Opinion::getId).toList();
 
         when(memberRepository.findById(anyLong())).thenReturn(Optional.of(member));
-        when(opinionRepository.findAllByCreatedAtBetweenAndUniversityId(any(), any(), anyLong()))
-                .thenReturn(opinions);
-        when(opinionChatRepository.findDistinctOpinionIdByIsAdminTrue(opinionIds)).thenReturn(List.of(1L));
+        when(opinionRepository.countByCreatedAtBetweenAndUniversityId(any(), any(), anyLong()))
+                .thenReturn(2L);
+        when(answeredOpinionRepository.countByIdBetweenAndUniversityId(any(), any(), anyLong()))
+                .thenReturn(1L);
 
         // when
         OpinionStatisticsResponse response = memberOpinionService.computeRecentMonthlyOpinionStatistics(1L);
