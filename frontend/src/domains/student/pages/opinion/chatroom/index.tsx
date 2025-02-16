@@ -298,7 +298,7 @@ const OpinionChatPage = () => {
         title={chatRoomInfo.title}
         rightIconSrc="/src/assets/icons/exit.svg"
         onLeftIconClick={() => {
-          navigate(-1);
+          navigate('/opinion/entry');
         }}
         onRightIconClick={() => {
           setExitDialogOpen(true);
@@ -413,8 +413,8 @@ const OpinionChatPage = () => {
           onConfirm={async () => {
             setExitDialogOpen(false);
             try {
-              socketManager('OPINION', 'EXIT', Number(roomId), 'STUDENT');
               await api.delete(`/student/opinions/${roomId}`);
+              socketManager('OPINION', 'DELETE', Number(roomId), 'STUDENT');
               navigate('/my');
             } catch (error) {
               console.error('채팅방 삭제 실패:', error);
