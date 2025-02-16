@@ -128,7 +128,7 @@ export const ChatSendField: React.FC<ChatSendFieldProps> = ({
   }, [message]);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
+    if (e.key === 'Enter' && !e.shiftKey && e.nativeEvent.isComposing === false) {
       e.preventDefault(); // 기본 엔터 동작 방지
       handleSend();
     }
