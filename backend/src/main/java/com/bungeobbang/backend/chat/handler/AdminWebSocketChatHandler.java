@@ -26,6 +26,7 @@ import org.springframework.web.socket.handler.TextWebSocketHandler;
 import java.io.IOException;
 
 import static com.bungeobbang.backend.chat.type.SocketEventType.ERROR;
+import static com.bungeobbang.backend.chat.type.SocketEventType.PING;
 import static com.bungeobbang.backend.common.exception.ErrorCode.DUPLICATE_LOGIN;
 import static com.bungeobbang.backend.common.exception.ErrorCode.INVALID_UUID;
 
@@ -57,6 +58,10 @@ public class AdminWebSocketChatHandler extends TextWebSocketHandler {
             validateAccessToken(accessToken);
 
             final AdminWebsocketMessage request = objectMapper.readValue(message.getPayload(), AdminWebsocketMessage.class);
+            if (request.event().equals(PING)) {
+                session.sendMessage(new TextMessage("PONG"));
+                return;
+            }
             // createdAt 생성하여 requestContainsCreatedAt 객체 생성
             final AdminWebsocketMessage requestContainsCreatedAt = AdminWebsocketMessage.createResponse(request);
 

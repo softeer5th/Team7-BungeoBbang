@@ -1,6 +1,7 @@
 package com.bungeobbang.backend.chat.type;
 
 public enum SocketEventType {
+    PING("클라이언트로부터 PING"),
     ENTER("채팅방 화면 입장"),
     CHAT("채팅 전송"),
     LEAVE("채팅방 화면 이탈"),
