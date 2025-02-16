@@ -101,7 +101,7 @@ const OpinionEntryPage: React.FC = () => {
                 hasAlarm={opinion.hasAlarm}
                 onClick={() => {
                   navigate('/opinion/chat/' + opinion.id, {
-                    state: { opinionType: opinion.title, lastChatId: opinion.lastChatId },
+                    state: { opinionType: opinion.title, lastChatId: opinion.lastChatId, categoryType: opinion.category },
                   });
                   socketManager('OPINION', 'ENTER', Number(opinion.id), 'ADMIN');
                 }}
