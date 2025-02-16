@@ -298,7 +298,7 @@ const OpinionChatPage = () => {
         title={chatRoomInfo.title}
         rightIconSrc="/src/assets/icons/exit.svg"
         onLeftIconClick={() => {
-          navigate(-1);
+          navigate('/opinion/entry');
         }}
         onRightIconClick={() => {
           setExitDialogOpen(true);
