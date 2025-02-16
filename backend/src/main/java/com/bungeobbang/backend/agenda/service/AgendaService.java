@@ -74,16 +74,21 @@ public class AgendaService {
         if (!agenda.getUniversity().equals(member.getUniversity())) {
             throw new AgendaException(ErrorCode.FORBIDDEN_UNIVERSITY_ACCESS);
         }
-        if (agendaMemberRepository.existsByMemberIdAndAgendaId(memberId, agendaId)) {
+        if (agendaMemberRepository.existsByMemberIdAndAgendaIdAndIsDeletedFalse(memberId, agendaId)) {
             throw new AgendaException(ErrorCode.ALREADY_PARTICIPATED);
         }
 
-        agendaMemberRepository.save(AgendaMember.builder()
-                .agenda(agenda)
-                .member(member)
-                .build()
-        );
-        agenda.increaseParticipantCount(1);
+        // 이미 참여한 이력이 있을 경우 count하지 않고 isDeleted=false로 바꾼다.
+        agendaMemberRepository.findByMemberIdAndAgendaIdAndIsDeletedTrue(memberId, agendaId)
+                .ifPresentOrElse(AgendaMember::reParticipate, () -> {
+                            agendaMemberRepository.save(AgendaMember.builder()
+                                    .agenda(agenda)
+                                    .member(member)
+                                    .build());
+                            agenda.increaseParticipantCount(1);
+                        }
+                );
+
 
         // 현재 시점에서의 마지막 채팅을 마지막 읽은 채팅으로 저장
         final AgendaChat lastChat = memberAgendaChatRepository.findLastChat(agendaId, memberId);
@@ -159,7 +164,7 @@ public class AgendaService {
                                     .isEnd(agenda.getEndDate().isAfter(LocalDate.now()))
                                     .title(agenda.getTitle())
                                     .categoryType(agenda.getCategoryType())
-                                    .createdAt(agenda.getCreatedAt())
+                                    .createdAt(lastChat.createdAt())
                                     .hasNew(lastChat.hasNewChat())
                                     .lastChat(lastChat.content())
                                     .lastReadChatId(lastChat.lastReadChatId())
@@ -178,10 +183,10 @@ public class AgendaService {
      */
     @Transactional
     public void exitAgenda(final Long memberId, final Long agendaId) {
-        if (!agendaMemberRepository.existsByMemberIdAndAgendaId(memberId, agendaId)) {
-            throw new AgendaException(AGENDA_PARTICIPATION_NOT_FOUND);
-        }
-        agendaMemberRepository.deleteByMemberIdAndAgendaId(memberId, agendaId);
+        agendaMemberRepository.findByMemberIdAndAgendaIdAndIsDeletedFalse(memberId, agendaId)
+                .ifPresentOrElse(AgendaMember::exit, () -> {
+                    throw new AgendaException(AGENDA_PARTICIPATION_NOT_FOUND);
+                });
     }
 
 

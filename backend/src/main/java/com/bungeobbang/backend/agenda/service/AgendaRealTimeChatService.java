@@ -83,6 +83,7 @@ public class AgendaRealTimeChatService {
         log.info("☄️ AdminConnect event: {}", event);
         final List<Agenda> agendas = getAgenda(event.adminId());
         agendas.forEach(agenda -> messageQueueService.subscribe(event.session(), AGENDA_MEMBER_PREFIX + agenda.getId()));
+        agendas.forEach(agenda -> messageQueueService.subscribe(event.session(), AGENDA_ADMIN_PREFIX + agenda.getId()));
     }
 
     @EventListener
@@ -90,6 +91,7 @@ public class AgendaRealTimeChatService {
         log.info("️✂ AdminDisconnect event: {}", event);
         final List<Agenda> agendas = getAgenda(event.adminId());
         agendas.forEach(agenda -> messageQueueService.unsubscribe(event.session(), AGENDA_MEMBER_PREFIX + agenda.getId()));
+        agendas.forEach(agenda -> messageQueueService.unsubscribe(event.session(), AGENDA_ADMIN_PREFIX + agenda.getId()));
     }
 
 
@@ -118,14 +120,9 @@ public class AgendaRealTimeChatService {
      */
     public void sendMessageFromAdmin(AgendaAdminEvent event) {
         try {
-            // 메아리 전송
-            event.session().sendMessage(new TextMessage(objectMapper.writeValueAsBytes(event.websocketMessage())));
-
             messageQueueService.publish(AGENDA_ADMIN_PREFIX + event.agendaId(), objectMapper.writeValueAsString(event.websocketMessage()));
         } catch (JsonProcessingException e) {
             throw new AgendaException(JSON_PARSE_FAIL);
-        } catch (IOException e) {
-            throw new AgendaException(ECHO_SEND_FAIL);
         }
     }
 
@@ -159,6 +156,7 @@ public class AgendaRealTimeChatService {
      */
     public void connectAdminFromAgenda(WebSocketSession session, Long adminId) {
         messageQueueService.subscribe(session, AGENDA_MEMBER_PREFIX + adminId);
+        messageQueueService.subscribe(session, AGENDA_ADMIN_PREFIX + adminId);
     }
 
     /**

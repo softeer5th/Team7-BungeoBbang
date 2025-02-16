@@ -1,7 +1,10 @@
 package com.bungeobbang.backend.chat.handler;
 
 
+import com.bungeobbang.backend.auth.Claim;
 import com.bungeobbang.backend.auth.JwtProvider;
+import com.bungeobbang.backend.auth.domain.Authority;
+import com.bungeobbang.backend.auth.domain.repository.UuidRepository;
 import com.bungeobbang.backend.chat.event.agenda.AgendaAdminEvent;
 import com.bungeobbang.backend.chat.event.common.AdminConnectEvent;
 import com.bungeobbang.backend.chat.event.common.AdminDisconnectEvent;
@@ -9,6 +12,7 @@ import com.bungeobbang.backend.chat.event.common.AdminWebsocketMessage;
 import com.bungeobbang.backend.chat.event.opinion.OpinionAdminEvent;
 import com.bungeobbang.backend.common.exception.AuthException;
 import com.bungeobbang.backend.common.exception.BadWordException;
+import com.bungeobbang.backend.common.exception.UuidException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -22,6 +26,8 @@ import org.springframework.web.socket.handler.TextWebSocketHandler;
 import java.io.IOException;
 
 import static com.bungeobbang.backend.chat.type.SocketEventType.ERROR;
+import static com.bungeobbang.backend.common.exception.ErrorCode.DUPLICATE_LOGIN;
+import static com.bungeobbang.backend.common.exception.ErrorCode.INVALID_UUID;
 
 @Component
 @Log4j2
@@ -31,6 +37,7 @@ public class AdminWebSocketChatHandler extends TextWebSocketHandler {
     private final JwtProvider jwtProvider;
     private final ObjectMapper objectMapper;
     private final ApplicationEventPublisher publisher;
+    private final UuidRepository uuidRepository;
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
@@ -46,7 +53,9 @@ public class AdminWebSocketChatHandler extends TextWebSocketHandler {
         final String accessToken = (String) session.getAttributes().get(ACCESS_TOKEN);
         try {
             log.info("📚Received text message from admin: {}", message.getPayload());
-            jwtProvider.validateToken(accessToken);
+            // accessToken 검증
+            validateAccessToken(accessToken);
+
             final AdminWebsocketMessage request = objectMapper.readValue(message.getPayload(), AdminWebsocketMessage.class);
             // createdAt 생성하여 requestContainsCreatedAt 객체 생성
             final AdminWebsocketMessage requestContainsCreatedAt = AdminWebsocketMessage.createResponse(request);
@@ -72,5 +81,23 @@ public class AdminWebSocketChatHandler extends TextWebSocketHandler {
         final Long adminId = Long.valueOf(jwtProvider.getSubject(accessToken));
         publisher.publishEvent(new AdminDisconnectEvent(session, adminId));
         super.afterConnectionClosed(session, status);
+    }
+
+    private void validateAccessToken(String accessToken) {
+        jwtProvider.validateToken(accessToken);
+        final String actual = jwtProvider.getClaim(accessToken, Claim.UUID);
+        final String adminId = jwtProvider.getSubject(accessToken);
+
+        final Authority authority = Authority.valueOf(jwtProvider.getClaim(accessToken, Claim.ROLE));
+        final String expected = uuidRepository.get(authority, adminId)
+                .orElseThrow(() -> new AuthException(INVALID_UUID));
+        validateUuid(actual, expected);
+    }
+
+
+    private void validateUuid(String actual, String expected) {
+        if (!actual.equals(expected)) {
+            throw new UuidException(DUPLICATE_LOGIN);
+        }
     }
 }

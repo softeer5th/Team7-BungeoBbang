@@ -8,10 +8,15 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface AgendaMemberRepository extends JpaRepository<AgendaMember, Long> {
-    boolean existsByMemberIdAndAgendaId(Long memberId, Long agendaId);
+    boolean existsByMemberIdAndAgendaIdAndIsDeletedFalse(Long memberId, Long agendaId);
+
+    Optional<AgendaMember> findByMemberIdAndAgendaIdAndIsDeletedTrue(Long memberId, Long agendaId);
+
+    Optional<AgendaMember> findByMemberIdAndAgendaIdAndIsDeletedFalse(Long memberId, Long agendaId);
 
     void deleteByMemberIdAndAgendaId(Long memberId, Long agendaId);
 
