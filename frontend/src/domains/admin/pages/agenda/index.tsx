@@ -17,6 +17,7 @@ import { AgendaEndDialog } from './components/ChatEndDialog';
 import { AgendaDeleteDialog } from './components/AgendaDeleteDialog';
 import useInfiniteScroll from '@/hooks/useInfiniteScroll';
 import JwtManager from '@/utils/jwtManager';
+import { useSocketManager } from '@/hooks/useSocketManager';
 
 const tabItems: TabBarItemProps[] = [
   {
@@ -56,6 +57,7 @@ const AgendaPage: React.FC = () => {
   const isFirstUpcoming = useRef<boolean>(true);
 
   const lastChatRoom = useRef<[string | null, number | null][]>(tabItems.map(() => [null, null]));
+  const socketManager = useSocketManager();
 
   const handleTouchStart = (e: React.TouchEvent) => {
     setStartX(e.touches[0].clientX);
@@ -195,6 +197,7 @@ const AgendaPage: React.FC = () => {
       if (!selectedCardData) return;
 
       await api.patch(`/admin/agendas/${selectedCardData?.roomId}/close`);
+      socketManager('AGENDA', 'CLOSE', selectedCardData?.roomId, 'ADMIN');
 
       setTabContents((prev) => ({
         ...prev,
@@ -211,6 +214,7 @@ const AgendaPage: React.FC = () => {
       if (!selectedCardData) return;
 
       await api.delete(`/admin/agendas/${selectedCardData?.roomId}`);
+      socketManager('AGENDA', 'DELETE', selectedCardData?.roomId, 'ADMIN');
 
       setTabContents((prev) => {
         const updatedTabs = { ...prev };

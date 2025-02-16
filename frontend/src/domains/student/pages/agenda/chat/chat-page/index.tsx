@@ -26,6 +26,7 @@ import { useSocketStore, ChatMessage } from '@/store/socketStore.ts';
 import { useEnterLeaveHandler } from '@/hooks/useEnterLeaveHandler.ts';
 import useInfiniteScroll from '@/hooks/useInfiniteScroll.tsx';
 import { useScroll } from '@/hooks/useScrollBottom.tsx';
+import { useSocketManager } from '@/hooks/useSocketManager.ts';
 
 interface ChatPageProps {
   roomId: number;
@@ -57,6 +58,7 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
 
     const { subscribe, sendMessage } = useSocketStore();
     const memberId = localStorage.getItem('member_id');
+    const socketManager = useSocketManager();
 
     // useEffect(() => {
     //   setChatData(apiChatData);
@@ -65,6 +67,7 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
     const exitChatRoom = async () => {
       try {
         await api.delete(`/student/agendas/${roomId}`);
+        socketManager('AGENDA', 'EXIT', roomId, 'STUDENT');
         navigate(-1);
       } catch (error) {
         console.error('fail to exit chat room', error);
