@@ -17,6 +17,7 @@ import { DurationContent } from '../components/DurationContent';
 import { useImageUpload } from '@/hooks/useImageUpload';
 import { ImageFileSizeDialog } from '@/components/Dialog/ImageFileSizeDialog';
 import { mapToChatCreateData } from '../util/ChatCreateMapper';
+import { formatServerDataFromDate } from '../util/ChatRoomMapper';
 
 export interface ChatCreateData {
   roomId?: number | null;
@@ -72,15 +73,17 @@ const CreateAgendaPage = () => {
 
   async function submitChatValue() {
     try {
+      console.log("chatValue", chatValue);
       const body = {
         title: chatValue.title,
         categoryType: chatValue.category?.type,
-        startDate: chatValue.startDate?.toISOString().split('T')[0],
-        endDate: chatValue.endDate?.toISOString().split('T')[0],
+        startDate: formatServerDataFromDate(chatValue.startDate ?? new Date()),
+        endDate: formatServerDataFromDate(chatValue.endDate ?? new Date()),
         content: chatValue.description,
         images: images,
       };
 
+      console.log("body", body);
       await api.post('/admin/agendas', body);
       navigate(-1);
     } catch (error) {
@@ -250,7 +253,7 @@ const CreateAgendaPage = () => {
                     <DeleteIcon width="16px" height="16px" stroke={theme.colors.grayScaleWhite} />
                   </S.DeleteIconBox>
                   <S.ImageBox
-                    src={`https://temp-onu.s3.ap-northeast-2.amazonaws.com/${image}`}
+                    src={image}
                   ></S.ImageBox>
                 </S.ImageItem>
               );
