@@ -42,7 +42,7 @@ export const ToolTip = styled.div`
 export const ToolTipText = styled(Typography)`
   color: ${(props) => props.theme.colors.grayScaleWhite};
 
-    z-index: 99999;
+  z-index: 99999;
 `;
 
 export const ChatList = styled.div`
