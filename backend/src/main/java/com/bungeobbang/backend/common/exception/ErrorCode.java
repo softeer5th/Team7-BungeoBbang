@@ -35,6 +35,7 @@ public enum ErrorCode {
     UNAUTHORIZED_OPINION_ACCESS(24, HttpStatus.FORBIDDEN, "본인이 작성한 말해요 의견이 아닙니다."),
     DELETED_OPINION(25, HttpStatus.NOT_FOUND, "삭제된 말해요 채팅방입니다."),
     ALREADY_REMINDED(26, HttpStatus.BAD_REQUEST, "이미 리마인드된 의견입니다."),
+    CHAT_COUNT_LIMIT_EXCEEDED(45, HttpStatus.BAD_REQUEST, "채팅 개수를 초과하였습니다."),
     // Member
     INVALID_MEMBER(27, HttpStatus.NOT_FOUND, "존재하지 않는 사용자입니다."),
     // University

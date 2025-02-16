@@ -40,14 +40,18 @@ public class Opinion extends BaseTimeEntity {
     @Column(name = "is_remind", nullable = false)
     private boolean isRemind;
 
+    @Column(name = "chat_count", nullable = false)
+    private Long chatCount;
+
     @Builder
-    public Opinion(Long id, University university, OpinionType opinionType, CategoryType categoryType, Member member, boolean isRemind) {
+    public Opinion(Long id, University university, OpinionType opinionType, CategoryType categoryType, Member member, boolean isRemind, Long chatCount) {
         this.id = id;
         this.university = university;
         this.opinionType = opinionType;
         this.categoryType = categoryType;
         this.member = member;
         this.isRemind = isRemind;
+        this.chatCount = chatCount;
     }
 
     public void setRemind() {
@@ -58,4 +62,11 @@ public class Opinion extends BaseTimeEntity {
         this.isRemind = false;
     }
 
+    public void plusOneChatCount() {
+        this.chatCount++;
+    }
+
+    public void resetChatCount() {
+        this.chatCount = 0L;
+    }
 }

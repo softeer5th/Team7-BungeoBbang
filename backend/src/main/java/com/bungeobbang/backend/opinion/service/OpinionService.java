@@ -11,6 +11,7 @@ import com.bungeobbang.backend.opinion.dto.response.OpinionDetailResponse;
 import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -82,5 +83,26 @@ public class OpinionService {
                         .createdAt(createdAt)
                         .build()
         );
+    }
+
+    @Transactional
+    public void incrementChatCount(final Long opinionId) {
+        Opinion opinion = opinionRepository.findById(opinionId)
+                .orElseThrow(() -> new OpinionException(ErrorCode.INVALID_OPINION));
+        opinion.plusOneChatCount();
+    }
+
+    public void validateChatCount(Long opinionId) {
+        Opinion opinion = opinionRepository.findById(opinionId)
+                .orElseThrow(() -> new OpinionException(ErrorCode.INVALID_OPINION));
+        if (opinion.getChatCount() >= 3)
+            throw new OpinionException(ErrorCode.CHAT_COUNT_LIMIT_EXCEEDED);
+    }
+
+    @Transactional
+    public void initChatCount(Long opinionId) {
+        Opinion opinion = opinionRepository.findById(opinionId)
+                .orElseThrow(() -> new OpinionException(ErrorCode.INVALID_OPINION));
+        opinion.resetChatCount();
     }
 }

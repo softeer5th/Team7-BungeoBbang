@@ -168,6 +168,7 @@ public class MemberOpinionService {
                 .categoryType(creationRequest.categoryType())
                 .member(member)
                 .isRemind(false)
+                .chatCount(1L)
                 .build();
     }
 
