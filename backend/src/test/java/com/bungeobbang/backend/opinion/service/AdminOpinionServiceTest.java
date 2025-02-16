@@ -52,8 +52,8 @@ class AdminOpinionServiceTest {
         Admin admin = NAVER_ADMIN;
         when(adminRepository.findById(anyLong())).thenReturn(Optional.of(admin));
 
-        Opinion opinion1 = new Opinion(1L, admin.getUniversity(), null, CategoryType.IT, null, false);
-        Opinion opinion2 = new Opinion(2L, admin.getUniversity(), null, CategoryType.EVENTS, null, false);
+        Opinion opinion1 = new Opinion(1L, admin.getUniversity(), null, CategoryType.IT, null, false, 1L);
+        Opinion opinion2 = new Opinion(2L, admin.getUniversity(), null, CategoryType.EVENTS, null, false, 1L);
         when(opinionRepository.findAllByCategoryTypeInAndUniversityId(Set.of(CategoryType.IT), admin.getUniversity().getId()))
                 .thenReturn(List.of(opinion1));
 
@@ -85,8 +85,8 @@ class AdminOpinionServiceTest {
         Admin admin = NAVER_ADMIN;
         when(adminRepository.findById(anyLong())).thenReturn(Optional.of(admin));
 
-        Opinion opinion1 = new Opinion(1L, admin.getUniversity(), null, CategoryType.IT, null, false);
-        Opinion opinion2 = new Opinion(2L, admin.getUniversity(), null, CategoryType.EVENTS, null, true);
+        Opinion opinion1 = new Opinion(1L, admin.getUniversity(), null, CategoryType.IT, null, false, 1L);
+        Opinion opinion2 = new Opinion(2L, admin.getUniversity(), null, CategoryType.EVENTS, null, true, 1L);
         when(opinionRepository.findAllByCategoryTypeInAndUniversityId(Set.of(CategoryType.IT), admin.getUniversity().getId()))
                 .thenReturn(List.of(opinion1, opinion2));
 
@@ -138,7 +138,7 @@ class AdminOpinionServiceTest {
         Admin admin = NAVER_ADMIN;
         when(adminRepository.findById(anyLong())).thenReturn(Optional.of(admin));
 
-        Opinion opinion = new Opinion(1L, admin.getUniversity(), null, CategoryType.IT, null, false);
+        Opinion opinion = new Opinion(1L, admin.getUniversity(), null, CategoryType.IT, null, false, 1L);
         OpinionChat lastChat = OpinionChat.builder()
                 .id(new ObjectId())
                 .opinionId(1L)
@@ -178,7 +178,7 @@ class AdminOpinionServiceTest {
         Admin admin = NAVER_ADMIN;
         when(adminRepository.findById(anyLong())).thenReturn(Optional.of(admin));
 
-        Opinion opinion = new Opinion(1L, admin.getUniversity(), null, CategoryType.IT, null, false);
+        Opinion opinion = new Opinion(1L, admin.getUniversity(), null, CategoryType.IT, null, false, 1L);
 
         when(opinionRepository.findAllByUniversityId(admin.getUniversity().getId()))
                 .thenReturn(List.of(opinion));
