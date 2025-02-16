@@ -47,7 +47,7 @@ const OpinionChatPage = () => {
 
   const handleMessageReceive = useCallback(
     (message: ChatMessage) => {
-      console.log('message', getHasDownMore());
+      console.log('message1213', getHasDownMore());
       if (message.roomType === 'OPINION' && message.opinionId === Number(roomId)) {
         const newChat = {
           type: message.memberId === Number(memberId) ? ChatType.SEND : ChatType.RECEIVE,
@@ -71,6 +71,12 @@ const OpinionChatPage = () => {
         }
 
         // setChatData((prev) => [...prev, newChat]);
+
+        setTimeout(() => {
+          if (elementRef.current) {
+            elementRef.current.scrollTop = elementRef.current.scrollHeight;
+          }
+        }, 100);
       }
     },
     [roomId, memberId],
@@ -89,26 +95,26 @@ const OpinionChatPage = () => {
     setIsReminded(true);
   };
 
-  useEffect(() => {
-    if (!roomId) return;
+  // useEffect(() => {
+  //   if (!roomId) return;
 
-    // const fetchData = async () => {
-    //   try {
-    //     const enterResponse = await api.get(`/api/opinions/${roomId}`);
-    //     enterResponse.data.isReminded && setIsReminded(true);
-    //     const response = await api.get(`/api/opinions/${roomId}/chat`, {
-    //       params: { chatId: lastChatId, scroll: 'INITIAL' },
-    //     });
+  // const fetchData = async () => {
+  //   try {
+  //     const enterResponse = await api.get(`/api/opinions/${roomId}`);
+  //     enterResponse.data.isReminded && setIsReminded(true);
+  //     const response = await api.get(`/api/opinions/${roomId}/chat`, {
+  //       params: { chatId: lastChatId, scroll: 'INITIAL' },
+  //     });
 
-    //     const formattedData = formatChatData(response.data, false);
-    //     setChatData(formattedData);
-    //   } catch (error) {
-    //     console.error('채팅 데이터 불러오기 실패:', error);
-    //   }
-    // };
+  //     const formattedData = formatChatData(response.data, false);
+  //     setChatData(formattedData);
+  //   } catch (error) {
+  //     console.error('채팅 데이터 불러오기 실패:', error);
+  //   }
+  // };
 
-    // fetchData();
-  }, [roomId, socket]);
+  // fetchData();
+  // }, [roomId, socket]);
 
   useEffect(() => {
     const unsubscribe = subscribe('OPINION', Number(roomId), handleMessageReceive);

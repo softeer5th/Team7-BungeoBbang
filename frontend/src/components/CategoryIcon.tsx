@@ -37,6 +37,7 @@ export const CategoryIcon: React.FC<CategoryIconProps> = ({
   onClick = () => {},
   selected = false,
 }) => {
+  const IconComponent = type.iconSrc;
   return (
     <IconBox
       size={boxSize}
@@ -44,7 +45,10 @@ export const CategoryIcon: React.FC<CategoryIconProps> = ({
       selected={selected}
       backgroundColor={type.iconBackground}
     >
-      <Icon iconWidth={iconWidth} src={type.iconSrc} />
+      <IconWrapper iconWidth={iconWidth}>
+        <IconComponent width="100%" height="100%" />
+      </IconWrapper>
+
       {showText && textVariant && (
         <IconText variant={textVariant as TypographyVariant}>{type.label}</IconText>
       )}
@@ -69,15 +73,18 @@ const IconBox = styled.div<{
   border-radius: 50%;
 `;
 
-const Icon = styled.img<{
-  iconWidth: number;
-}>`
-  width: ${(props) => props.iconWidth}px;
-  aspect-ratio: 1/1;
-`;
-
 const IconText = styled(Typography)`
   color: ${(props) => props.theme.colors.grayScale70};
   white-space: nowrap;
   margin-top: 4px;
+`;
+
+const IconWrapper = styled.div<{
+  iconWidth: number;
+}>`
+  width: ${(props) => props.iconWidth}px;
+  aspect-ratio: 1/1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 `;
