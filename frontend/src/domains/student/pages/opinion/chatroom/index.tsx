@@ -41,7 +41,7 @@ const OpinionChatPage = () => {
   const { roomId } = useParams();
   const { subscribe, sendMessage } = useSocketStore();
   const memberId = localStorage.getItem('member_id');
-  const { socket } = useSocketStore();
+  // const { socket } = useSocketStore();
   const socketManager = useSocketManager();
   const lastChatId = useLocation().state?.lastChatId || '000000000000000000000000';
 

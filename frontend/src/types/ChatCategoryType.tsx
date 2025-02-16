@@ -1,58 +1,49 @@
-import schoolIcon from '@/assets/icons/school.svg?react';
-import chairIcon from '@/assets/icons/chair.svg?react';
-import moneyIcon from '@/assets/icons/money.svg?react';
-import runnerIcon from '@/assets/icons/runner.svg?react';
-import partyIcon from '@/assets/icons/party.svg?react';
-import laptopIcon from '@/assets/icons/laptop.svg?react';
-import trafficLightIcon from '@/assets/icons/traffic_light.svg?react';
-import bubbleIcon from '@/assets/icons/bubble.svg?react';
-
 export const ChatCategoryType = {
   ACADEMICS: {
     label: '학사',
-    iconSrc: schoolIcon,
+    iconSrc: '/assets/icons/school.svg',
     iconBackground: '#DFFFE1',
     type: 'ACADEMICS',
   },
   FACILITIES: {
     label: '시설・환경',
-    iconSrc: chairIcon,
+    iconSrc: '/assets/icons/chair.svg',
     iconBackground: '#FFE8D2',
     type: 'FACILITIES',
   },
   BUDGET: {
     label: '예산',
-    iconSrc: moneyIcon,
+    iconSrc: '/assets/icons/money.svg',
     iconBackground: '#FFEDC0',
     type: 'BUDGET',
   },
   CLUBS: {
     label: '동아리',
-    iconSrc: runnerIcon,
+    iconSrc: '/assets/icons/runner.svg',
     iconBackground: '#E8F3FF',
     type: 'CLUBS',
   },
   EVENTS: {
     label: '행사',
-    iconSrc: partyIcon,
+    iconSrc: '/assets/icons/party.svg',
     iconBackground: '#EEE8FF',
     type: 'EVENTS',
   },
   IT: {
     label: '정보・통신',
-    iconSrc: laptopIcon,
+    iconSrc: '/assets/icons/laptop.svg',
     iconBackground: '#FFE0F7',
     type: 'IT',
   },
   TRANSPORTATION: {
     label: '교통',
-    iconSrc: trafficLightIcon,
+    iconSrc: '/assets/icons/traffic_light.svg',
     iconBackground: '#E0E0E0',
     type: 'TRANSPORTATION',
   },
   OTHER: {
     label: '기타',
-    iconSrc: bubbleIcon,
+    iconSrc: '/assets/icons/bubble.svg',
     iconBackground: '#FFDBD8',
     type: 'OTHER',
   },
