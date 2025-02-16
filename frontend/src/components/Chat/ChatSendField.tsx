@@ -127,6 +127,13 @@ export const ChatSendField: React.FC<ChatSendFieldProps> = ({
     handleResizeHeight();
   }, [message]);
 
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault(); // 기본 엔터 동작 방지
+      handleSend();
+    }
+  };
+
   return (
     <>
       <ChatSendContainer bcakgroundColor={backgroundColor}>
@@ -191,6 +198,7 @@ export const ChatSendField: React.FC<ChatSendFieldProps> = ({
                   handleTextInput(e.target.value);
                 }}
                 disabled={textDisabled}
+                onKeyDown={handleKeyDown}
               />
 
               <SendButtonWrapper />
