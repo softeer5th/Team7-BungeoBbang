@@ -34,6 +34,7 @@ interface ChatPageProps {
 }
 
 const ChatPage = ({ roomId, isEnd, isParticipate, lastChatId }: ChatPageProps) => {
+  console.log(roomId, isEnd, isParticipate, lastChatId);
   const [chatData, setChatData] = useState<ChatData[]>([]);
   const [isExitDialogOpen, setExitDialogOpen] = useState(false);
   const [selectedImage, setSelectedImage] = useState<{ url: string; index: number } | null>(null);
