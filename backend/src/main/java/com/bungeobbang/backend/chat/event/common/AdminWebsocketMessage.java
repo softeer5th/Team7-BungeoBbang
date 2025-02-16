@@ -27,7 +27,7 @@ public record AdminWebsocketMessage(
         @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
         LocalDateTime createdAt,
         @JsonInclude(JsonInclude.Include.NON_NULL)
-        int errorCode
+        int code
 ) {
     public AdminWebsocketMessage(SocketEventType event, String message, int errorCode) {
         this(null, event, null, null, message, null, null, null, errorCode);
