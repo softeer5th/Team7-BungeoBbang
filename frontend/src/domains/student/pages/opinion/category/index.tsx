@@ -9,6 +9,8 @@ import { ChatStep } from './components/ChatStep';
 import api from '@/utils/api';
 import { Dialog } from '@/components/Dialog/Dialog';
 import { useSocketManager } from '@/hooks/useSocketManager';
+import { findChatOpinionType } from '@/utils/findChatOpinionType';
+import { findChatCategoryType } from '@/utils/findChatCategoryType';
 
 const OpinionCategoryPage: React.FC = () => {
   const navigate = useNavigate();

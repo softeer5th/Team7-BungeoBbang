@@ -1,57 +1,93 @@
-import { useLocation, useNavigate, useParams } from 'react-router-dom';
-import { useEffect, useState, useCallback, useRef, useLayoutEffect } from 'react';
-import * as S from '@/domains/student/pages/agenda/chat/chat-page/styles';
+import * as S from './styles.ts';
 import { TopAppBar } from '@/components/TopAppBar';
+import { ChatSendField } from '@/components/Chat/ChatSendField.tsx';
+import { ReceiverChat } from '@/components/Chat/ReceiverChat.tsx';
+import { SenderChat } from '@/components/Chat/SenderChat.tsx';
+import { TextBadge } from '@/components/Chat/TextBadge.tsx';
 import {
   ChatData,
   ChatType,
   InfoChatData,
-  MoreChatData,
+  // MoreChatData,
   ReceiveChatData,
   SendChatData,
-} from '@/domains/student/pages/agenda/chat/chat-page/ChatData';
-import { ChatSendField } from '@/components/Chat/ChatSendField';
-import { ReceiverChat } from '@/components/Chat/ReceiverChat';
-import { SenderChat } from '@/components/Chat/SenderChat';
-import { TextBadge } from '@/components/Chat/TextBadge';
-import MoreChatButton from '@/domains/student/pages/agenda/chat/chat-page/MoreChatButton';
-import { ExitDialog } from '@/domains/student/pages/agenda/chat/chat-page/Exitdialog';
-import api from '@/utils/api';
-import { formatChatData } from '@/utils/chat/formatChatData';
-import { useImageUpload } from '@/hooks/useImageUpload';
+} from './ChatData.tsx';
+import { useNavigate, useParams } from 'react-router-dom';
+import { forwardRef, useCallback, useState, useEffect, useRef, useLayoutEffect } from 'react';
+// import { getDefaultBorderStyle } from '@/components/border/getBorderType.tsx';
+// import { BorderType } from '@/components/border/BorderProps.tsx';
 import { useSocketStore, ChatMessage } from '@/store/socketStore';
-import { ImageFileSizeDialog } from '@/components/Dialog/ImageFileSizeDialog';
-import { useScroll } from '@/hooks/useScrollBottom';
-import { ImagePreview } from '@/components/Chat/ImagePreview';
-import { useEnterLeaveHandler } from '@/hooks/useEnterLeaveHandler';
-import useInfiniteScroll from '@/hooks/useInfiniteScroll';
-import { findChatOpinionTypeByLabel } from '@/utils/findChatOpinionType';
-import { findChatCategoryType } from '@/utils/findChatCategoryType';
-import { ChatCategoryType } from '@/types/ChatCategoryType';
+import { useImageUpload } from '@/hooks/useImageUpload';
+import { ImageFileSizeDialog } from '@/components/Dialog/ImageFileSizeDialog.tsx';
+import { useEnterLeaveHandler } from '@/hooks/useEnterLeaveHandler.ts';
+import { useTheme } from 'styled-components';
+import api from '@/utils/api.ts';
+import { formatChatData } from '@/utils/chat/formatChatData.ts';
+import useInfiniteScroll from '@/hooks/useInfiniteScroll.tsx';
+import { useScroll } from '@/hooks/useScrollBottom.tsx';
 
-const OpinionChatPage = () => {
-  const [chatData, setChatData] = useState<ChatData[]>([]);
-  // const [isExitDialogOpen, setExitDialogOpen] = useState(faslse);
+interface ChatPageProps {
+  roomId: number;
+  lastChatId: string;
+  // apiChatData: ChatData[];
+  // chatRoomInfo: ChatRoomInfo;
+  // onUpLastItemChange?: (lastItemRef: HTMLDivElement, lastItemId: string) => void;
+  // onDownLastItemChange?: (lastItemRef: HTMLDivElement, lastItemId: string) => void;
+  // onMessageSend: (data: ChatData) => void;
+  // onMessageReceive: (data: ChatData) => void;
+}
+
+export interface ChatRoomInfo {
+  title: string;
+  adminName: string;
+}
+
+const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(({ roomId, lastChatId }, ref) => {
+  const [isToolTipVisible, setToolTipVisible] = useState(false);
+  const theme = useTheme();
+  const randomBackgroundColor = [
+    theme.colors.icnOrange,
+    theme.colors.icnRed,
+    theme.colors.icnPurple,
+    theme.colors.icnGreen,
+    theme.colors.blueScale10,
+    theme.colors.icnYellow,
+    theme.colors.icnPink,
+    theme.colors.icnGray,
+  ];
+
+  const randomIcon = [
+    '/src/assets/imgs/face1.png',
+    '/src/assets/imgs/face2.png',
+    '/src/assets/imgs/face3.png',
+    '/src/assets/imgs/face4.png',
+    '/src/assets/imgs/face5.png',
+    '/src/assets/imgs/face6.png',
+    '/src/assets/imgs/face7.png',
+    '/src/assets/imgs/face8.png',
+  ];
+
   const [message, setMessage] = useState('');
-  const [isReminded, setIsReminded] = useState(false);
+  const [chatData, setChatData] = useState<ChatData[]>([]);
+
+  // useEffect(() => {
+  //   setChatData(apiChatData);
+  // }, [apiChatData]);
+
+  const memberId = localStorage.getItem('member_id');
+  // const { roomId } = useParams();
 
   const { images, showSizeDialog, handleImageDelete, handleImageUpload, closeSizeDialog } =
     useImageUpload(10, 5);
 
   const navigate = useNavigate();
-  const { roomId } = useParams();
-  const { subscribe, sendMessage } = useSocketStore();
-  const memberId = localStorage.getItem('member_id');
-  const location = useLocation();
-  const opinionType = location.state?.opinionType || '';
-  const categoryType =
-    (location.state?.categoryType as ChatCategoryType) || ChatCategoryType.ACADEMICS;
 
-  const lastChatId = location.state?.lastChatId || 0;
+  const { subscribe, sendMessage } = useSocketStore();
 
   const handleMessageReceive = useCallback(
     (message: ChatMessage) => {
-      if (message.roomType === 'OPINION' && message.opinionId === Number(roomId)) {
+      console.log('message', message);
+      if (message.roomType === 'AGENDA' && message.agendaId === Number(roomId)) {
         const newChat = {
           type: message.adminId === Number(memberId) ? ChatType.SEND : ChatType.RECEIVE,
           message: message.message,
@@ -61,7 +97,6 @@ const OpinionChatPage = () => {
           }),
           images: message.images || [],
         };
-
         if (message.adminId === Number(memberId)) {
           if (!getHasDownMore()) {
             isLive.current = true;
@@ -73,88 +108,49 @@ const OpinionChatPage = () => {
             setChatData((prev) => [...prev, newChat]);
           }
         }
-        // setChatData((prev) => [...prev, newChat]);
       }
     },
     [roomId, memberId],
   );
 
-  useEffect(() => {
-    if (!roomId) return;
-
-    // const fetchData = async () => {
-    //   try {
-    //     const res = await api.get(`/api/opinions/${roomId}`);
-    //     setIsReminded(res.data.isReminded);
-    //     const response = await api.get(`/api/opinions/${roomId}/chat`, {
-    //       params: { chatId: lastChatId, scroll: 'INITIAL' },
-    //     });
-    //     console.log('채팅 데이터:', response);
-    //     const formattedData = formatChatData(response.data, true);
-    //     setChatData(formattedData);
-    //   } catch (error) {
-    //     console.error('채팅 데이터 불러오기 실패:', error);
-    //   }
-    // };
-
-    // fetchData();
-  }, [roomId]);
+  useEnterLeaveHandler('AGENDA', 'ADMIN');
 
   useEffect(() => {
-    const unsubscribe = subscribe('OPINION', Number(roomId), handleMessageReceive);
+    const unsubscribe = subscribe('AGENDA', Number(roomId), handleMessageReceive);
     return () => unsubscribe();
   }, [roomId, handleMessageReceive, subscribe]);
 
   const handleSendMessage = useCallback(
     (message: string, images: string[] = []) => {
-      sendMessage('OPINION', Number(roomId), message, images, true);
+      sendMessage('AGENDA', Number(roomId), message, images, true);
       setMessage('');
       handleImageDelete(-1);
-      setIsReminded(false);
     },
     [roomId, sendMessage],
   );
 
-  // const { elementRef, useScrollOnUpdate } = useScroll<HTMLDivElement>();
-  // // chatData가 업데이트될 때마다 스크롤
-  // useScrollOnUpdate(chatData);
-
-  // 이미지 클릭 시 이미지 프리뷰 열기
-  const [selectedImage, setSelectedImage] = useState<{ url: string; index: number } | null>(null);
-  const [currentImageList, setCurrentImageList] = useState<string[]>([]);
-
-  const handleImageClick = (imageUrl: string, images: string[]) => {
-    const clickedIndex = images.indexOf(imageUrl);
-    setSelectedImage({
-      url: imageUrl,
-      index: clickedIndex,
-    });
-    setCurrentImageList(images);
-  };
-
-  useEnterLeaveHandler('OPINION', 'ADMIN');
-
-  const FIRST_REMAIN_ITEMS = 0;
-  const LAST_REMAIN_ITEMS = 1;
   const MAX_CHAT_DATA = 10;
+
+  const FIRST_REMAIN_ITEMS = 1;
+  const LAST_REMAIN_ITEMS = 1;
+
+  let upLastItemId: string = '';
+  let downLatItemId: string = '';
 
   // const [chatData, setChatData] = useState<ChatData[]>([]);
 
-  // const [chatRoomInfo, setChatRoomInfo] = useState<ChatRoomInfo>({
-  // title: '',
-  // adminName: '총학생회',
-  // });
+  const [chatRoomInfo, setChatRoomInfo] = useState<ChatRoomInfo>({
+    title: '',
+    adminName: '총학생회',
+  });
 
-  const lastUpChatId = useRef<string>(lastChatId);
-  const lastDownChatId = useRef<string>(lastChatId);
+  const lastUpChatId = useRef<string | null>(lastChatId);
+  const lastDownChatId = useRef<string | null>(lastChatId);
   const isInitialLoading = useRef<boolean>(true);
   const isUpDirection = useRef<boolean>(false);
   const isDownDirection = useRef<boolean>(false);
   const isLive = useRef<boolean>(false);
   const isLiveReceive = useRef<boolean>(false);
-
-  let upLastItemId: string = '';
-  let downLatItemId: string = '';
 
   const {
     elementRef,
@@ -166,24 +162,30 @@ const OpinionChatPage = () => {
 
   const getInitialChatData = async () => {
     try {
-      const [response, enterResponse] = await Promise.all([
-        api.get(`/api/opinions/${roomId}/chat`, {
+      const [response, chatInfo] = await Promise.all([
+        api.get(`/admin/agendas/${roomId}/chat`, {
           params: {
             chatId: lastUpChatId.current,
             scroll: 'INITIAL',
           },
         }),
-        api.get(`/api/opinions/${roomId}`),
+        api.get(`/admin/agendas/${roomId}`),
       ]);
+      console.log('responsesseee', response);
 
       const formattedData = formatChatData(response.data, true);
-      setChatData(formattedData);
 
-      enterResponse.data.isReminded && setIsReminded(true);
-      // setChatRoomInfo({
-      //   title: '',
-      //   adminName: `${enterResponse.data.universityName} 총학생회`,
-      // });
+      // setChatData(formattedData);
+
+      if (lastUpChatId.current === 'ffffffffffffffffffffffff' && formattedData.length > 1) {
+        setChatData([...formattedData.slice(formattedData.length - 2)]);
+      } else {
+        setChatData(formattedData);
+      }
+      setChatRoomInfo({
+        title: chatInfo.data.title,
+        adminName: chatInfo.data.adminName,
+      });
 
       isInitialLoading.current = false;
     } catch (error) {
@@ -194,14 +196,15 @@ const OpinionChatPage = () => {
   const getMoreUpChatData = async () => {
     try {
       isUpDirection.current = true;
-      const response = await api.get(`/api/opinions/${roomId}/chat`, {
+      const response = await api.get(`/admin/agendas/${roomId}/chat`, {
         params: {
           chatId: lastUpChatId.current,
           scroll: 'UP',
         },
       });
-      const formattedData = formatChatData(response.data, true);
 
+      const formattedData = formatChatData(response.data, true);
+      console.log('up!!', response);
       setChatData((prev: ChatData[]) => {
         if (response.data.length < MAX_CHAT_DATA) {
           setHasUpMore(false);
@@ -216,7 +219,7 @@ const OpinionChatPage = () => {
   const getMoreDownChatData = async () => {
     try {
       isDownDirection.current = true;
-      const response = await api.get(`/api/opinions/${roomId}/chat`, {
+      const response = await api.get(`/admin/agendas/${roomId}/chat`, {
         params: {
           chatId: lastDownChatId.current,
           scroll: 'DOWN',
@@ -225,6 +228,7 @@ const OpinionChatPage = () => {
 
       const formattedData = formatChatData(response.data, true);
 
+      console.log('down!!', response);
       setChatData((prev: ChatData[]) => {
         if (response.data.length < MAX_CHAT_DATA) {
           setHasDownMore(false);
@@ -245,6 +249,7 @@ const OpinionChatPage = () => {
 
   useLayoutEffect(() => {
     if (!elementRef.current) return;
+    console.log('getchasdata', chatData);
 
     if (isInitialLoading.current === true) {
       scrollToTop();
@@ -272,30 +277,55 @@ const OpinionChatPage = () => {
     }
   }, [chatData]);
 
+  const colorMap = useRef(new Map<string, string>());
+  const iconMap = useRef(new Map<string, string>());
+
+  const getRandomValue = (map: Map<string,string>, id: string, values: string[]) => {
+    if (map.has(id)) {
+      return map.get(id);
+    } else {
+      const randomValue = values[Math.floor(Math.random() * values.length)];
+      map.set(id, randomValue);
+      return randomValue;
+    }
+  };
+
   return (
     <S.Container>
       <TopAppBar
         leftIconSrc="/src/assets/icons/arrow-left.svg"
-        title={opinionType}
+        title={chatRoomInfo.title}
+        rightIconSrc="/src/assets/icons/information-circle-contained.svg"
         onLeftIconClick={() => {
           navigate(-1);
         }}
+        onRightIconClick={() => {
+          setToolTipVisible((prev) => !prev);
+        }}
       />
-
+      {isToolTipVisible && (
+        <S.ToolTip>
+          <S.ToolTipText variant="caption1">
+            안건에 대해 학생의 이야기를 듣고 학생회가 답변을 할 수 있어요.
+          </S.ToolTipText>
+        </S.ToolTip>
+      )}
       <S.ChatList ref={elementRef}>
-        {chatData.map((chat, index) => {
-          const isUpTriggerItem = index === FIRST_REMAIN_ITEMS;
-          const isDownTriggerItem = index === chatData.length - LAST_REMAIN_ITEMS;
+        {chatData.map((chat, chatIndex) => {
+          const isUpTriggerItem = chatIndex === FIRST_REMAIN_ITEMS;
+          const isDownTriggerItem = chatIndex === chatData.length - LAST_REMAIN_ITEMS;
 
           if (chat.type === ChatType.RECEIVE) {
             const chatData = chat as ReceiveChatData;
             if (upLastItemId.length === 0) upLastItemId = chatData.chatId;
             downLatItemId = chatData.chatId;
 
+            const randomColor = getRandomValue(colorMap.current, chatData.chatId, randomBackgroundColor);
+            const randomImg = getRandomValue(iconMap.current, chatData.chatId, randomIcon);
+
             return (
               <ReceiverChat
                 chatId={chatData.chatId}
-                key={index}
                 ref={
                   isUpTriggerItem
                     ? (el) => {
@@ -313,24 +343,21 @@ const OpinionChatPage = () => {
                         }
                       : null
                 }
-                receiverIconBackgroundColor={categoryType.iconBackground}
-                receiverIconSrc={categoryType.iconSrc}
+                receiverIconBackgroundColor={randomColor}
+                receiverIconSrc={randomImg}
                 message={chatData.message}
                 images={chatData.images}
                 timeText={chatData.time}
-                onImageClick={(imageUrl) => handleImageClick(imageUrl, chatData.images || [])}
               />
             );
           } else if (chat.type === ChatType.SEND) {
             const chatData = chat as SendChatData;
-
             if (upLastItemId.length === 0) upLastItemId = chatData.chatId;
             downLatItemId = chatData.chatId;
 
             return (
               <SenderChat
                 chatId={chatData.chatId}
-                key={index}
                 ref={
                   isUpTriggerItem
                     ? (el) => {
@@ -351,28 +378,14 @@ const OpinionChatPage = () => {
                 message={chatData.message}
                 images={chatData.images}
                 timeText={chatData.time}
-                onImageClick={(imageUrl) => handleImageClick(imageUrl, chatData.images || [])}
               />
             );
           } else if (chat.type === ChatType.INFO) {
             const chatData = chat as InfoChatData;
             return <TextBadge text={chatData.message} />;
-          } else if (chat.type === ChatType.MORE) {
-            const chatData = chat as MoreChatData;
-            return (
-              <MoreChatButton
-                key={index}
-                text={chatData.text}
-                iconSrc={chatData.iconSrc}
-                onClick={chatData.onMoreClick}
-              />
-            );
           }
           return null;
         })}
-        {isReminded ? (
-          <TextBadge text="답변을 기다리고 있어요" backgroundColor="#FF4B4B" textColor="#fff" />
-        ) : null}
       </S.ChatList>
 
       <ChatSendField
@@ -384,31 +397,11 @@ const OpinionChatPage = () => {
         onImageUpload={handleImageUpload}
         maxLength={500}
       />
-
-      {/* {isExitDialogOpen && (
-        <ExitDialog
-          onConfirm={() => {
-            setExitDialogOpen(false);
-            navigate(-1);
-          }}
-          onDismiss={() => {
-            setExitDialogOpen(false);
-          }}
-        />
-      )} */}
       {showSizeDialog && (
         <ImageFileSizeDialog onConfirm={closeSizeDialog} onDismiss={closeSizeDialog} />
       )}
-      {selectedImage && (
-        <ImagePreview
-          imageUrl={selectedImage.url}
-          currentIndex={selectedImage.index}
-          totalImages={currentImageList.length}
-          onClose={() => setSelectedImage(null)}
-        />
-      )}
     </S.Container>
   );
-};
+});
 
-export default OpinionChatPage;
+export default ChatPage;
