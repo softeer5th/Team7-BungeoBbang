@@ -24,6 +24,7 @@ import { ImageFileSizeDialog } from '@/components/Dialog/ImageFileSizeDialog.tsx
 import { useSocketStore, ChatMessage } from '@/store/socketStore.ts';
 import { useScrollBottom } from '@/hooks/useScrollBottom';
 import { useEnterLeaveHandler } from '@/hooks/useEnterLeaveHandler.ts';
+import { useSocketManager } from '@/hooks/useSocketManager.ts';
 
 interface ChatPageProps {
   roomId: number;
@@ -46,10 +47,12 @@ const ChatPage = ({ roomId, isEnd, isParticipate, lastChatId }: ChatPageProps) =
 
   const { subscribe, sendMessage } = useSocketStore();
   const memberId = localStorage.getItem('member_id');
+  const socketManager = useSocketManager();
 
   const exitChatRoom = async () => {
     try {
       await api.delete(`/student/agendas/${roomId}`);
+      socketManager('AGENDA', 'EXIT', roomId, 'STUDENT');
       navigate(-1);
     } catch (error) {
       console.error('fail to exit chat room', error);
