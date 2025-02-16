@@ -154,7 +154,7 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(({ roomId, lastChatId
 
   const {
     elementRef,
-    scrollToTop,
+    // scrollToTop,
     scrollToBottom,
     remainCurrentScroll,
     rememberCurrentScrollHeight,
