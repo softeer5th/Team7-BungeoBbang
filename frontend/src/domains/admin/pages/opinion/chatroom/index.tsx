@@ -15,7 +15,7 @@ import { ReceiverChat } from '@/components/Chat/ReceiverChat';
 import { SenderChat } from '@/components/Chat/SenderChat';
 import { TextBadge } from '@/components/Chat/TextBadge';
 import MoreChatButton from '@/domains/student/pages/agenda/chat/chat-page/MoreChatButton';
-import { ExitDialog } from '@/domains/student/pages/agenda/chat/chat-page/Exitdialog';
+// import { ExitDialog } from '@/domains/student/pages/agenda/chat/chat-page/Exitdialog';
 import api from '@/utils/api';
 import { formatChatData } from '@/utils/chat/formatChatData';
 import { useImageUpload } from '@/hooks/useImageUpload';
@@ -25,8 +25,8 @@ import { useScroll } from '@/hooks/useScrollBottom';
 import { ImagePreview } from '@/components/Chat/ImagePreview';
 import { useEnterLeaveHandler } from '@/hooks/useEnterLeaveHandler';
 import useInfiniteScroll from '@/hooks/useInfiniteScroll';
-import { findChatOpinionTypeByLabel } from '@/utils/findChatOpinionType';
-import { findChatCategoryType } from '@/utils/findChatCategoryType';
+// import { findChatOpinionTypeByLabel } from '@/utils/findChatOpinionType';
+// import { findChatCategoryType } from '@/utils/findChatCategoryType';
 import { ChatCategoryType } from '@/types/ChatCategoryType';
 
 const OpinionChatPage = () => {
