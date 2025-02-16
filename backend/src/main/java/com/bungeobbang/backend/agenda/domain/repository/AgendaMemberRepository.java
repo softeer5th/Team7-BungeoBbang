@@ -18,8 +18,6 @@ public interface AgendaMemberRepository extends JpaRepository<AgendaMember, Long
 
     Optional<AgendaMember> findByMemberIdAndAgendaIdAndIsDeletedFalse(Long memberId, Long agendaId);
 
-    void deleteByMemberIdAndAgendaId(Long memberId, Long agendaId);
-
-    @Query("SELECT am FROM AgendaMember am JOIN FETCH am.agenda WHERE am.member = :member")
+    @Query("SELECT am FROM AgendaMember am JOIN FETCH am.agenda WHERE am.member = :member and am.isDeleted = false")
     List<AgendaMember> findAllByMember(@Param("member") Member member);
 }
