@@ -277,6 +277,19 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(({ roomId, lastChatId
     }
   }, [chatData]);
 
+  const colorMap = useRef(new Map<string, string>());
+  const iconMap = useRef(new Map<string, string>());
+
+  const getRandomValue = (map: Map<string,string>, id: string, values: string[]) => {
+    if (map.has(id)) {
+      return map.get(id);
+    } else {
+      const randomValue = values[Math.floor(Math.random() * values.length)];
+      map.set(id, randomValue);
+      return randomValue;
+    }
+  };
+
   return (
     <S.Container>
       <TopAppBar
@@ -287,7 +300,6 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(({ roomId, lastChatId
           navigate(-1);
         }}
         onRightIconClick={() => {
-          console.log('Clic!!');
           setToolTipVisible((prev) => !prev);
         }}
       />
@@ -308,9 +320,8 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(({ roomId, lastChatId
             if (upLastItemId.length === 0) upLastItemId = chatData.chatId;
             downLatItemId = chatData.chatId;
 
-            const randomColor =
-              randomBackgroundColor[Math.floor(Math.random() * randomBackgroundColor.length)];
-            const randomImg = randomIcon[Math.floor(Math.random() * randomIcon.length)];
+            const randomColor = getRandomValue(colorMap.current, chatData.chatId, randomBackgroundColor);
+            const randomImg = getRandomValue(iconMap.current, chatData.chatId, randomIcon);
 
             return (
               <ReceiverChat
@@ -320,7 +331,6 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(({ roomId, lastChatId
                     ? (el) => {
                         if (el) {
                           lastUpChatId.current = upLastItemId;
-                          console.log('Up item!', el);
                           setTriggerUpItem(el);
                         }
                       }
@@ -353,7 +363,6 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(({ roomId, lastChatId
                     ? (el) => {
                         if (el) {
                           lastUpChatId.current = upLastItemId;
-                          console.log('Up item!', el);
                           setTriggerUpItem(el);
                         }
                       }
