@@ -71,7 +71,7 @@ public class AdminAgendaChatRepositoryImpl implements AdminAgendaChatRepository 
 
         // ✅ 1. 최신 채팅 가져오기 (각 agendaId별로 _id가 가장 큰 값)
         MatchOperation matchStage = Aggregation.match(Criteria.where(AGENDA_ID).in(agendaIdList));
-        SortOperation sortStage = Aggregation.sort(org.springframework.data.domain.Sort.by(DESC, "_id"));
+        SortOperation sortStage = Aggregation.sort(org.springframework.data.domain.Sort.by(DESC, ID));
         GroupOperation groupStage = Aggregation.group(AGENDA_ID)
                 .first("$$ROOT").as(LAST_CHAT);
 
