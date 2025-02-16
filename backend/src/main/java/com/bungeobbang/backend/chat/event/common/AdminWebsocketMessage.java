@@ -25,10 +25,12 @@ public record AdminWebsocketMessage(
         Long adminId,
         @JsonInclude(JsonInclude.Include.NON_NULL)
         @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-        LocalDateTime createdAt
+        LocalDateTime createdAt,
+        @JsonInclude(JsonInclude.Include.NON_NULL)
+        int code
 ) {
-    public AdminWebsocketMessage(SocketEventType event, String message) {
-        this(null, event, null, null, message, null, null, null);
+    public AdminWebsocketMessage(SocketEventType event, String message, int errorCode) {
+        this(null, event, null, null, message, null, null, null, errorCode);
     }
 
     public static AdminWebsocketMessage createResponse(AdminWebsocketMessage request) {
@@ -40,7 +42,8 @@ public record AdminWebsocketMessage(
                 request.message,
                 request.images,
                 request.adminId,
-                LocalDateTime.now()
+                LocalDateTime.now(),
+                0
         );
     }
 }
