@@ -17,6 +17,7 @@ import { DurationContent } from '../components/DurationContent';
 import { useImageUpload } from '@/hooks/useImageUpload';
 import { ImageFileSizeDialog } from '@/components/Dialog/ImageFileSizeDialog';
 import { mapToChatCreateData } from '../util/ChatCreateMapper';
+import { useSocketManager } from '@/hooks/useSocketManager';
 
 export interface ChatCreateData {
   roomId?: number | null;
@@ -41,6 +42,7 @@ const CreateAgendaPage = () => {
   const [isDurationBottomSheetOpen, setDurationBottomSheetOpen] = useState(false);
 
   const [isValidate, setIsValidate] = useState(false);
+  const socketManager = useSocketManager();
   const [chatValue, setChatValue] = useState<ChatCreateData>({
     title: '',
     category: null,
@@ -81,7 +83,10 @@ const CreateAgendaPage = () => {
         images: images,
       };
 
-      await api.post('/admin/agendas', body);
+      const response = await api.post('/admin/agendas', body);
+      const { agendaId } = response.data;
+      socketManager('AGENDA', 'START', agendaId, 'ADMIN');
+
       navigate(-1);
     } catch (error) {
       console.error('Failed to send data:', error);

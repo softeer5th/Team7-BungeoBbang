@@ -53,7 +53,6 @@ export const useSocketStore = create<SocketState>((set, get) => ({
     const ws = new WebSocket(socketUrl.toString(), [accessToken]);
 
     const startHeartbeat = () => {
-      // 기존 인터벌이 있다면 제거
       const currentInterval = get().heartbeatInterval;
       if (currentInterval !== null && currentInterval !== undefined) {
         clearInterval(currentInterval);
@@ -61,7 +60,7 @@ export const useSocketStore = create<SocketState>((set, get) => ({
 
       const interval = setInterval(() => {
         if (ws.readyState === WebSocket.OPEN) {
-          ws.send(JSON.stringify({ type: 'PING' }));
+          ws.send(JSON.stringify({ event: 'PING' }));
           console.log('Sent heartbeat');
         }
       }, 10000);
