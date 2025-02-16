@@ -29,7 +29,6 @@ public class AgendaEventListener {
     @EventListener
     public void handleAgendaEvent(AgendaMemberEvent event) {
         switch (event.eventType()) {
-            // todo 종로된 채팅방에 대해서는 엔티 펄요없음... . . . . . . . .
             case ENTER -> agendaChatService.updateLastReadToMax(event.agendaId(), event.memberId());
             case CHAT -> {
                 agendaChatService.validAgenda(event.agendaId());
@@ -75,7 +74,12 @@ public class AgendaEventListener {
                 ));
             }
             case LEAVE -> adminAgendaChatService.updateLastRead(event.agendaId(), event.adminId());
-            case START -> agendaRealTimeChatService.connectAdminFromAgenda(event.session(), event.agendaId());
+            case START -> {
+                // 오늘 시작인거만 구독
+                if (adminAgendaChatService.isStartToday(event.agendaId())) {
+                    agendaRealTimeChatService.connectAdminFromAgenda(event.session(), event.agendaId());
+                }
+            }
             case CLOSE, DELETE -> agendaRealTimeChatService.disConnectAgenda(event.agendaId());
         }
     }
