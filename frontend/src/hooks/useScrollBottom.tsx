@@ -19,7 +19,7 @@ export const useScroll = <T extends HTMLElement>() => {
     console.log('scrolltotop');
     if (elementRef.current) {
       elementRef.current.scrollTop = 0;
-     
+
       previousScrollHeight.current = elementRef.current.scrollHeight;
     }
   }, []);
@@ -38,10 +38,10 @@ export const useScroll = <T extends HTMLElement>() => {
   };
 
   const rememberCurrentScrollHeight = () => {
-    if(elementRef.current){
+    if (elementRef.current) {
       previousScrollHeight.current = elementRef.current.scrollHeight;
     }
-  }
+  };
   // Automatically handle scroll adjustments on dependency change
   const useScrollOnUpdate = (dependency: ChatData[]) => {
     useEffect(() => {
@@ -55,6 +55,6 @@ export const useScroll = <T extends HTMLElement>() => {
     scrollToTop,
     remainCurrentScroll,
     useScrollOnUpdate,
-    rememberCurrentScrollHeight
+    rememberCurrentScrollHeight,
   };
 };

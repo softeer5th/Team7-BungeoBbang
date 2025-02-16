@@ -2,6 +2,9 @@ import Typography from '@/styles/Typography';
 import styled, { useTheme } from 'styled-components';
 import { ProgressState } from './ChatRoomCardData';
 import { forwardRef } from 'react';
+import editIcon from '@/assets/icons/edit.svg';
+import powerIcon from '@/assets/icons/power.svg';
+import trashIcon from '@/assets/icons/trash.svg';
 
 interface MoreContentProps {
   progressState: ProgressState;
@@ -21,7 +24,7 @@ export const MoreContent = forwardRef<HTMLDivElement, MoreContentProps>(
       <Container ref={ref}>
         {progressState === ProgressState.BEFORE && (
           <MoreContentItem onClick={onEditClick}>
-            <ItemIcon src="/src/assets/icons/edit.svg" />
+            <ItemIcon src={editIcon} />
             <ItemText variant="body1" textColor={theme.colors.grayScale90}>
               수정
             </ItemText>
@@ -31,13 +34,13 @@ export const MoreContent = forwardRef<HTMLDivElement, MoreContentProps>(
         {progressState === ProgressState.IN_PROGRESS && (
           <>
             <MoreContentItem onClick={onEditClick}>
-              <ItemIcon src="/src/assets/icons/edit.svg" />
+              <ItemIcon src={editIcon} />
               <ItemText variant="body1" textColor={theme.colors.grayScale90}>
                 수정
               </ItemText>
             </MoreContentItem>
             <MoreContentItem onClick={onEndClick}>
-              <ItemIcon src="/src/assets/icons/trash.svg" />
+              <ItemIcon src={trashIcon} />
               <ItemText variant="body1" textColor={theme.colors.red}>
                 종료
               </ItemText>
@@ -46,7 +49,7 @@ export const MoreContent = forwardRef<HTMLDivElement, MoreContentProps>(
         )}
 
         <MoreContentItem onClick={onDeleteClick}>
-          <ItemIcon src="/src/assets/icons/power.svg" />
+          <ItemIcon src={powerIcon} />
           <ItemText variant="body1" textColor={theme.colors.red}>
             삭제
           </ItemText>

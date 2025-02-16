@@ -8,7 +8,6 @@ import { useParams, useSearchParams } from 'react-router-dom';
 // import { useScroll } from '@/hooks/useScrollBottom';
 
 const AgendaChatPage = () => {
- 
   const { roomId } = useParams();
   const [searchParams] = useSearchParams();
 
@@ -16,8 +15,8 @@ const AgendaChatPage = () => {
 
   return (
     <ChatPage
-      roomId = {Number(roomId)}
-      lastChatId = {lastReadChatId ?? '000000000000000000000000'}
+      roomId={Number(roomId)}
+      lastChatId={lastReadChatId ?? '000000000000000000000000'}
       // onUpLastItemChange={(lastItemRef, lastChatId: string) => {
       //   lastUpChatId.current = lastChatId;
       //   setTriggerUpItem(lastItemRef);

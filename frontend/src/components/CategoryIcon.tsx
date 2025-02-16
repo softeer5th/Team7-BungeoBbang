@@ -45,6 +45,7 @@ export const CategoryIcon: React.FC<CategoryIconProps> = ({
       backgroundColor={type.iconBackground}
     >
       <Icon iconWidth={iconWidth} src={type.iconSrc} />
+
       {showText && textVariant && (
         <IconText variant={textVariant as TypographyVariant}>{type.label}</IconText>
       )}

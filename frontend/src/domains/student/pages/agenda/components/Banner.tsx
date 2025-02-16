@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import BannerImg from '/src/assets/imgs/school_banner.png';
+import BannerImg from '@/assets/imgs/school_banner.png';
 import Typography from '@/styles/Typography';
 
 export const BannerContainer = () => {

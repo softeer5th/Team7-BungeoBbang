@@ -11,7 +11,7 @@ const AgendaChatPage = () => {
   const isParticipate = searchParams.get('isParticipate') === 'true';
   const lastChatId = useLocation().state?.lastChatId;
 
-  console.log("lastchat??", lastChatId);
+  console.log('lastchat??', lastChatId);
   // const [chatData, setChatData] = useState<ChatData[]>([]);
 
   // const [chatRoomInfo, setChatRoomInfo] = useState<ChatRoomInfo>({
@@ -109,20 +109,19 @@ const AgendaChatPage = () => {
   //   // console.log('getchasdata', chatData);
   //   if (!elementRef.current )return;
 
-
   //   if(isInitialLoading.current) {
   //     elementRef.current.style.visibility = 'hidden'; // 숨기기
   //     scrollToTop();
   //     return;
   //   }
-    
+
   //   // elementRef.current!.scrollTop = elementRef.current.scrollHeight;
   //   // return;
   //   if (isUpDirection.current === true) {
   //     // scrollToBottom();
   //   elementRef.current.style.visibility = 'hidden'; // 숨기기
   //     console.log("hide");
-    
+
   //     remainCurrentScroll();
 
   //     isUpDirection.current = false;
@@ -150,13 +149,13 @@ const AgendaChatPage = () => {
 
   return (
     <ChatPage
-    // ref = {elementRef}
-    roomId={Number(roomId)}
-    isEnd = {isEnd}
-    isParticipate = {isParticipate}
-    lastChatId = {lastChatId}
-    // chatData={chatData}
-    // chatRoomInfo={chatRoomInfo}
+      // ref = {elementRef}
+      roomId={Number(roomId)}
+      isEnd={isEnd}
+      isParticipate={isParticipate}
+      lastChatId={lastChatId}
+      // chatData={chatData}
+      // chatRoomInfo={chatRoomInfo}
     />
   );
 };

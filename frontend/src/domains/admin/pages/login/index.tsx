@@ -4,6 +4,7 @@ import * as S from './styles';
 import api from '@/utils/api';
 import JWTManager from '@/utils/jwtManager';
 import OnuLogo from '@/assets/icons/logo.svg?react';
+import schoolIcon from '@/assets/icons/school.svg';
 
 interface FormState {
   loginId: string;
@@ -80,7 +81,7 @@ const AdminLogin: React.FC = () => {
   return (
     <S.Container>
       <S.LogoContainer>
-        <S.Logo />
+        <S.Logo src={schoolIcon} />
         <S.AdminText>ADMIN</S.AdminText>
       </S.LogoContainer>
 
