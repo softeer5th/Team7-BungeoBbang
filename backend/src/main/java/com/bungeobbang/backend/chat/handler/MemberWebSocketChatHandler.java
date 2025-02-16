@@ -10,9 +10,10 @@ import com.bungeobbang.backend.chat.event.common.MemberConnectEvent;
 import com.bungeobbang.backend.chat.event.common.MemberDisconnectEvent;
 import com.bungeobbang.backend.chat.event.common.MemberWebsocketMessage;
 import com.bungeobbang.backend.chat.event.opinion.OpinionMemberEvent;
+import com.bungeobbang.backend.common.exception.AgendaException;
 import com.bungeobbang.backend.common.exception.AuthException;
 import com.bungeobbang.backend.common.exception.BadWordException;
-import com.bungeobbang.backend.common.exception.UuidException;
+import com.bungeobbang.backend.common.exception.OpinionException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -69,12 +70,12 @@ public class MemberWebSocketChatHandler extends TextWebSocketHandler {
                 case OPINION -> publisher.publishEvent(OpinionMemberEvent.from(session, requestContainsCreatedAt));
             }
         } catch (AuthException e) {
-            session.sendMessage(new TextMessage(objectMapper.writeValueAsString(new MemberWebsocketMessage(ERROR, e.getMessage()))));
+            session.sendMessage(new TextMessage(objectMapper.writeValueAsString(new MemberWebsocketMessage(ERROR, e.getMessage(), e.getCode()))));
             session.close();
-        } catch (BadWordException e) {
-            session.sendMessage(new TextMessage(objectMapper.writeValueAsString(new MemberWebsocketMessage(ERROR, e.getMessage()))));
+        } catch (BadWordException | AgendaException | OpinionException e) {
+            session.sendMessage(new TextMessage(objectMapper.writeValueAsString(new MemberWebsocketMessage(ERROR, e.getMessage(), e.getCode()))));
         } catch (Exception e) {
-            session.sendMessage(new TextMessage(objectMapper.writeValueAsString(new MemberWebsocketMessage(ERROR, e.getMessage()))));
+            session.sendMessage(new TextMessage(objectMapper.writeValueAsString(new MemberWebsocketMessage(ERROR, e.getMessage(), -1))));
         }
     }
 
@@ -100,7 +101,7 @@ public class MemberWebSocketChatHandler extends TextWebSocketHandler {
 
     private void validateUuid(String actual, String expected) {
         if (!actual.equals(expected)) {
-            throw new UuidException(DUPLICATE_LOGIN);
+            throw new AuthException(DUPLICATE_LOGIN);
         }
     }
 }

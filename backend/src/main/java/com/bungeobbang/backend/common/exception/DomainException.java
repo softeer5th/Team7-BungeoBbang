@@ -16,4 +16,8 @@ public class DomainException extends RuntimeException {
     public HttpStatus getHttpStatus() {
         return errorCode.getHttpStatus();
     }
+
+    public int getCode() {
+        return errorCode.getCode();
+    }
 }
