@@ -153,7 +153,7 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(({ roomId, lastChatId
 
   const {
     elementRef,
-    scrollToTop,
+    // scrollToTop,
     scrollToBottom,
     remainCurrentScroll,
     rememberCurrentScrollHeight,
@@ -250,10 +250,10 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(({ roomId, lastChatId
     if (!elementRef.current) return;
     console.log('getchasdata', chatData);
 
-    if (isInitialLoading.current === true) {
-      scrollToTop();
-      return;
-    }
+    // if (isInitialLoading.current === true) {
+    //   scrollToTop();
+    //   return;
+    // }
 
     if (isUpDirection.current === true) {
       remainCurrentScroll();
@@ -355,6 +355,7 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(({ roomId, lastChatId
             );
           } else if (chat.type === ChatType.SEND) {
             const chatData = chat as SendChatData;
+
             if (upLastItemId.length === 0) upLastItemId = chatData.chatId;
             downLatItemId = chatData.chatId;
 
