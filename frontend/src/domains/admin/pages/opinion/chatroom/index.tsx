@@ -184,7 +184,7 @@ const OpinionChatPage = () => {
       } else {
         setChatData(formattedData);
       }
-      
+
       enterResponse.data.isReminded && setIsReminded(true);
       // setChatRoomInfo({
       //   title: '',

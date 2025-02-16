@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
-import CameraIcon from '/src/assets/icons/camera.svg?react';
-import ArrowUpIcon from '/src/assets/icons/full-arrow-up.svg?react';
-import CloseIcon from '/src/assets/icons/close-2.svg?react';
+import CameraIcon from '@/assets/icons/camera.svg?react';
+import ArrowUpIcon from '@/assets/icons/full-arrow-up.svg?react';
+import CloseIcon from '@/assets/icons/close-2.svg?react';
 import Typography from '../../styles/Typography';
 import { BorderProps } from '../border/BorderProps';
 import { ImagePreview } from './ImagePreview';
@@ -129,7 +129,7 @@ export const ChatSendField: React.FC<ChatSendFieldProps> = ({
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey && e.nativeEvent.isComposing === false) {
-      e.preventDefault(); // 기본 엔터 동작 방지
+      e.preventDefault();
       handleSend();
     }
   };

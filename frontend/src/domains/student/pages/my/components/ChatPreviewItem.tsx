@@ -19,7 +19,13 @@ export const ChatPreviewItem: React.FC<ChatPreviewItemProps> = ({
       onClick={() => {
         const roomId = chatData.roomId;
         if (chatData.opinionType) {
-          navigate(`/opinion/chat/${roomId}`, { state: { lastChatId: chatData.lastChatId, opinionType: chatData.opinionType.label, categoryType: chatData.categoryType.type } });
+          navigate(`/opinion/chat/${roomId}`, {
+            state: {
+              lastChatId: chatData.lastChatId,
+              opinionType: chatData.opinionType.label,
+              categoryType: chatData.categoryType.type,
+            },
+          });
         } else {
           navigate(`/agenda/chat/${roomId} `, { state: { lastChatId: chatData.lastChatId } });
         }

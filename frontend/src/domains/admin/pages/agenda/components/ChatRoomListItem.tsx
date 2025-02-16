@@ -6,6 +6,8 @@ import { forwardRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MoreContent } from './MoreContent';
 import { formatDate } from '../util/ChatRoomMapper';
+import dotVertical from '@/assets/icons/dot-vertical.svg';
+import calendar from '@/assets/icons/calendar.svg';
 
 interface ChatRoomListItemProps {
   cardData: ChatRoomListCardData;
@@ -46,10 +48,7 @@ export const ChatRoomListItem = forwardRef<HTMLDivElement, ChatRoomListItemProps
                 </>
               )}
             </AlarmContainer>
-            <MoreIcon
-              src="/src/assets/icons/dot-vertical.svg"
-              onClick={() => setMoreContentVisible((v) => !v)}
-            />
+            <MoreIcon src={dotVertical} onClick={() => setMoreContentVisible((v) => !v)} />
           </HeaderContainer>
           <BodyContainer
             isBeforeProgress={cardData.progressState === ProgressState.BEFORE}
@@ -60,7 +59,7 @@ export const ChatRoomListItem = forwardRef<HTMLDivElement, ChatRoomListItemProps
             <CategoryIcon type={cardData.chatCategoryType} boxSize={30} iconWidth={17} />
             <TitleText variant="heading3">{cardData.title}</TitleText>
             <DateContainer>
-              <DateIcon src="/src/assets/icons/calendar.svg" />
+              <DateIcon src={calendar} />
               <DateText variant="caption2">
                 {formatDate(cardData.startDate)} ~ {formatDate(cardData.endDate)}
               </DateText>

@@ -110,7 +110,7 @@ const TitleText = styled(Typography)<{ titleCentered: boolean; titleColor: strin
   color: ${(props) => props.titleColor};
   z-index: 1;
   text-align: ${(props) => (props.titleCentered ? 'center' : 'left')};
-   white-space: nowrap;
+  white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 `;

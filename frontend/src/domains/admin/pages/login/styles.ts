@@ -15,14 +15,12 @@ export const LogoContainer = styled.div`
   text-align: center;
 `;
 
-export const Logo = styled.div`
+export const Logo = styled.img`
   width: 60px;
   height: 60px;
-  margin: 0 auto -5px;
-  background-image: url('/src/assets/icons/school.svg');
-  background-size: contain;
-  background-repeat: no-repeat;
-  background-position: center;
+  margin: 0 auto -8px;
+  position: relative;
+  z-index: 0;
 `;
 
 export const AdminText = styled.div`
@@ -36,6 +34,8 @@ export const AdminText = styled.div`
   font-weight: 700;
   line-height: 150%;
   letter-spacing: -0.28px;
+  position: relative;
+  z-index: 1;
 `;
 
 export const Form = styled.form`
