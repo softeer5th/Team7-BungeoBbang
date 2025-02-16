@@ -3,7 +3,9 @@ package com.bungeobbang.backend.agenda.service;
 import com.bungeobbang.backend.admin.domain.Admin;
 import com.bungeobbang.backend.admin.domain.repository.AdminRepository;
 import com.bungeobbang.backend.agenda.domain.Agenda;
+import com.bungeobbang.backend.agenda.domain.AgendaChat;
 import com.bungeobbang.backend.agenda.domain.AgendaImage;
+import com.bungeobbang.backend.agenda.domain.repository.AgendaChatRepository;
 import com.bungeobbang.backend.agenda.domain.repository.AgendaImageRepository;
 import com.bungeobbang.backend.agenda.domain.repository.AgendaRepository;
 import com.bungeobbang.backend.agenda.dto.request.AgendaCreationRequest;
@@ -11,6 +13,7 @@ import com.bungeobbang.backend.agenda.dto.request.AgendaEditRequest;
 import com.bungeobbang.backend.badword.service.BadWordService;
 import com.bungeobbang.backend.common.exception.AgendaException;
 import com.bungeobbang.backend.common.type.CategoryType;
+import org.bson.types.ObjectId;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -18,7 +21,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.context.ApplicationEventPublisher;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -47,10 +49,9 @@ class AdminAgendaServiceTest {
     @Mock
     private BadWordService badWordService;
 
-
     @Mock
-    ApplicationEventPublisher applicationEventPublisher;
-
+    private AgendaChatRepository agendaChatRepository;
+    
 
     @Test
     @DisplayName("자신이 속하지 않은 대학의 답해요를 조회하면 에러가 발생한다.")
@@ -85,6 +86,15 @@ class AdminAgendaServiceTest {
                 .thenReturn(Optional.of(admin));
         when(agendaRepository.save(any()))
                 .thenReturn(agenda);
+        when(agendaChatRepository.save(any()))
+                .thenReturn(AgendaChat.builder()
+                        .id(new ObjectId(0, 0))
+                        .isAdmin(true)
+                        .agendaId(agenda.getId())
+                        .createdAt(agenda.getCreatedAt())
+                        .chat(agenda.getContent())
+                        .build()
+                );
         doNothing().when(badWordService).validate(anyString(), anyString());
 
         adminAgendaService.createAgenda(admin.getId(), request);
@@ -183,6 +193,14 @@ class AdminAgendaServiceTest {
                 .thenReturn(Optional.of(agenda));
         when(adminRepository.findById(anyLong()))
                 .thenReturn(Optional.of(admin));
+        when(agendaChatRepository.findById(Mockito.any()))
+                .thenReturn(Optional.ofNullable(AgendaChat.builder()
+                        .id(new ObjectId(0, 0))
+                        .isAdmin(true)
+                        .agendaId(agenda.getId())
+                        .createdAt(agenda.getCreatedAt())
+                        .chat(agenda.getContent())
+                        .build()));
         adminAgendaService.editAgenda(admin.getId(), agenda.getId(), new AgendaEditRequest("title", CategoryType.ACADEMICS, "content", List.of("images")));
 
         verify(agendaRepository).save(any(Agenda.class));

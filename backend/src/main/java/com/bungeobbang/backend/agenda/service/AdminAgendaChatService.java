@@ -1,16 +1,20 @@
 package com.bungeobbang.backend.agenda.service;
 
+import com.bungeobbang.backend.agenda.domain.Agenda;
 import com.bungeobbang.backend.agenda.domain.AgendaChat;
 import com.bungeobbang.backend.agenda.domain.repository.AdminAgendaChatRepository;
 import com.bungeobbang.backend.agenda.domain.repository.AgendaChatRepository;
+import com.bungeobbang.backend.agenda.domain.repository.AgendaRepository;
 import com.bungeobbang.backend.agenda.dto.request.AgendaChatRequest;
 import com.bungeobbang.backend.agenda.dto.response.AgendaChatResponse;
+import com.bungeobbang.backend.common.exception.AgendaException;
+import com.bungeobbang.backend.common.exception.ErrorCode;
 import com.bungeobbang.backend.common.type.ScrollType;
 import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.event.TransactionalEventListener;
 
+import java.time.LocalDate;
 import java.util.List;
 
 /**
@@ -28,6 +32,7 @@ public class AdminAgendaChatService {
     private final AgendaChatRepository agendaChatRepository;
     private final AdminAgendaChatRepository adminAgendaChatRepository;
     private static final ObjectId MAX_OBJECT_ID = new ObjectId("ffffffffffffffffffffffff");
+    private final AgendaRepository agendaRepository;
 
     /**
      * ✅ 답해요 채팅 내역 조회 (무한 스크롤 방식)
@@ -65,8 +70,10 @@ public class AdminAgendaChatService {
         adminAgendaChatRepository.upsertAdminLastReadChat(agendaId, adminId, lastChat.getId());
     }
 
-    @TransactionalEventListener
-    public void saveAgendaChat(AgendaChatRequest event) {
-        saveChat(event);
+    public boolean isStartToday(Long agendaId) {
+        final Agenda agenda = agendaRepository.findById(agendaId)
+                .orElseThrow(() -> new AgendaException(ErrorCode.INVALID_AGENDA));
+
+        return agenda.getStartDate().isEqual(LocalDate.now());
     }
 }
