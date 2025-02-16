@@ -9,7 +9,6 @@ import com.bungeobbang.backend.common.type.ScrollType;
 import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.event.TransactionalEventListener;
 
 import java.util.List;
 
@@ -63,10 +62,5 @@ public class AdminAgendaChatService {
     public void updateLastRead(Long agendaId, Long adminId) {
         final AgendaChat lastChat = adminAgendaChatRepository.findLastChat(agendaId);
         adminAgendaChatRepository.upsertAdminLastReadChat(agendaId, adminId, lastChat.getId());
-    }
-
-    @TransactionalEventListener
-    public void saveAgendaChat(AgendaChatRequest event) {
-        saveChat(event);
     }
 }

@@ -24,6 +24,7 @@ import java.util.List;
 
 
 @RestController
+@RequestMapping("/admin/agendas")
 @RequiredArgsConstructor
 public class AdminAgendaController implements AdminAgendaApi {
     private final AdminAgendaService adminAgendaService;

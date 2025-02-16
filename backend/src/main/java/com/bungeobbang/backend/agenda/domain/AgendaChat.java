@@ -54,4 +54,9 @@ public class AgendaChat {
         this.memberId = memberId;
         this.createdAt = createdAt;
     }
+
+    public void update(String chat, List<String> images) {
+        this.chat = chat;
+        this.images = images;
+    }
 }
