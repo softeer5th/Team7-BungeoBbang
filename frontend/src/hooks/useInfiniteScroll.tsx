@@ -33,6 +33,7 @@ const useInfiniteScroll = ({
 
   const setTriggerUpItem = (element: HTMLDivElement) => {
     if (upObserver.current && element) {
+      console.log("upitem", element);
       upObserver.current.disconnect();
       upObserver.current.observe(element);
       upTriggerRef.current = element;
@@ -54,9 +55,7 @@ const useInfiniteScroll = ({
       upObserver.current = new IntersectionObserver(
         (entries) => {
           const [entry] = entries;
-          // console.log(' up observer', hasUpMore, fetchUpMore);
           if (entry.isIntersecting && hasUpMore.current && fetchUpMore) {
-            console.log('!!!!!');
             fetchUpMore();
           }
         },
@@ -73,9 +72,7 @@ const useInfiniteScroll = ({
       downObserver.current = new IntersectionObserver(
         (entries) => {
           const [entry] = entries;
-          // console.log(' down observer', entry.isIntersecting, hasDownMore, fetchDownMore);
           if (entry.isIntersecting && hasDownMore.current && fetchDownMore) {
-            // console.log('!!!!!! down!!!!!');
             fetchDownMore();
           }
         },

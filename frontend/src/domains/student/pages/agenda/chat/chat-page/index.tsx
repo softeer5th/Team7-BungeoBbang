@@ -41,12 +41,7 @@ export interface ChatRoomInfo {
 
 const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
   (
-    {
-      roomId,
-      isEnd,
-      isParticipate,
-      lastChatId,
-    },
+    { roomId, isEnd, isParticipate, lastChatId },
     // ref,
   ) => {
     // const [chatData, setChatData] = useState<ChatData[]>([]);
@@ -161,10 +156,15 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
     const isLiveReceive = useRef<boolean>(false);
 
     let upLastItemId: string = '';
-    let downLatItemId: string = '';
+    let downLastItemId: string = '';
 
-    const { elementRef, scrollToTop, scrollToBottom, remainCurrentScroll, rememberCurrentScrollHeight } =
-      useScroll<HTMLDivElement>();
+    const {
+      elementRef,
+      scrollToTop,
+      scrollToBottom,
+      remainCurrentScroll,
+      rememberCurrentScrollHeight,
+    } = useScroll<HTMLDivElement>();
 
     const getInitialChatData = async () => {
       try {
@@ -179,7 +179,13 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
         ]);
         console.log('responsesseee', response);
         const formattedData = formatChatData(response.data, false);
-        setChatData(formattedData);
+        if (lastUpChatId.current === 'ffffffffffffffffffffffff' && formattedData.length > 1) {
+          setChatData([...formattedData.slice(formattedData.length - 2)]);
+        } else {
+          setChatData(formattedData);
+        }
+
+        // setChatData(formattedData);
         setChatRoomInfo({
           title: chatInfo.data.title,
           adminName: chatInfo.data.adminName,
@@ -202,7 +208,7 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
             scroll: 'UP',
           },
         });
-        console.log('up!!', response.data);
+        console.log('up!!', response.data, MAX_CHAT_DATA);
         const formattedData = formatChatData(response.data, false);
 
         // if(response.data.length === 0) {
@@ -213,6 +219,7 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
 
         setChatData((prev: ChatData[]) => {
           if (response.data.length < MAX_CHAT_DATA) {
+            console.log('???');
             setHasUpMore(false);
           }
           return [...formattedData, ...prev];
@@ -223,7 +230,6 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
     };
 
     const getMoreDownChatData = async () => {
-      // return;
       try {
         isDownDirection.current = true;
         const response = await api.get(`/student/agendas/${roomId}/chat`, {
@@ -232,11 +238,6 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
             scroll: 'DOWN',
           },
         });
-
-        if (response.data.length === 0) {
-          setHasUpMore(false);
-          return;
-        }
 
         const formattedData = formatChatData(response.data, false);
 
@@ -261,15 +262,13 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
     useLayoutEffect(() => {
       console.log('getchasdata', chatData);
       if (!elementRef.current) return;
-      
-      
-      if(isInitialLoading.current === true) {
+
+      if (isInitialLoading.current === true) {
         scrollToTop();
         return;
       }
 
       if (isUpDirection.current === true) {
-
         remainCurrentScroll();
 
         isUpDirection.current = false;
@@ -277,18 +276,17 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
       }
 
       if (isLive.current) {
-        if(isLiveReceive.current){
+        if (isLiveReceive.current) {
           isLiveReceive.current = false;
           return;
         }
-          scrollToBottom();
+        scrollToBottom();
       }
 
-      if(  isDownDirection.current){
+      if (isDownDirection.current) {
         rememberCurrentScrollHeight();
         isDownDirection.current = false;
       }
-
     }, [chatData]);
 
     return (
@@ -296,7 +294,7 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
         <TopAppBar
           leftIconSrc="/src/assets/icons/arrow-left.svg"
           title={chatRoomInfo.title}
-          rightIconSrc={isParticipate ? '/src/assets/icons/logout.svg' : undefined}
+          rightIconSrc={isParticipate ? '/src/assets/icons/exit.svg' : undefined}
           onLeftIconClick={() => {
             navigate(-1);
           }}
@@ -313,7 +311,7 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
               const chatData = chat as ReceiveChatData;
 
               if (upLastItemId.length === 0) upLastItemId = chatData.chatId;
-              downLatItemId = chatData.chatId;
+              downLastItemId = chatData.chatId;
 
               return (
                 <ReceiverChat
@@ -330,13 +328,13 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
                       : isDownTriggerItem
                         ? (el) => {
                             if (el) {
-                              lastDownChatId.current = downLatItemId;
+                              lastDownChatId.current = downLastItemId;
                               setTriggerDownItem(el);
                             }
                           }
                         : null
                   }
-                  receiverName={chatData.name}
+                  receiverName={chatRoomInfo.adminName}
                   message={chatData.message}
                   images={chatData.images}
                   timeText={chatData.time}
@@ -346,7 +344,7 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
             } else if (chat.type === ChatType.SEND) {
               const chatData = chat as SendChatData;
               if (upLastItemId.length === 0) upLastItemId = chatData.chatId;
-              downLatItemId = chatData.chatId;
+              downLastItemId = chatData.chatId;
 
               return (
                 <SenderChat
@@ -363,7 +361,7 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
                       : isDownTriggerItem
                         ? (el) => {
                             if (el) {
-                              lastDownChatId.current = downLatItemId;
+                              lastDownChatId.current = downLastItemId;
                               setTriggerDownItem(el);
                             }
                           }
@@ -377,7 +375,7 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
               );
             } else if (chat.type === ChatType.INFO) {
               const chatData = chat as InfoChatData;
-              return <TextBadge key={chatIndex} text={chatData.message} />;
+              return <TextBadge text={chatData.message} />;
             } else if (chat.type === ChatType.MORE) {
               const chatData = chat as MoreChatData;
               return (

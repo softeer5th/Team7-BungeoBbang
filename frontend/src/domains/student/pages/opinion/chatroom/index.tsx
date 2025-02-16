@@ -147,7 +147,7 @@ const OpinionChatPage = () => {
 
   useEnterLeaveHandler('OPINION', 'STUDENT');
 
-  const FIRST_REMAIN_ITEMS = 1;
+  const FIRST_REMAIN_ITEMS = 0;
   const LAST_REMAIN_ITEMS = 1;
   const MAX_CHAT_DATA = 10;
 
@@ -215,6 +215,7 @@ const OpinionChatPage = () => {
       });
       const formattedData = formatChatData(response.data, false);
 
+      console.log("up data", response.data);
       setChatData((prev: ChatData[]) => {
         if (response.data.length < MAX_CHAT_DATA) {
           setHasUpMore(false);
@@ -235,11 +236,6 @@ const OpinionChatPage = () => {
           scroll: 'DOWN',
         },
       });
-
-      if (response.data.length === 0) {
-        setHasUpMore(false);
-        return;
-      }
 
       const formattedData = formatChatData(response.data, false);
 
@@ -296,7 +292,7 @@ const OpinionChatPage = () => {
       <TopAppBar
         leftIconSrc="/src/assets/icons/arrow-left.svg"
         title={chatRoomInfo.title}
-        rightIconSrc="/src/assets/icons/logout.svg"
+        rightIconSrc="/src/assets/icons/exit.svg"
         onLeftIconClick={() => {
           navigate(-1);
         }}
@@ -378,7 +374,25 @@ const OpinionChatPage = () => {
             );
           } else if (chat.type === ChatType.INFO) {
             const chatData = chat as InfoChatData;
-            return <TextBadge text={chatData.message} />;
+            return <TextBadge 
+            ref={
+              isUpTriggerItem
+                ? (el) => {
+                    if (el) {
+                      lastUpChatId.current = upLastItemId;
+                      setTriggerUpItem(el);
+                    }
+                  }
+                : isDownTriggerItem
+                  ? (el) => {
+                      if (el) {
+                        lastDownChatId.current = downLatItemId;
+                        setTriggerDownItem(el);
+                      }
+                    }
+                  : null
+            }
+            text={chatData.message} />;
           } else if (chat.type === ChatType.MORE) {
             const chatData = chat as MoreChatData;
             return (

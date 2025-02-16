@@ -56,7 +56,7 @@ const OpinionChatPage = () => {
           images: message.images || [],
         };
 
-        if (message.memberId === Number(memberId)) {
+        if (message.adminId === Number(memberId)) {
           if (!getHasDownMore()) {
             isLive.current = true;
             setChatData((prev) => [...prev, newChat]);
@@ -128,15 +128,15 @@ const OpinionChatPage = () => {
 
   useEnterLeaveHandler('OPINION', 'ADMIN');
 
-  const FIRST_REMAIN_ITEMS = 1;
+  const FIRST_REMAIN_ITEMS = 0;
   const LAST_REMAIN_ITEMS = 1;
   const MAX_CHAT_DATA = 10;
 
   // const [chatData, setChatData] = useState<ChatData[]>([]);
 
   // const [chatRoomInfo, setChatRoomInfo] = useState<ChatRoomInfo>({
-    // title: '',
-    // adminName: '총학생회',
+  // title: '',
+  // adminName: '총학생회',
   // });
 
   const lastUpChatId = useRef<string>(lastChatId);
@@ -167,12 +167,12 @@ const OpinionChatPage = () => {
             scroll: 'INITIAL',
           },
         }),
-        api.get(`/api/opinions/${roomId}`)
+        api.get(`/api/opinions/${roomId}`),
       ]);
 
       const formattedData = formatChatData(response.data, true);
       setChatData(formattedData);
-      
+
       enterResponse.data.isReminded && setIsReminded(true);
       // setChatRoomInfo({
       //   title: '',
@@ -217,11 +217,6 @@ const OpinionChatPage = () => {
         },
       });
 
-      if (response.data.length === 0) {
-        setHasUpMore(false);
-        return;
-      }
-
       const formattedData = formatChatData(response.data, true);
 
       setChatData((prev: ChatData[]) => {
@@ -258,8 +253,7 @@ const OpinionChatPage = () => {
     }
 
     if (isLive.current) {
-      console.log("liveeeee", isLive.current, isLiveReceive.current);
-      if(isLiveReceive.current){
+      if (isLiveReceive.current) {
         isLiveReceive.current = false;
         return;
       }
@@ -272,26 +266,21 @@ const OpinionChatPage = () => {
     }
   }, [chatData]);
 
-
   return (
     <S.Container>
       <TopAppBar
         leftIconSrc="/src/assets/icons/arrow-left.svg"
         title={opinionType}
-        rightIconSrc="/src/assets/icons/close.svg"
         onLeftIconClick={() => {
           navigate(-1);
-        }}
-        onRightIconClick={() => {
-          setExitDialogOpen(true);
         }}
       />
 
       <S.ChatList ref={elementRef}>
         {chatData.map((chat, index) => {
-            const isUpTriggerItem = index === FIRST_REMAIN_ITEMS;
-            const isDownTriggerItem = index === chatData.length - LAST_REMAIN_ITEMS;
-  
+          const isUpTriggerItem = index === FIRST_REMAIN_ITEMS;
+          const isDownTriggerItem = index === chatData.length - LAST_REMAIN_ITEMS;
+
           if (chat.type === ChatType.RECEIVE) {
             const chatData = chat as ReceiveChatData;
             if (upLastItemId.length === 0) upLastItemId = chatData.chatId;
@@ -318,7 +307,7 @@ const OpinionChatPage = () => {
                         }
                       : null
                 }
-                receiverName={chatData.name}
+                receiverIconBackgroundColor={opinionType}
                 message={chatData.message}
                 images={chatData.images}
                 timeText={chatData.time}
@@ -360,7 +349,7 @@ const OpinionChatPage = () => {
             );
           } else if (chat.type === ChatType.INFO) {
             const chatData = chat as InfoChatData;
-            return <TextBadge key={index} text={chatData.message} />;
+            return <TextBadge text={chatData.message} />;
           } else if (chat.type === ChatType.MORE) {
             const chatData = chat as MoreChatData;
             return (
@@ -389,7 +378,7 @@ const OpinionChatPage = () => {
         maxLength={500}
       />
 
-      {isExitDialogOpen && (
+      {/* {isExitDialogOpen && (
         <ExitDialog
           onConfirm={() => {
             setExitDialogOpen(false);
@@ -399,7 +388,7 @@ const OpinionChatPage = () => {
             setExitDialogOpen(false);
           }}
         />
-      )}
+      )} */}
       {showSizeDialog && (
         <ImageFileSizeDialog onConfirm={closeSizeDialog} onDismiss={closeSizeDialog} />
       )}
