@@ -6,12 +6,16 @@ import Typography from '../styles/Typography';
 import ArrowLeftIcon from '/src/assets/icons/arrow-left.svg?react';
 import LogoIcon from '/src/assets/icons/logo.svg?react';
 import LogoutIcon from '/src/assets/icons/logout.svg?react';
+import ExitIcon from '/src/assets/icons/exit.svg?react';
+import InfomationIcon from '/src/assets/icons/information-circle-contained.svg?react';
 import { getBorderStyle } from './border/getBorderType';
 
 const IconComponents: { [key: string]: React.FC<React.SVGProps<SVGSVGElement>> } = {
   '/src/assets/icons/arrow-left.svg': ArrowLeftIcon,
   '/src/assets/icons/logo.svg': LogoIcon,
   '/src/assets/icons/logout.svg': LogoutIcon,
+  '/src/assets/icons/exit.svg': ExitIcon,
+  '/src/assets/icons/information-circle-contained.svg': InfomationIcon,
 };
 
 interface TopAppBarProps {
@@ -39,7 +43,6 @@ export const TopAppBar: React.FC<TopAppBarProps> = ({
 }) => {
   const LeftIconComponent = leftIconSrc ? IconComponents[leftIconSrc] : null;
   const RightIconComponent = rightIconSrc ? IconComponents[rightIconSrc] : null;
-
   return (
     <TopAppBarContainer backgroundColor={backgroundColor} border={border}>
       {LeftIconComponent && (
@@ -107,6 +110,9 @@ const TitleText = styled(Typography)<{ titleCentered: boolean; titleColor: strin
   color: ${(props) => props.titleColor};
   z-index: 1;
   text-align: ${(props) => (props.titleCentered ? 'center' : 'left')};
+   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 `;
 
 const RightIconWrapper = styled.div`

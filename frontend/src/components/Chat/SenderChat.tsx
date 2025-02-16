@@ -88,10 +88,11 @@ const ImageBox = styled.img`
   width: 164px;
   height: 230px;
   border-radius: 16px;
+  object-fit: cover;
 `;
 
 const MessageContainer = styled.div`
-  width: fit-content;
+  width: 100%;
   display: flex;
   justify-content: flex-end;
   align-items: flex-end;
@@ -119,5 +120,6 @@ const ChatMessageText = styled(Typography)<{
   textColor: string;
 }>`
   text-align: start;
+  white-space: pre-line;
   color: ${(props) => props.textColor};
 `;

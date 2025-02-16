@@ -1,7 +1,7 @@
-import * as S from '@/domains/student/pages/chat-page/styles';
+import * as S from '@/domains/student/pages/agenda/chat/chat-page/styles.ts';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { TopAppBar } from '@/components/TopAppBar';
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useLayoutEffect, useRef } from 'react';
 import {
   ChatData,
   ChatType,
@@ -9,22 +9,24 @@ import {
   MoreChatData,
   ReceiveChatData,
   SendChatData,
-} from '../../chat-page/ChatData';
+} from '../../agenda/chat/chat-page/ChatData.tsx';
 import { ChatSendField } from '@/components/Chat/ChatSendField.tsx';
 import { ReceiverChat } from '@/components/Chat/ReceiverChat.tsx';
 import { SenderChat } from '@/components/Chat/SenderChat.tsx';
 import { TextBadge } from '@/components/Chat/TextBadge.tsx';
-import MoreChatButton from '../../chat-page/MoreChatButton.tsx';
-import { ExitDialog } from '../../chat-page/Exitdialog.tsx';
+import MoreChatButton from '../../agenda/chat/chat-page/MoreChatButton.tsx';
+import { ExitDialog } from '../../agenda/chat/chat-page/Exitdialog.tsx';
 import api from '@/utils/api.ts';
 import { formatChatData } from '@/utils/chat/formatChatData.ts';
 import { useImageUpload } from '@/hooks/useImageUpload.ts';
 import { useSocketStore, ChatMessage } from '@/store/socketStore';
 import { useSocketManager } from '@/hooks/useSocketManager.ts';
-import { useScrollBottom } from '@/hooks/useScrollBottom.tsx';
+import { useScroll } from '@/hooks/useScrollBottom.tsx';
 import { ImageFileSizeDialog } from '@/components/Dialog/ImageFileSizeDialog.tsx';
 import { ImagePreview } from '@/components/Chat/ImagePreview.tsx';
 import { useEnterLeaveHandler } from '@/hooks/useEnterLeaveHandler.ts';
+import { ChatRoomInfo } from '../../agenda/chat/chat-page/index.tsx';
+import useInfiniteScroll from '@/hooks/useInfiniteScroll.tsx';
 
 const OpinionChatPage = () => {
   const [chatData, setChatData] = useState<ChatData[]>([]);
@@ -45,6 +47,8 @@ const OpinionChatPage = () => {
 
   const handleMessageReceive = useCallback(
     (message: ChatMessage) => {
+
+      console.log("message", getHasDownMore());
       if (message.roomType === 'OPINION' && message.opinionId === Number(roomId)) {
         const newChat = {
           type: message.memberId === Number(memberId) ? ChatType.SEND : ChatType.RECEIVE,
@@ -55,7 +59,19 @@ const OpinionChatPage = () => {
           }),
           images: message.images || [],
         };
-        setChatData((prev) => [...prev, newChat]);
+        if (message.memberId === Number(memberId)) {
+          if (!getHasDownMore()) {
+            isLive.current = true;
+            setChatData((prev) => [...prev, newChat]);
+          }
+        } else {
+          if (!getHasDownMore()) {
+            isLiveReceive.current = true;
+            setChatData((prev) => [...prev, newChat]);
+          }
+        }
+
+        // setChatData((prev) => [...prev, newChat]);
       }
     },
     [roomId, memberId],
@@ -77,22 +93,22 @@ const OpinionChatPage = () => {
   useEffect(() => {
     if (!roomId) return;
 
-    const fetchData = async () => {
-      try {
-        const enterResponse = await api.get(`/api/opinions/${roomId}`);
-        enterResponse.data.isReminded && setIsReminded(true);
-        const response = await api.get(`/api/opinions/${roomId}/chat`, {
-          params: { chatId: lastChatId, scroll: 'INITIAL' },
-        });
+    // const fetchData = async () => {
+    //   try {
+    //     const enterResponse = await api.get(`/api/opinions/${roomId}`);
+    //     enterResponse.data.isReminded && setIsReminded(true);
+    //     const response = await api.get(`/api/opinions/${roomId}/chat`, {
+    //       params: { chatId: lastChatId, scroll: 'INITIAL' },
+    //     });
 
-        const formattedData = formatChatData(response.data, false);
-        setChatData(formattedData);
-      } catch (error) {
-        console.error('채팅 데이터 불러오기 실패:', error);
-      }
-    };
+    //     const formattedData = formatChatData(response.data, false);
+    //     setChatData(formattedData);
+    //   } catch (error) {
+    //     console.error('채팅 데이터 불러오기 실패:', error);
+    //   }
+    // };
 
-    fetchData();
+    // fetchData();
   }, [roomId, socket]);
 
   useEffect(() => {
@@ -114,8 +130,8 @@ const OpinionChatPage = () => {
     [roomId, sendMessage],
   );
 
-  const { elementRef, useScrollOnUpdate } = useScrollBottom<HTMLDivElement>();
-  useScrollOnUpdate(chatData);
+  // const { elementRef, useScrollOnUpdate } = useScroll<HTMLDivElement>();
+  // useScrollOnUpdate(chatData);
 
   const [selectedImage, setSelectedImage] = useState<{ url: string; index: number } | null>(null);
   const [currentImageList, setCurrentImageList] = useState<string[]>([]);
@@ -131,12 +147,152 @@ const OpinionChatPage = () => {
 
   useEnterLeaveHandler('OPINION', 'STUDENT');
 
+  const FIRST_REMAIN_ITEMS = 0;
+  const LAST_REMAIN_ITEMS = 1;
+  const MAX_CHAT_DATA = 10;
+
+  // const [chatData, setChatData] = useState<ChatData[]>([]);
+
+  const [chatRoomInfo, setChatRoomInfo] = useState<ChatRoomInfo>({
+    title: '',
+    adminName: '총학생회',
+  });
+
+  const lastUpChatId = useRef<string>(lastChatId);
+  const lastDownChatId = useRef<string>(lastChatId);
+  const isInitialLoading = useRef<boolean>(true);
+  const isUpDirection = useRef<boolean>(false);
+  const isDownDirection = useRef<boolean>(false);
+  const isLive = useRef<boolean>(false);
+  const isLiveReceive = useRef<boolean>(false);
+
+  let upLastItemId: string = '';
+  let downLatItemId: string = '';
+
+  const {
+    elementRef,
+    scrollToTop,
+    scrollToBottom,
+    remainCurrentScroll,
+    rememberCurrentScrollHeight,
+  } = useScroll<HTMLDivElement>();
+
+  const getInitialChatData = async () => {
+    try {
+      const [response, enterResponse] = await Promise.all([
+        api.get(`/api/opinions/${roomId}/chat`, {
+          params: {
+            chatId: lastUpChatId.current,
+            scroll: 'INITIAL',
+          },
+        }),
+        api.get(`/api/opinions/${roomId}`)
+      ]);
+
+      const formattedData = formatChatData(response.data, false);
+      setChatData(formattedData);
+      
+      enterResponse.data.isReminded && setIsReminded(true);
+      setChatRoomInfo({
+        title: '',
+        adminName: `${enterResponse.data.universityName} 총학생회`,
+      });
+
+      isInitialLoading.current = false;
+    } catch (error) {
+      console.error('fail to get chat data', error);
+    }
+  };
+
+  const getMoreUpChatData = async () => {
+    try {
+      isUpDirection.current = true;
+      const response = await api.get(`/api/opinions/${roomId}/chat`, {
+        params: {
+          chatId: lastUpChatId.current,
+          scroll: 'UP',
+        },
+      });
+      const formattedData = formatChatData(response.data, false);
+
+      console.log("up data", response.data);
+      setChatData((prev: ChatData[]) => {
+        if (response.data.length < MAX_CHAT_DATA) {
+          setHasUpMore(false);
+        }
+        return [...formattedData, ...prev];
+      });
+    } catch (error) {
+      console.error('fail to get chat data', error);
+    }
+  };
+
+  const getMoreDownChatData = async () => {
+    try {
+      isDownDirection.current = true;
+      const response = await api.get(`/api/opinions/${roomId}/chat`, {
+        params: {
+          chatId: lastDownChatId.current,
+          scroll: 'DOWN',
+        },
+      });
+
+      const formattedData = formatChatData(response.data, false);
+
+      setChatData((prev: ChatData[]) => {
+        if (response.data.length < MAX_CHAT_DATA) {
+          setHasDownMore(false);
+        }
+        return [...prev, ...formattedData];
+      });
+    } catch (error) {
+      console.error('fail to get chat data', error);
+    }
+  };
+
+  const { setTriggerUpItem, setTriggerDownItem, getHasDownMore, setHasUpMore, setHasDownMore } =
+    useInfiniteScroll({
+      initialFetch: getInitialChatData,
+      fetchUpMore: getMoreUpChatData,
+      fetchDownMore: getMoreDownChatData,
+    });
+
+  useLayoutEffect(() => {
+    console.log('getchasdata', chatData);
+    if (!elementRef.current) return;
+
+    if (isInitialLoading.current === true) {
+      scrollToTop();
+      return;
+    }
+
+    if (isUpDirection.current === true) {
+      remainCurrentScroll();
+
+      isUpDirection.current = false;
+      return;
+    }
+
+    if (isLive.current) {
+      if(isLiveReceive.current){
+        isLiveReceive.current = false;
+        return;
+      }
+      scrollToBottom();
+    }
+
+    if (isDownDirection.current) {
+      rememberCurrentScrollHeight();
+      isDownDirection.current = false;
+    }
+  }, [chatData]);
+
   return (
     <S.Container>
       <TopAppBar
         leftIconSrc="/src/assets/icons/arrow-left.svg"
-        title="총학생회 국제캠퍼스 생활 불편 건의함"
-        rightIconSrc="/src/assets/icons/logout.svg"
+        title={chatRoomInfo.title}
+        rightIconSrc="/src/assets/icons/exit.svg"
         onLeftIconClick={() => {
           navigate(-1);
         }}
@@ -145,12 +301,37 @@ const OpinionChatPage = () => {
         }}
       />
       <S.ChatList ref={elementRef}>
-        {chatData.map((chat) => {
+        {chatData.map((chat, chatIndex) => {
+          const isUpTriggerItem = chatIndex === FIRST_REMAIN_ITEMS;
+          const isDownTriggerItem = chatIndex === chatData.length - LAST_REMAIN_ITEMS;
+
           if (chat.type === ChatType.RECEIVE) {
             const chatData = chat as ReceiveChatData;
+
+            if (upLastItemId.length === 0) upLastItemId = chatData.chatId;
+            downLatItemId = chatData.chatId;
+
             return (
               <ReceiverChat
+                key={chatData.chatId}
                 chatId={chatData.chatId}
+                ref={
+                  isUpTriggerItem
+                    ? (el) => {
+                        if (el) {
+                          lastUpChatId.current = upLastItemId;
+                          setTriggerUpItem(el);
+                        }
+                      }
+                    : isDownTriggerItem
+                      ? (el) => {
+                          if (el) {
+                            lastDownChatId.current = downLatItemId;
+                            setTriggerDownItem(el);
+                          }
+                        }
+                      : null
+                }
                 receiverName={chatData.name}
                 message={chatData.message}
                 images={chatData.images}
@@ -160,9 +341,31 @@ const OpinionChatPage = () => {
             );
           } else if (chat.type === ChatType.SEND) {
             const chatData = chat as SendChatData;
+
+            if (upLastItemId.length === 0) upLastItemId = chatData.chatId;
+            downLatItemId = chatData.chatId;
+
             return (
               <SenderChat
+                key={chatData.chatId}
                 chatId={chatData.chatId}
+                ref={
+                  isUpTriggerItem
+                    ? (el) => {
+                        if (el) {
+                          lastUpChatId.current = upLastItemId;
+                          setTriggerUpItem(el);
+                        }
+                      }
+                    : isDownTriggerItem
+                      ? (el) => {
+                          if (el) {
+                            lastDownChatId.current = downLatItemId;
+                            setTriggerDownItem(el);
+                          }
+                        }
+                      : null
+                }
                 message={chatData.message}
                 images={chatData.images}
                 timeText={chatData.time}
@@ -171,7 +374,25 @@ const OpinionChatPage = () => {
             );
           } else if (chat.type === ChatType.INFO) {
             const chatData = chat as InfoChatData;
-            return <TextBadge text={chatData.message} />;
+            return <TextBadge 
+            ref={
+              isUpTriggerItem
+                ? (el) => {
+                    if (el) {
+                      lastUpChatId.current = upLastItemId;
+                      setTriggerUpItem(el);
+                    }
+                  }
+                : isDownTriggerItem
+                  ? (el) => {
+                      if (el) {
+                        lastDownChatId.current = downLatItemId;
+                        setTriggerDownItem(el);
+                      }
+                    }
+                  : null
+            }
+            text={chatData.message} />;
           } else if (chat.type === ChatType.MORE) {
             const chatData = chat as MoreChatData;
             return (
