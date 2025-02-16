@@ -47,8 +47,7 @@ const OpinionChatPage = () => {
 
   const handleMessageReceive = useCallback(
     (message: ChatMessage) => {
-
-      console.log("message", getHasDownMore());
+      console.log('message', getHasDownMore());
       if (message.roomType === 'OPINION' && message.opinionId === Number(roomId)) {
         const newChat = {
           type: message.memberId === Number(memberId) ? ChatType.SEND : ChatType.RECEIVE,
@@ -147,7 +146,7 @@ const OpinionChatPage = () => {
 
   useEnterLeaveHandler('OPINION', 'STUDENT');
 
-  const FIRST_REMAIN_ITEMS = 0;
+  const FIRST_REMAIN_ITEMS = 1;
   const LAST_REMAIN_ITEMS = 1;
   const MAX_CHAT_DATA = 10;
 
@@ -186,12 +185,17 @@ const OpinionChatPage = () => {
             scroll: 'INITIAL',
           },
         }),
-        api.get(`/api/opinions/${roomId}`)
+        api.get(`/api/opinions/${roomId}`),
       ]);
 
       const formattedData = formatChatData(response.data, false);
-      setChatData(formattedData);
-      
+      // setChatData(formattedData);
+      if (lastUpChatId.current === 'ffffffffffffffffffffffff' && formattedData.length > 1) {
+        setChatData([...formattedData.slice(formattedData.length - 2)]);
+      } else {
+        setChatData(formattedData);
+      }
+
       enterResponse.data.isReminded && setIsReminded(true);
       setChatRoomInfo({
         title: '',
@@ -215,7 +219,7 @@ const OpinionChatPage = () => {
       });
       const formattedData = formatChatData(response.data, false);
 
-      console.log("up data", response.data);
+      console.log('up data', response.data);
       setChatData((prev: ChatData[]) => {
         if (response.data.length < MAX_CHAT_DATA) {
           setHasUpMore(false);
@@ -274,7 +278,7 @@ const OpinionChatPage = () => {
     }
 
     if (isLive.current) {
-      if(isLiveReceive.current){
+      if (isLiveReceive.current) {
         isLiveReceive.current = false;
         return;
       }
@@ -374,25 +378,7 @@ const OpinionChatPage = () => {
             );
           } else if (chat.type === ChatType.INFO) {
             const chatData = chat as InfoChatData;
-            return <TextBadge 
-            ref={
-              isUpTriggerItem
-                ? (el) => {
-                    if (el) {
-                      lastUpChatId.current = upLastItemId;
-                      setTriggerUpItem(el);
-                    }
-                  }
-                : isDownTriggerItem
-                  ? (el) => {
-                      if (el) {
-                        lastDownChatId.current = downLatItemId;
-                        setTriggerDownItem(el);
-                      }
-                    }
-                  : null
-            }
-            text={chatData.message} />;
+            return <TextBadge text={chatData.message} />;
           } else if (chat.type === ChatType.MORE) {
             const chatData = chat as MoreChatData;
             return (

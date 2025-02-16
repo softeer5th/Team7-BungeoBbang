@@ -134,7 +134,7 @@ const OpinionChatPage = () => {
 
   useEnterLeaveHandler('OPINION', 'ADMIN');
 
-  const FIRST_REMAIN_ITEMS = 0;
+  const FIRST_REMAIN_ITEMS = 1;
   const LAST_REMAIN_ITEMS = 1;
   const MAX_CHAT_DATA = 10;
 
@@ -177,8 +177,14 @@ const OpinionChatPage = () => {
       ]);
 
       const formattedData = formatChatData(response.data, true);
-      setChatData(formattedData);
+      // setChatData(formattedData);
 
+      if (lastUpChatId.current === 'ffffffffffffffffffffffff' && formattedData.length > 1) {
+        setChatData([...formattedData.slice(formattedData.length - 2)]);
+      } else {
+        setChatData(formattedData);
+      }
+      
       enterResponse.data.isReminded && setIsReminded(true);
       // setChatRoomInfo({
       //   title: '',
