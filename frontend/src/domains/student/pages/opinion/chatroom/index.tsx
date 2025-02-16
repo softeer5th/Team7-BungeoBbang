@@ -93,20 +93,20 @@ const OpinionChatPage = () => {
   useEffect(() => {
     if (!roomId) return;
 
-    const fetchData = async () => {
-      try {
-        const enterResponse = await api.get(`/api/opinions/${roomId}`);
-        enterResponse.data.isReminded && setIsReminded(true);
-        const response = await api.get(`/api/opinions/${roomId}/chat`, {
-          params: { chatId: lastChatId, scroll: 'INITIAL' },
-        });
+    // const fetchData = async () => {
+    //   try {
+    //     const enterResponse = await api.get(`/api/opinions/${roomId}`);
+    //     enterResponse.data.isReminded && setIsReminded(true);
+    //     const response = await api.get(`/api/opinions/${roomId}/chat`, {
+    //       params: { chatId: lastChatId, scroll: 'INITIAL' },
+    //     });
 
-        const formattedData = formatChatData(response.data, false);
-        setChatData(formattedData);
-      } catch (error) {
-        console.error('채팅 데이터 불러오기 실패:', error);
-      }
-    };
+    //     const formattedData = formatChatData(response.data, false);
+    //     setChatData(formattedData);
+    //   } catch (error) {
+    //     console.error('채팅 데이터 불러오기 실패:', error);
+    //   }
+    // };
 
     // fetchData();
   }, [roomId, socket]);

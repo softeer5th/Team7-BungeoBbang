@@ -12,7 +12,7 @@ import {
   ReceiveChatData,
   SendChatData,
 } from './ChatData.tsx';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { forwardRef, useCallback, useState, useEffect, useRef, useLayoutEffect } from 'react';
 // import { getDefaultBorderStyle } from '@/components/border/getBorderType.tsx';
 // import { BorderType } from '@/components/border/BorderProps.tsx';
@@ -42,7 +42,7 @@ export interface ChatRoomInfo {
   adminName: string;
 }
 
-const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(({ roomId, lastChatId }, ref) => {
+const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(({ roomId, lastChatId }) => {
   const [isToolTipVisible, setToolTipVisible] = useState(false);
   const theme = useTheme();
   const randomBackgroundColor = [
