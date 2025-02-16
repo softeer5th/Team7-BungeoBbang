@@ -211,12 +211,6 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
         console.log('up!!', response.data, MAX_CHAT_DATA);
         const formattedData = formatChatData(response.data, false);
 
-        // if(response.data.length === 0) {
-        //   console.log("??");
-        //   setHasUpMore(false);
-        //   return;
-        // }
-
         setChatData((prev: ChatData[]) => {
           if (response.data.length < MAX_CHAT_DATA) {
             console.log('???');

@@ -25,10 +25,13 @@ import { useScroll } from '@/hooks/useScrollBottom';
 import { ImagePreview } from '@/components/Chat/ImagePreview';
 import { useEnterLeaveHandler } from '@/hooks/useEnterLeaveHandler';
 import useInfiniteScroll from '@/hooks/useInfiniteScroll';
+import { findChatOpinionTypeByLabel } from '@/utils/findChatOpinionType';
+import { findChatCategoryType } from '@/utils/findChatCategoryType';
+import { ChatCategoryType } from '@/types/ChatCategoryType';
 
 const OpinionChatPage = () => {
   const [chatData, setChatData] = useState<ChatData[]>([]);
-  const [isExitDialogOpen, setExitDialogOpen] = useState(false);
+  // const [isExitDialogOpen, setExitDialogOpen] = useState(faslse);
   const [message, setMessage] = useState('');
   const [isReminded, setIsReminded] = useState(false);
 
@@ -41,6 +44,9 @@ const OpinionChatPage = () => {
   const memberId = localStorage.getItem('member_id');
   const location = useLocation();
   const opinionType = location.state?.opinionType || '';
+  const categoryType =
+    (location.state?.categoryType as ChatCategoryType) || ChatCategoryType.ACADEMICS;
+
   const lastChatId = location.state?.lastChatId || 0;
 
   const handleMessageReceive = useCallback(
@@ -76,20 +82,20 @@ const OpinionChatPage = () => {
   useEffect(() => {
     if (!roomId) return;
 
-    const fetchData = async () => {
-      try {
-        const res = await api.get(`/api/opinions/${roomId}`);
-        setIsReminded(res.data.isReminded);
-        const response = await api.get(`/api/opinions/${roomId}/chat`, {
-          params: { chatId: lastChatId, scroll: 'INITIAL' },
-        });
-        console.log('채팅 데이터:', response);
-        const formattedData = formatChatData(response.data, true);
-        setChatData(formattedData);
-      } catch (error) {
-        console.error('채팅 데이터 불러오기 실패:', error);
-      }
-    };
+    // const fetchData = async () => {
+    //   try {
+    //     const res = await api.get(`/api/opinions/${roomId}`);
+    //     setIsReminded(res.data.isReminded);
+    //     const response = await api.get(`/api/opinions/${roomId}/chat`, {
+    //       params: { chatId: lastChatId, scroll: 'INITIAL' },
+    //     });
+    //     console.log('채팅 데이터:', response);
+    //     const formattedData = formatChatData(response.data, true);
+    //     setChatData(formattedData);
+    //   } catch (error) {
+    //     console.error('채팅 데이터 불러오기 실패:', error);
+    //   }
+    // };
 
     // fetchData();
   }, [roomId]);
@@ -307,7 +313,8 @@ const OpinionChatPage = () => {
                         }
                       : null
                 }
-                receiverIconBackgroundColor={opinionType}
+                receiverIconBackgroundColor={categoryType.iconBackground}
+                receiverIconSrc={categoryType.iconSrc}
                 message={chatData.message}
                 images={chatData.images}
                 timeText={chatData.time}
