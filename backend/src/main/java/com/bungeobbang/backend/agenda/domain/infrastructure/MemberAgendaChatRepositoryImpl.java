@@ -17,10 +17,16 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Repository;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import static com.bungeobbang.backend.common.type.ScrollType.INITIAL;
+import static com.bungeobbang.backend.common.type.ScrollType.UP;
+import static org.springframework.data.domain.Sort.Direction.ASC;
+import static org.springframework.data.domain.Sort.Direction.DESC;
 
 /**
  * <h2>CustomAgendaChatRepositoryImpl</h2>
@@ -175,19 +181,41 @@ public class MemberAgendaChatRepositoryImpl implements MemberAgendaChatRepositor
                         Criteria.where(IS_ADMIN).is(true)
                 ));
 
-
         switch (scrollType) {
-            case DOWN -> query.addCriteria(Criteria.where(ID).gt(chatId));
-            case UP -> query.addCriteria(Criteria.where(ID).lt(chatId));
+            case DOWN -> {
+                // 아래 방향(DOWN) 스크롤: chatId보다 큰 ID(= 더 최신 메시지) 조회
+                query.addCriteria(Criteria.where(ID).gt(chatId));
+                // 오름차순(ASC) 정렬 → 가장 최신의 10개 가져오기
+                query.with(Sort.by(ASC, ID));
+            }
+            case UP -> {
+                // 위 방향(UP) 스크롤: chatId보다 작은 ID(= 더 과거 메시지) 조회
+                query.addCriteria(Criteria.where(ID).lt(chatId));
+                // 최신 10개 가져오기 (내림차순)
+                query.with(Sort.by(DESC, ID));
+            }
             case INITIAL -> {
                 if (!chatId.equals(MAX_OBJECT_ID)) {
+                    // 초기 로드(INITIAL)에서 특정 chatId 이후의 메시지 조회
                     query.addCriteria(Criteria.where(ID).gte(chatId));
+                    // 오름차순(ASC) 정렬 → 가장 최신의 10개 가져오기
+                    query.with(Sort.by(ASC, ID));
+                } else {
+                    // MAX_OBJECT_ID인 경우, 가장 최신 메시지 10개 가져오기
+                    query.with(Sort.by(DESC, ID));
                 }
             }
         }
-        query.with(Sort.by(Sort.Direction.ASC, ID));
+
         query.limit(10);
-        return mongoTemplate.find(query, AgendaChat.class);
+
+        final List<AgendaChat> result = mongoTemplate.find(query, AgendaChat.class);
+
+        // 위로 스크롤(UP)하거나, INITIAL 상태에서 최신 메시지를 불러오는 경우 리스트를 다시 오름차순 정렬
+        if (scrollType == UP || (scrollType == INITIAL && chatId.equals(MAX_OBJECT_ID))) {
+            Collections.reverse(result);
+        }
+        return result;
     }
 
     @Override
