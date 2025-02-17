@@ -135,8 +135,7 @@ export const ChatSendField: React.FC<ChatSendFieldProps> = ({
     if (e.key === 'Enter') {
       if (e.nativeEvent.isComposing) return;
 
-      // Shift + Enter 또는 모바일에서의 엔터
-      if (e.shiftKey || window.innerWidth <= 768) {
+      if (e.shiftKey) {
         return;
       }
 

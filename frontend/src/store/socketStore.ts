@@ -41,6 +41,19 @@ export const useSocketStore = create<SocketState>((set, get) => ({
   activeSubscriptions: {},
 
   connect: (isAdmin: boolean) => {
+    // 기존 소켓과 heartbeat interval 정리
+    const currentSocket = get().socket;
+    const currentInterval = get().heartbeatInterval;
+
+    if (currentSocket) {
+      currentSocket.close();
+    }
+
+    if (currentInterval) {
+      clearInterval(currentInterval);
+      set({ heartbeatInterval: null });
+    }
+
     const accessToken = localStorage.getItem('access_token');
     if (!accessToken) {
       throw new Error('Access token is missing');
@@ -55,17 +68,24 @@ export const useSocketStore = create<SocketState>((set, get) => ({
     const ws = new WebSocket(socketUrl.toString(), [accessToken]);
 
     const startHeartbeat = () => {
-      const currentInterval = get().heartbeatInterval;
-      if (currentInterval !== null && currentInterval !== undefined) {
-        clearInterval(currentInterval);
+      // 이전 interval이 있다면 제거
+      const prevInterval = get().heartbeatInterval;
+      if (prevInterval) {
+        clearInterval(prevInterval);
+        set({ heartbeatInterval: null });
       }
 
       const interval = setInterval(() => {
-        if (ws.readyState === WebSocket.OPEN) {
+        const currentWs = get().socket;
+        // 현재 웹소켓이 이 interval에 해당하는 웹소켓과 같은지 확인
+        if (currentWs === ws && ws.readyState === WebSocket.OPEN) {
           ws.send(JSON.stringify({ event: 'PING' }));
-          console.log('Sent heartbeat');
+          console.log('창공을 가르는 소리 PING!');
+        } else {
+          // 다른 웹소켓이 생성되었다면 이 interval 제거
+          clearInterval(interval);
         }
-      }, 10000);
+      }, 20000);
 
       set({ heartbeatInterval: interval });
     };
@@ -113,6 +133,13 @@ export const useSocketStore = create<SocketState>((set, get) => ({
 
   disconnect: () => {
     const socket = get().socket;
+    const interval = get().heartbeatInterval;
+
+    if (interval) {
+      clearInterval(interval);
+      set({ heartbeatInterval: null });
+    }
+
     if (socket) {
       socket.close();
       set({ socket: null });
@@ -142,6 +169,11 @@ export const useSocketStore = create<SocketState>((set, get) => ({
     if (socket) {
       const messageHandler = (event: MessageEvent) => {
         try {
+          if (event.data === 'PONG') {
+            console.log('PONG');
+            return;
+          }
+
           const data = JSON.parse(event.data) as ChatMessage;
           console.log('Received message:', data);
 
@@ -156,7 +188,6 @@ export const useSocketStore = create<SocketState>((set, get) => ({
           }
         } catch (error) {
           console.error('Error parsing WebSocket message:', error);
-          console.log('Raw message:', event.data);
         }
       };
 
