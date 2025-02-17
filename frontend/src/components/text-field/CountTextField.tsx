@@ -87,6 +87,7 @@ const TextFieldInput = styled(Typography).attrs({ as: 'textarea' })<{
 
   border-radius: ${(props) => props.border?.borderRadius || '12px'};
   outline: none;
+  resize: none;
 
   &::placeholder {
     color: ${(props) => props.placeholderColor};

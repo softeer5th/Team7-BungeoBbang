@@ -103,6 +103,7 @@ const TextFieldInput = styled(Typography).attrs({ as: 'textarea' })<{
       : 'border: none;'}
   border-radius: ${(props) => props.border?.borderRadius || '12px'};
   outline: none;
+  resize: none;
 
   &::placeholder {
     color: ${(props) => props.placeholderColor || '#A8A8A8'};

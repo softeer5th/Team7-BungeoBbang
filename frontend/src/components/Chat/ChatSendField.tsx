@@ -361,6 +361,7 @@ const TextFieldInput = styled(Typography).attrs({ as: 'textarea' })<{
   outline: none;
   border: none;
   background-color: transparent;
+  resize: none;
 
   &::placeholder {
     color: ${(props) => props.placeholderColor};
