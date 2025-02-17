@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { forwardRef, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import CameraIcon from '@/assets/icons/camera.svg?react';
 import ArrowUpIcon from '@/assets/icons/full-arrow-up.svg?react';
@@ -38,75 +38,89 @@ interface ChatSendFieldProps {
   imageDisabled?: boolean;
   textDisabled?: boolean;
   sendDisabled?: boolean;
+  isRemindMode?: boolean;
+  isReminded?: boolean;
 }
 
-export const ChatSendField: React.FC<ChatSendFieldProps> = ({
-  placeholder = '메시지를 입력하세요...',
-  disabledPlaceHolder = '텍스트를 입력할 수 없습니다.',
-  maxLength = 500,
-  initialText = '',
-  backgroundColor = '#FFFFFF',
-  textFieldBackgroundColor = '#FFFFFF',
-  textFieldDisabledBackgroundColor = '#F4F4F4',
-  sendButtonBackgroundColor = '#1F87FF',
-  sendButtonDisabledBackgroundColor = '#E0E0E0',
-  sendButtonIconColor = '#FFFFFF',
-  sendButtonDisabledIconColor = '#F4F4F4',
-  imageButtonBackgroundColor = '#E0E0E0',
-  imageButtonDisabledBackgroundColor = '#E0E0E0',
-  imageButtonIconColor = '#8D8D8D',
-  imageButtonDisabledIconColor = '#F4F4F4',
-  placeholderColor = '#1F87FF',
-  disabledPlaceholderColor = '#C6C6C6',
-  textColor = '#262626',
-  disabledTextColor = '#C6C6C6',
-  textFieldBorder = {
-    ...getDefaultBorderStyle(),
-    borderWidth: '1px',
-    borderColor: '#E0E0E0',
-    disabledBorderColor: '#E0E0E0',
-    borderRadius: '20px',
-  },
-  onChange = () => {},
-  onSendMessage = () => {},
-  images = [],
-  onImageDelete = () => {},
-  onImageUpload = () => {},
-  maxLengthOfImages = 5,
-  imageDisabled = false,
-  textDisabled = false,
-  sendDisabled = false,
-}) => {
-  const [message, setMessage] = useState(initialText);
-  const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
+export const ChatSendField = forwardRef<HTMLDivElement, ChatSendFieldProps>(
+  (
+    {
+      placeholder = '메시지를 입력하세요...',
+      disabledPlaceHolder = '텍스트를 입력할 수 없습니다.',
+      maxLength = 500,
+      initialText = '',
+      backgroundColor = '#FFFFFF',
+      textFieldBackgroundColor = '#FFFFFF',
+      textFieldDisabledBackgroundColor = '#F4F4F4',
+      sendButtonBackgroundColor = '#1F87FF',
+      sendButtonDisabledBackgroundColor = '#E0E0E0',
+      sendButtonIconColor = '#FFFFFF',
+      sendButtonDisabledIconColor = '#F4F4F4',
+      imageButtonBackgroundColor = '#E0E0E0',
+      imageButtonDisabledBackgroundColor = '#E0E0E0',
+      imageButtonIconColor = '#8D8D8D',
+      imageButtonDisabledIconColor = '#F4F4F4',
+      placeholderColor = '#1F87FF',
+      disabledPlaceholderColor = '#C6C6C6',
+      textColor = '#262626',
+      disabledTextColor = '#C6C6C6',
+      textFieldBorder = {
+        ...getDefaultBorderStyle(),
+        borderWidth: '1px',
+        borderColor: '#E0E0E0',
+        disabledBorderColor: '#E0E0E0',
+        borderRadius: '20px',
+      },
+      onChange = () => {},
+      onSendMessage = () => {},
+      images = [],
+      onImageDelete = () => {},
+      onImageUpload = () => {},
+      maxLengthOfImages = 5,
+      imageDisabled = false,
+      textDisabled = false,
+      sendDisabled = false,
+      isRemindMode = false,
+      isReminded = false,
+    },
+    ref,
+  ) => {
+    const [message, setMessage] = useState(initialText);
+    const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
 
-  const textAreaRef = useRef<HTMLTextAreaElement>(null);
+    const textAreaRef = useRef<HTMLTextAreaElement>(null);
 
-  let maxTextInputHeight = 174;
-  if (images) maxTextInputHeight = 102;
+    let maxTextInputHeight = 174;
+    if (images) maxTextInputHeight = 85;
 
-  const handleTextInput = (newMessage: string) => {
-    let newValue = newMessage;
-    if (newMessage.length >= maxLength) {
-      newValue = newMessage.slice(0, maxLength);
-    }
-    setMessage(newValue);
-    onChange(newValue);
-  };
-
-  const handleResizeHeight = () => {
-    if (textAreaRef.current) {
-      textAreaRef.current.style.height = 'auto';
-      let scrollHeight = textAreaRef.current.scrollHeight;
-      if (scrollHeight >= maxTextInputHeight) {
-        scrollHeight = maxTextInputHeight;
+    const handleTextInput = (newMessage: string) => {
+      let newValue = newMessage;
+      if (newMessage.length >= maxLength) {
+        newValue = newMessage.slice(0, maxLength);
       }
+      setMessage(newValue);
+      onChange(newValue);
+    };
+
+    const handleResizeHeight = () => {
+      if (textAreaRef.current) {
+        textAreaRef.current.style.height = 'auto';
+        let scrollHeight = textAreaRef.current.scrollHeight;
+        if (scrollHeight >= maxTextInputHeight) {
+          scrollHeight = maxTextInputHeight;
+        }
+
+        textAreaRef.current.style.height = scrollHeight + 'px';
+
+      }
+    };
 
       textAreaRef.current.style.height = scrollHeight + 'px';
     }
   };
 
   const handleSend = () => {
+        if (sendDisabled) return;
     if (message.trim() || textDisabled) {
       onSendMessage(message, images);
       setMessage('');
@@ -125,12 +139,24 @@ export const ChatSendField: React.FC<ChatSendFieldProps> = ({
 
   useEffect(() => {
     handleResizeHeight();
-  }, [message]);
+  }, [message, handleResizeHeight]);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === 'Enter' && !e.shiftKey && e.nativeEvent.isComposing === false) {
+    if (e.key === 'Enter') {
+      if (e.nativeEvent.isComposing) return;
+
+      if (e.shiftKey) {
+        return;
+      }
+
       e.preventDefault();
       handleSend();
+    }
+  };
+
+  const handleKeyUp = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'Enter' && !e.shiftKey && window.innerWidth > 768) {
+      setMessage('');
     }
   };
 
@@ -157,16 +183,57 @@ export const ChatSendField: React.FC<ChatSendFieldProps> = ({
           />
         </ImageUploadBox>
 
-        <TextFieldContainer>
-          <CountText variant="caption2">
-            {textDisabled ? 0 : message.length}/{maxLength}
-          </CountText>
-          <TextFieldBox
+
+    const isImageDisabled = images.length >= maxLengthOfImages || imageDisabled;
+
+    useEffect(() => {
+      setMessage(initialText);
+    }, [initialText]);
+
+    useEffect(() => {
+      handleResizeHeight();
+    }, [message]);
+
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+      if (e.key === 'Enter' && !e.shiftKey && e.nativeEvent.isComposing === false) {
+        e.preventDefault();
+        handleSend();
+      }
+    };
+
+    return (
+      <>
+        <ChatSendContainer ref={ref} bcakgroundColor={backgroundColor}>
+          <ImageUploadBox
             backgroundColor={
-              textDisabled ? textFieldDisabledBackgroundColor : textFieldBackgroundColor
+              isImageDisabled ? imageButtonDisabledBackgroundColor : imageButtonBackgroundColor
             }
-            border={textFieldBorder}
           >
+             <CameraIcon
+              width="20px"
+              height="20px"
+              fill={isImageDisabled ? imageButtonDisabledIconColor : imageButtonIconColor}
+              stroke={isImageDisabled ? imageButtonDisabledIconColor : imageButtonIconColor}
+            />
+            <HiddenFileInput
+              type="file"
+              accept="image/*"
+              multiple
+              onChange={handleImageUpload}
+              disabled={isImageDisabled}
+            />
+          </ImageUploadBox>
+
+          <TextFieldContainer>
+            <CountText variant="caption2">
+              {textDisabled ? 0 : message.length}/{maxLength}
+            </CountText>
+            <TextFieldBox
+              backgroundColor={
+                textDisabled ? textFieldDisabledBackgroundColor : textFieldBackgroundColor
+              }
+              border={textFieldBorder}
+            >
             {images && images.length > 0 && !textDisabled && (
               <ImageList>
                 {images.map((image, index) => (
@@ -199,6 +266,7 @@ export const ChatSendField: React.FC<ChatSendFieldProps> = ({
                 }}
                 disabled={textDisabled}
                 onKeyDown={handleKeyDown}
+                onKeyUp={handleKeyUp}
               />
 
               <SendButtonWrapper />
@@ -207,15 +275,21 @@ export const ChatSendField: React.FC<ChatSendFieldProps> = ({
             <SendButtonBox
               onClick={handleSend}
               backgroundColor={
-                sendDisabled ? sendButtonDisabledBackgroundColor : sendButtonBackgroundColor
-              }
-            >
-              <ArrowUpIcon
-                width="24px"
-                height="24px"
-                fill={sendDisabled ? sendButtonDisabledIconColor : sendButtonIconColor}
-                stroke={sendDisabled ? sendButtonDisabledIconColor : sendButtonIconColor}
-              />
+                  sendDisabled ? sendButtonDisabledBackgroundColor : sendButtonBackgroundColor
+                }
+              >
+               {isRemindMode ? (
+                <RemindIcon isReminded={isReminded}>
+                  <Typography variant="body4">Re</Typography>
+                </RemindIcon>
+              ) : (
+                <ArrowUpIcon
+                  width="24px"
+                  height="24px"
+                  fill={sendDisabled ? sendButtonDisabledIconColor : sendButtonIconColor}
+                  stroke={sendDisabled ? sendButtonDisabledIconColor : sendButtonIconColor}
+                />
+              )}
             </SendButtonBox>
           </TextFieldBox>
         </TextFieldContainer>
@@ -231,6 +305,10 @@ export const ChatSendField: React.FC<ChatSendFieldProps> = ({
     </>
   );
 };
+           
+
+              
+
 
 const ChatSendContainer = styled.div<{
   bcakgroundColor: string;
@@ -310,6 +388,10 @@ const ImageList = styled.div`
 `;
 
 const ImageListItem = styled.div`
+  min-width: 64px;
+  max-width: 64px;
+  min-height: 66px;
+  max-height: 66px;
   position: relative;
   width: fit-content;
 `;
@@ -330,8 +412,10 @@ const DeleteButtonBox = styled.div`
 `;
 
 const ImageBox = styled.img`
-  width: 60px;
-  height: 60px;
+  min-width: 60px;
+  max-width: 60px;
+  min-height: 60px;
+  max-height: 60px;
   border-radius: 16px;
   margin-top: 6px;
 `;
@@ -354,6 +438,7 @@ const TextFieldInput = styled(Typography).attrs({ as: 'textarea' })<{
   outline: none;
   border: none;
   background-color: transparent;
+  resize: none;
 
   &::placeholder {
     color: ${(props) => props.placeholderColor};
@@ -377,4 +462,16 @@ const SendButtonBox = styled.div<{ backgroundColor: string }>`
   position: absolute;
   right: 4px;
   bottom: 6px;
+`;
+
+const RemindIcon = styled.div<{ isReminded?: boolean }>`
+  width: 30px;
+  height: 30px;
+  background-color: ${(props) => (props.isReminded ? 'rgba(224, 224, 224, 1)' : '#1f87ff')};
+  color: ${(props) => (props.isReminded ? 'rgba(244, 244, 244, 1)' : '#ffffff')};
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
 `;

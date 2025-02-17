@@ -16,6 +16,7 @@ export interface ChatMessage {
 interface SocketState {
   socket: WebSocket | null;
   hasNewMessage: boolean;
+  activeSubscriptions: { [key: string]: { callback: (message: ChatMessage) => void } };
   connect: (isAdmin: boolean) => void;
   disconnect: () => void;
   clearNewMessage: () => void;
@@ -37,8 +38,22 @@ interface SocketState {
 export const useSocketStore = create<SocketState>((set, get) => ({
   socket: null,
   hasNewMessage: false,
+  activeSubscriptions: {},
 
   connect: (isAdmin: boolean) => {
+    // 기존 소켓과 heartbeat interval 정리
+    const currentSocket = get().socket;
+    const currentInterval = get().heartbeatInterval;
+
+    if (currentSocket) {
+      currentSocket.close();
+    }
+
+    if (currentInterval) {
+      clearInterval(currentInterval);
+      set({ heartbeatInterval: null });
+    }
+
     const accessToken = localStorage.getItem('access_token');
     if (!accessToken) {
       throw new Error('Access token is missing');
@@ -53,17 +68,24 @@ export const useSocketStore = create<SocketState>((set, get) => ({
     const ws = new WebSocket(socketUrl.toString(), [accessToken]);
 
     const startHeartbeat = () => {
-      const currentInterval = get().heartbeatInterval;
-      if (currentInterval !== null && currentInterval !== undefined) {
-        clearInterval(currentInterval);
+      // 이전 interval이 있다면 제거
+      const prevInterval = get().heartbeatInterval;
+      if (prevInterval) {
+        clearInterval(prevInterval);
+        set({ heartbeatInterval: null });
       }
 
       const interval = setInterval(() => {
-        if (ws.readyState === WebSocket.OPEN) {
+        const currentWs = get().socket;
+        // 현재 웹소켓이 이 interval에 해당하는 웹소켓과 같은지 확인
+        if (currentWs === ws && ws.readyState === WebSocket.OPEN) {
           ws.send(JSON.stringify({ event: 'PING' }));
-          console.log('Sent heartbeat');
+          console.log('창공을 가르는 소리 PING!');
+        } else {
+          // 다른 웹소켓이 생성되었다면 이 interval 제거
+          clearInterval(interval);
         }
-      }, 10000);
+      }, 20000);
 
       set({ heartbeatInterval: interval });
     };
@@ -72,6 +94,18 @@ export const useSocketStore = create<SocketState>((set, get) => ({
       console.log('WebSocket connected successfully');
       set({ socket: ws });
       startHeartbeat();
+
+      // Resubscribe all active subscriptions
+      const activeSubscriptions = get().activeSubscriptions;
+      Object.entries(activeSubscriptions).forEach(([key, subscription]) => {
+        const [roomType, roomId] = key.split(':');
+        subscription.callback &&
+          get().subscribe(
+            roomType as 'OPINION' | 'AGENDA',
+            parseInt(roomId),
+            subscription.callback,
+          );
+      });
     };
 
     ws.onerror = (error) => {
@@ -82,16 +116,30 @@ export const useSocketStore = create<SocketState>((set, get) => ({
       console.log('WebSocket connection closed');
       set({ socket: null });
 
+      // Clear heartbeat interval
+      const currentInterval = get().heartbeatInterval;
+      if (currentInterval !== null && currentInterval !== undefined) {
+        clearInterval(currentInterval);
+        set({ heartbeatInterval: null });
+      }
+
       setTimeout(() => {
         if (!get().socket) {
           get().connect(isAdmin);
         }
-      }, 100);
+      }, 5000);
     };
   },
 
   disconnect: () => {
     const socket = get().socket;
+    const interval = get().heartbeatInterval;
+
+    if (interval) {
+      clearInterval(interval);
+      set({ heartbeatInterval: null });
+    }
+
     if (socket) {
       socket.close();
       set({ socket: null });
@@ -108,10 +156,24 @@ export const useSocketStore = create<SocketState>((set, get) => ({
     callback: (message: ChatMessage) => void,
   ) => {
     const socket = get().socket;
+    const subscriptionKey = `${roomType}:${roomId}`;
+
+    // Store the subscription
+    set((state) => ({
+      activeSubscriptions: {
+        ...state.activeSubscriptions,
+        [subscriptionKey]: { callback },
+      },
+    }));
 
     if (socket) {
       const messageHandler = (event: MessageEvent) => {
         try {
+          if (event.data === 'PONG') {
+            console.log('PONG');
+            return;
+          }
+
           const data = JSON.parse(event.data) as ChatMessage;
           console.log('Received message:', data);
 
@@ -121,19 +183,35 @@ export const useSocketStore = create<SocketState>((set, get) => ({
               (roomType === 'AGENDA' && data.agendaId === roomId))
           ) {
             callback(data);
+          } else if (roomId === -1) {
+            callback(data);
           }
         } catch (error) {
           console.error('Error parsing WebSocket message:', error);
-          console.log('Raw message:', event.data);
         }
       };
 
       socket.addEventListener('message', messageHandler);
+
       return () => {
         socket.removeEventListener('message', messageHandler);
+        // Remove the subscription when unmounting
+        set((state) => {
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          const { [subscriptionKey]: removed, ...rest } = state.activeSubscriptions;
+          return { activeSubscriptions: rest };
+        });
       };
     }
-    return () => {};
+
+    return () => {
+      // Remove the subscription when unmounting even if there was no socket
+      set((state) => {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { [subscriptionKey]: removed, ...rest } = state.activeSubscriptions;
+        return { activeSubscriptions: rest };
+      });
+    };
   },
 
   sendMessage: async (roomType, roomId, messageContent, images, isAdmin) => {

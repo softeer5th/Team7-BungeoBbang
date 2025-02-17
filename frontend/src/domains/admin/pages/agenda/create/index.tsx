@@ -19,6 +19,9 @@ import { ImageFileSizeDialog } from '@/components/Dialog/ImageFileSizeDialog';
 import { mapToChatCreateData } from '../util/ChatCreateMapper';
 import { formatServerDataFromDate } from '../util/ChatRoomMapper';
 import { useSocketManager } from '@/hooks/useSocketManager';
+import { SameDateErrorDialog } from '../components/SameDataErrorDialog';
+import { BadWordErrorDialog } from '../components/BadWordErrorDialog';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export interface ChatCreateData {
   roomId?: number | null;
@@ -53,6 +56,9 @@ const CreateAgendaPage = () => {
     images: ['/src/assets/imgs/preview_img.png'],
   });
 
+  const [isSameDateError, setSameDateError] = useState(false);
+  const [isBadWordError, setBadWordError] = useState(false);
+
   let previousImage: string[] = [];
 
   const { images, showSizeDialog, handleImageUpload, closeSizeDialog } = useImageUpload(10, 5);
@@ -75,12 +81,19 @@ const CreateAgendaPage = () => {
 
   async function submitChatValue() {
     try {
-      console.log("chatValue", chatValue);
+      const sd = formatServerDataFromDate(chatValue.startDate ?? new Date());
+      const ed = formatServerDataFromDate(chatValue.endDate ?? new Date());
+
+      if (sd === ed) {
+        setSameDateError(true);
+        return;
+      }
+      
       const body = {
         title: chatValue.title,
         categoryType: chatValue.category?.type,
-        startDate: formatServerDataFromDate(chatValue.startDate ?? new Date()),
-        endDate: formatServerDataFromDate(chatValue.endDate ?? new Date()),
+        startDate: sd,
+        endDate: ed,
         content: chatValue.description,
         images: images,
       };
@@ -90,7 +103,10 @@ const CreateAgendaPage = () => {
       socketManager('AGENDA', 'START', agendaId, 'ADMIN');
 
       navigate(-1);
-    } catch (error) {
+    } catch (error: any) {
+      if (error.response?.status === 400) {
+        setBadWordError(true);
+      }
       console.error('Failed to send data:', error);
     }
   }
@@ -174,6 +190,7 @@ const CreateAgendaPage = () => {
           <TextField
             value={chatValue.category?.label ?? ''}
             placeholder="카테고리를 선택해주세요"
+            focusable={false}
             onClick={() => setCategoryBottomSheetOpen(true)}
           />
         </S.CategoryContainer>
@@ -187,6 +204,7 @@ const CreateAgendaPage = () => {
                 ? `${formatDate(chatValue.startDate)} - ${formatDate(chatValue.endDate)}`
                 : ''
             }
+            focusable={false}
             placeholder="기간을 선택해주세요"
             onClick={() => setDurationBottomSheetOpen(true)}
           />
@@ -243,25 +261,37 @@ const CreateAgendaPage = () => {
             />
           </S.ImageAddContainer>
           <S.ImageList>
-            {chatValue.images.map((image, index) => {
-              return (
-                <S.ImageItem>
-                  <S.DeleteIconBox
-                    onClick={() => {
-                      setChatValue((prev) => ({
-                        ...prev,
-                        images: prev.images.filter((_, i) => i !== index), // ✅ 괄호 수정
-                      }));
-                    }}
+            <AnimatePresence>
+              {chatValue.images.map((image, index) => {
+                return (
+                  <motion.div
+                    key={image}
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -20 }}
+                    transition={{ duration: 0.2, ease: 'easeInOut' }}
                   >
-                    <DeleteIcon width="16px" height="16px" stroke={theme.colors.grayScaleWhite} />
-                  </S.DeleteIconBox>
-                  <S.ImageBox
-                    src={image}
-                  ></S.ImageBox>
-                </S.ImageItem>
-              );
-            })}
+                    <S.ImageItem>
+                      <S.DeleteIconBox
+                        onClick={() => {
+                          setChatValue((prev) => ({
+                            ...prev,
+                            images: prev.images.filter((_, i) => i !== index)
+                          }));
+                        }}
+                      >
+                        <DeleteIcon
+                          width="16px"
+                          height="16px"
+                          stroke={theme.colors.grayScaleWhite}
+                        />
+                      </S.DeleteIconBox>
+                      <S.ImageBox src={image}></S.ImageBox>
+                    </S.ImageItem>
+                  </motion.div>
+                );
+              })}
+            </AnimatePresence>
           </S.ImageList>
         </S.ImageContainer>
       </S.BodyContainer>
@@ -300,6 +330,18 @@ const CreateAgendaPage = () => {
 
       {showSizeDialog && (
         <ImageFileSizeDialog onConfirm={closeSizeDialog} onDismiss={closeSizeDialog} />
+      )}
+      {isSameDateError && (
+        <SameDateErrorDialog
+          onConfirm={() => setSameDateError(false)}
+          onDismiss={() => setSameDateError(false)}
+        />
+      )}
+      {isBadWordError && (
+        <BadWordErrorDialog
+          onConfirm={() => setBadWordError(false)}
+          onDismiss={() => setBadWordError(false)}
+        />
       )}
     </S.Container>
   );

@@ -39,6 +39,7 @@ export const formatChatData = (
   const formattedChats: ChatData[] = sortedData.map((item) => {
     const baseChat = {
       chatId: item.chatId,
+      memberId: item.memberId,
       type: fromAdminPage
         ? item.isAdmin
           ? ChatType.SEND

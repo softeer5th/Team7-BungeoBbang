@@ -26,7 +26,6 @@ const OpinionEntryPage = () => {
         const access = await JwtManager.getAccessToken();
         console.log(access);
         const response = await api.get('/student/opinions');
-        console.log('response.data)', response.data);
         response.data.opinionCount < 4 ? setShowStatistic(false) : setStatistic(response.data);
       } catch (error) {
         setShowStatistic(false);
