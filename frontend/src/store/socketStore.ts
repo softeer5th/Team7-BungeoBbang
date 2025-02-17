@@ -121,6 +121,9 @@ export const useSocketStore = create<SocketState>((set, get) => ({
               (roomType === 'AGENDA' && data.agendaId === roomId))
           ) {
             callback(data);
+          } else if (roomId === -1) {
+            // 알림을 위한 roomId가 -1인 경우 모든 방에 대한 메시지로 간주
+            callback(data);
           }
         } catch (error) {
           console.error('Error parsing WebSocket message:', error);
