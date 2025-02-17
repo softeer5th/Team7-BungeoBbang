@@ -33,6 +33,7 @@ import face5 from '@/assets/imgs/face5.png';
 import face6 from '@/assets/imgs/face6.png';
 import face7 from '@/assets/imgs/face7.png';
 import face8 from '@/assets/imgs/face8.png';
+import { ChatToast } from '@/components/ChatToast.tsx';
 
 interface ChatPageProps {
   roomId: number;
@@ -46,6 +47,9 @@ export interface ChatRoomInfo {
 
 const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(({ roomId, lastChatId }) => {
   const [isToolTipVisible, setToolTipVisible] = useState(false);
+  const chatSendFieldRef = useRef<HTMLDivElement>(null);
+  const [toastMessage, setToastMeesage] = useState<string | null>(null);
+
   const theme = useTheme();
   const randomBackgroundColor = [
     theme.colors.icnOrange,
@@ -95,12 +99,15 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(({ roomId, lastChatId
           if (!getHasDownMore()) {
             isLive.current = true;
             setChatData((prev) => [...prev, newChat]);
+          } else {
+            setToastMeesage('아직 읽지 않은 채팅이 있습니다.');
           }
         } else {
           if (!getHasDownMore()) {
             isLiveReceive.current = true;
             setChatData((prev) => [...prev, newChat]);
           }
+          setToastMeesage('새로운 채팅이 도착했습니다.');
         }
       }
     },
@@ -148,7 +155,7 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(({ roomId, lastChatId
 
   const {
     elementRef,
-    // scrollToTop,
+    scrollToTop,
     scrollToBottom,
     remainCurrentScroll,
     rememberCurrentScrollHeight,
@@ -245,10 +252,10 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(({ roomId, lastChatId
     if (!elementRef.current) return;
     console.log('getchasdata', chatData);
 
-    // if (isInitialLoading.current === true) {
-    //   scrollToTop();
-    //   return;
-    // }
+    if (isInitialLoading.current === true) {
+      scrollToTop();
+      return;
+    }
 
     if (isUpDirection.current === true) {
       remainCurrentScroll();
@@ -266,9 +273,10 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(({ roomId, lastChatId
     }
 
     if (isDownDirection.current) {
-      rememberCurrentScrollHeight();
       isDownDirection.current = false;
     }
+
+    rememberCurrentScrollHeight();
   }, [chatData]);
 
   const colorMap = useRef(new Map<string, string>());
@@ -354,7 +362,6 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(({ roomId, lastChatId
             if (upLastItemId.length === 0) upLastItemId = chatData.chatId;
             downLatItemId = chatData.chatId;
 
-            console.log('!!!!!', isDownTriggerItem);
             return (
               <SenderChat
                 chatId={chatData.chatId}
@@ -390,6 +397,7 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(({ roomId, lastChatId
       </S.ChatList>
 
       <ChatSendField
+        ref={chatSendFieldRef}
         initialText={message}
         onChange={setMessage}
         onSendMessage={handleSendMessage}
@@ -400,6 +408,13 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(({ roomId, lastChatId
       />
       {showSizeDialog && (
         <ImageFileSizeDialog onConfirm={closeSizeDialog} onDismiss={closeSizeDialog} />
+      )}
+      {toastMessage && (
+        <ChatToast
+          message={toastMessage}
+          bottom={(chatSendFieldRef.current?.offsetHeight ?? 0) + 15}
+          onDismiss={() => setToastMeesage(null)}
+        />
       )}
     </S.Container>
   );

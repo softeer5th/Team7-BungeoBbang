@@ -27,8 +27,12 @@ import { ImagePreview } from '@/components/Chat/ImagePreview.tsx';
 import { useEnterLeaveHandler } from '@/hooks/useEnterLeaveHandler.ts';
 import { ChatRoomInfo } from '../../agenda/chat/chat-page/index.tsx';
 import useInfiniteScroll from '@/hooks/useInfiniteScroll.tsx';
+import { ChatToast } from '@/components/ChatToast.tsx';
 
 const OpinionChatPage = () => {
+  const chatSendFieldRef = useRef<HTMLDivElement>(null);
+  const [toastMessage, setToastMeesage] = useState<string | null>(null);
+
   const [chatData, setChatData] = useState<ChatData[]>([]);
   const [isExitDialogOpen, setExitDialogOpen] = useState(false);
   const [message, setMessage] = useState('');
@@ -60,19 +64,24 @@ const OpinionChatPage = () => {
         if (message.memberId === Number(memberId)) {
           if (!getHasDownMore()) {
             isLive.current = true;
+            setChatData((prev) => [...prev, newChat]);
+          } else {
+            setToastMeesage('아직 읽지 않은 채팅이 있습니다.');
           }
         } else {
           if (!getHasDownMore()) {
             isLiveReceive.current = true;
+            setChatData((prev) => [...prev, newChat]);
           }
+          setToastMeesage('새로운 채팅이 도착했습니다.');
         }
-        setChatData((prev) => [...prev, newChat]);
+        // setChatData((prev) => [...prev, newChat]);
 
-        setTimeout(() => {
-          if (elementRef.current) {
-            elementRef.current.scrollTop = elementRef.current.scrollHeight;
-          }
-        }, 100);
+        // setTimeout(() => {
+        //   if (elementRef.current) {
+        //     elementRef.current.scrollTop = elementRef.current.scrollHeight;
+        //   }
+        // }, 100);
       }
     },
     [roomId, memberId],
@@ -288,9 +297,9 @@ const OpinionChatPage = () => {
     }
 
     if (isDownDirection.current) {
-      rememberCurrentScrollHeight();
       isDownDirection.current = false;
     }
+    rememberCurrentScrollHeight();
   }, [chatData]);
 
   return (
@@ -396,6 +405,7 @@ const OpinionChatPage = () => {
       </S.ChatList>
 
       <ChatSendField
+        ref={chatSendFieldRef}
         initialText={message}
         onChange={setMessage}
         onSendMessage={isRemindEnabled ? handleSendRemind : handleSendMessage}
@@ -436,6 +446,13 @@ const OpinionChatPage = () => {
           currentIndex={selectedImage.index}
           totalImages={currentImageList.length}
           onClose={() => setSelectedImage(null)}
+        />
+      )}
+      {toastMessage && (
+        <ChatToast
+          message={toastMessage}
+          bottom={(chatSendFieldRef.current?.offsetHeight ?? 0) + 15}
+          onDismiss={() => setToastMeesage(null)}
         />
       )}
     </S.Container>

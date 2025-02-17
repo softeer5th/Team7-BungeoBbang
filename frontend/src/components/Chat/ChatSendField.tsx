@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { forwardRef, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import CameraIcon from '@/assets/icons/camera.svg?react';
 import ArrowUpIcon from '@/assets/icons/full-arrow-up.svg?react';
@@ -40,197 +40,202 @@ interface ChatSendFieldProps {
   sendDisabled?: boolean;
 }
 
-export const ChatSendField: React.FC<ChatSendFieldProps> = ({
-  placeholder = '메시지를 입력하세요...',
-  disabledPlaceHolder = '텍스트를 입력할 수 없습니다.',
-  maxLength = 500,
-  initialText = '',
-  backgroundColor = '#FFFFFF',
-  textFieldBackgroundColor = '#FFFFFF',
-  textFieldDisabledBackgroundColor = '#F4F4F4',
-  sendButtonBackgroundColor = '#1F87FF',
-  sendButtonDisabledBackgroundColor = '#E0E0E0',
-  sendButtonIconColor = '#FFFFFF',
-  sendButtonDisabledIconColor = '#F4F4F4',
-  imageButtonBackgroundColor = '#E0E0E0',
-  imageButtonDisabledBackgroundColor = '#E0E0E0',
-  imageButtonIconColor = '#8D8D8D',
-  imageButtonDisabledIconColor = '#F4F4F4',
-  placeholderColor = '#1F87FF',
-  disabledPlaceholderColor = '#C6C6C6',
-  textColor = '#262626',
-  disabledTextColor = '#C6C6C6',
-  textFieldBorder = {
-    ...getDefaultBorderStyle(),
-    borderWidth: '1px',
-    borderColor: '#E0E0E0',
-    disabledBorderColor: '#E0E0E0',
-    borderRadius: '20px',
-  },
-  onChange = () => {},
-  onSendMessage = () => {},
-  images = [],
-  onImageDelete = () => {},
-  onImageUpload = () => {},
-  maxLengthOfImages = 5,
-  imageDisabled = false,
-  textDisabled = false,
-  sendDisabled = false,
-}) => {
-  const [message, setMessage] = useState(initialText);
-  const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
+export const ChatSendField = forwardRef<HTMLDivElement, ChatSendFieldProps>(
+  (
+    {
+      placeholder = '메시지를 입력하세요...',
+      disabledPlaceHolder = '텍스트를 입력할 수 없습니다.',
+      maxLength = 500,
+      initialText = '',
+      backgroundColor = '#FFFFFF',
+      textFieldBackgroundColor = '#FFFFFF',
+      textFieldDisabledBackgroundColor = '#F4F4F4',
+      sendButtonBackgroundColor = '#1F87FF',
+      sendButtonDisabledBackgroundColor = '#E0E0E0',
+      sendButtonIconColor = '#FFFFFF',
+      sendButtonDisabledIconColor = '#F4F4F4',
+      imageButtonBackgroundColor = '#E0E0E0',
+      imageButtonDisabledBackgroundColor = '#E0E0E0',
+      imageButtonIconColor = '#8D8D8D',
+      imageButtonDisabledIconColor = '#F4F4F4',
+      placeholderColor = '#1F87FF',
+      disabledPlaceholderColor = '#C6C6C6',
+      textColor = '#262626',
+      disabledTextColor = '#C6C6C6',
+      textFieldBorder = {
+        ...getDefaultBorderStyle(),
+        borderWidth: '1px',
+        borderColor: '#E0E0E0',
+        disabledBorderColor: '#E0E0E0',
+        borderRadius: '20px',
+      },
+      onChange = () => {},
+      onSendMessage = () => {},
+      images = [],
+      onImageDelete = () => {},
+      onImageUpload = () => {},
+      maxLengthOfImages = 5,
+      imageDisabled = false,
+      textDisabled = false,
+      sendDisabled = false,
+    },
+    ref,
+  ) => {
+    const [message, setMessage] = useState(initialText);
+    const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
 
-  const textAreaRef = useRef<HTMLTextAreaElement>(null);
+    const textAreaRef = useRef<HTMLTextAreaElement>(null);
 
-  let maxTextInputHeight = 174;
-  if (images) maxTextInputHeight = 102;
+    let maxTextInputHeight = 174;
+    if (images) maxTextInputHeight = 102;
 
-  const handleTextInput = (newMessage: string) => {
-    let newValue = newMessage;
-    if (newMessage.length >= maxLength) {
-      newValue = newMessage.slice(0, maxLength);
-    }
-    setMessage(newValue);
-    onChange(newValue);
-  };
-
-  const handleResizeHeight = () => {
-    if (textAreaRef.current) {
-      textAreaRef.current.style.height = 'auto';
-      let scrollHeight = textAreaRef.current.scrollHeight;
-      if (scrollHeight >= maxTextInputHeight) {
-        scrollHeight = maxTextInputHeight;
+    const handleTextInput = (newMessage: string) => {
+      let newValue = newMessage;
+      if (newMessage.length >= maxLength) {
+        newValue = newMessage.slice(0, maxLength);
       }
+      setMessage(newValue);
+      onChange(newValue);
+    };
 
-      textAreaRef.current.style.height = scrollHeight + 'px';
-    }
-  };
+    const handleResizeHeight = () => {
+      if (textAreaRef.current) {
+        textAreaRef.current.style.height = 'auto';
+        let scrollHeight = textAreaRef.current.scrollHeight;
+        if (scrollHeight >= maxTextInputHeight) {
+          scrollHeight = maxTextInputHeight;
+        }
 
-  const handleSend = () => {
-    if (message.trim() || textDisabled) {
-      onSendMessage(message, images);
-      setMessage('');
-    }
-  };
+        textAreaRef.current.style.height = scrollHeight + 'px';
+      }
+    };
 
-  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (event.target.files && event.target.files.length > 0) {
-      onImageUpload(event.target.files);
-      // 파일 입력 초기화
-      event.target.value = '';
-    }
-  };
+    const handleSend = () => {
+      if (message.trim() || textDisabled) {
+        onSendMessage(message, images);
+        setMessage('');
+      }
+    };
 
-  const isImageDisabled = images.length >= maxLengthOfImages || imageDisabled;
+    const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+      if (event.target.files && event.target.files.length > 0) {
+        onImageUpload(event.target.files);
+        // 파일 입력 초기화
+        event.target.value = '';
+      }
+    };
 
-  useEffect(() => {
-    handleResizeHeight();
-  }, [message]);
+    const isImageDisabled = images.length >= maxLengthOfImages || imageDisabled;
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === 'Enter' && !e.shiftKey && e.nativeEvent.isComposing === false) {
-      e.preventDefault();
-      handleSend();
-    }
-  };
+    useEffect(() => {
+      handleResizeHeight();
+    }, [message]);
 
-  return (
-    <>
-      <ChatSendContainer bcakgroundColor={backgroundColor}>
-        <ImageUploadBox
-          backgroundColor={
-            isImageDisabled ? imageButtonDisabledBackgroundColor : imageButtonBackgroundColor
-          }
-        >
-          <CameraIcon
-            width="20px"
-            height="20px"
-            fill={isImageDisabled ? imageButtonDisabledIconColor : imageButtonIconColor}
-            stroke={isImageDisabled ? imageButtonDisabledIconColor : imageButtonIconColor}
-          />
-          <HiddenFileInput
-            type="file"
-            accept="image/*"
-            multiple
-            onChange={handleImageUpload}
-            disabled={isImageDisabled}
-          />
-        </ImageUploadBox>
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+      if (e.key === 'Enter' && !e.shiftKey && e.nativeEvent.isComposing === false) {
+        e.preventDefault();
+        handleSend();
+      }
+    };
 
-        <TextFieldContainer>
-          <CountText variant="caption2">
-            {textDisabled ? 0 : message.length}/{maxLength}
-          </CountText>
-          <TextFieldBox
+    return (
+      <>
+        <ChatSendContainer ref={ref} bcakgroundColor={backgroundColor}>
+          <ImageUploadBox
             backgroundColor={
-              textDisabled ? textFieldDisabledBackgroundColor : textFieldBackgroundColor
+              isImageDisabled ? imageButtonDisabledBackgroundColor : imageButtonBackgroundColor
             }
-            border={textFieldBorder}
           >
-            {images && images.length > 0 && !textDisabled && (
-              <ImageList>
-                {images.map((image, index) => (
-                  <ImageListItem key={index}>
-                    <DeleteButtonBox onClick={() => onImageDelete(index)}>
-                      <CloseIcon width="16px" height="16px" stroke="white" />
-                    </DeleteButtonBox>
-                    <ImageBox
-                      src={image}
-                      onClick={() => {
-                        setSelectedImageIndex(index);
-                      }}
-                    />
-                  </ImageListItem>
-                ))}
-              </ImageList>
-            )}
+            <CameraIcon
+              width="20px"
+              height="20px"
+              fill={isImageDisabled ? imageButtonDisabledIconColor : imageButtonIconColor}
+              stroke={isImageDisabled ? imageButtonDisabledIconColor : imageButtonIconColor}
+            />
+            <HiddenFileInput
+              type="file"
+              accept="image/*"
+              multiple
+              onChange={handleImageUpload}
+              disabled={isImageDisabled}
+            />
+          </ImageUploadBox>
 
-            <TextFieldInputWrapper>
-              <TextFieldInput
-                rows={1}
-                ref={textAreaRef}
-                variant="body3"
-                value={textDisabled ? '' : message}
-                textColor={textDisabled ? disabledTextColor : textColor}
-                placeholder={textDisabled ? disabledPlaceHolder : placeholder}
-                placeholderColor={textDisabled ? disabledPlaceholderColor : placeholderColor}
-                onChange={(e) => {
-                  handleTextInput(e.target.value);
-                }}
-                disabled={textDisabled}
-                onKeyDown={handleKeyDown}
-              />
-
-              <SendButtonWrapper />
-            </TextFieldInputWrapper>
-
-            <SendButtonBox
-              onClick={handleSend}
+          <TextFieldContainer>
+            <CountText variant="caption2">
+              {textDisabled ? 0 : message.length}/{maxLength}
+            </CountText>
+            <TextFieldBox
               backgroundColor={
-                sendDisabled ? sendButtonDisabledBackgroundColor : sendButtonBackgroundColor
+                textDisabled ? textFieldDisabledBackgroundColor : textFieldBackgroundColor
               }
+              border={textFieldBorder}
             >
-              <ArrowUpIcon
-                width="24px"
-                height="24px"
-                fill={sendDisabled ? sendButtonDisabledIconColor : sendButtonIconColor}
-                stroke={sendDisabled ? sendButtonDisabledIconColor : sendButtonIconColor}
-              />
-            </SendButtonBox>
-          </TextFieldBox>
-        </TextFieldContainer>
-      </ChatSendContainer>
-      {selectedImageIndex !== null && (
-        <ImagePreview
-          imageUrl={images[selectedImageIndex]}
-          onClose={() => setSelectedImageIndex(null)}
-          currentIndex={selectedImageIndex}
-          totalImages={images.length}
-        />
-      )}
-    </>
-  );
-};
+              {images && images.length > 0 && !textDisabled && (
+                <ImageList>
+                  {images.map((image, index) => (
+                    <ImageListItem key={index}>
+                      <DeleteButtonBox onClick={() => onImageDelete(index)}>
+                        <CloseIcon width="16px" height="16px" stroke="white" />
+                      </DeleteButtonBox>
+                      <ImageBox
+                        src={image}
+                        onClick={() => {
+                          setSelectedImageIndex(index);
+                        }}
+                      />
+                    </ImageListItem>
+                  ))}
+                </ImageList>
+              )}
+
+              <TextFieldInputWrapper>
+                <TextFieldInput
+                  rows={1}
+                  ref={textAreaRef}
+                  variant="body3"
+                  value={textDisabled ? '' : message}
+                  textColor={textDisabled ? disabledTextColor : textColor}
+                  placeholder={textDisabled ? disabledPlaceHolder : placeholder}
+                  placeholderColor={textDisabled ? disabledPlaceholderColor : placeholderColor}
+                  onChange={(e) => {
+                    handleTextInput(e.target.value);
+                  }}
+                  disabled={textDisabled}
+                  onKeyDown={handleKeyDown}
+                />
+
+                <SendButtonWrapper />
+              </TextFieldInputWrapper>
+
+              <SendButtonBox
+                onClick={handleSend}
+                backgroundColor={
+                  sendDisabled ? sendButtonDisabledBackgroundColor : sendButtonBackgroundColor
+                }
+              >
+                <ArrowUpIcon
+                  width="24px"
+                  height="24px"
+                  fill={sendDisabled ? sendButtonDisabledIconColor : sendButtonIconColor}
+                  stroke={sendDisabled ? sendButtonDisabledIconColor : sendButtonIconColor}
+                />
+              </SendButtonBox>
+            </TextFieldBox>
+          </TextFieldContainer>
+        </ChatSendContainer>
+        {selectedImageIndex !== null && (
+          <ImagePreview
+            imageUrl={images[selectedImageIndex]}
+            onClose={() => setSelectedImageIndex(null)}
+            currentIndex={selectedImageIndex}
+            totalImages={images.length}
+          />
+        )}
+      </>
+    );
+  },
+);
 
 const ChatSendContainer = styled.div<{
   bcakgroundColor: string;

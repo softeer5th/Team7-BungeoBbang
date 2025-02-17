@@ -27,6 +27,7 @@ import { useEnterLeaveHandler } from '@/hooks/useEnterLeaveHandler.ts';
 import useInfiniteScroll from '@/hooks/useInfiniteScroll.tsx';
 import { useScroll } from '@/hooks/useScrollBottom.tsx';
 import { useSocketManager } from '@/hooks/useSocketManager.ts';
+import { ChatToast } from '@/components/ChatToast.tsx';
 
 interface ChatPageProps {
   roomId: number;
@@ -46,6 +47,8 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
     // ref,
   ) => {
     // const [chatData, setChatData] = useState<ChatData[]>([]);
+    const chatSendFieldRef = useRef<HTMLDivElement>(null);
+    const [toastMessage, setToastMeesage] = useState<string | null>(null);
     const [isExitDialogOpen, setExitDialogOpen] = useState(false);
     const [selectedImage, setSelectedImage] = useState<{ url: string; index: number } | null>(null);
     const [currentImageList, setCurrentImageList] = useState<string[]>([]);
@@ -59,10 +62,6 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
     const { subscribe, sendMessage } = useSocketStore();
     const memberId = localStorage.getItem('member_id');
     const socketManager = useSocketManager();
-
-    // useEffect(() => {
-    //   setChatData(apiChatData);
-    // }, [apiChatData]);
 
     const exitChatRoom = async () => {
       try {
@@ -100,20 +99,16 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
             if (!getHasDownMore()) {
               isLive.current = true;
               setChatData((prev) => [...prev, newChat]);
+            } else {
+              setToastMeesage('아직 읽지 않은 채팅이 있습니다.');
             }
           } else {
             if (!getHasDownMore()) {
               isLiveReceive.current = true;
               setChatData((prev) => [...prev, newChat]);
             }
+            setToastMeesage('새로운 채팅이 도착했습니다.');
           }
-
-          // setChatData((prev) => [...prev, newChat]);
-          // if (message.memberId === Number(memberId)) {
-          //   onMessageSend(newChat);
-          // } else {
-          //   onMessageReceive(newChat);
-          // }
         }
       },
 
@@ -261,6 +256,7 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
       if (!elementRef.current) return;
 
       if (isInitialLoading.current === true) {
+        console.log('???');
         scrollToTop();
         return;
       }
@@ -281,9 +277,10 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
       }
 
       if (isDownDirection.current) {
-        rememberCurrentScrollHeight();
         isDownDirection.current = false;
       }
+
+      rememberCurrentScrollHeight();
     }, [chatData]);
 
     return (
@@ -324,7 +321,7 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
                             }
 
                             if (isDownTriggerItem) {
-                              lastDownChatId.current = downLatItemId;
+                              lastDownChatId.current = downLastItemId;
                               setTriggerDownItem(el);
                             }
                           }
@@ -357,7 +354,7 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
                             }
 
                             if (isDownTriggerItem) {
-                              lastDownChatId.current = downLatItemId;
+                              lastDownChatId.current = downLastItemId;
                               setTriggerDownItem(el);
                             }
                           }
@@ -389,6 +386,7 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
         </S.ChatList>
 
         <ChatSendField
+          ref={chatSendFieldRef}
           sendDisabled={isEnd}
           textDisabled={isEnd}
           imageDisabled={isEnd}
@@ -420,6 +418,13 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
             currentIndex={selectedImage.index}
             totalImages={currentImageList.length}
             onClose={() => setSelectedImage(null)}
+          />
+        )}
+        {toastMessage && (
+          <ChatToast
+            message={toastMessage}
+            bottom={(chatSendFieldRef.current?.offsetHeight ?? 0) + 15}
+            onDismiss={() => setToastMeesage(null)}
           />
         )}
       </S.Container>
