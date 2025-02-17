@@ -5,10 +5,10 @@ INSERT INTO admin (id, login_id, name, password, university_id, created_at, modi
 VALUES (1, 'admin', '관리자', '$2a$10$8O1QVz06uF47OVPa.lpZxO5ErUzG1OShT/1rb.gET4cZ4IjxEnlU.', 1, CURRENT_TIMESTAMP,
         CURRENT_TIMESTAMP);
 
-INSERT INTO agenda (id, university_id, admin_id, title, start_date, end_date, content, is_end, participant_count,
+INSERT INTO agenda (id, university_id, admin_id, title, start_date, end_date, content, participant_count,
                     category_type, created_at, modified_at)
 VALUES (1, 1, 1, '학사 일정 조정 논의', DATEADD(DAY, -5, CURRENT_DATE), DATEADD(DAY, 5, CURRENT_DATE), '학사 일정 조정 논의에 대한 논의.',
-        false, 0, 'ACADEMICS',
+        0, 'ACADEMICS',
         CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 
 INSERT INTO member (id, login_id, email, provider, university_id, created_at, modified_at)

@@ -134,8 +134,7 @@ class AdminMemberAgendaServiceTest {
 
         adminAgendaService.endAgenda(admin.getId(), agenda.getId());
 
-        assertThat(agenda.isEnd()).isTrue();
-        assertThat(agenda.getEndDate()).isEqualTo(LocalDate.now());
+        assertThat(agenda.getEndDate()).isEqualTo(LocalDate.now().minusDays(1));
     }
 
     @Test
