@@ -60,13 +60,14 @@ const OpinionChatPage = () => {
         if (message.memberId === Number(memberId)) {
           if (!getHasDownMore()) {
             isLive.current = true;
+            setChatData((prev) => [...prev, newChat]);
           }
         } else {
           if (!getHasDownMore()) {
             isLiveReceive.current = true;
+            setChatData((prev) => [...prev, newChat]);
           }
         }
-        setChatData((prev) => [...prev, newChat]);
 
         setTimeout(() => {
           if (elementRef.current) {
