@@ -100,4 +100,5 @@ const BottomNavigationWrapper = styled.div<{
       ? `${props.border.borderWidth || '1px'} solid ${props.border.borderColor || '#161616'}`
       : 'none'};
   border-radius: ${(props) => props.border?.borderRadius || '0px'};
+  padding-bottom: env(safe-area-inset-bottom);
 `;
