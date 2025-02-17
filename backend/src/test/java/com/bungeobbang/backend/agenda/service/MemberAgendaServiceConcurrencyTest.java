@@ -19,10 +19,10 @@ import java.util.concurrent.Executors;
         executionPhase = Sql.ExecutionPhase.BEFORE_TEST_CLASS)
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
-public class AgendaServiceConcurrencyTest {
+public class MemberAgendaServiceConcurrencyTest {
 
     @Autowired
-    private AgendaService agendaService;
+    private MemberAgendaService memberAgendaService;
 
     @Autowired
     private AgendaRepository agendaRepository;
@@ -39,7 +39,7 @@ public class AgendaServiceConcurrencyTest {
             Long memberId = (long) i;
             executorService.execute(() -> {
                 try {
-                    agendaService.participateAgenda(memberId, 1L);
+                    memberAgendaService.participateAgenda(memberId, 1L);
                 } finally {
                     latch.countDown();
                 }
@@ -63,8 +63,8 @@ public class AgendaServiceConcurrencyTest {
             Long memberId = (long) i;
             executorService.execute(() -> {
                 try {
-                    agendaService.participateAgenda(memberId, agendaId);
-                    agendaService.participateAgenda(memberId, agendaId);
+                    memberAgendaService.participateAgenda(memberId, agendaId);
+                    memberAgendaService.participateAgenda(memberId, agendaId);
                 } finally {
                     latch.countDown();
                 }

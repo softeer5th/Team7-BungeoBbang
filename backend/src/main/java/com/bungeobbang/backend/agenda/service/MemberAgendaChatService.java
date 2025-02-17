@@ -1,6 +1,5 @@
 package com.bungeobbang.backend.agenda.service;
 
-import com.bungeobbang.backend.agenda.domain.Agenda;
 import com.bungeobbang.backend.agenda.domain.AgendaChat;
 import com.bungeobbang.backend.agenda.domain.repository.AgendaChatRepository;
 import com.bungeobbang.backend.agenda.domain.repository.AgendaMemberRepository;
@@ -23,7 +22,7 @@ import java.util.List;
  */
 @Service
 @RequiredArgsConstructor
-public class AgendaChatService {
+public class MemberAgendaChatService {
     private final AgendaRepository agendaRepository;
     private final AgendaChatRepository agendaChatRepository;
     private final AgendaMemberRepository agendaMemberRepository;
@@ -72,16 +71,5 @@ public class AgendaChatService {
     public void updateLastRead(Long agendaId, Long memberId) {
         final AgendaChat lastChat = memberAgendaChatRepository.findLastChat(agendaId, memberId);
         memberAgendaChatRepository.upsertLastReadChat(agendaId, memberId, lastChat.getId());
-    }
-
-    public void validAgenda(Long agendaId) {
-        final Agenda agenda = agendaRepository.findById(agendaId)
-                .orElseThrow(() -> new AgendaException(ErrorCode.INVALID_AGENDA));
-
-        if (agenda.getStartDate().isAfter(LocalDate.now()))
-            throw new AgendaException(ErrorCode.AGENDA_NOT_STARTED);
-
-        if (agenda.getEndDate().isBefore(LocalDate.now()))
-            throw new AgendaException(ErrorCode.AGENDA_CLOSED);
     }
 }

@@ -30,7 +30,7 @@ public record MemberWebsocketMessage(
         int code
 ) {
     public MemberWebsocketMessage(SocketEventType event, String message, int code) {
-        this(null, event, null, null, message, null, null, LocalDateTime.now(), code);
+        this(null, event, null, null, message, null, null, null, code);
     }
 
     public static MemberWebsocketMessage createResponse(MemberWebsocketMessage request) {

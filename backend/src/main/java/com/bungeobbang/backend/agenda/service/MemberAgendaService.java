@@ -47,7 +47,7 @@ import static com.bungeobbang.backend.common.exception.ErrorCode.INVALID_AGENDA;
  */
 @Service
 @RequiredArgsConstructor
-public class AgendaService {
+public class MemberAgendaService {
     private final AgendaFinders agendaFinders;
     private final AgendaRepository agendaRepository;
     private final MemberRepository memberRepository;

@@ -15,7 +15,9 @@ import com.bungeobbang.backend.agenda.dto.request.AgendaEditRequest;
 import com.bungeobbang.backend.agenda.dto.response.AgendaDetailResponse;
 import com.bungeobbang.backend.agenda.dto.response.AgendaResponse;
 import com.bungeobbang.backend.agenda.dto.response.admin.AdminAgendaResponse;
+import com.bungeobbang.backend.agenda.dto.response.admin.AgendaCategoryResponse;
 import com.bungeobbang.backend.agenda.dto.response.admin.AgendaCreationResponse;
+import com.bungeobbang.backend.agenda.dto.response.admin.AgendaStatisticResponse;
 import com.bungeobbang.backend.agenda.service.strategies.AgendaFinder;
 import com.bungeobbang.backend.agenda.service.strategies.AgendaFinders;
 import com.bungeobbang.backend.agenda.status.AgendaStatusType;
@@ -122,7 +124,6 @@ public class AdminAgendaService {
                 .content(request.content())
                 .startDate(request.startDate())
                 .endDate(request.endDate())
-                .isEnd(false)
                 .build());
 
         final List<AgendaImage> images = makeImages(request.images(), save);
@@ -138,6 +139,8 @@ public class AdminAgendaService {
                 .build());
 
         save.setFirstChatId(firstChat.getId().toString());
+        // 생성한 학생회의 마지막 읽은 채팅을 업데이트한다.
+        adminAgendaChatRepository.upsertAdminLastReadChat(save.getId(), adminId, firstChat.getId());
 
         return AgendaCreationResponse.from(save);
     }
@@ -218,7 +221,6 @@ public class AdminAgendaService {
                 .startDate(agenda.getStartDate())
                 .endDate(agenda.getEndDate())
                 .content(request.content())
-                .isEnd(agenda.isEnd())
                 .count(agenda.getCount())
                 .firstChatId(agenda.getFirstChatId())
                 .images(updateImages(agenda.getImages(), request.images(), agenda))
@@ -327,5 +329,27 @@ public class AdminAgendaService {
                                 .name(image)
                                 .build())
                 .toList();
+    }
+
+    public AgendaStatisticResponse getAgendaStatisticsByMonth(int year, int month) {
+        final int countByMonth = agendaRepository.countByCreatedAtBetween(year, month);
+        final int participateCount = agendaRepository.countAgendaMembersByMonth(year, month);
+        return new AgendaStatisticResponse(countByMonth, participateCount);
+
+    }
+
+    public List<AgendaCategoryResponse> getAgendaCountByCategory(int year, int month) {
+        return agendaRepository.findCategoryStatisticsByMonth(year, month);
+    }
+
+    public AgendaStatisticResponse getAgendaStatisticsByMonth(int year) {
+        final int countByMonth = agendaRepository.countAgendaByYear(year);
+        final int participateCount = agendaRepository.countAgendaMemberByYear(year);
+        return new AgendaStatisticResponse(countByMonth, participateCount);
+
+    }
+
+    public List<AgendaCategoryResponse> getAgendaCountByCategory(int year) {
+        return agendaRepository.findCategoryStatisticsByYear(year);
     }
 }

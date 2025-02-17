@@ -49,8 +49,8 @@ spring:
 security:
   jwt:
     secret-key: 928E2MWLh7X_97Bhu_OnAFdfzvpA2jFqfg4VP8tPp6s # 테스트용 키
-    access-expiration-time: 1
-    refresh-expiration-time: 1
+    access-expiration-time: 18000
+    refresh-expiration-time: 18000
 
 oauth2:
   provider:
