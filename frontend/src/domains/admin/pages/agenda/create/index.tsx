@@ -1,6 +1,6 @@
 import * as S from './styles';
 import { useTheme } from 'styled-components';
-import { useNavigate, useParams } from 'react-router-dom';
+import { ErrorResponse, useNavigate, useParams } from 'react-router-dom';
 import ArrowLeftIcon from '/src/assets/icons/arrow-left.svg?react';
 import CameraIcon from '/src/assets/icons/camera.svg?react';
 import DeleteIcon from '/src/assets/icons/close-2.svg?react';
@@ -19,6 +19,8 @@ import { ImageFileSizeDialog } from '@/components/Dialog/ImageFileSizeDialog';
 import { mapToChatCreateData } from '../util/ChatCreateMapper';
 import { formatServerDataFromDate } from '../util/ChatRoomMapper';
 import { useSocketManager } from '@/hooks/useSocketManager';
+import { SameDateErrorDialog } from '../components/SameDataErrorDialog';
+import { BadWordErrorDialog } from '../components/BadWordErrorDialog';
 
 export interface ChatCreateData {
   roomId?: number | null;
@@ -53,6 +55,9 @@ const CreateAgendaPage = () => {
     images: ['/src/assets/imgs/preview_img.png'],
   });
 
+  const [isSameDateError, setSameDateError] = useState(false);
+  const [isBadWordError, setBadWordError] = useState(false);
+
   let previousImage: string[] = [];
 
   const { images, showSizeDialog, handleImageUpload, closeSizeDialog } = useImageUpload(10, 5);
@@ -75,12 +80,18 @@ const CreateAgendaPage = () => {
 
   async function submitChatValue() {
     try {
-      console.log("chatValue", chatValue);
+      const sd = formatServerDataFromDate(chatValue.startDate ?? new Date());
+      const ed = formatServerDataFromDate(chatValue.endDate ?? new Date());
+
+      if (sd === ed) {
+        setSameDateError(true);
+        return;
+      }
       const body = {
         title: chatValue.title,
         categoryType: chatValue.category?.type,
-        startDate: formatServerDataFromDate(chatValue.startDate ?? new Date()),
-        endDate: formatServerDataFromDate(chatValue.endDate ?? new Date()),
+        startDate: sd,
+        endDate: ed,
         content: chatValue.description,
         images: images,
       };
@@ -91,6 +102,10 @@ const CreateAgendaPage = () => {
 
       navigate(-1);
     } catch (error) {
+      console.log('error type', typeof error);
+      if (error.response?.status === 400) {
+        setBadWordError(true);
+      }
       console.error('Failed to send data:', error);
     }
   }
@@ -256,9 +271,7 @@ const CreateAgendaPage = () => {
                   >
                     <DeleteIcon width="16px" height="16px" stroke={theme.colors.grayScaleWhite} />
                   </S.DeleteIconBox>
-                  <S.ImageBox
-                    src={image}
-                  ></S.ImageBox>
+                  <S.ImageBox src={image}></S.ImageBox>
                 </S.ImageItem>
               );
             })}
@@ -300,6 +313,18 @@ const CreateAgendaPage = () => {
 
       {showSizeDialog && (
         <ImageFileSizeDialog onConfirm={closeSizeDialog} onDismiss={closeSizeDialog} />
+      )}
+      {isSameDateError && (
+        <SameDateErrorDialog
+          onConfirm={() => setSameDateError(false)}
+          onDismiss={() => setSameDateError(false)}
+        />
+      )}
+      {isBadWordError && (
+        <BadWordErrorDialog
+          onConfirm={() => setBadWordError(false)}
+          onDismiss={() => setBadWordError(false)}
+        />
       )}
     </S.Container>
   );
