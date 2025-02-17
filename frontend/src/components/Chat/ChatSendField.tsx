@@ -111,6 +111,8 @@ export const ChatSendField = forwardRef<HTMLDivElement, ChatSendFieldProps>(
     };
 
     const handleSend = () => {
+      if (sendDisabled) return;
+
       if (message.trim() || textDisabled) {
         onSendMessage(message, images);
         setMessage('');

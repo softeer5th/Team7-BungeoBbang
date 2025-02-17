@@ -387,6 +387,7 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
 
         <ChatSendField
           ref={chatSendFieldRef}
+          disabledPlaceHolder="이미 종료된 채팅방입니다."
           sendDisabled={isEnd}
           textDisabled={isEnd}
           imageDisabled={isEnd}

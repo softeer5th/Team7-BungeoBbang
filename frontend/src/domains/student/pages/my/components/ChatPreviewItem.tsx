@@ -27,7 +27,10 @@ export const ChatPreviewItem: React.FC<ChatPreviewItemProps> = ({
             },
           });
         } else {
-          navigate(`/agenda/chat/${roomId} `, { state: { lastChatId: chatData.lastChatId } });
+          const isEnd = !chatData.isInProgress;
+          navigate(`/agenda/chat/${roomId}?isEnd=${isEnd}&isParticipate=true `, {
+            state: { lastChatId: chatData.lastChatId },
+          });
         }
       }}
     >

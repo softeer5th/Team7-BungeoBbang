@@ -11,10 +11,15 @@ const AgendaChatPage = () => {
   const { roomId } = useParams();
   const [searchParams] = useSearchParams();
 
+  const isEnd = searchParams.get('isEnd');
   const lastReadChatId = searchParams.get('lastReadChatId');
 
   return (
-    <ChatPage roomId={Number(roomId)} lastChatId={lastReadChatId ?? '000000000000000000000000'} />
+    <ChatPage
+      roomId={Number(roomId)}
+      isEnd={isEnd}
+      lastChatId={lastReadChatId ?? '000000000000000000000000'}
+    />
   );
 };
 
