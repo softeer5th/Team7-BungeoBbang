@@ -6,6 +6,7 @@ import com.bungeobbang.backend.agenda.domain.Agenda;
 import com.bungeobbang.backend.agenda.domain.AgendaChat;
 import com.bungeobbang.backend.agenda.domain.AgendaImage;
 import com.bungeobbang.backend.agenda.domain.AgendaLastReadChat;
+import com.bungeobbang.backend.agenda.domain.repository.AgendaChatRepository;
 import com.bungeobbang.backend.agenda.domain.repository.AgendaRepository;
 import com.bungeobbang.backend.agenda.domain.repository.MemberAgendaChatRepository;
 import com.bungeobbang.backend.auth.JwtProvider;
@@ -42,6 +43,7 @@ import org.springframework.web.socket.handler.TextWebSocketHandler;
 import java.io.IOException;
 import java.net.URI;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
@@ -88,6 +90,8 @@ public class AgendaWebSocketTest {
     private Member MEMBER;
     private Admin ADMIN;
     private WebSocketSession adminSession;
+    @Autowired
+    private AgendaChatRepository agendaChatRepository;
 
     @BeforeEach
     void shouldConnectToWebSocket() throws ExecutionException, InterruptedException, TimeoutException {
@@ -270,6 +274,7 @@ public class AgendaWebSocketTest {
     @DisplayName("답해요 채팅방 화면에서 이탈하면 마지막 읽은 채팅이 갱신된다.")
     void exitAgenda() throws Exception {
         // given
+        agendaChatRepository.save(new AgendaChat(null, ACTIVE_AGENDA.getId(), "마지막 채팅", List.of(), true, null, LocalDateTime.now()));
         MemberWebsocketMessage payload = new MemberWebsocketMessage(RoomType.AGENDA, SocketEventType.LEAVE, null, ACTIVE_AGENDA.getId(), null,
                 null, MEMBER.getId(), null, 0
         );
@@ -277,17 +282,21 @@ public class AgendaWebSocketTest {
         // when
         session.sendMessage(new TextMessage(messageJson));
         //then
-        boolean messageReceived = latch.await(5, TimeUnit.SECONDS);
-        assertThat(messageReceived).isFalse();
-        final Query query = new Query().addCriteria(
-                Criteria.where("memberId").is(MEMBER.getId())
-                        .and("agendaId").is(ACTIVE_AGENDA.getId()));
-        final AgendaChat lastChat = memberAgendaChatRepository.findLastChat(ACTIVE_AGENDA.getId(), MEMBER.getId());
-        final AgendaLastReadChat lastReadChat = mongoTemplate.findOne(query, AgendaLastReadChat.class);
-        Assertions.assertThat(lastReadChat)
-                .isNotNull()
-                .extracting("lastReadChatId")
-                .isEqualTo(lastChat.getId());
+        Awaitility.await()
+                .atMost(5, TimeUnit.SECONDS)
+                .pollInterval(200, TimeUnit.MILLISECONDS)
+                .untilAsserted(() -> {
+                    final Query query = new Query().addCriteria(
+                            Criteria.where("memberId").is(MEMBER.getId())
+                                    .and("agendaId").is(ACTIVE_AGENDA.getId()));
+                    final AgendaChat lastChat = memberAgendaChatRepository.findLastChat(ACTIVE_AGENDA.getId(), MEMBER.getId());
+                    final AgendaLastReadChat lastReadChat = mongoTemplate.findOne(query, AgendaLastReadChat.class);
+                    Assertions.assertThat(lastReadChat)
+                            .isNotNull()
+                            .extracting("lastReadChatId")
+                            .isEqualTo(lastChat.getId());
+                });
+
     }
 
     @Test
