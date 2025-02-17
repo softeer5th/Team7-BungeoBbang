@@ -1,6 +1,7 @@
 package com.bungeobbang.backend.agenda.service.strategies;
 
 import com.bungeobbang.backend.agenda.domain.repository.CustomAgendaRepository;
+import com.bungeobbang.backend.agenda.dto.MemberAgendaSubResult;
 import com.bungeobbang.backend.agenda.dto.response.AgendaResponse;
 import com.bungeobbang.backend.agenda.status.AgendaStatusType;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +20,11 @@ public class ActiveAgendaFinder implements AgendaFinder {
     @Override
     public List<AgendaResponse> findAllByStatus(Long universityId, LocalDate endDate, Long agendaId) {
         return customAgendaRepository.getActiveAgendas(universityId, endDate, agendaId);
+    }
+
+    @Override
+    public List<MemberAgendaSubResult> findAllByStatus(Long universityId, LocalDate endDate, Long agendaId, Long memberId) {
+        return customAgendaRepository.getActiveAgendasWithParticipation(universityId, endDate, agendaId, memberId);
     }
 
     @Override

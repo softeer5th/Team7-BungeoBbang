@@ -3,28 +3,35 @@ package com.bungeobbang.backend.agenda.service;
 import com.bungeobbang.backend.admin.domain.Admin;
 import com.bungeobbang.backend.admin.domain.repository.AdminRepository;
 import com.bungeobbang.backend.agenda.domain.Agenda;
+import com.bungeobbang.backend.agenda.domain.AgendaChat;
 import com.bungeobbang.backend.agenda.domain.AgendaImage;
+import com.bungeobbang.backend.agenda.domain.repository.AdminAgendaChatRepository;
+import com.bungeobbang.backend.agenda.domain.repository.AgendaChatRepository;
 import com.bungeobbang.backend.agenda.domain.repository.AgendaImageRepository;
 import com.bungeobbang.backend.agenda.domain.repository.AgendaRepository;
-import com.bungeobbang.backend.agenda.dto.request.AgendaChatRequest;
+import com.bungeobbang.backend.agenda.dto.AdminAgendaSubResult;
 import com.bungeobbang.backend.agenda.dto.request.AgendaCreationRequest;
 import com.bungeobbang.backend.agenda.dto.request.AgendaEditRequest;
-import com.bungeobbang.backend.agenda.dto.response.AgendaCreationResponse;
 import com.bungeobbang.backend.agenda.dto.response.AgendaDetailResponse;
 import com.bungeobbang.backend.agenda.dto.response.AgendaResponse;
+import com.bungeobbang.backend.agenda.dto.response.admin.AdminAgendaResponse;
+import com.bungeobbang.backend.agenda.dto.response.admin.AgendaCreationResponse;
 import com.bungeobbang.backend.agenda.service.strategies.AgendaFinder;
 import com.bungeobbang.backend.agenda.service.strategies.AgendaFinders;
 import com.bungeobbang.backend.agenda.status.AgendaStatusType;
+import com.bungeobbang.backend.badword.service.BadWordService;
 import com.bungeobbang.backend.common.exception.AdminException;
 import com.bungeobbang.backend.common.exception.AgendaException;
 import com.bungeobbang.backend.common.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.ApplicationEventPublisher;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import static com.bungeobbang.backend.common.exception.ErrorCode.*;
 
@@ -36,6 +43,7 @@ import static com.bungeobbang.backend.common.exception.ErrorCode.*;
  * - 관리자(Admin) 권한으로 관리.
  * </p>
  */
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AdminAgendaService {
@@ -43,8 +51,10 @@ public class AdminAgendaService {
     private final AdminRepository adminRepository;
     private final AgendaRepository agendaRepository;
     private final AgendaImageRepository agendaImageRepository;
+    private final AdminAgendaChatRepository adminAgendaChatRepository;
+    private final AgendaChatRepository agendaChatRepository;
 
-    private final ApplicationEventPublisher eventPublisher;
+    private final BadWordService badWordService;
 
     /**
      * 특정 관리자(Admin)가 속한 대학교의 안건(Agenda)을 상태별로 조회합니다.
@@ -69,10 +79,20 @@ public class AdminAgendaService {
      * @throws AdminException 관리자 정보가 존재하지 않을 경우 발생
      */
     @Transactional(readOnly = true)
-    public List<AgendaResponse> getAgendasByStatus(Long adminId, AgendaStatusType status, LocalDate endDate, Long agendaId) {
+    public List<AdminAgendaResponse> getAgendasByStatus(Long adminId, AgendaStatusType status, LocalDate endDate, Long agendaId) {
         final Admin admin = getAdmin(adminId);
         final AgendaFinder finder = agendaFinders.mapping(status);
-        return finder.findAllByStatus(admin.getUniversity().getId(), endDate, agendaId);
+        final List<AgendaResponse> agendaList = finder.findAllByStatus(admin.getUniversity().getId(), endDate, agendaId);
+
+        final Map<Long, AdminAgendaSubResult> unreadStatus = adminAgendaChatRepository.findUnreadStatus(
+                agendaList.stream().map(AgendaResponse::agendaId).toList(),
+                adminId);
+        return agendaList.stream()
+                .map(agenda -> new AdminAgendaResponse(
+                        agenda,
+                        unreadStatus.get(agenda.agendaId()).hasNewMessage(),
+                        unreadStatus.get(agenda.agendaId()).lastReadChatId()))
+                .collect(Collectors.toList());
     }
 
     private static void validAdminWithAgenda(final Admin admin, final Agenda agenda) {
@@ -90,6 +110,7 @@ public class AdminAgendaService {
      */
     @Transactional
     public AgendaCreationResponse createAgenda(final Long adminId, final AgendaCreationRequest request) {
+        badWordService.validate(request.title(), request.content());
         final Admin admin = adminRepository.findById(adminId)
                 .orElseThrow(() -> new AdminException(ErrorCode.INVALID_ADMIN));
 
@@ -107,7 +128,16 @@ public class AdminAgendaService {
         final List<AgendaImage> images = makeImages(request.images(), save);
         agendaImageRepository.saveAll(images);
 
-        eventPublisher.publishEvent(new AgendaChatRequest(save.getId(), adminId, save.getContent(), request.images(), save.getCreatedAt()));
+        // 첫번째 채팅을 저장한다.
+        final AgendaChat firstChat = agendaChatRepository.save(AgendaChat.builder()
+                .images(request.images())
+                .isAdmin(true)
+                .agendaId(save.getId())
+                .chat(save.getContent())
+                .createdAt(save.getCreatedAt())
+                .build());
+
+        save.setFirstChatId(firstChat.getId().toString());
 
         return AgendaCreationResponse.from(save);
     }
@@ -173,6 +203,7 @@ public class AdminAgendaService {
      */
     @Transactional
     public void editAgenda(Long adminId, final Long agendaId, final AgendaEditRequest request) {
+        badWordService.validate(request.title(), request.content());
         Admin admin = getAdmin(adminId);
         Agenda agenda = getAgenda(agendaId);
 
@@ -189,11 +220,20 @@ public class AdminAgendaService {
                 .content(request.content())
                 .isEnd(agenda.isEnd())
                 .count(agenda.getCount())
+                .firstChatId(agenda.getFirstChatId())
                 .images(updateImages(agenda.getImages(), request.images(), agenda))
                 .build();
 
         agendaRepository.save(updateAgenda);
-        // todo 반환값 추가 필요
+
+        // 첫번째 채팅을 수정한다.
+        agendaChatRepository.findById(agenda.getFirstChatId()).ifPresentOrElse(chat -> {
+            chat.update(request.content(), request.images());
+            agendaChatRepository.save(chat);
+        }, () -> {
+            throw new AgendaException(INVALID_AGENDA);
+        });
+
     }
 
     private Admin getAdmin(Long adminId) {

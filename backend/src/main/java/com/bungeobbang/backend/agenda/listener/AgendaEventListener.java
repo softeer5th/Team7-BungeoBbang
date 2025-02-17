@@ -4,6 +4,7 @@ import com.bungeobbang.backend.agenda.dto.request.AgendaChatRequest;
 import com.bungeobbang.backend.agenda.service.AdminAgendaChatService;
 import com.bungeobbang.backend.agenda.service.AgendaChatService;
 import com.bungeobbang.backend.agenda.service.AgendaRealTimeChatService;
+import com.bungeobbang.backend.badword.service.BadWordService;
 import com.bungeobbang.backend.chat.event.agenda.AgendaAdminEvent;
 import com.bungeobbang.backend.chat.event.agenda.AgendaMemberEvent;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 public class AgendaEventListener {
+    private final BadWordService badWordService;
     private final AgendaChatService agendaChatService;
     private final AdminAgendaChatService adminAgendaChatService;
     private final AgendaRealTimeChatService agendaRealTimeChatService;
@@ -28,17 +30,21 @@ public class AgendaEventListener {
     public void handleAgendaEvent(AgendaMemberEvent event) {
         switch (event.eventType()) {
             case ENTER -> agendaChatService.updateLastReadToMax(event.agendaId(), event.memberId());
-            case CHAT -> agendaChatService.saveChat(new AgendaChatRequest(
-                    event.agendaId(),
-                    event.memberId(),
-                    event.chat(),
-                    event.images(),
-                    event.createdAt()
-            ));
+            case CHAT -> {
+                agendaChatService.validAgenda(event.agendaId());
+                badWordService.validate(event.chat());
+                agendaRealTimeChatService.sendMessageFromMember(event);
+                agendaChatService.saveChat(new AgendaChatRequest(
+                        event.agendaId(),
+                        event.memberId(),
+                        event.chat(),
+                        event.images(),
+                        event.createdAt()
+                ));
+            }
             case LEAVE -> agendaChatService.updateLastRead(event.agendaId(), event.memberId());
             case EXIT -> agendaRealTimeChatService.disconnectMemberFromAgenda(event.session(), event.agendaId());
             case PARTICIPATE -> agendaRealTimeChatService.connectMemberFromAgenda(event.session(), event.agendaId());
-
         }
     }
 
@@ -55,17 +61,26 @@ public class AgendaEventListener {
     public void handleAdminAgendaEvent(AgendaAdminEvent event) {
         switch (event.eventType()) {
             case ENTER -> adminAgendaChatService.updateLastReadToMax(event.agendaId(), event.adminId());
-            case CHAT -> adminAgendaChatService.saveChat(new AgendaChatRequest(
-                    event.agendaId(),
-                    event.adminId(),
-                    event.chat(),
-                    event.images(),
-                    event.createdAt()
-            ));
+            case CHAT -> {
+                agendaChatService.validAgenda(event.agendaId());
+                badWordService.validate(event.chat());
+                agendaRealTimeChatService.sendMessageFromAdmin(event);
+                adminAgendaChatService.saveChat(new AgendaChatRequest(
+                        event.agendaId(),
+                        event.adminId(),
+                        event.chat(),
+                        event.images(),
+                        event.createdAt()
+                ));
+            }
             case LEAVE -> adminAgendaChatService.updateLastRead(event.agendaId(), event.adminId());
-            case START -> agendaRealTimeChatService.connectAdminFromAgenda(event.session(), event.agendaId());
-            case CLOSE -> agendaRealTimeChatService.disConnectAgenda(event.agendaId());
-            case DELETE -> agendaRealTimeChatService.removeAgendaConnection(event.agendaId());
+            case START -> {
+                // 오늘 시작인거만 구독
+                if (adminAgendaChatService.isStartToday(event.agendaId())) {
+                    agendaRealTimeChatService.connectAdminFromAgenda(event.session(), event.agendaId());
+                }
+            }
+            case CLOSE, DELETE -> agendaRealTimeChatService.disConnectAgenda(event.agendaId());
         }
     }
 }

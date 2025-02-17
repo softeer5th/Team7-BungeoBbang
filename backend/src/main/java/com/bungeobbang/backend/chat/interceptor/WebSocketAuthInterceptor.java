@@ -1,8 +1,10 @@
 package com.bungeobbang.backend.chat.interceptor;
 
 
-import com.bungeobbang.backend.auth.BearerAuthorizationExtractor;
+import com.bungeobbang.backend.admin.domain.repository.AdminRepository;
+import com.bungeobbang.backend.auth.Claim;
 import com.bungeobbang.backend.auth.JwtProvider;
+import com.bungeobbang.backend.auth.domain.Authority;
 import com.bungeobbang.backend.common.exception.AuthException;
 import com.bungeobbang.backend.common.exception.ErrorCode;
 import com.bungeobbang.backend.member.domain.repository.MemberRepository;
@@ -22,15 +24,20 @@ import org.springframework.web.socket.server.HandshakeInterceptor;
 import java.util.List;
 import java.util.Map;
 
+import static com.bungeobbang.backend.common.exception.ErrorCode.INVALID_ADMIN;
+import static com.bungeobbang.backend.common.exception.ErrorCode.INVALID_MEMBER;
+
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class WebSocketAuthInterceptor implements HandshakeInterceptor {
+    private static final String MEMBER_ENDPOINT = "/students";
+    private static final String ADMIN_ENDPOINT = "/admins";
     private static final String ACCESS_TOKEN = "accessToken";
     private static final String SEC_WEBSOCKET_PROTOCOL = "Sec-WebSocket-Protocol";
     private final JwtProvider jwtProvider;
     private final MemberRepository memberRepository;
-    private final BearerAuthorizationExtractor extractor;
+    private final AdminRepository adminRepository;
 
     /**
      * 웹소켓 연결 전 인터셉터
@@ -41,36 +48,74 @@ public class WebSocketAuthInterceptor implements HandshakeInterceptor {
     @Override
     public boolean beforeHandshake(ServerHttpRequest request, ServerHttpResponse response,
                                    WebSocketHandler wsHandler, Map<String, Object> attributes) throws Exception {
+        if (!(request instanceof ServletServerHttpRequest)) {
+            return false;
+        }
 
-        if (request instanceof ServletServerHttpRequest) {
-            HttpServletRequest servletRequest = ((ServletServerHttpRequest) request).getServletRequest();
-            HttpServletResponse servletResponse = ((ServletServerHttpResponse) response).getServletResponse();
+        HttpServletRequest servletRequest = ((ServletServerHttpRequest) request).getServletRequest();
+        HttpServletResponse servletResponse = ((ServletServerHttpResponse) response).getServletResponse();
+        HttpHeaders headers = request.getHeaders();
+        String connectEndPoint = servletRequest.getRequestURI();
 
-            HttpHeaders headers = request.getHeaders();
-            List<String> protocols = headers.get(SEC_WEBSOCKET_PROTOCOL);
+        List<String> protocols = headers.get(SEC_WEBSOCKET_PROTOCOL);
+        if (protocols == null || protocols.size() != 1) {
+            return false;
+        }
 
-            try {
-                if (protocols != null && protocols.size() == 1) {
-                    String accessToken = protocols.get(0).trim();
-                    attributes.put(ACCESS_TOKEN, accessToken);
-                    Long memberId = Long.valueOf(jwtProvider.getSubject(accessToken));
-                    memberRepository.findById(memberId)
-                            .orElseThrow(() -> new AuthException(ErrorCode.INVALID_MEMBER));
+        try {
+            String accessToken = protocols.get(0).trim();
+            attributes.put(ACCESS_TOKEN, accessToken);
 
-                    response.getHeaders().set(SEC_WEBSOCKET_PROTOCOL, accessToken);
-                    return true;
-                }
-            } catch (AuthException e) {
-                servletResponse.sendError(HttpServletResponse.SC_UNAUTHORIZED, e.getMessage());
-                return false;
-            } catch (Exception e) {
-                log.info(e.getMessage());
+            // ✅ 사용자 검증 및 권한 체크
+            Authority authority = validateAccessToken(accessToken);
+            validateEndpointAccess(authority, connectEndPoint);
 
+            response.getHeaders().set(SEC_WEBSOCKET_PROTOCOL, accessToken);
+            return true;
+
+        } catch (AuthException e) {
+            return handleAuthException(servletResponse, e.getMessage());
+        } catch (Exception e) {
+            log.error("❌ WebSocket 핸드셰이크 오류: {}", e.getMessage());
+            return handleAuthException(servletResponse, e.getMessage());
+        }
+    }
+
+    private Authority validateAccessToken(String accessToken) {
+        final String role = jwtProvider.getClaim(accessToken, Claim.ROLE);
+        Authority authority = Authority.valueOf(role);
+
+        switch (authority) {
+            case ADMIN -> {
+                Long adminId = Long.valueOf(jwtProvider.getSubject(accessToken));
+                adminRepository.findById(adminId).orElseThrow(() -> new AuthException(INVALID_ADMIN));
+            }
+            case MEMBER -> {
+                Long memberId = Long.valueOf(jwtProvider.getSubject(accessToken));
+                memberRepository.findById(memberId).orElseThrow(() -> new AuthException(INVALID_MEMBER));
             }
         }
-        return false;
-
+        return authority;
     }
+
+    private void validateEndpointAccess(Authority authority, String connectEndPoint) {
+        if (authority == Authority.ADMIN && !connectEndPoint.equals(ADMIN_ENDPOINT)) {
+            throw new AuthException(ErrorCode.INVALID_AUTHORITY);
+        }
+        if (authority == Authority.MEMBER && !connectEndPoint.equals(MEMBER_ENDPOINT)) {
+            throw new AuthException(ErrorCode.INVALID_AUTHORITY);
+        }
+    }
+
+    private boolean handleAuthException(HttpServletResponse response, String message) {
+        try {
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, message);
+        } catch (Exception e) {
+            log.error("❌ 인증 예외 응답 실패: {}", e.getMessage());
+        }
+        return false;
+    }
+
 
     @Override
     public void afterHandshake(ServerHttpRequest request, ServerHttpResponse response, WebSocketHandler wsHandler, Exception exception) {

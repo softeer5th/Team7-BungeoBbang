@@ -1,6 +1,10 @@
 # 1. OpenJDK 17 기반 이미지 사용
 FROM openjdk:17-jdk
 
+
+# 2. 시간대 설정 (Asia/Seoul)
+ENV TZ=Asia/Seoul
+
 # 3. JAR 파일을 컨테이너로 복사
 
 ARG JAR_FILE=build/libs/backend-0.0.1-SNAPSHOT.jar

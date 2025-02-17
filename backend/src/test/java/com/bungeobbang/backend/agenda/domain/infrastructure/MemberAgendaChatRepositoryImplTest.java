@@ -2,7 +2,7 @@ package com.bungeobbang.backend.agenda.domain.infrastructure;
 
 import com.bungeobbang.backend.agenda.domain.AgendaChat;
 import com.bungeobbang.backend.agenda.domain.AgendaLastReadChat;
-import com.bungeobbang.backend.agenda.dto.response.LastChat;
+import com.bungeobbang.backend.agenda.dto.AgendaLatestChat;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.bson.types.ObjectId;
@@ -24,13 +24,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 
 @DataMongoTest()
-@Import(CustomAgendaChatRepositoryImpl.class)
-class CustomAgendaChatRepositoryImplTest {
+@Import(MemberAgendaChatRepositoryImpl.class)
+class MemberAgendaChatRepositoryImplTest {
     private final ObjectMapper objectMapper = new ObjectMapper();
     @Autowired
     private MongoTemplate mongoTemplate;
     @Autowired
-    private CustomAgendaChatRepositoryImpl customAgendaChatRepository;
+    private MemberAgendaChatRepositoryImpl memberAgendaChatRepository;
 
     @BeforeEach
     void setUp() throws IOException {
@@ -47,7 +47,7 @@ class CustomAgendaChatRepositoryImplTest {
     @DisplayName("채팅방의 마지막 채팅을 조회한다. 학생의 마지막 채팅은 자신의 채팅이거나 학생회의 채팅이다.")
     void findLastChatForMember() {
 
-        final AgendaChat lastChat = customAgendaChatRepository.findLastChatForMember(1L, 30L);
+        final AgendaChat lastChat = memberAgendaChatRepository.findLastChat(1L, 30L);
         assertThat(lastChat).isNotNull();
         assertThat(lastChat.getChat()).isEqualTo("학생30 채팅");
     }
@@ -55,8 +55,8 @@ class CustomAgendaChatRepositoryImplTest {
     @Test
     @DisplayName("학생회 채팅, 자신이 전송한 채팅이 없는 경우 마지막 채팅이 존재하지 않는다.")
     void findLastChats_sendNoChatForMember() {
-        final List<LastChat> lastChats =
-                customAgendaChatRepository.findLastChats(List.of(1L, 2L), 1L);
+        final List<AgendaLatestChat> lastChats =
+                memberAgendaChatRepository.findLastChats(List.of(1L, 2L), 1L);
 
         assertThat(lastChats).size().isEqualTo(0);
     }
@@ -64,11 +64,11 @@ class CustomAgendaChatRepositoryImplTest {
     @Test
     @DisplayName("여러 개의 채팅방에서 마지막 채팅을 조회한다.")
     void findLastChatsForMember() {
-        final List<LastChat> lastChats =
-                customAgendaChatRepository.findLastChats(List.of(1L, 2L), 31L);
+        final List<AgendaLatestChat> lastChats =
+                memberAgendaChatRepository.findLastChats(List.of(1L, 2L), 31L);
 
         assertThat(lastChats).size().isEqualTo(2);
-        final List<Long> list = lastChats.stream().map(LastChat::agendaId).toList();
+        final List<Long> list = lastChats.stream().map(AgendaLatestChat::agendaId).toList();
         assertThat(list).containsExactlyInAnyOrder(1L, 2L);
     }
 
@@ -78,7 +78,7 @@ class CustomAgendaChatRepositoryImplTest {
         // given
         mongoTemplate.insert(new AgendaLastReadChat(null, 1L, 1L, new ObjectId(0, 0)));
         // when
-        customAgendaChatRepository.upsertLastReadChat(1L, 1L, new ObjectId(1, 1));
+        memberAgendaChatRepository.upsertLastReadChat(1L, 1L, new ObjectId(1, 1));
 
         // then
         Query query = new Query().addCriteria(

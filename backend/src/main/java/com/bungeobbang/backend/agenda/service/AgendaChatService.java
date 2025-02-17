@@ -1,24 +1,22 @@
 package com.bungeobbang.backend.agenda.service;
 
+import com.bungeobbang.backend.agenda.domain.Agenda;
 import com.bungeobbang.backend.agenda.domain.AgendaChat;
-import com.bungeobbang.backend.agenda.domain.AgendaLastReadChat;
 import com.bungeobbang.backend.agenda.domain.repository.AgendaChatRepository;
-import com.bungeobbang.backend.agenda.domain.repository.AgendaLastReadChatRepository;
 import com.bungeobbang.backend.agenda.domain.repository.AgendaMemberRepository;
-import com.bungeobbang.backend.agenda.domain.repository.CustomAgendaChatRepository;
+import com.bungeobbang.backend.agenda.domain.repository.AgendaRepository;
+import com.bungeobbang.backend.agenda.domain.repository.MemberAgendaChatRepository;
 import com.bungeobbang.backend.agenda.dto.request.AgendaChatRequest;
 import com.bungeobbang.backend.agenda.dto.response.AgendaChatResponse;
 import com.bungeobbang.backend.common.exception.AgendaException;
 import com.bungeobbang.backend.common.exception.ErrorCode;
+import com.bungeobbang.backend.common.type.ScrollType;
 import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
+import java.time.LocalDate;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * ✅ 학생용 답해요 채팅 서비스 (무한 스크롤 지원)
@@ -26,13 +24,11 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class AgendaChatService {
+    private final AgendaRepository agendaRepository;
     private final AgendaChatRepository agendaChatRepository;
     private final AgendaMemberRepository agendaMemberRepository;
-    private final CustomAgendaChatRepository customAgendaChatRepository;
-    private final AgendaLastReadChatRepository agendaLastReadChatRepository;
+    private final MemberAgendaChatRepository memberAgendaChatRepository;
 
-    private static final int CHAT_SIZE = 10;
-    private static final ObjectId MIN_OBJECT_ID = new ObjectId(0, 0);
     private static final ObjectId MAX_OBJECT_ID = new ObjectId("ffffffffffffffffffffffff");
 
 
@@ -45,51 +41,17 @@ public class AgendaChatService {
      *                 - `chatId`가 존재하면 해당 ID 이전의 데이터 10개 조회
      * @return `AgendaChatResponse` 리스트 (최대 10개)
      */
-    public List<AgendaChatResponse> getChats(Long memberId, Long agendaId, ObjectId chatId) {
-        Pageable pageable = PageRequest.of(0, CHAT_SIZE);
-        if (!agendaMemberRepository.existsByMemberIdAndAgendaId(memberId, agendaId)) {
+    public List<AgendaChatResponse> getChats(Long memberId, Long agendaId, ObjectId chatId, ScrollType scrollType) {
+        final boolean isEnd = agendaRepository.existsByIdAndEndDateBefore(agendaId, LocalDate.now());
+        // 종료된 답해요는 누구나 조회 가능
+        if (!isEnd && !agendaMemberRepository.existsByMemberIdAndAgendaIdAndIsDeletedFalse(memberId, agendaId)) {
             throw new AgendaException(ErrorCode.NOT_PARTICIPATED);
         }
 
-        if (chatId == null) {
-            // 사용자의 마지막 읽은 채팅 가져오기
-            AgendaLastReadChat lastReadChat = agendaLastReadChatRepository.findByMemberIdAndAgendaId(memberId, agendaId)
-                    .orElse(new AgendaLastReadChat(null, null, null, MIN_OBJECT_ID));
-            ObjectId lastReadChatId = lastReadChat.getLastReadChatId();
-
-            // lastReadChatId보다 작은 채팅 가져오기
-            List<AgendaChatResponse> chats = agendaChatRepository
-                    .findChatsByAgendaIdAndMemberIdAndIdLessThan(agendaId, memberId, lastReadChatId, pageable)
-                    .stream()
-                    .map(AgendaChatResponse::from)
-                    .collect(Collectors.collectingAndThen(Collectors.toList(), list -> {
-                        Collections.reverse(list); // 🔹 리스트 역순 정렬
-                        return list;
-                    }));
-
-            // lastReadChatId보다 큰 채팅 가져오기
-            List<AgendaChatResponse> afterChats = agendaChatRepository
-                    .findChatsByAgendaIdAndMemberIdAndIdGreaterThan(agendaId, memberId, lastReadChatId)
-                    .stream()
-                    .map(AgendaChatResponse::from)
-                    .collect(Collectors.collectingAndThen(Collectors.toList(), list -> {
-                        Collections.reverse(list); // 🔹 리스트 역순 정렬
-                        return list;
-                    }));
-
-            chats.addAll(afterChats); // 최종 리스트 합치기
-
-            return chats;
-        }
-
-
-        return agendaChatRepository.findChatsByAgendaIdAndMemberIdAndIdLessThan(agendaId, memberId, chatId, pageable)
+        return memberAgendaChatRepository.findChatsByScroll(agendaId, memberId, chatId, scrollType)
                 .stream()
                 .map(AgendaChatResponse::from)
-                .collect(Collectors.collectingAndThen(Collectors.toList(), list -> {
-                    Collections.reverse(list); // 🔹 리스트 역순 정렬
-                    return list;
-                }));
+                .toList();
     }
 
     public void saveChat(AgendaChatRequest request) {
@@ -104,11 +66,22 @@ public class AgendaChatService {
     }
 
     public void updateLastReadToMax(Long agendaId, Long memberId) {
-        customAgendaChatRepository.upsertLastReadChat(agendaId, memberId, MAX_OBJECT_ID);
+        memberAgendaChatRepository.upsertLastReadChat(agendaId, memberId, MAX_OBJECT_ID);
     }
 
     public void updateLastRead(Long agendaId, Long memberId) {
-        final AgendaChat lastChat = customAgendaChatRepository.findLastChatForMember(agendaId, memberId);
-        customAgendaChatRepository.upsertLastReadChat(agendaId, memberId, lastChat.getId());
+        final AgendaChat lastChat = memberAgendaChatRepository.findLastChat(agendaId, memberId);
+        memberAgendaChatRepository.upsertLastReadChat(agendaId, memberId, lastChat.getId());
+    }
+
+    public void validAgenda(Long agendaId) {
+        final Agenda agenda = agendaRepository.findById(agendaId)
+                .orElseThrow(() -> new AgendaException(ErrorCode.INVALID_AGENDA));
+
+        if (agenda.getStartDate().isAfter(LocalDate.now()))
+            throw new AgendaException(ErrorCode.AGENDA_NOT_STARTED);
+
+        if (agenda.getEndDate().isBefore(LocalDate.now()))
+            throw new AgendaException(ErrorCode.AGENDA_CLOSED);
     }
 }

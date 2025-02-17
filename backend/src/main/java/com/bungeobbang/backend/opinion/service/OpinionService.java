@@ -1,22 +1,19 @@
 package com.bungeobbang.backend.opinion.service;
 
-import com.bungeobbang.backend.auth.domain.Accessor;
 import com.bungeobbang.backend.common.exception.ErrorCode;
 import com.bungeobbang.backend.common.exception.OpinionException;
+import com.bungeobbang.backend.common.type.ScrollType;
 import com.bungeobbang.backend.opinion.domain.Opinion;
 import com.bungeobbang.backend.opinion.domain.OpinionChat;
-import com.bungeobbang.backend.opinion.domain.OpinionLastRead;
-import com.bungeobbang.backend.opinion.domain.repository.OpinionChatRepository;
-import com.bungeobbang.backend.opinion.domain.repository.OpinionLastReadRepository;
-import com.bungeobbang.backend.opinion.domain.repository.OpinionRepository;
+import com.bungeobbang.backend.opinion.domain.repository.*;
 import com.bungeobbang.backend.opinion.dto.response.OpinionChatResponse;
 import com.bungeobbang.backend.opinion.dto.response.OpinionDetailResponse;
 import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.Collections;
 import java.util.List;
 
 
@@ -33,27 +30,27 @@ public class OpinionService {
      */
     private static final String MAX_OBJECT_ID = "ffffffffffffffffffffffff";
 
-    private final OpinionLastReadRepository opinionLastReadRepository;
     private final OpinionChatRepository opinionChatRepository;
     private final OpinionRepository opinionRepository;
+    private final CustomOpinionChatRepository customOpinionChatRepository;
+    private final CustomOpinionLastReadRepository customOpinionLastReadRepository;
 
     /**
      * 특정 말해요(opinionId)의 채팅 내역을 조회하는 메서드.
      *
      * @param opinionId  조회할 말해요 채팅방의 ID
-     * @param lastChatId 마지막으로 조회한 채팅의 ID (Cursor 방식). 없을 경우 최신 메시지부터 조회
-     * @param accessor   현재 요청을 보낸 사용자의 인증 정보
+     * @param chatId 조회를 시작할 채팅 메시지의 ID
+     * @param userId   요청을 보낸 유저의 ID
+     * @param scroll 스크롤 방향
      * @return OpinionChatResponse 리스트 (해당 채팅방의 메시지 목록)
      */
-    public List<OpinionChatResponse> findOpinionChat(final Long opinionId, ObjectId lastChatId, final Accessor accessor) {
-        if (lastChatId == null) lastChatId = new ObjectId(MAX_OBJECT_ID);
-        final List<OpinionChatResponse> opinionChatResponses = new java.util.ArrayList<>(opinionChatRepository.findByOpinionIdAndLastChatId(opinionId, lastChatId)
+    public List<OpinionChatResponse> findOpinionChat(final Long opinionId, ObjectId chatId, final Long userId, ScrollType scroll) {
+        // scroll == INITIAL 이면 마지막읽은 채팅 포함 10개 조회
+        // scroll=up 이면 과거 채팅 10개 조회, down 이면 최신 채팅 10개 조회
+        return customOpinionChatRepository.findOpinionChats(opinionId, chatId, scroll)
                 .stream()
-                .map(opinionChat -> OpinionChatResponse.of(opinionChat, accessor.id(), opinionId))
-                .toList());
-        Collections.reverse(opinionChatResponses);
-
-        return opinionChatResponses;
+                .map(opinionChat -> OpinionChatResponse.of(opinionChat, userId, opinionId))
+                .toList();
     }
 
     public OpinionDetailResponse findOpinionDetail(final Long opinionId) {
@@ -63,28 +60,20 @@ public class OpinionService {
     }
 
     public void updateLastReadToMax(final Long opinionId, final boolean isAdmin) {
-        OpinionLastRead lastRead = opinionLastReadRepository.findByOpinionIdAndIsAdmin(opinionId, isAdmin)
-                .orElseThrow(() -> new OpinionException(ErrorCode.INVALID_OPINION_LAST_READ));
-        lastRead.updateLastReadChatId(new ObjectId(MAX_OBJECT_ID));
-        opinionLastReadRepository.save(lastRead);
+        customOpinionLastReadRepository.updateLastRead(opinionId, isAdmin, new ObjectId(MAX_OBJECT_ID));
     }
 
     public void updateLastReadToLastChatId(final Long opinionId, final boolean isAdmin) {
-        OpinionLastRead lastRead = opinionLastReadRepository.findByOpinionIdAndIsAdmin(opinionId, isAdmin)
-                .orElseThrow(() -> new OpinionException(ErrorCode.INVALID_OPINION_LAST_READ));
-
-        OpinionChat lastCHat = opinionChatRepository.findTop1ByOpinionIdOrderByIdDesc(opinionId)
+        OpinionChat lastChat = opinionChatRepository.findTop1ByOpinionIdOrderByIdDesc(opinionId)
                 .orElseThrow(() -> new OpinionException(ErrorCode.INVALID_OPINION_CHAT));
-
-        lastRead.updateLastReadChatId(lastCHat.getId());
-        opinionLastReadRepository.save(lastRead);
+        customOpinionLastReadRepository.updateLastRead(opinionId, isAdmin, lastChat.getId());
     }
 
-    public void saveChat(
+    public OpinionChat saveChat(
             final Long userId, final Long opinionId,
             final String chat, final List<String> images,
             final boolean isAdmin, final LocalDateTime createdAt) {
-        opinionChatRepository.save(
+        return opinionChatRepository.save(
                 OpinionChat.builder()
                         .memberId(userId)
                         .opinionId(opinionId)
@@ -94,5 +83,26 @@ public class OpinionService {
                         .createdAt(createdAt)
                         .build()
         );
+    }
+
+    @Transactional
+    public void incrementChatCount(final Long opinionId) {
+        Opinion opinion = opinionRepository.findById(opinionId)
+                .orElseThrow(() -> new OpinionException(ErrorCode.INVALID_OPINION));
+        opinion.plusOneChatCount();
+    }
+
+    public void validateChatCount(Long opinionId) {
+        Opinion opinion = opinionRepository.findById(opinionId)
+                .orElseThrow(() -> new OpinionException(ErrorCode.INVALID_OPINION));
+        if (opinion.getChatCount() >= 3)
+            throw new OpinionException(ErrorCode.CHAT_COUNT_LIMIT_EXCEEDED);
+    }
+
+    @Transactional
+    public void initChatCount(Long opinionId) {
+        Opinion opinion = opinionRepository.findById(opinionId)
+                .orElseThrow(() -> new OpinionException(ErrorCode.INVALID_OPINION));
+        opinion.resetChatCount();
     }
 }

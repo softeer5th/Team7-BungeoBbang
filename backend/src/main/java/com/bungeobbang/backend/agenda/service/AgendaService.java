@@ -2,37 +2,35 @@ package com.bungeobbang.backend.agenda.service;
 
 import com.bungeobbang.backend.agenda.domain.Agenda;
 import com.bungeobbang.backend.agenda.domain.AgendaChat;
-import com.bungeobbang.backend.agenda.domain.AgendaLastReadChat;
 import com.bungeobbang.backend.agenda.domain.AgendaMember;
-import com.bungeobbang.backend.agenda.domain.repository.AgendaLastReadChatRepository;
 import com.bungeobbang.backend.agenda.domain.repository.AgendaMemberRepository;
 import com.bungeobbang.backend.agenda.domain.repository.AgendaRepository;
-import com.bungeobbang.backend.agenda.domain.repository.CustomAgendaChatRepository;
+import com.bungeobbang.backend.agenda.domain.repository.MemberAgendaChatRepository;
+import com.bungeobbang.backend.agenda.dto.AgendaLatestChat;
+import com.bungeobbang.backend.agenda.dto.MemberAgendaSubResult;
 import com.bungeobbang.backend.agenda.dto.response.AgendaDetailResponse;
-import com.bungeobbang.backend.agenda.dto.response.AgendaResponse;
-import com.bungeobbang.backend.agenda.dto.response.LastChat;
-import com.bungeobbang.backend.agenda.dto.response.MyAgendaResponse;
+import com.bungeobbang.backend.agenda.dto.response.member.MemberAgendaResponse;
+import com.bungeobbang.backend.agenda.dto.response.member.MyAgendaResponse;
 import com.bungeobbang.backend.agenda.service.strategies.AgendaFinder;
 import com.bungeobbang.backend.agenda.service.strategies.AgendaFinders;
 import com.bungeobbang.backend.agenda.status.AgendaStatusType;
 import com.bungeobbang.backend.common.exception.AgendaException;
 import com.bungeobbang.backend.common.exception.ErrorCode;
 import com.bungeobbang.backend.common.exception.MemberException;
-import com.bungeobbang.backend.common.util.ObjectIdTimestampConverter;
 import com.bungeobbang.backend.member.domain.Member;
 import com.bungeobbang.backend.member.domain.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 import static com.bungeobbang.backend.common.exception.ErrorCode.AGENDA_PARTICIPATION_NOT_FOUND;
+import static com.bungeobbang.backend.common.exception.ErrorCode.INVALID_AGENDA;
 
 /**
  * <h2>AgendaService</h2>
@@ -50,15 +48,13 @@ import static com.bungeobbang.backend.common.exception.ErrorCode.AGENDA_PARTICIP
 @Service
 @RequiredArgsConstructor
 public class AgendaService {
-
-    private final AgendaMemberRepository agendaMemberRepository;
-    private final AgendaLastReadChatRepository agendaLastReadChatRepository;
-    private final CustomAgendaChatRepository customAgendaChatRepository;
+    private final AgendaFinders agendaFinders;
     private final AgendaRepository agendaRepository;
     private final MemberRepository memberRepository;
-    private final AgendaFinders agendaFinders;
+    private final AgendaMemberRepository agendaMemberRepository;
+    private final MemberAgendaChatRepository memberAgendaChatRepository;
 
-    private final static ObjectId MIN_OBJECT_ID = new ObjectId(0, 0);
+    private final static ObjectId MIN_OBJECT_ID = new ObjectId("000000000000000000000000");
 
     /**
      * <h3>답해요에 사용자 참여</h3>
@@ -69,27 +65,35 @@ public class AgendaService {
      * @param agendaId 참여할 답해요 ID
      * @throws AgendaException 사용자가 해당 대학교 소속이 아닐 경우 예외 발생
      */
+    @Transactional
     public void participateAgenda(final Long memberId, final Long agendaId) {
         final Member member = getMember(memberId);
-        final Agenda agenda = getAgenda(agendaId);
+        final Agenda agenda = agendaRepository.findByIdWithLock(agendaId)
+                .orElseThrow(() -> new AgendaException(INVALID_AGENDA));
 
         if (!agenda.getUniversity().equals(member.getUniversity())) {
             throw new AgendaException(ErrorCode.FORBIDDEN_UNIVERSITY_ACCESS);
         }
-        if (agendaMemberRepository.existsByMemberIdAndAgendaId(memberId, agendaId)) {
+        if (agendaMemberRepository.existsByMemberIdAndAgendaIdAndIsDeletedFalse(memberId, agendaId)) {
             throw new AgendaException(ErrorCode.ALREADY_PARTICIPATED);
         }
 
-        agendaMemberRepository.save(AgendaMember.builder()
-                .agenda(agenda)
-                .member(member)
-                .build()
-        );
+        // 이미 참여한 이력이 있을 경우 count하지 않고 isDeleted=false로 바꾼다.
+        agendaMemberRepository.findByMemberIdAndAgendaIdAndIsDeletedTrue(memberId, agendaId)
+                .ifPresentOrElse(AgendaMember::reParticipate, () -> {
+                            agendaMemberRepository.save(AgendaMember.builder()
+                                    .agenda(agenda)
+                                    .member(member)
+                                    .build());
+                            agenda.increaseParticipantCount(1);
+                        }
+                );
+
 
         // 현재 시점에서의 마지막 채팅을 마지막 읽은 채팅으로 저장
-        final AgendaChat lastChat = customAgendaChatRepository.findLastChatForMember(agendaId, memberId);
+        final AgendaChat lastChat = memberAgendaChatRepository.findLastChat(agendaId, memberId);
         ObjectId lastChatId = lastChat == null ? MIN_OBJECT_ID : lastChat.getId();
-        customAgendaChatRepository.upsertLastReadChat(agendaId, memberId, lastChatId);
+        memberAgendaChatRepository.upsertLastReadChat(agendaId, memberId, lastChatId);
     }
 
     /**
@@ -102,10 +106,16 @@ public class AgendaService {
      * @param agendaId 마지막으로 조회된 답해요의 ID (중복 방지 및 페이징용, 선택적)
      * @return 상태별 답해요 목록 (최대 페이지 크기 제한 적용)
      */
-    public List<AgendaResponse> getAgendasByStatus(final Long memberId, final AgendaStatusType status, final LocalDate endDate, final Long agendaId) {
+    public List<MemberAgendaResponse> getAgendasByStatus(final Long memberId, final AgendaStatusType status, final LocalDate endDate, final Long agendaId) {
         final Member member = getMember(memberId);
         final AgendaFinder finder = agendaFinders.mapping(status);
-        return finder.findAllByStatus(member.getUniversity().getId(), endDate, agendaId);
+        final List<MemberAgendaSubResult> allByStatus = finder.findAllByStatus(member.getUniversity().getId(), endDate, agendaId, memberId);
+        final List<Long> list = allByStatus.stream().map(MemberAgendaSubResult::agendaId).toList();
+        final Map<Long, ObjectId> lastReadChatMap = memberAgendaChatRepository.findAllByAgendaId(list, memberId);
+        return allByStatus.stream()
+                .map(agenda -> new MemberAgendaResponse(agenda, lastReadChatMap.getOrDefault(agenda.agendaId(), MIN_OBJECT_ID)))
+                .toList();
+        //return allByStatus;
     }
 
     public AgendaDetailResponse getAgendaDetail(final Long memberId, final Long agendaId) {
@@ -141,37 +151,26 @@ public class AgendaService {
         final Map<Long, Agenda> agendaMap = agendaList.stream()
                 .collect(Collectors.toMap(Agenda::getId, agenda -> agenda));
 
-        final List<LastChat> lastChats = customAgendaChatRepository.findLastChats(agendaIds, memberId);
+        final List<AgendaLatestChat> lastChats = memberAgendaChatRepository.findLastChats(agendaIds, memberId);
 
-        final Map<Long, LastChat> lastChatMap = lastChats.stream()
-                .collect(Collectors.toMap(LastChat::agendaId, chat -> chat));
-
-        return agendaIds.stream()
-                .map(agendaId -> {
-                    final Agenda agenda = agendaMap.get(agendaId);
-                    final LastChat lastChat = lastChatMap.getOrDefault(agendaId, new LastChat(agendaId, null, null, null));
-
-                    // 마지막 읽은 채팅 조회 및 비교하여 hasNewChat 여부 확인
-                    final ObjectId lastReadChat = getLastReadChat(agendaId, memberId);
-                    final boolean hasNew = hasNewMessage(lastChat.chatId(), lastReadChat);
-
-                    final LocalDateTime createdAt = lastChat.chatId() == null ? null :
-                            ObjectIdTimestampConverter.getLocalDateTimeFromObjectId(lastChat.chatId());
-
-                    return MyAgendaResponse.builder()
-                            .title(agenda.getTitle())
-                            .count(agenda.getCount())
-                            .lastChatId(lastChat.chatId())
-                            .agendaId(agendaId)
-                            .isEnd(agenda.getEndDate().isBefore(LocalDate.now()))
-                            .categoryType(agenda.getCategoryType())
-                            .lastChat(lastChat.content())
-                            .createdAt(createdAt)
-                            .hasNew(hasNew)
-                            .build();
-                })
-                .sorted(Comparator.comparing(MyAgendaResponse::lastChatId, Comparator.nullsFirst(ObjectId::compareTo).reversed()))
-                .toList();
+        return lastChats.stream()
+                .map(lastChat ->
+                        {
+                            final Agenda agenda = agendaMap.get(lastChat.agendaId());
+                            return MyAgendaResponse.builder()
+                                    .agendaId(lastChat.agendaId())
+                                    .lastChatId(lastChat.chatId())
+                                    .count(agenda.getCount())
+                                    .isEnd(agenda.getEndDate().isAfter(LocalDate.now()))
+                                    .title(agenda.getTitle())
+                                    .categoryType(agenda.getCategoryType())
+                                    .createdAt(lastChat.createdAt())
+                                    .hasNew(lastChat.hasNewChat())
+                                    .lastChat(lastChat.content())
+                                    .lastReadChatId(lastChat.lastReadChatId())
+                                    .build();
+                        }
+                ).toList();
     }
 
 
@@ -182,26 +181,14 @@ public class AgendaService {
      * @param memberId 탈퇴할 사용자 ID
      * @param agendaId 탈퇴할 답해요 ID
      */
+    @Transactional
     public void exitAgenda(final Long memberId, final Long agendaId) {
-        if (!agendaMemberRepository.existsByMemberIdAndAgendaId(memberId, agendaId)) {
-            throw new AgendaException(AGENDA_PARTICIPATION_NOT_FOUND);
-        }
-        agendaMemberRepository.deleteByMemberIdAndAgendaId(memberId, agendaId);
+        agendaMemberRepository.findByMemberIdAndAgendaIdAndIsDeletedFalse(memberId, agendaId)
+                .ifPresentOrElse(AgendaMember::exit, () -> {
+                    throw new AgendaException(AGENDA_PARTICIPATION_NOT_FOUND);
+                });
     }
 
-    /**
-     * <h3>마지막 읽은 채팅 ID 조회</h3>
-     * <p>MongoDB에서 특정 사용자의 마지막 읽은 채팅 ID를 가져옵니다.</p>
-     *
-     * @param agendaId 조회할 답해요 ID
-     * @param memberId 조회할 사용자 ID
-     * @return 마지막으로 읽은 채팅의 ObjectId (없으면 null)
-     */
-    private ObjectId getLastReadChat(final Long agendaId, final Long memberId) {
-        return agendaLastReadChatRepository.findByMemberIdAndAgendaId(memberId, agendaId)
-                .orElse(new AgendaLastReadChat(MIN_OBJECT_ID, null, null, null))
-                .getLastReadChatId();
-    }
 
     private Agenda getAgenda(Long agendaId) {
         return agendaRepository.findById(agendaId)
@@ -219,20 +206,5 @@ public class AgendaService {
     private Member getMember(final Long memberId) {
         return memberRepository.findById(memberId)
                 .orElseThrow(() -> new MemberException(ErrorCode.INVALID_MEMBER));
-    }
-
-    /**
-     * <h3>새로운 메시지 여부 확인</h3>
-     * <p>마지막 읽은 채팅과 최신 채팅 ID를 비교하여 새로운 메시지가 있는지 확인합니다.</p>
-     *
-     * @param lastChat     최신 채팅 ID
-     * @param lastReadChat 마지막으로 읽은 채팅 ID
-     * @return 새로운 메시지가 있으면 true, 없으면 false
-     */
-    private boolean hasNewMessage(final ObjectId lastChat, final ObjectId lastReadChat) {
-        if (lastChat == null || lastReadChat == null) {
-            return false;
-        }
-        return lastChat.compareTo(lastReadChat) > 0;
     }
 }

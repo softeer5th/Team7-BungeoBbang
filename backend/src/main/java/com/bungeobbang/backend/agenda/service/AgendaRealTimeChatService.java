@@ -3,12 +3,13 @@ package com.bungeobbang.backend.agenda.service;
 import com.bungeobbang.backend.admin.domain.Admin;
 import com.bungeobbang.backend.admin.domain.repository.AdminRepository;
 import com.bungeobbang.backend.agenda.domain.Agenda;
-import com.bungeobbang.backend.agenda.domain.repository.AgendaMemberRepository;
 import com.bungeobbang.backend.agenda.domain.repository.AgendaRepository;
+import com.bungeobbang.backend.chat.event.agenda.AgendaAdminEvent;
+import com.bungeobbang.backend.chat.event.agenda.AgendaMemberEvent;
 import com.bungeobbang.backend.chat.event.common.AdminConnectEvent;
-import com.bungeobbang.backend.chat.event.common.AdminWebsocketMessage;
+import com.bungeobbang.backend.chat.event.common.AdminDisconnectEvent;
 import com.bungeobbang.backend.chat.event.common.MemberConnectEvent;
-import com.bungeobbang.backend.chat.event.common.MemberWebsocketMessage;
+import com.bungeobbang.backend.chat.event.common.MemberDisconnectEvent;
 import com.bungeobbang.backend.chat.service.MessageQueueService;
 import com.bungeobbang.backend.common.exception.AdminException;
 import com.bungeobbang.backend.common.exception.AgendaException;
@@ -19,10 +20,13 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
+import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 
+import java.io.IOException;
 import java.util.List;
 
+import static com.bungeobbang.backend.common.exception.ErrorCode.ECHO_SEND_FAIL;
 import static com.bungeobbang.backend.common.exception.ErrorCode.JSON_PARSE_FAIL;
 
 /**
@@ -47,7 +51,6 @@ public class AgendaRealTimeChatService {
     private final MessageQueueService messageQueueService;
     private static final String AGENDA_ADMIN_PREFIX = "A_A";
     private final ObjectMapper objectMapper;
-    private final AgendaMemberRepository agendaMemberRepository;
 
     /**
      * 학생이 웹소켓에 연결될 때 호출된다.
@@ -57,9 +60,16 @@ public class AgendaRealTimeChatService {
      */
     @EventListener
     public void memberConnect(MemberConnectEvent event) {
-        agendaMemberRepository.findAllByMemberId(event.memberId())
-                .forEach(agendaMember ->
-                        messageQueueService.subscribe(event.session(), AGENDA_ADMIN_PREFIX + agendaMember.getAgenda().getId()));
+        log.info("☄️ memberConnect event: {}", event);
+        List<Agenda> agendas = agendaRepository.findActiveAgendasByMemberId(event.memberId());
+        agendas.forEach(agenda -> messageQueueService.subscribe(event.session(), AGENDA_ADMIN_PREFIX + agenda.getId()));
+    }
+
+    @EventListener
+    public void memberDisconnect(MemberDisconnectEvent event) {
+        log.info("️✂ memberDisconnect event: {}", event);
+        List<Agenda> agendas = agendaRepository.findActiveAgendasByMemberId(event.memberId());
+        agendas.forEach(agenda -> messageQueueService.unsubscribe(event.session(), AGENDA_ADMIN_PREFIX + agenda.getId()));
     }
 
     /**
@@ -70,24 +80,36 @@ public class AgendaRealTimeChatService {
      */
     @EventListener
     public void adminConnect(AdminConnectEvent event) {
-        final Admin admin = adminRepository.findById(event.adminId())
-                .orElseThrow(() -> new AdminException(ErrorCode.INVALID_ADMIN));
-        Long universityId = admin.getUniversity().getId();
-        final List<Agenda> agendas = agendaRepository.findAllByUniversityId(universityId);
+        log.info("☄️ AdminConnect event: {}", event);
+        final List<Agenda> agendas = getAgenda(event.adminId());
         agendas.forEach(agenda -> messageQueueService.subscribe(event.session(), AGENDA_MEMBER_PREFIX + agenda.getId()));
+        agendas.forEach(agenda -> messageQueueService.subscribe(event.session(), AGENDA_ADMIN_PREFIX + agenda.getId()));
     }
+
+    @EventListener
+    public void adminDisconnect(AdminDisconnectEvent event) {
+        log.info("️✂ AdminDisconnect event: {}", event);
+        final List<Agenda> agendas = getAgenda(event.adminId());
+        agendas.forEach(agenda -> messageQueueService.unsubscribe(event.session(), AGENDA_MEMBER_PREFIX + agenda.getId()));
+        agendas.forEach(agenda -> messageQueueService.unsubscribe(event.session(), AGENDA_ADMIN_PREFIX + agenda.getId()));
+    }
+
 
     /**
      * 학생이 보낸 메시지를 해당 답해요(Agenda)의 관리자에게 전송한다.
      *
      * @param event 메시지 내용을 포함한 이벤트 객체
      */
-    @EventListener
-    public void sendMessageFromMember(MemberWebsocketMessage event) {
+    public void sendMessageFromMember(AgendaMemberEvent event) {
         try {
-            messageQueueService.publish(AGENDA_MEMBER_PREFIX + event.agendaId(), objectMapper.writeValueAsString(event));
+            // 자기 자신에게 전송
+            event.session().sendMessage(new TextMessage(objectMapper.writeValueAsBytes(event.websocketMessage())));
+
+            messageQueueService.publish(AGENDA_MEMBER_PREFIX + event.agendaId(), objectMapper.writeValueAsString(event.websocketMessage()));
         } catch (JsonProcessingException e) {
             throw new AgendaException(JSON_PARSE_FAIL);
+        } catch (IOException e) {
+            throw new AgendaException(ECHO_SEND_FAIL);
         }
     }
 
@@ -96,10 +118,9 @@ public class AgendaRealTimeChatService {
      *
      * @param event 메시지 내용을 포함한 이벤트 객체
      */
-    @EventListener
-    public void sendMessageFromAdmin(AdminWebsocketMessage event) {
+    public void sendMessageFromAdmin(AgendaAdminEvent event) {
         try {
-            messageQueueService.publish(AGENDA_ADMIN_PREFIX + event.agendaId(), objectMapper.writeValueAsString(event));
+            messageQueueService.publish(AGENDA_ADMIN_PREFIX + event.agendaId(), objectMapper.writeValueAsString(event.websocketMessage()));
         } catch (JsonProcessingException e) {
             throw new AgendaException(JSON_PARSE_FAIL);
         }
@@ -135,6 +156,7 @@ public class AgendaRealTimeChatService {
      */
     public void connectAdminFromAgenda(WebSocketSession session, Long adminId) {
         messageQueueService.subscribe(session, AGENDA_MEMBER_PREFIX + adminId);
+        messageQueueService.subscribe(session, AGENDA_ADMIN_PREFIX + adminId);
     }
 
     /**
@@ -148,14 +170,10 @@ public class AgendaRealTimeChatService {
         messageQueueService.unsubscribe(AGENDA_MEMBER_PREFIX + agendaId);
     }
 
-    /**
-     * 특정 답해요(Agenda)와 관련된 모든 연결을 제거한다.
-     * <p>이 작업은 해당 답해요의 모든 채팅 활동을 중단시킨다.</p>
-     *
-     * @param agendaId 연결을 제거할 답해요의 ID
-     */
-    public void removeAgendaConnection(Long agendaId) {
-        messageQueueService.unsubscribe(AGENDA_ADMIN_PREFIX + agendaId);
-        messageQueueService.unsubscribe(AGENDA_MEMBER_PREFIX + agendaId);
+    private List<Agenda> getAgenda(Long adminId) {
+        final Admin admin = adminRepository.findById(adminId)
+                .orElseThrow(() -> new AdminException(ErrorCode.INVALID_ADMIN));
+        Long universityId = admin.getUniversity().getId();
+        return agendaRepository.findActiveAgendasByUniversityId(universityId);
     }
 }

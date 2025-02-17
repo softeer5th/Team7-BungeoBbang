@@ -8,16 +8,16 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface AgendaMemberRepository extends JpaRepository<AgendaMember, Long> {
-    boolean existsByMemberIdAndAgendaId(Long memberId, Long agendaId);
+    boolean existsByMemberIdAndAgendaIdAndIsDeletedFalse(Long memberId, Long agendaId);
 
-    void deleteByMemberIdAndAgendaId(Long memberId, Long agendaId);
+    Optional<AgendaMember> findByMemberIdAndAgendaIdAndIsDeletedTrue(Long memberId, Long agendaId);
 
-    @Query("SELECT am FROM AgendaMember am JOIN FETCH am.agenda WHERE am.member = :member")
+    Optional<AgendaMember> findByMemberIdAndAgendaIdAndIsDeletedFalse(Long memberId, Long agendaId);
+
+    @Query("SELECT am FROM AgendaMember am JOIN FETCH am.agenda WHERE am.member = :member and am.isDeleted = false")
     List<AgendaMember> findAllByMember(@Param("member") Member member);
-
-    List<AgendaMember> findAllByMemberId(Long memberId);
-
 }

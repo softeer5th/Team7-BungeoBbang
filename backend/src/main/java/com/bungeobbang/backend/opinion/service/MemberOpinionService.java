@@ -8,6 +8,7 @@ import com.bungeobbang.backend.member.domain.repository.MemberRepository;
 import com.bungeobbang.backend.opinion.domain.Opinion;
 import com.bungeobbang.backend.opinion.domain.OpinionChat;
 import com.bungeobbang.backend.opinion.domain.OpinionLastRead;
+import com.bungeobbang.backend.opinion.domain.repository.AnsweredOpinionRepository;
 import com.bungeobbang.backend.opinion.domain.repository.OpinionChatRepository;
 import com.bungeobbang.backend.opinion.domain.repository.OpinionLastReadRepository;
 import com.bungeobbang.backend.opinion.domain.repository.OpinionRepository;
@@ -23,10 +24,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+
+import static com.bungeobbang.backend.opinion.service.AdminOpinionService.ASIA_SEOUL;
 
 /**
  * 학생이 사용하는 말해요 관련 서비스 로직을 처리하는 클래스.
@@ -40,6 +45,7 @@ public class MemberOpinionService {
     private final OpinionChatRepository opinionChatRepository;
     private final MemberRepository memberRepository;
     private final OpinionLastReadRepository opinionLastReadRepository;
+    private final AnsweredOpinionRepository answeredOpinionRepository;
     private static final String MIN_OBJECT_ID = "000000000000000000000000";
 
     /**
@@ -49,22 +55,19 @@ public class MemberOpinionService {
      * @return OpinionStatisticsResponse 1달간 말해요 통계 응답 객체
      * @throws MemberException 학생 정보를 조회할 수 없는 경우 예외 발생
      */
-    public OpinionStatisticsResponse computeOpinionStatistics(final Long memberId) {
+    public OpinionStatisticsResponse computeRecentMonthlyOpinionStatistics(final Long memberId) {
         final Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new MemberException(ErrorCode.INVALID_MEMBER));
-        final List<Opinion> opinions = opinionRepository.findAllByCreatedAtBetweenAndUniversityId(
-                LocalDateTime.now().minusMonths(1L),
+
+        LocalDateTime startDateTime = LocalDateTime.now().minusMonths(1);
+        LocalDateTime endDateTime = LocalDateTime.now();
+        final Long opinionCount = opinionRepository.countByCreatedAtBetweenAndUniversityId(
+                LocalDateTime.now().minusMonths(1),
                 LocalDateTime.now(),
-                member.getUniversity().getId());
-        final List<Long> opinionIds = opinions.stream()
-                .map(Opinion::getId)
-                .toList();
-
-        final List<Long> opinionChats = opinionChatRepository.findDistinctOpinionIdByIsAdminTrue(opinionIds);
-
-        final int opinionCount = opinions.size();
-        final int responseCount = opinionChats.size();
-        final double rawRate = (double) responseCount / opinionCount;
+                member.getUniversity().getId()
+        );
+        final Long answerCount = getAnsweredCountByPeriod(startDateTime, endDateTime, member.getUniversity().getId());
+        final double rawRate = (double) answerCount / opinionCount;
         final int adminResponseRate = (int) Math.round(rawRate * 100);
         return new OpinionStatisticsResponse(opinionCount, adminResponseRate);
     }
@@ -93,11 +96,19 @@ public class MemberOpinionService {
         final ObjectId savedChatId = saveOpinionChat(creationRequest, member, opinionId);
 
         // 학생의 마지막 읽은 채팅 ID는 현재 저장한 채팅의 ID
-        final OpinionLastRead memberLastRead = new OpinionLastRead(opinionId, false, savedChatId);
+        final OpinionLastRead memberLastRead = OpinionLastRead.builder()
+                .opinionId(opinionId)
+                .isAdmin(false)
+                .lastReadChatId(savedChatId)
+                .build();
         opinionLastReadRepository.save(memberLastRead);
 
         // 학생회의 마지막 읽은 채팅 ID는 ObjectId의 최솟값. (== 아무것도 읽지 않았다는 뜻, isNew를 띄우기 위함.)
-        final OpinionLastRead adminLastRead = new OpinionLastRead(opinionId, true, new ObjectId(MIN_OBJECT_ID));
+        final OpinionLastRead adminLastRead = OpinionLastRead.builder()
+                .opinionId(opinionId)
+                .isAdmin(true)
+                .lastReadChatId(new ObjectId(MIN_OBJECT_ID))
+                .build();
         opinionLastReadRepository.save(adminLastRead);
 
         return new OpinionCreationResponse(opinionId);
@@ -122,6 +133,7 @@ public class MemberOpinionService {
         final Opinion opinion = opinionRepository.findById(opinionId)
                 .orElseThrow(() -> new OpinionException(ErrorCode.INVALID_OPINION));
         validateOpinionAuthor(opinion, memberId);
+        if (opinion.isRemind()) throw new OpinionException(ErrorCode.ALREADY_REMINDED);
         opinion.setRemind();
     }
 
@@ -156,7 +168,7 @@ public class MemberOpinionService {
                 .categoryType(creationRequest.categoryType())
                 .member(member)
                 .isRemind(false)
-                .chatCount(1)
+                .chatCount(1L)
                 .build();
     }
 
@@ -211,7 +223,12 @@ public class MemberOpinionService {
                     OpinionChat lastChat = lastChatMap.get(opinion.getId());
 
                     if (lastRead == null) {
-                        opinionLastReadRepository.save(new OpinionLastRead(opinion.getId(), false, new ObjectId(MIN_OBJECT_ID)));
+                        lastRead = opinionLastReadRepository.save(
+                                OpinionLastRead.builder()
+                                        .opinionId(opinion.getId())
+                                        .isAdmin(false)
+                                        .lastReadChatId(new ObjectId(MIN_OBJECT_ID))
+                                        .build());
                     }
                     if (lastChat == null) throw new OpinionException(ErrorCode.INVALID_OPINION_CHAT);
 
@@ -219,5 +236,14 @@ public class MemberOpinionService {
                 })
                 .sorted()
                 .toList();
+    }
+
+    private Long getAnsweredCountByPeriod(final LocalDateTime startDateTime, final LocalDateTime endDateTime, final Long universityId) {
+        final ZoneId koreaZone = ZoneId.of(ASIA_SEOUL);
+
+        final ObjectId startObjectId = new ObjectId(new Date(startDateTime.atZone(koreaZone).toInstant().toEpochMilli()));
+        final ObjectId endObjectId = new ObjectId(new Date(endDateTime.atZone(koreaZone).toInstant().toEpochMilli()));
+
+        return answeredOpinionRepository.countByIdBetweenAndUniversityId(startObjectId, endObjectId, universityId);
     }
 }

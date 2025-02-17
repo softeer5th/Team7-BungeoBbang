@@ -25,10 +25,22 @@ public class AgendaMember {
     @JoinColumn(name = "member_id")
     private Member member;
 
+    @Column
+    private boolean isDeleted;
+
     @Builder
     public AgendaMember(Long id, Agenda agenda, Member member) {
         this.id = id;
         this.agenda = agenda;
         this.member = member;
+        this.isDeleted = false;
+    }
+
+    public void reParticipate() {
+        this.isDeleted = false;
+    }
+
+    public void exit() {
+        this.isDeleted = true;
     }
 }

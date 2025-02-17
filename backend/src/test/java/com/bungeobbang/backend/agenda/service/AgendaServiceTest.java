@@ -1,18 +1,17 @@
 package com.bungeobbang.backend.agenda.service;
 
 import com.bungeobbang.backend.agenda.domain.Agenda;
-import com.bungeobbang.backend.agenda.domain.AgendaLastReadChat;
 import com.bungeobbang.backend.agenda.domain.AgendaMember;
-import com.bungeobbang.backend.agenda.domain.repository.AgendaLastReadChatRepository;
 import com.bungeobbang.backend.agenda.domain.repository.AgendaMemberRepository;
 import com.bungeobbang.backend.agenda.domain.repository.AgendaRepository;
-import com.bungeobbang.backend.agenda.domain.repository.CustomAgendaChatRepository;
+import com.bungeobbang.backend.agenda.domain.repository.MemberAgendaChatRepository;
+import com.bungeobbang.backend.agenda.dto.AgendaLatestChat;
 import com.bungeobbang.backend.agenda.dto.response.AgendaDetailResponse;
-import com.bungeobbang.backend.agenda.dto.response.LastChat;
-import com.bungeobbang.backend.agenda.dto.response.MyAgendaResponse;
+import com.bungeobbang.backend.agenda.dto.response.member.MyAgendaResponse;
 import com.bungeobbang.backend.common.exception.AgendaException;
 import com.bungeobbang.backend.member.domain.Member;
 import com.bungeobbang.backend.member.domain.repository.MemberRepository;
+import org.assertj.core.api.Assertions;
 import org.bson.types.ObjectId;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -31,7 +30,6 @@ import static com.bungeobbang.backend.agenda.fixture.AgendaFixture.NAVER_AGENDA_
 import static com.bungeobbang.backend.common.exception.ErrorCode.*;
 import static com.bungeobbang.backend.member.fixture.MemberFixture.KAKAO_MEMBER;
 import static com.bungeobbang.backend.member.fixture.MemberFixture.NAVER_MEMBER;
-import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -47,10 +45,7 @@ class AgendaServiceTest {
     @Mock
     private AgendaMemberRepository agendaMemberRepository;
     @Mock
-    private CustomAgendaChatRepository customAgendaChatRepository;
-
-    @Mock
-    private AgendaLastReadChatRepository agendaLastReadChatRepository;
+    private MemberAgendaChatRepository memberAgendaChatRepository;
     @Mock
     private AgendaRepository agendaRepository;
     @Mock
@@ -62,7 +57,7 @@ class AgendaServiceTest {
         // given
         Member member = KAKAO_MEMBER;
         Agenda agenda = NAVER_AGENDA;
-        when(agendaRepository.findById(anyLong()))
+        when(agendaRepository.findByIdWithLock(anyLong()))
                 .thenReturn(Optional.of(agenda));
         when(memberRepository.findById(anyLong()))
                 .thenReturn(Optional.of(member));
@@ -79,11 +74,11 @@ class AgendaServiceTest {
         // given
         Member member = NAVER_MEMBER;
         Agenda agenda = NAVER_AGENDA;
-        when(agendaRepository.findById(anyLong()))
+        when(agendaRepository.findByIdWithLock(anyLong()))
                 .thenReturn(Optional.of(agenda));
         when(memberRepository.findById(anyLong()))
                 .thenReturn(Optional.of(member));
-        when(agendaMemberRepository.existsByMemberIdAndAgendaId(anyLong(), anyLong()))
+        when(agendaMemberRepository.existsByMemberIdAndAgendaIdAndIsDeletedFalse(anyLong(), anyLong()))
                 .thenReturn(TRUE);
 
         // when & then
@@ -99,7 +94,7 @@ class AgendaServiceTest {
         Member member = NAVER_MEMBER;
         Agenda agenda = NAVER_AGENDA;
 
-        when(agendaRepository.findById(anyLong()))
+        when(agendaRepository.findByIdWithLock(anyLong()))
                 .thenReturn(Optional.of(agenda));
         when(memberRepository.findById(anyLong()))
                 .thenReturn(Optional.of(member));
@@ -157,8 +152,8 @@ class AgendaServiceTest {
         Member member = NAVER_MEMBER;
         Agenda agenda = NAVER_AGENDA;
 
-        when(agendaMemberRepository.existsByMemberIdAndAgendaId(anyLong(), anyLong()))
-                .thenReturn(FALSE);
+        when(agendaMemberRepository.findByMemberIdAndAgendaIdAndIsDeletedFalse(anyLong(), anyLong()))
+                .thenReturn(Optional.empty());
 
         // when & then
         assertThatThrownBy(() -> agendaService.exitAgenda(agenda.getId(), member.getId()))
@@ -173,14 +168,15 @@ class AgendaServiceTest {
         Member member = NAVER_MEMBER;
         Agenda agenda = NAVER_AGENDA;
 
-        when(agendaMemberRepository.existsByMemberIdAndAgendaId(anyLong(), anyLong()))
-                .thenReturn(TRUE);
+        final AgendaMember agendaMember = AgendaMember.builder().member(member).agenda(agenda).build();
+        when(agendaMemberRepository.findByMemberIdAndAgendaIdAndIsDeletedFalse(anyLong(), anyLong()))
+                .thenReturn(Optional.of(agendaMember));
 
         // when
         agendaService.exitAgenda(agenda.getId(), member.getId());
 
         // then
-        verify(agendaMemberRepository, Mockito.times(1)).deleteByMemberIdAndAgendaId(member.getId(), agenda.getId());
+        Assertions.assertThat(agendaMember.isDeleted()).isTrue();
     }
 
     @Test
@@ -193,14 +189,12 @@ class AgendaServiceTest {
                 .thenReturn(Optional.of(member));
         when(agendaMemberRepository.findAllByMember(member))
                 .thenReturn(List.of(new AgendaMember(1L, agenda, member), new AgendaMember(1L, agenda2, member)));
-        when(customAgendaChatRepository.findLastChats(List.of(1L, 2L), member.getId()))
+        when(memberAgendaChatRepository.findLastChats(List.of(1L, 2L), member.getId()))
                 .thenReturn(
                         List.of(
-                                new LastChat(1L, new ObjectId(0, 0), "1번 마지막 채팅", LocalDateTime.now())
+                                new AgendaLatestChat(1L, new ObjectId(0, 0), "1번 마지막 채팅", LocalDateTime.now(), false, null),
+                                new AgendaLatestChat(2L, new ObjectId(0, 0), null, LocalDateTime.now(), false, null)
                         ));
-        when(agendaLastReadChatRepository.findByMemberIdAndAgendaId(anyLong(), anyLong()))
-                .thenReturn(Optional.of(new AgendaLastReadChat(new ObjectId(0, 0), member.getId(), agenda.getId(), new ObjectId(0, 0))));
-
         // when
         final List<MyAgendaResponse> myAgenda = agendaService.getMyAgenda(member.getId());
         // then

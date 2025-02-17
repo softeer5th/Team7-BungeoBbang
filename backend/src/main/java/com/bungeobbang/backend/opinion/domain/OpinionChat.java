@@ -29,7 +29,8 @@ public class OpinionChat {
     private LocalDateTime createdAt;
 
     @Builder
-    public OpinionChat(Long memberId, Long opinionId, String chat, List<String> images, boolean isAdmin, LocalDateTime createdAt) {
+    public OpinionChat(ObjectId id, Long memberId, Long opinionId, String chat, List<String> images, boolean isAdmin, LocalDateTime createdAt) {
+        this.id = id;
         this.memberId = memberId;
         this.opinionId = opinionId;
         this.chat = chat;
