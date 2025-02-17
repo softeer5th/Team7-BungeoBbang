@@ -7,8 +7,14 @@ import prettier from "eslint-plugin-prettier";
 
 export default [
   {
-    files: ["**/*.{ts,tsx}"],
-    ignores: ["dist/**"],
+    files: ["src/**/*.{ts,tsx}"],
+    ignores: [
+      "**/node_modules/**",
+      "**/dist/**",
+      "**/dev-dist/**",
+      "**/.dev-dist/**",
+    ],
+
     languageOptions: {
       ecmaVersion: 2020,
       sourceType: "module",

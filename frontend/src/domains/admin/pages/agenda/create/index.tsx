@@ -75,7 +75,7 @@ const CreateAgendaPage = () => {
 
   async function submitChatValue() {
     try {
-      console.log("chatValue", chatValue);
+      console.log('chatValue', chatValue);
       const body = {
         title: chatValue.title,
         categoryType: chatValue.category?.type,
@@ -256,9 +256,7 @@ const CreateAgendaPage = () => {
                   >
                     <DeleteIcon width="16px" height="16px" stroke={theme.colors.grayScaleWhite} />
                   </S.DeleteIconBox>
-                  <S.ImageBox
-                    src={image}
-                  ></S.ImageBox>
+                  <S.ImageBox src={image}></S.ImageBox>
                 </S.ImageItem>
               );
             })}
