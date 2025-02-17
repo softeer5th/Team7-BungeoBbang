@@ -29,6 +29,12 @@ import useInfiniteScroll from '@/hooks/useInfiniteScroll';
 // import { findChatCategoryType } from '@/utils/findChatCategoryType';
 import { ChatCategoryType } from '@/types/ChatCategoryType';
 import { ChatToast } from '@/components/ChatToast';
+import {
+  FIRST_REMAIN_ITEMS,
+  LAST_REMAIN_ITEMS,
+  MAX_CHAT_DATA_LENGTH,
+  MAX_CHAT_PAGE_DATA,
+} from '@/utils/chat/chat_const';
 
 const OpinionChatPage = () => {
   const chatSendFieldRef = useRef<HTMLDivElement>(null);
@@ -70,14 +76,24 @@ const OpinionChatPage = () => {
         if (message.adminId === Number(memberId)) {
           if (!getHasDownMore()) {
             isLive.current = true;
-            setChatData((prev) => [...prev, newChat]);
+            setChatData((prev) => {
+              if (MAX_CHAT_DATA_LENGTH - prev.length > 1) {
+                return [...prev.slice(prev.length - MAX_CHAT_DATA_LENGTH + 1), newChat];
+              }
+              return [...prev, newChat];
+            });
           } else {
             setToastMeesage('아직 읽지 않은 채팅이 있습니다.');
           }
         } else {
           if (!getHasDownMore()) {
             isLiveReceive.current = true;
-            setChatData((prev) => [...prev, newChat]);
+            setChatData((prev) => {
+              if (MAX_CHAT_DATA_LENGTH - prev.length > 1) {
+                return [...prev.slice(prev.length - MAX_CHAT_DATA_LENGTH + 1), newChat];
+              }
+              return [...prev, newChat];
+            });
           }
           setToastMeesage('새로운 채팅이 도착했습니다.');
         }
@@ -143,17 +159,6 @@ const OpinionChatPage = () => {
 
   useEnterLeaveHandler('OPINION', 'ADMIN');
 
-  const FIRST_REMAIN_ITEMS = 1;
-  const LAST_REMAIN_ITEMS = 1;
-  const MAX_CHAT_DATA = 10;
-
-  // const [chatData, setChatData] = useState<ChatData[]>([]);
-
-  // const [chatRoomInfo, setChatRoomInfo] = useState<ChatRoomInfo>({
-  // title: '',
-  // adminName: '총학생회',
-  // });
-
   const lastUpChatId = useRef<string>(lastChatId);
   const lastDownChatId = useRef<string>(lastChatId);
   const isInitialLoading = useRef<boolean>(true);
@@ -218,8 +223,13 @@ const OpinionChatPage = () => {
       const formattedData = formatChatData(response.data, true);
 
       setChatData((prev: ChatData[]) => {
-        if (response.data.length < MAX_CHAT_DATA) {
+        if (response.data.length < MAX_CHAT_PAGE_DATA) {
           setHasUpMore(false);
+        }
+
+        if (MAX_CHAT_DATA_LENGTH - formattedData.length < prev.length) {
+          setHasDownMore(true);
+          return [...formattedData, ...prev.slice(0, MAX_CHAT_DATA_LENGTH - formattedData.length)];
         }
         return [...formattedData, ...prev];
       });
@@ -241,9 +251,14 @@ const OpinionChatPage = () => {
       const formattedData = formatChatData(response.data, true);
 
       setChatData((prev: ChatData[]) => {
-        if (response.data.length < MAX_CHAT_DATA) {
+        if (response.data.length < MAX_CHAT_PAGE_DATA) {
           setHasDownMore(false);
         }
+
+        if (MAX_CHAT_DATA_LENGTH - formattedData.length < prev.length) {
+          return [...prev.slice(formattedData.length - MAX_CHAT_DATA_LENGTH), ...formattedData];
+        }
+
         return [...prev, ...formattedData];
       });
     } catch (error) {
