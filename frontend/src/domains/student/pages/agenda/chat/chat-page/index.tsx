@@ -195,7 +195,6 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
           setChatData(formattedData);
         }
 
-        // setChatData(formattedData);
         setChatRoomInfo({
           title: chatInfo.data.title,
           adminName: chatInfo.data.adminName,
@@ -209,7 +208,6 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
 
     const getMoreUpChatData = async () => {
       console.log('up!!!', isInitialLoading);
-      // return;
       try {
         isUpDirection.current = true;
         const response = await api.get(`/student/agendas/${roomId}/chat`, {
@@ -218,7 +216,7 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
             scroll: 'UP',
           },
         });
-        console.log('up!!', response.data, MAX_CHAT_DATA);
+        console.log('up!!', response.data);
         const formattedData = formatChatData(response.data, false);
 
         setChatData((prev: ChatData[]) => {
@@ -280,7 +278,6 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
       if (!elementRef.current) return;
 
       if (isInitialLoading.current === true) {
-        console.log('???');
         scrollToTop();
         return;
       }
