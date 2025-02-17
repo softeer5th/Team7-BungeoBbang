@@ -83,7 +83,13 @@ const OpinionChatPage = () => {
   const checkLastThreeChats = useCallback(() => {
     if (chatData.length < 3) return false;
 
-    const lastThreeChats = chatData.slice(-3);
+    const actualChats = chatData.filter(
+      (chat) => chat.type === ChatType.SEND || chat.type === ChatType.RECEIVE,
+    );
+
+    if (actualChats.length < 3) return false;
+
+    const lastThreeChats = actualChats.slice(-3);
     const isAllStudentMessages = lastThreeChats.every((chat) => chat.type === ChatType.SEND);
     return isAllStudentMessages;
   }, [chatData]);
@@ -405,11 +411,12 @@ const OpinionChatPage = () => {
         onImageDelete={handleImageDelete}
         onImageUpload={handleImageUpload}
         maxLength={500}
-        // sendDisabled={isRemindEnabled}
         textDisabled={isRemindEnabled}
         disabledPlaceHolder={
           isReminded ? '리마인드를 전송한 상태입니다.' : '답장이 없을 시 리마인드 버튼을 눌러주세요'
         }
+        isRemindMode={isRemindEnabled}
+        isReminded={isReminded}
       />
 
       {isExitDialogOpen && (

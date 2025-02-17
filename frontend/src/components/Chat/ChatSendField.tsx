@@ -38,6 +38,8 @@ interface ChatSendFieldProps {
   imageDisabled?: boolean;
   textDisabled?: boolean;
   sendDisabled?: boolean;
+  isRemindMode?: boolean;
+  isReminded?: boolean;
 }
 
 export const ChatSendField: React.FC<ChatSendFieldProps> = ({
@@ -76,6 +78,8 @@ export const ChatSendField: React.FC<ChatSendFieldProps> = ({
   imageDisabled = false,
   textDisabled = false,
   sendDisabled = false,
+  isRemindMode = false,
+  isReminded = false,
 }) => {
   const [message, setMessage] = useState(initialText);
   const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
@@ -210,12 +214,18 @@ export const ChatSendField: React.FC<ChatSendFieldProps> = ({
                 sendDisabled ? sendButtonDisabledBackgroundColor : sendButtonBackgroundColor
               }
             >
-              <ArrowUpIcon
-                width="24px"
-                height="24px"
-                fill={sendDisabled ? sendButtonDisabledIconColor : sendButtonIconColor}
-                stroke={sendDisabled ? sendButtonDisabledIconColor : sendButtonIconColor}
-              />
+              {isRemindMode ? (
+                <RemindIcon isReminded={isReminded}>
+                  <Typography variant="body4">Re</Typography>
+                </RemindIcon>
+              ) : (
+                <ArrowUpIcon
+                  width="24px"
+                  height="24px"
+                  fill={sendDisabled ? sendButtonDisabledIconColor : sendButtonIconColor}
+                  stroke={sendDisabled ? sendButtonDisabledIconColor : sendButtonIconColor}
+                />
+              )}
             </SendButtonBox>
           </TextFieldBox>
         </TextFieldContainer>
@@ -377,4 +387,16 @@ const SendButtonBox = styled.div<{ backgroundColor: string }>`
   position: absolute;
   right: 4px;
   bottom: 6px;
+`;
+
+const RemindIcon = styled.div<{ isReminded?: boolean }>`
+  width: 30px;
+  height: 30px;
+  background-color: ${(props) => (props.isReminded ? 'rgba(224, 224, 224, 1)' : '#1f87ff')};
+  color: ${(props) => (props.isReminded ? 'rgba(244, 244, 244, 1)' : '#ffffff')};
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
 `;
