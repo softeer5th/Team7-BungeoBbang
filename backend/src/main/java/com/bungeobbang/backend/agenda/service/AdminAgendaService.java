@@ -124,6 +124,7 @@ public class AdminAgendaService {
                 .content(request.content())
                 .startDate(request.startDate())
                 .endDate(request.endDate())
+                .isEnd(false)
                 .build());
 
         final List<AgendaImage> images = makeImages(request.images(), save);
@@ -221,6 +222,7 @@ public class AdminAgendaService {
                 .startDate(agenda.getStartDate())
                 .endDate(agenda.getEndDate())
                 .content(request.content())
+                .isEnd(agenda.isEnd())
                 .count(agenda.getCount())
                 .firstChatId(agenda.getFirstChatId())
                 .images(updateImages(agenda.getImages(), request.images(), agenda))
