@@ -4,18 +4,9 @@ import { ChatSendField } from '@/components/Chat/ChatSendField.tsx';
 import { ReceiverChat } from '@/components/Chat/ReceiverChat.tsx';
 import { SenderChat } from '@/components/Chat/SenderChat.tsx';
 import { TextBadge } from '@/components/Chat/TextBadge.tsx';
-import {
-  ChatData,
-  ChatType,
-  InfoChatData,
-  // MoreChatData,
-  ReceiveChatData,
-  SendChatData,
-} from './ChatData.tsx';
+import { ChatData, ChatType, InfoChatData, ReceiveChatData, SendChatData } from './ChatData.tsx';
 import { useNavigate } from 'react-router-dom';
 import { forwardRef, useCallback, useState, useEffect, useRef, useLayoutEffect } from 'react';
-// import { getDefaultBorderStyle } from '@/components/border/getBorderType.tsx';
-// import { BorderType } from '@/components/border/BorderProps.tsx';
 import { useSocketStore, ChatMessage } from '@/store/socketStore';
 import { useImageUpload } from '@/hooks/useImageUpload';
 import { ImageFileSizeDialog } from '@/components/Dialog/ImageFileSizeDialog.tsx';
@@ -35,6 +26,7 @@ import face7 from '@/assets/imgs/face7.png';
 import face8 from '@/assets/imgs/face8.png';
 import { ChatToast } from '@/components/ChatToast.tsx';
 import { ImagePreview } from '@/components/Chat/ImagePreview.tsx';
+import { SendDialog } from '../../components/SendDialog.tsx';
 
 interface ChatPageProps {
   roomId: number;
@@ -52,6 +44,7 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
     const [isToolTipVisible, setToolTipVisible] = useState(false);
     const chatSendFieldRef = useRef<HTMLDivElement>(null);
     const [toastMessage, setToastMeesage] = useState<string | null>(null);
+    const [showSendDialog, setShowSendDialog] = useState<boolean>(false);
 
     const theme = useTheme();
     const randomBackgroundColor = [
@@ -70,12 +63,7 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
     const [message, setMessage] = useState('');
     const [chatData, setChatData] = useState<ChatData[]>([]);
 
-    // useEffect(() => {
-    //   setChatData(apiChatData);
-    // }, [apiChatData]);
-
     const memberId = localStorage.getItem('member_id');
-    // const { roomId } = useParams();
 
     const { images, showSizeDialog, handleImageDelete, handleImageUpload, closeSizeDialog } =
       useImageUpload(10, 5);
@@ -97,7 +85,6 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
             }),
             images: message.images || [],
           };
-          // console.log('receive!!', getHasDownMore());
           if (message.adminId === Number(memberId)) {
             if (!getHasDownMore()) {
               isLive.current = true;
@@ -153,8 +140,6 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
     let upLastItemId: string = '';
     let downLatItemId: string = '';
 
-    // const [chatData, setChatData] = useState<ChatData[]>([]);
-
     const [chatRoomInfo, setChatRoomInfo] = useState<ChatRoomInfo>({
       title: '',
       adminName: '총학생회',
@@ -190,8 +175,6 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
         console.log('responsesseee', response);
 
         const formattedData = formatChatData(response.data, true);
-
-        // setChatData(formattedData);
 
         if (lastUpChatId.current === 'ffffffffffffffffffffffff' && formattedData.length > 1) {
           setChatData([...formattedData.slice(formattedData.length - 2)]);
@@ -420,12 +403,20 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
           sendDisabled={isEnd}
           imageDisabled={isEnd}
           onChange={setMessage}
-          onSendMessage={handleSendMessage}
+          onSendMessage={() => setShowSendDialog(true)}
           images={images}
           onImageDelete={handleImageDelete}
           onImageUpload={handleImageUpload}
           maxLength={500}
         />
+        {showSendDialog && (
+          <SendDialog
+            message={message}
+            images={images}
+            onConfirm={() => handleSendMessage(message, images)}
+            onDismiss={() => setShowSendDialog(false)}
+          />
+        )}
         {showSizeDialog && (
           <ImageFileSizeDialog onConfirm={closeSizeDialog} onDismiss={closeSizeDialog} />
         )}

@@ -87,7 +87,7 @@ export const ChatSendField = forwardRef<HTMLDivElement, ChatSendFieldProps>(
     const textAreaRef = useRef<HTMLTextAreaElement>(null);
 
     let maxTextInputHeight = 174;
-    if (images) maxTextInputHeight = 102;
+    if (images) maxTextInputHeight = 85;
 
     const handleTextInput = (newMessage: string) => {
       let newValue = newMessage;
@@ -115,7 +115,7 @@ export const ChatSendField = forwardRef<HTMLDivElement, ChatSendFieldProps>(
 
       if (message.trim() || textDisabled) {
         onSendMessage(message, images);
-        setMessage('');
+        // setMessage('');
       }
     };
 
@@ -128,6 +128,10 @@ export const ChatSendField = forwardRef<HTMLDivElement, ChatSendFieldProps>(
     };
 
     const isImageDisabled = images.length >= maxLengthOfImages || imageDisabled;
+
+    useEffect(() => {
+      setMessage(initialText);
+    }, [initialText]);
 
     useEffect(() => {
       handleResizeHeight();
@@ -317,6 +321,10 @@ const ImageList = styled.div`
 `;
 
 const ImageListItem = styled.div`
+  min-width: 64px;
+  max-width: 64px;
+  min-height: 66px;
+  max-height: 66px;
   position: relative;
   width: fit-content;
 `;
@@ -337,8 +345,10 @@ const DeleteButtonBox = styled.div`
 `;
 
 const ImageBox = styled.img`
-  width: 60px;
-  height: 60px;
+  min-width: 60px;
+  max-width: 60px;
+  min-height: 60px;
+  max-height: 60px;
   border-radius: 16px;
   margin-top: 6px;
 `;
