@@ -2,7 +2,7 @@ import { BottomNavigation } from '@/components/bottom-navigation/BottomNavigatio
 import * as S from './styles';
 import { TopAppBar } from '@/components/TopAppBar';
 import { useTheme } from 'styled-components';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import { TabBar } from '@/components/tab-bar/TabBar';
 import { TabBarItemProps } from '@/components/tab-bar/TabBarItem';
 import { ChatPreviewData } from './data/ChatPreviewData.tsx';
@@ -17,10 +17,12 @@ import {
 import { bottomItems, moveToDestination } from '../destinations.tsx';
 import { useNavigate } from 'react-router-dom';
 import { EmptyContent } from '@/components/EmptyContent.tsx';
+import { useSocketStore, ChatMessage } from '@/store/socketStore.ts';
 
 const MyPage = () => {
   const theme = useTheme();
   const navigate = useNavigate();
+  const { subscribe } = useSocketStore();
 
   const [activeIndex, setActiveIndex] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -97,6 +99,46 @@ const MyPage = () => {
 
     setTranslateX(scrollLeft + -activeIndex * width);
   }, [activeIndex]);
+
+  const handleNewMessage = useCallback((message: ChatMessage) => {
+    setTabBarContent((prev) => {
+      const newContent = { ...prev };
+
+      // 메시지 타입에 따라 opinion/agenda 구분
+      const type = message.roomType.toLowerCase();
+      const currentContent = newContent[type] || [];
+
+      // 해당 채팅방 찾기
+      const targetRoomId = message.roomType === 'OPINION' ? message.opinionId : message.agendaId;
+      const roomIndex = currentContent.findIndex((item) => item.roomId === targetRoomId);
+
+      if (roomIndex !== -1) {
+        // 기존 채팅방이 있으면 최신 메시지로 업데이트하고 맨 위로 이동
+        const updatedRoom = {
+          ...currentContent[roomIndex],
+          lastMessage: message.message,
+          lastSendTime: message.createdAt,
+          hasNewChat: true,
+        };
+
+        // 해당 채팅방을 제거하고 맨 앞에 추가
+        currentContent.splice(roomIndex, 1);
+        newContent[type] = [updatedRoom, ...currentContent];
+      }
+
+      return newContent;
+    });
+  }, []);
+
+  useEffect(() => {
+    const unsubscribeOpinion = subscribe('OPINION', -1, handleNewMessage);
+    const unsubscribeAgenda = subscribe('AGENDA', -1, handleNewMessage);
+
+    return () => {
+      unsubscribeOpinion();
+      unsubscribeAgenda();
+    };
+  }, [subscribe, handleNewMessage]);
 
   return (
     <S.Container>

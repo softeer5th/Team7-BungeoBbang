@@ -1,8 +1,9 @@
 import styled from 'styled-components';
-import { useState, forwardRef } from 'react';
+import { useState, forwardRef, useEffect } from 'react';
 import { BottomNavigationItem, BottomNavigationItemProps } from './BottomNavigationItem';
 import { BorderProps } from '../border/BorderProps';
 // import { getBorderStyle } from '../border/getBorderType';
+import { useSocketStore } from '@/store/socketStore';
 
 interface BottomNavigationProps {
   startDestination: string;
@@ -32,6 +33,29 @@ export const BottomNavigation = forwardRef<HTMLDivElement, BottomNavigationProps
     ref,
   ) => {
     const [selectedItem, setSelectedItem] = useState(startDestination);
+    const [hasNewMessage, setHasNewMessage] = useState(false);
+    const { subscribe } = useSocketStore();
+
+    useEffect(() => {
+      const unsubscribeOpinion = subscribe('OPINION', -1, () => {
+        if (selectedItem !== 'my') {
+          setHasNewMessage(true);
+        }
+      });
+
+      const unsubscribeAgenda = subscribe('AGENDA', -1, () => {
+        if (selectedItem !== 'my') {
+          setHasNewMessage(true);
+        }
+      });
+      console.log('subscribe');
+
+      return () => {
+        unsubscribeOpinion();
+        unsubscribeAgenda();
+        console.log('unsubscribe');
+      };
+    }, [selectedItem, subscribe]);
 
     return (
       <BottomNavigationWrapper ref={ref} backgroundColor={backgroundColor} border={border}>
@@ -45,8 +69,11 @@ export const BottomNavigation = forwardRef<HTMLDivElement, BottomNavigationProps
             onItemClick={() => {
               setSelectedItem(destination.itemId);
               onItemClick(destination.itemId);
+              if (destination.itemId === 'my') {
+                setHasNewMessage(false);
+              }
             }}
-            hasAlarm={setAlarm && destination.itemId === 'my'}
+            hasAlarm={(setAlarm || hasNewMessage) && destination.itemId === 'my'}
             selected={destination.itemId === selectedItem}
           />
         ))}
@@ -73,4 +100,5 @@ const BottomNavigationWrapper = styled.div<{
       ? `${props.border.borderWidth || '1px'} solid ${props.border.borderColor || '#161616'}`
       : 'none'};
   border-radius: ${(props) => props.border?.borderRadius || '0px'};
+  padding-bottom: env(safe-area-inset-bottom);
 `;

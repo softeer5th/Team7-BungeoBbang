@@ -40,7 +40,7 @@ const OpinionChatPage = () => {
 
   const navigate = useNavigate();
   const { roomId } = useParams();
-  const { subscribe, sendMessage } = useSocketStore();
+  const { subscribe, sendMessage, socket, connect } = useSocketStore();
   const memberId = localStorage.getItem('member_id');
   const location = useLocation();
   const opinionType = location.state?.opinionType || '';
@@ -101,9 +101,17 @@ const OpinionChatPage = () => {
   }, [roomId]);
 
   useEffect(() => {
+    if (!socket) {
+      connect(true); // true for admin
+    }
+  }, [socket, connect]);
+
+  useEffect(() => {
+    if (!roomId || !socket) return;
+
     const unsubscribe = subscribe('OPINION', Number(roomId), handleMessageReceive);
     return () => unsubscribe();
-  }, [roomId, handleMessageReceive, subscribe]);
+  }, [roomId, handleMessageReceive, subscribe, socket]);
 
   const handleSendMessage = useCallback(
     (message: string, images: string[] = []) => {

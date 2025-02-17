@@ -16,6 +16,7 @@ export interface ChatMessage {
 interface SocketState {
   socket: WebSocket | null;
   hasNewMessage: boolean;
+  activeSubscriptions: { [key: string]: { callback: (message: ChatMessage) => void } };
   connect: (isAdmin: boolean) => void;
   disconnect: () => void;
   clearNewMessage: () => void;
@@ -37,6 +38,7 @@ interface SocketState {
 export const useSocketStore = create<SocketState>((set, get) => ({
   socket: null,
   hasNewMessage: false,
+  activeSubscriptions: {},
 
   connect: (isAdmin: boolean) => {
     const accessToken = localStorage.getItem('access_token');
@@ -72,6 +74,18 @@ export const useSocketStore = create<SocketState>((set, get) => ({
       console.log('WebSocket connected successfully');
       set({ socket: ws });
       startHeartbeat();
+
+      // Resubscribe all active subscriptions
+      const activeSubscriptions = get().activeSubscriptions;
+      Object.entries(activeSubscriptions).forEach(([key, subscription]) => {
+        const [roomType, roomId] = key.split(':');
+        subscription.callback &&
+          get().subscribe(
+            roomType as 'OPINION' | 'AGENDA',
+            parseInt(roomId),
+            subscription.callback,
+          );
+      });
     };
 
     ws.onerror = (error) => {
@@ -81,6 +95,13 @@ export const useSocketStore = create<SocketState>((set, get) => ({
     ws.onclose = () => {
       console.log('WebSocket connection closed');
       set({ socket: null });
+
+      // Clear heartbeat interval
+      const currentInterval = get().heartbeatInterval;
+      if (currentInterval !== null && currentInterval !== undefined) {
+        clearInterval(currentInterval);
+        set({ heartbeatInterval: null });
+      }
 
       setTimeout(() => {
         if (!get().socket) {
@@ -108,6 +129,15 @@ export const useSocketStore = create<SocketState>((set, get) => ({
     callback: (message: ChatMessage) => void,
   ) => {
     const socket = get().socket;
+    const subscriptionKey = `${roomType}:${roomId}`;
+
+    // Store the subscription
+    set((state) => ({
+      activeSubscriptions: {
+        ...state.activeSubscriptions,
+        [subscriptionKey]: { callback },
+      },
+    }));
 
     if (socket) {
       const messageHandler = (event: MessageEvent) => {
@@ -121,6 +151,8 @@ export const useSocketStore = create<SocketState>((set, get) => ({
               (roomType === 'AGENDA' && data.agendaId === roomId))
           ) {
             callback(data);
+          } else if (roomId === -1) {
+            callback(data);
           }
         } catch (error) {
           console.error('Error parsing WebSocket message:', error);
@@ -129,11 +161,26 @@ export const useSocketStore = create<SocketState>((set, get) => ({
       };
 
       socket.addEventListener('message', messageHandler);
+
       return () => {
         socket.removeEventListener('message', messageHandler);
+        // Remove the subscription when unmounting
+        set((state) => {
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          const { [subscriptionKey]: removed, ...rest } = state.activeSubscriptions;
+          return { activeSubscriptions: rest };
+        });
       };
     }
-    return () => {};
+
+    return () => {
+      // Remove the subscription when unmounting even if there was no socket
+      set((state) => {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { [subscriptionKey]: removed, ...rest } = state.activeSubscriptions;
+        return { activeSubscriptions: rest };
+      });
+    };
   },
 
   sendMessage: async (roomType, roomId, messageContent, images, isAdmin) => {

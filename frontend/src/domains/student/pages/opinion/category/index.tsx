@@ -87,7 +87,7 @@ const OpinionCategoryPage: React.FC = () => {
       const response = await api.post('/student/opinions', messageData);
       if (response.status === 200) {
         socketManager('OPINION', 'START', response.data.opinionId, 'STUDENT');
-        navigate('/opinion/chat/' + response.data.opinionId);
+        navigate('/opinion/chat/' + response.data.opinionId, { state: { from: 'opinion' } });
       }
     } catch (error) {
       console.error('메시지 전송 실패:', error);
