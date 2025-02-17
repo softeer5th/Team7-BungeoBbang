@@ -102,8 +102,7 @@ const CreateAgendaPage = () => {
       socketManager('AGENDA', 'START', agendaId, 'ADMIN');
 
       navigate(-1);
-    } catch (error) {
-      console.log('error type', typeof error);
+    } catch (error: any) {
       if (error.response?.status === 400) {
         setBadWordError(true);
       }
