@@ -34,6 +34,7 @@ import face6 from '@/assets/imgs/face6.png';
 import face7 from '@/assets/imgs/face7.png';
 import face8 from '@/assets/imgs/face8.png';
 import { ChatToast } from '@/components/ChatToast.tsx';
+import { ImagePreview } from '@/components/Chat/ImagePreview.tsx';
 
 interface ChatPageProps {
   roomId: number;
@@ -113,6 +114,18 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(({ roomId, lastChatId
     },
     [roomId, memberId],
   );
+
+  const [selectedImage, setSelectedImage] = useState<{ url: string; index: number } | null>(null);
+  const [currentImageList, setCurrentImageList] = useState<string[]>([]);
+
+  const handleImageClick = (imageUrl: string, images: string[]) => {
+    const clickedIndex = images.indexOf(imageUrl);
+    setSelectedImage({
+      url: imageUrl,
+      index: clickedIndex,
+    });
+    setCurrentImageList(images);
+  };
 
   useEnterLeaveHandler('AGENDA', 'ADMIN');
 
@@ -354,6 +367,7 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(({ roomId, lastChatId
                 message={chatData.message}
                 images={chatData.images}
                 timeText={chatData.time}
+                onImageClick={(imageUrl) => handleImageClick(imageUrl, chatData.images || [])}
               />
             );
           } else if (chat.type === ChatType.SEND) {
@@ -375,7 +389,6 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(({ roomId, lastChatId
                           }
 
                           if (isDownTriggerItem) {
-                            console.log('@@@@@@ ', el);
                             lastDownChatId.current = downLatItemId;
                             setTriggerDownItem(el);
                           }
@@ -386,6 +399,7 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(({ roomId, lastChatId
                 message={chatData.message}
                 images={chatData.images}
                 timeText={chatData.time}
+                onImageClick={(imageUrl) => handleImageClick(imageUrl, chatData.images || [])}
               />
             );
           } else if (chat.type === ChatType.INFO) {
@@ -408,6 +422,14 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(({ roomId, lastChatId
       />
       {showSizeDialog && (
         <ImageFileSizeDialog onConfirm={closeSizeDialog} onDismiss={closeSizeDialog} />
+      )}
+      {selectedImage && (
+        <ImagePreview
+          imageUrl={selectedImage.url}
+          currentIndex={selectedImage.index}
+          totalImages={currentImageList.length}
+          onClose={() => setSelectedImage(null)}
+        />
       )}
       {toastMessage && (
         <ChatToast
