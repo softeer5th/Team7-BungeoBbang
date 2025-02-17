@@ -108,7 +108,7 @@ const OpinionChatPage = () => {
 
   useEffect(() => {
     if (!roomId || !socket) return;
-    
+
     const unsubscribe = subscribe('OPINION', Number(roomId), handleMessageReceive);
     return () => unsubscribe();
   }, [roomId, handleMessageReceive, subscribe, socket]);
