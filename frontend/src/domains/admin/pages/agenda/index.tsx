@@ -18,6 +18,7 @@ import { AgendaDeleteDialog } from './components/AgendaDeleteDialog';
 import useInfiniteScroll from '@/hooks/useInfiniteScroll';
 import JwtManager from '@/utils/jwtManager';
 import { useSocketManager } from '@/hooks/useSocketManager';
+import plusIcon from '@/assets/icons/plus.svg';
 
 const tabItems: TabBarItemProps[] = [
   {
@@ -320,7 +321,7 @@ const AgendaPage: React.FC = () => {
           );
         })}
         <S.FloatingActionButton bottom={bottomPx} onClick={() => navigate(`/agenda/create`)}>
-          <img src="/src/assets/icons/plus.svg" />
+          <img src={plusIcon} />
         </S.FloatingActionButton>
       </S.TabContainer>
       <BottomNavigation

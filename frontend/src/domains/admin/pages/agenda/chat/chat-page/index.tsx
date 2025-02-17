@@ -25,6 +25,14 @@ import api from '@/utils/api.ts';
 import { formatChatData } from '@/utils/chat/formatChatData.ts';
 import useInfiniteScroll from '@/hooks/useInfiniteScroll.tsx';
 import { useScroll } from '@/hooks/useScrollBottom.tsx';
+import face1 from '@/assets/imgs/face1.png';
+import face2 from '@/assets/imgs/face2.png';
+import face3 from '@/assets/imgs/face3.png';
+import face4 from '@/assets/imgs/face4.png';
+import face5 from '@/assets/imgs/face5.png';
+import face6 from '@/assets/imgs/face6.png';
+import face7 from '@/assets/imgs/face7.png';
+import face8 from '@/assets/imgs/face8.png';
 
 interface ChatPageProps {
   roomId: number;
@@ -50,16 +58,7 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(({ roomId, lastChatId
     theme.colors.icnGray,
   ];
 
-  const randomIcon = [
-    '/src/assets/imgs/face1.png',
-    '/src/assets/imgs/face2.png',
-    '/src/assets/imgs/face3.png',
-    '/src/assets/imgs/face4.png',
-    '/src/assets/imgs/face5.png',
-    '/src/assets/imgs/face6.png',
-    '/src/assets/imgs/face7.png',
-    '/src/assets/imgs/face8.png',
-  ];
+  const randomIcon = [face1, face2, face3, face4, face5, face6, face7, face8];
 
   const [message, setMessage] = useState('');
   const [chatData, setChatData] = useState<ChatData[]>([]);

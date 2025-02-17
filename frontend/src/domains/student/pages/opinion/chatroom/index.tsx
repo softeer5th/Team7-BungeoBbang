@@ -41,13 +41,12 @@ const OpinionChatPage = () => {
   const { roomId } = useParams();
   const { subscribe, sendMessage } = useSocketStore();
   const memberId = localStorage.getItem('member_id');
-  const { socket } = useSocketStore();
+  // const { socket } = useSocketStore();
   const socketManager = useSocketManager();
   const lastChatId = useLocation().state?.lastChatId || '000000000000000000000000';
 
   const handleMessageReceive = useCallback(
     (message: ChatMessage) => {
-      console.log('message', getHasDownMore());
       if (message.roomType === 'OPINION' && message.opinionId === Number(roomId)) {
         const newChat = {
           type: message.memberId === Number(memberId) ? ChatType.SEND : ChatType.RECEIVE,
@@ -61,16 +60,19 @@ const OpinionChatPage = () => {
         if (message.memberId === Number(memberId)) {
           if (!getHasDownMore()) {
             isLive.current = true;
-            setChatData((prev) => [...prev, newChat]);
           }
         } else {
           if (!getHasDownMore()) {
             isLiveReceive.current = true;
-            setChatData((prev) => [...prev, newChat]);
           }
         }
+        setChatData((prev) => [...prev, newChat]);
 
-        // setChatData((prev) => [...prev, newChat]);
+        setTimeout(() => {
+          if (elementRef.current) {
+            elementRef.current.scrollTop = elementRef.current.scrollHeight;
+          }
+        }, 100);
       }
     },
     [roomId, memberId],
@@ -89,26 +91,26 @@ const OpinionChatPage = () => {
     setIsReminded(true);
   };
 
-  useEffect(() => {
-    if (!roomId) return;
+  // useEffect(() => {
+  //   if (!roomId) return;
 
-    // const fetchData = async () => {
-    //   try {
-    //     const enterResponse = await api.get(`/api/opinions/${roomId}`);
-    //     enterResponse.data.isReminded && setIsReminded(true);
-    //     const response = await api.get(`/api/opinions/${roomId}/chat`, {
-    //       params: { chatId: lastChatId, scroll: 'INITIAL' },
-    //     });
+  // const fetchData = async () => {
+  //   try {
+  //     const enterResponse = await api.get(`/api/opinions/${roomId}`);
+  //     enterResponse.data.isReminded && setIsReminded(true);
+  //     const response = await api.get(`/api/opinions/${roomId}/chat`, {
+  //       params: { chatId: lastChatId, scroll: 'INITIAL' },
+  //     });
 
-    //     const formattedData = formatChatData(response.data, false);
-    //     setChatData(formattedData);
-    //   } catch (error) {
-    //     console.error('채팅 데이터 불러오기 실패:', error);
-    //   }
-    // };
+  //     const formattedData = formatChatData(response.data, false);
+  //     setChatData(formattedData);
+  //   } catch (error) {
+  //     console.error('채팅 데이터 불러오기 실패:', error);
+  //   }
+  // };
 
-    // fetchData();
-  }, [roomId, socket]);
+  // fetchData();
+  // }, [roomId, socket]);
 
   useEffect(() => {
     const unsubscribe = subscribe('OPINION', Number(roomId), handleMessageReceive);

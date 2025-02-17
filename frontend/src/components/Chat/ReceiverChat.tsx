@@ -43,9 +43,11 @@ export const ReceiverChat = forwardRef<HTMLDivElement, ReceiverChatProps>(
               {receiverName}
             </NameText>
           )}
-          {receiverIconSrc && <IconBox backgroundColor={receiverIconBackgroundColor}>
-              <img width = "17px" height = "17px" src = {receiverIconSrc}/>
-            </IconBox>}
+          {receiverIconSrc && (
+            <IconBox backgroundColor={receiverIconBackgroundColor}>
+              <img width="17px" height="17px" src={receiverIconSrc} />
+            </IconBox>
+          )}
         </NameContainer>
         {images && (
           <ImageContainer>

@@ -1,5 +1,6 @@
 import Typography from '@/styles/Typography';
 import styled from 'styled-components';
+import messageIcon from '@/assets/imgs/message.png';
 
 interface EmptyContentProps {
   showIcon?: boolean;
@@ -9,7 +10,7 @@ interface EmptyContentProps {
 export const EmptyContent = ({ showIcon = true, text }: EmptyContentProps) => {
   return (
     <Container>
-      {showIcon && <Icon src="/src/assets/imgs/message.png" />}
+      {showIcon && <Icon src={messageIcon} />}
       <Text variant="heading4">{text}</Text>
     </Container>
   );

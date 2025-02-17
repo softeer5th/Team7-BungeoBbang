@@ -52,6 +52,7 @@ const OpinionChatPage = () => {
   const handleMessageReceive = useCallback(
     (message: ChatMessage) => {
       if (message.roomType === 'OPINION' && message.opinionId === Number(roomId)) {
+        console.log('message1213', getHasDownMore());
         const newChat = {
           type: message.adminId === Number(memberId) ? ChatType.SEND : ChatType.RECEIVE,
           message: message.message,
@@ -65,15 +66,13 @@ const OpinionChatPage = () => {
         if (message.adminId === Number(memberId)) {
           if (!getHasDownMore()) {
             isLive.current = true;
-            setChatData((prev) => [...prev, newChat]);
           }
         } else {
           if (!getHasDownMore()) {
             isLiveReceive.current = true;
-            setChatData((prev) => [...prev, newChat]);
           }
         }
-        // setChatData((prev) => [...prev, newChat]);
+        setChatData((prev) => [...prev, newChat]);
       }
     },
     [roomId, memberId],
