@@ -184,7 +184,7 @@ const OpinionChatPage = () => {
       } else {
         setChatData(formattedData);
       }
-      
+
       enterResponse.data.isReminded && setIsReminded(true);
       // setChatRoomInfo({
       //   title: '',
@@ -303,21 +303,21 @@ const OpinionChatPage = () => {
                 chatId={chatData.chatId}
                 key={index}
                 ref={
-                  isUpTriggerItem
+                  isUpTriggerItem || isDownTriggerItem
                     ? (el) => {
                         if (el) {
-                          lastUpChatId.current = upLastItemId;
-                          setTriggerUpItem(el);
-                        }
-                      }
-                    : isDownTriggerItem
-                      ? (el) => {
-                          if (el) {
+                          if (isUpTriggerItem) {
+                            lastUpChatId.current = upLastItemId;
+                            setTriggerUpItem(el);
+                          }
+
+                          if (isDownTriggerItem) {
                             lastDownChatId.current = downLatItemId;
                             setTriggerDownItem(el);
                           }
                         }
-                      : null
+                      }
+                    : null
                 }
                 receiverIconBackgroundColor={categoryType.iconBackground}
                 receiverIconSrc={categoryType.iconSrc}
@@ -338,21 +338,21 @@ const OpinionChatPage = () => {
                 chatId={chatData.chatId}
                 key={index}
                 ref={
-                  isUpTriggerItem
+                  isUpTriggerItem || isDownTriggerItem
                     ? (el) => {
                         if (el) {
-                          lastUpChatId.current = upLastItemId;
-                          setTriggerUpItem(el);
-                        }
-                      }
-                    : isDownTriggerItem
-                      ? (el) => {
-                          if (el) {
+                          if (isUpTriggerItem) {
+                            lastUpChatId.current = upLastItemId;
+                            setTriggerUpItem(el);
+                          }
+
+                          if (isDownTriggerItem) {
                             lastDownChatId.current = downLatItemId;
                             setTriggerDownItem(el);
                           }
                         }
-                      : null
+                      }
+                    : null
                 }
                 message={chatData.message}
                 images={chatData.images}

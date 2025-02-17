@@ -29,12 +29,6 @@ import { useScroll } from '@/hooks/useScrollBottom.tsx';
 interface ChatPageProps {
   roomId: number;
   lastChatId: string;
-  // apiChatData: ChatData[];
-  // chatRoomInfo: ChatRoomInfo;
-  // onUpLastItemChange?: (lastItemRef: HTMLDivElement, lastItemId: string) => void;
-  // onDownLastItemChange?: (lastItemRef: HTMLDivElement, lastItemId: string) => void;
-  // onMessageSend: (data: ChatData) => void;
-  // onMessageReceive: (data: ChatData) => void;
 }
 
 export interface ChatRoomInfo {
@@ -97,6 +91,7 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(({ roomId, lastChatId
           }),
           images: message.images || [],
         };
+        // console.log('receive!!', getHasDownMore());
         if (message.adminId === Number(memberId)) {
           if (!getHasDownMore()) {
             isLive.current = true;
@@ -280,7 +275,7 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(({ roomId, lastChatId
   const colorMap = useRef(new Map<string, string>());
   const iconMap = useRef(new Map<string, string>());
 
-  const getRandomValue = (map: Map<string,string>, id: string, values: string[]) => {
+  const getRandomValue = (map: Map<string, string>, id: string, values: string[]) => {
     if (map.has(id)) {
       return map.get(id);
     } else {
@@ -320,28 +315,32 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(({ roomId, lastChatId
             if (upLastItemId.length === 0) upLastItemId = chatData.chatId;
             downLatItemId = chatData.chatId;
 
-            const randomColor = getRandomValue(colorMap.current, chatData.chatId, randomBackgroundColor);
+            const randomColor = getRandomValue(
+              colorMap.current,
+              chatData.chatId,
+              randomBackgroundColor,
+            );
             const randomImg = getRandomValue(iconMap.current, chatData.chatId, randomIcon);
 
             return (
               <ReceiverChat
                 chatId={chatData.chatId}
                 ref={
-                  isUpTriggerItem
+                  isUpTriggerItem || isDownTriggerItem
                     ? (el) => {
                         if (el) {
-                          lastUpChatId.current = upLastItemId;
-                          setTriggerUpItem(el);
-                        }
-                      }
-                    : isDownTriggerItem
-                      ? (el) => {
-                          if (el) {
+                          if (isUpTriggerItem) {
+                            lastUpChatId.current = upLastItemId;
+                            setTriggerUpItem(el);
+                          }
+
+                          if (isDownTriggerItem) {
                             lastDownChatId.current = downLatItemId;
                             setTriggerDownItem(el);
                           }
                         }
-                      : null
+                      }
+                    : null
                 }
                 receiverIconBackgroundColor={randomColor}
                 receiverIconSrc={randomImg}
@@ -356,25 +355,27 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(({ roomId, lastChatId
             if (upLastItemId.length === 0) upLastItemId = chatData.chatId;
             downLatItemId = chatData.chatId;
 
+            console.log('!!!!!', isDownTriggerItem);
             return (
               <SenderChat
                 chatId={chatData.chatId}
                 ref={
-                  isUpTriggerItem
+                  isUpTriggerItem || isDownTriggerItem
                     ? (el) => {
                         if (el) {
-                          lastUpChatId.current = upLastItemId;
-                          setTriggerUpItem(el);
-                        }
-                      }
-                    : isDownTriggerItem
-                      ? (el) => {
-                          if (el) {
+                          if (isUpTriggerItem) {
+                            lastUpChatId.current = upLastItemId;
+                            setTriggerUpItem(el);
+                          }
+
+                          if (isDownTriggerItem) {
+                            console.log('@@@@@@ ', el);
                             lastDownChatId.current = downLatItemId;
                             setTriggerDownItem(el);
                           }
                         }
-                      : null
+                      }
+                    : null
                 }
                 message={chatData.message}
                 images={chatData.images}

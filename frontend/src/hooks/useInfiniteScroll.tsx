@@ -33,7 +33,7 @@ const useInfiniteScroll = ({
 
   const setTriggerUpItem = (element: HTMLDivElement) => {
     if (upObserver.current && element) {
-      console.log("upitem", element);
+      // console.log("upitem", element);
       upObserver.current.disconnect();
       upObserver.current.observe(element);
       upTriggerRef.current = element;

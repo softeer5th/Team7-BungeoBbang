@@ -320,21 +320,21 @@ const OpinionChatPage = () => {
                 key={chatData.chatId}
                 chatId={chatData.chatId}
                 ref={
-                  isUpTriggerItem
+                  isUpTriggerItem || isDownTriggerItem
                     ? (el) => {
                         if (el) {
-                          lastUpChatId.current = upLastItemId;
-                          setTriggerUpItem(el);
-                        }
-                      }
-                    : isDownTriggerItem
-                      ? (el) => {
-                          if (el) {
+                          if (isUpTriggerItem) {
+                            lastUpChatId.current = upLastItemId;
+                            setTriggerUpItem(el);
+                          }
+
+                          if (isDownTriggerItem) {
                             lastDownChatId.current = downLatItemId;
                             setTriggerDownItem(el);
                           }
                         }
-                      : null
+                      }
+                    : null
                 }
                 receiverName={chatData.name}
                 message={chatData.message}
@@ -354,21 +354,21 @@ const OpinionChatPage = () => {
                 key={chatData.chatId}
                 chatId={chatData.chatId}
                 ref={
-                  isUpTriggerItem
+                  isUpTriggerItem || isDownTriggerItem
                     ? (el) => {
                         if (el) {
-                          lastUpChatId.current = upLastItemId;
-                          setTriggerUpItem(el);
-                        }
-                      }
-                    : isDownTriggerItem
-                      ? (el) => {
-                          if (el) {
+                          if (isUpTriggerItem) {
+                            lastUpChatId.current = upLastItemId;
+                            setTriggerUpItem(el);
+                          }
+
+                          if (isDownTriggerItem) {
                             lastDownChatId.current = downLatItemId;
                             setTriggerDownItem(el);
                           }
                         }
-                      : null
+                      }
+                    : null
                 }
                 message={chatData.message}
                 images={chatData.images}

@@ -8,39 +8,13 @@ import { useParams, useSearchParams } from 'react-router-dom';
 // import { useScroll } from '@/hooks/useScrollBottom';
 
 const AgendaChatPage = () => {
- 
   const { roomId } = useParams();
   const [searchParams] = useSearchParams();
 
   const lastReadChatId = searchParams.get('lastReadChatId');
 
   return (
-    <ChatPage
-      roomId = {Number(roomId)}
-      lastChatId = {lastReadChatId ?? '000000000000000000000000'}
-      // onUpLastItemChange={(lastItemRef, lastChatId: string) => {
-      //   lastUpChatId.current = lastChatId;
-      //   setTriggerUpItem(lastItemRef);
-      // }}
-      // onDownLastItemChange={(lastItemRef, lastChatId) => {
-      //   lastDownChatId.current = lastChatId;
-      //   setTriggerDownItem(lastItemRef);
-      // }}
-      // onMessageSend={(data: ChatData) => {
-      //   if (!getHasDownMore()) {
-      //     isLive.current = true;
-      //     setChatData((prev) => [...prev, data]);
-      //   } else {
-      //     isLive.current = false;
-      //   }
-      // }}
-      // onMessageReceive={(data: ChatData) => {
-      //   if (!getHasDownMore()) {
-      //     isLiveReceive.current = true;
-      //     setChatData((prev) => [...prev, data]);
-      //   }
-      // }}
-    />
+    <ChatPage roomId={Number(roomId)} lastChatId={lastReadChatId ?? '000000000000000000000000'} />
   );
 };
 
