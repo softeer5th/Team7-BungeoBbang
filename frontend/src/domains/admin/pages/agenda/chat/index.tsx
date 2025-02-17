@@ -17,7 +17,7 @@ const AgendaChatPage = () => {
   return (
     <ChatPage
       roomId={Number(roomId)}
-      isEnd={isEnd}
+      isEnd={Boolean(isEnd)}
       lastChatId={lastReadChatId ?? '000000000000000000000000'}
     />
   );
