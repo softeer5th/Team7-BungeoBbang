@@ -61,7 +61,7 @@ if (!self.define) {
       require,
     };
     registry[uri] = Promise.all(
-      depsNames.map((depName) => specialDeps[depName] || require(depName))
+      depsNames.map((depName) => specialDeps[depName] || require(depName)),
     ).then((deps) => {
       factory(...deps);
       return exports;
@@ -94,7 +94,7 @@ define(["./workbox-ed3775ef"], function (workbox) {
                       request,
                       new Response(JSON.stringify(updatedManifest), {
                         headers: response.headers,
-                      })
+                      }),
                     );
                   });
                 }
@@ -121,13 +121,13 @@ define(["./workbox-ed3775ef"], function (workbox) {
         revision: "0.urptpi2qum",
       },
     ],
-    {}
+    {},
   );
   workbox.cleanupOutdatedCaches();
   workbox.registerRoute(
     new workbox.NavigationRoute(workbox.createHandlerBoundToURL("index.html"), {
       allowlist: [/^\/$/],
-    })
+    }),
   );
   workbox.registerRoute(
     /^https:\/\/api\.onu-univ\.site\/.*/i,
@@ -140,6 +140,6 @@ define(["./workbox-ed3775ef"], function (workbox) {
         }),
       ],
     }),
-    "GET"
+    "GET",
   );
 });
