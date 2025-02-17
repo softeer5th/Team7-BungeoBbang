@@ -129,12 +129,25 @@ export const ChatSendField: React.FC<ChatSendFieldProps> = ({
 
   useEffect(() => {
     handleResizeHeight();
-  }, [message]);
+  }, [message, handleResizeHeight]);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === 'Enter' && !e.shiftKey && e.nativeEvent.isComposing === false) {
+    if (e.key === 'Enter') {
+      if (e.nativeEvent.isComposing) return;
+
+      // Shift + Enter 또는 모바일에서의 엔터
+      if (e.shiftKey || window.innerWidth <= 768) {
+        return;
+      }
+
       e.preventDefault();
       handleSend();
+    }
+  };
+
+  const handleKeyUp = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'Enter' && !e.shiftKey && window.innerWidth > 768) {
+      setMessage('');
     }
   };
 
@@ -203,6 +216,7 @@ export const ChatSendField: React.FC<ChatSendFieldProps> = ({
                 }}
                 disabled={textDisabled}
                 onKeyDown={handleKeyDown}
+                onKeyUp={handleKeyUp}
               />
 
               <SendButtonWrapper />
