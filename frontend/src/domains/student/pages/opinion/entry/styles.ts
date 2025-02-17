@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 
 export const OpinionEntryContainer = styled.div`
-  height: calc(100svh - 110px);
+  height: calc(100svh - 110px - env(safe-area-inset-bottom));
   background-color: #51a2ff;
   padding: 16px;
   display: flex;
