@@ -279,15 +279,15 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(({ roomId, lastChatId
     rememberCurrentScrollHeight();
   }, [chatData]);
 
-  const colorMap = useRef(new Map<string, string>());
-  const iconMap = useRef(new Map<string, string>());
+  const colorMap = useRef(new Map<number, string>());
+  const iconMap = useRef(new Map<number, string>());
 
-  const getRandomValue = (map: Map<string, string>, id: string, values: string[]) => {
-    if (map.has(id)) {
-      return map.get(id);
+  const getRandomValue = (map: Map<number, string>, memberId: number, values: string[]) => {
+    if (map.has(memberId)) {
+      return map.get(memberId);
     } else {
       const randomValue = values[Math.floor(Math.random() * values.length)];
-      map.set(id, randomValue);
+      map.set(memberId, randomValue);
       return randomValue;
     }
   };
@@ -324,10 +324,10 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(({ roomId, lastChatId
 
             const randomColor = getRandomValue(
               colorMap.current,
-              chatData.chatId,
+              chatData.memberId,
               randomBackgroundColor,
             );
-            const randomImg = getRandomValue(iconMap.current, chatData.chatId, randomIcon);
+            const randomImg = getRandomValue(iconMap.current, chatData.memberId, randomIcon);
 
             return (
               <ReceiverChat
