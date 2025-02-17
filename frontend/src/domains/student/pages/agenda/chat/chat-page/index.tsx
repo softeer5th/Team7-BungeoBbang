@@ -27,6 +27,13 @@ import { useEnterLeaveHandler } from '@/hooks/useEnterLeaveHandler.ts';
 import useInfiniteScroll from '@/hooks/useInfiniteScroll.tsx';
 import { useScroll } from '@/hooks/useScrollBottom.tsx';
 import { useSocketManager } from '@/hooks/useSocketManager.ts';
+import { ChatToast } from '@/components/ChatToast.tsx';
+import {
+  FIRST_REMAIN_ITEMS,
+  LAST_REMAIN_ITEMS,
+  MAX_CHAT_DATA_LENGTH,
+  MAX_CHAT_PAGE_DATA,
+} from '@/utils/chat/chat_const.ts';
 
 interface ChatPageProps {
   roomId: number;
@@ -46,6 +53,8 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
     // ref,
   ) => {
     // const [chatData, setChatData] = useState<ChatData[]>([]);
+    const chatSendFieldRef = useRef<HTMLDivElement>(null);
+    const [toastMessage, setToastMeesage] = useState<string | null>(null);
     const [isExitDialogOpen, setExitDialogOpen] = useState(false);
     const [selectedImage, setSelectedImage] = useState<{ url: string; index: number } | null>(null);
     const [currentImageList, setCurrentImageList] = useState<string[]>([]);
@@ -59,10 +68,6 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
     const { subscribe, sendMessage } = useSocketStore();
     const memberId = localStorage.getItem('member_id');
     const socketManager = useSocketManager();
-
-    // useEffect(() => {
-    //   setChatData(apiChatData);
-    // }, [apiChatData]);
 
     const exitChatRoom = async () => {
       try {
@@ -99,21 +104,27 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
           if (message.memberId === Number(memberId)) {
             if (!getHasDownMore()) {
               isLive.current = true;
-              setChatData((prev) => [...prev, newChat]);
+              setChatData((prev) => {
+                if (MAX_CHAT_DATA_LENGTH - prev.length > 1) {
+                  return [...prev.slice(prev.length - MAX_CHAT_DATA_LENGTH + 1), newChat];
+                }
+                return [...prev, newChat];
+              });
+            } else {
+              setToastMeesage('아직 읽지 않은 채팅이 있습니다.');
             }
           } else {
             if (!getHasDownMore()) {
               isLiveReceive.current = true;
-              setChatData((prev) => [...prev, newChat]);
+              setChatData((prev) => {
+                if (MAX_CHAT_DATA_LENGTH - prev.length > 1) {
+                  return [...prev.slice(prev.length - MAX_CHAT_DATA_LENGTH + 1), newChat];
+                }
+                return [...prev, newChat];
+              });
             }
+            setToastMeesage('새로운 채팅이 도착했습니다.');
           }
-
-          // setChatData((prev) => [...prev, newChat]);
-          // if (message.memberId === Number(memberId)) {
-          //   onMessageSend(newChat);
-          // } else {
-          //   onMessageReceive(newChat);
-          // }
         }
       },
 
@@ -138,10 +149,6 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
     // useScrollOnUpdate(chatData);
 
     useEnterLeaveHandler('AGENDA', 'STUDENT');
-
-    const FIRST_REMAIN_ITEMS = 1;
-    const LAST_REMAIN_ITEMS = 1;
-    const MAX_CHAT_DATA = 10;
 
     const [chatData, setChatData] = useState<ChatData[]>([]);
 
@@ -188,7 +195,6 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
           setChatData(formattedData);
         }
 
-        // setChatData(formattedData);
         setChatRoomInfo({
           title: chatInfo.data.title,
           adminName: chatInfo.data.adminName,
@@ -202,7 +208,6 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
 
     const getMoreUpChatData = async () => {
       console.log('up!!!', isInitialLoading);
-      // return;
       try {
         isUpDirection.current = true;
         const response = await api.get(`/student/agendas/${roomId}/chat`, {
@@ -211,13 +216,20 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
             scroll: 'UP',
           },
         });
-        console.log('up!!', response.data, MAX_CHAT_DATA);
+        console.log('up!!', response.data);
         const formattedData = formatChatData(response.data, false);
 
         setChatData((prev: ChatData[]) => {
-          if (response.data.length < MAX_CHAT_DATA) {
-            console.log('???');
+          if (response.data.length < MAX_CHAT_PAGE_DATA) {
             setHasUpMore(false);
+          }
+
+          if (MAX_CHAT_DATA_LENGTH - formattedData.length < prev.length) {
+            setHasDownMore(true);
+            return [
+              ...formattedData,
+              ...prev.slice(0, MAX_CHAT_DATA_LENGTH - formattedData.length),
+            ];
           }
           return [...formattedData, ...prev];
         });
@@ -239,9 +251,14 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
         const formattedData = formatChatData(response.data, false);
 
         setChatData((prev: ChatData[]) => {
-          if (response.data.length < MAX_CHAT_DATA) {
+          if (response.data.length < MAX_CHAT_PAGE_DATA) {
             setHasDownMore(false);
           }
+
+          if (MAX_CHAT_DATA_LENGTH - formattedData.length < prev.length) {
+            return [...prev.slice(formattedData.length - MAX_CHAT_DATA_LENGTH), ...formattedData];
+          }
+
           return [...prev, ...formattedData];
         });
       } catch (error) {
@@ -281,9 +298,10 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
       }
 
       if (isDownDirection.current) {
-        rememberCurrentScrollHeight();
         isDownDirection.current = false;
       }
+
+      rememberCurrentScrollHeight();
     }, [chatData]);
 
     return (
@@ -315,21 +333,21 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
                   key={chatData.chatId}
                   chatId={chatData.chatId}
                   ref={
-                    isUpTriggerItem
+                    isUpTriggerItem || isDownTriggerItem
                       ? (el) => {
                           if (el) {
-                            lastUpChatId.current = upLastItemId;
-                            setTriggerUpItem(el);
-                          }
-                        }
-                      : isDownTriggerItem
-                        ? (el) => {
-                            if (el) {
+                            if (isUpTriggerItem) {
+                              lastUpChatId.current = upLastItemId;
+                              setTriggerUpItem(el);
+                            }
+
+                            if (isDownTriggerItem) {
                               lastDownChatId.current = downLastItemId;
                               setTriggerDownItem(el);
                             }
                           }
-                        : null
+                        }
+                      : null
                   }
                   receiverName={chatRoomInfo.adminName}
                   message={chatData.message}
@@ -348,21 +366,21 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
                   key={chatData.chatId}
                   chatId={chatData.chatId}
                   ref={
-                    isUpTriggerItem
+                    isUpTriggerItem || isDownTriggerItem
                       ? (el) => {
                           if (el) {
-                            lastUpChatId.current = upLastItemId;
-                            setTriggerUpItem(el);
-                          }
-                        }
-                      : isDownTriggerItem
-                        ? (el) => {
-                            if (el) {
+                            if (isUpTriggerItem) {
+                              lastUpChatId.current = upLastItemId;
+                              setTriggerUpItem(el);
+                            }
+
+                            if (isDownTriggerItem) {
                               lastDownChatId.current = downLastItemId;
                               setTriggerDownItem(el);
                             }
                           }
-                        : null
+                        }
+                      : null
                   }
                   message={chatData.message}
                   images={chatData.images}
@@ -389,6 +407,8 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
         </S.ChatList>
 
         <ChatSendField
+          ref={chatSendFieldRef}
+          disabledPlaceHolder="이미 종료된 채팅방입니다."
           sendDisabled={isEnd}
           textDisabled={isEnd}
           imageDisabled={isEnd}
@@ -420,6 +440,13 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
             currentIndex={selectedImage.index}
             totalImages={currentImageList.length}
             onClose={() => setSelectedImage(null)}
+          />
+        )}
+        {toastMessage && (
+          <ChatToast
+            message={toastMessage}
+            bottom={(chatSendFieldRef.current?.offsetHeight ?? 0) + 15}
+            onDismiss={() => setToastMeesage(null)}
           />
         )}
       </S.Container>
