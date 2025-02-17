@@ -299,7 +299,7 @@ const OpinionChatPage = () => {
     <S.Container>
       <TopAppBar
         leftIconSrc="/src/assets/icons/arrow-left.svg"
-        title={chatRoomInfo.title}
+        title={chatRoomInfo.adminName}
         rightIconSrc="/src/assets/icons/exit.svg"
         onLeftIconClick={() => {
           location.state?.from === 'opinion' ? navigate('/opinion/entry') : navigate(-1);
