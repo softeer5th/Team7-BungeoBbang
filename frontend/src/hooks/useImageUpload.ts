@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import api from '@/utils/api';
 import { AUTH_CONFIG } from '@/config/auth';
+import imageCompression from 'browser-image-compression';
 
 interface UseImageUploadReturn {
   images: string[];
@@ -17,9 +18,28 @@ export const useImageUpload = (
   const [images, setImages] = useState<string[]>([]);
   const [showSizeDialog, setShowSizeDialog] = useState(false);
 
+  const compressImage = async (file: File): Promise<File> => {
+    const options = {
+      maxSizeMB: maxSize,
+      maxWidthOrHeight: 1920,
+      useWebWorker: true,
+    };
+
+    try {
+      return await imageCompression(file, options);
+    } catch (error) {
+      console.error('이미지 압축 실패:', error);
+      return file;
+    }
+  };
+
   const uploadImages = async (files: File[]): Promise<string[]> => {
     const formData = new FormData();
-    files.forEach((file) => {
+
+    // 이미지 압축 처리
+    const compressedFiles = await Promise.all(files.map((file) => compressImage(file)));
+
+    compressedFiles.forEach((file) => {
       formData.append('images', file);
     });
 
