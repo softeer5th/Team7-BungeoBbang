@@ -39,9 +39,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class AgendaServiceTest {
+class MemberAgendaServiceTest {
     @InjectMocks
-    private AgendaService agendaService;
+    private MemberAgendaService memberAgendaService;
     @Mock
     private AgendaMemberRepository agendaMemberRepository;
     @Mock
@@ -63,7 +63,7 @@ class AgendaServiceTest {
                 .thenReturn(Optional.of(member));
 
         // when & then
-        assertThatThrownBy(() -> agendaService.participateAgenda(member.getId(), agenda.getId()))
+        assertThatThrownBy(() -> memberAgendaService.participateAgenda(member.getId(), agenda.getId()))
                 .isInstanceOf(AgendaException.class)
                 .hasMessage(FORBIDDEN_UNIVERSITY_ACCESS.getMessage());
     }
@@ -82,7 +82,7 @@ class AgendaServiceTest {
                 .thenReturn(TRUE);
 
         // when & then
-        assertThatThrownBy(() -> agendaService.participateAgenda(member.getId(), agenda.getId()))
+        assertThatThrownBy(() -> memberAgendaService.participateAgenda(member.getId(), agenda.getId()))
                 .isInstanceOf(AgendaException.class)
                 .hasMessage(ALREADY_PARTICIPATED.getMessage());
     }
@@ -100,7 +100,7 @@ class AgendaServiceTest {
                 .thenReturn(Optional.of(member));
 
         // when
-        agendaService.participateAgenda(member.getId(), agenda.getId());
+        memberAgendaService.participateAgenda(member.getId(), agenda.getId());
 
         // then
         verify(agendaMemberRepository, Mockito.times(1)).save(any());
@@ -120,7 +120,7 @@ class AgendaServiceTest {
                 .thenReturn(Optional.of(member));
 
         // when & then
-        assertThatThrownBy(() -> agendaService.getAgendaDetail(member.getId(), agenda.getId()))
+        assertThatThrownBy(() -> memberAgendaService.getAgendaDetail(member.getId(), agenda.getId()))
                 .isInstanceOf(AgendaException.class)
                 .hasMessage(FORBIDDEN_UNIVERSITY_ACCESS.getMessage());
     }
@@ -138,7 +138,7 @@ class AgendaServiceTest {
         AgendaDetailResponse expected = AgendaDetailResponse.from(agenda);
 
         // when
-        final AgendaDetailResponse actual = agendaService.getAgendaDetail(member.getId(), agenda.getId());
+        final AgendaDetailResponse actual = memberAgendaService.getAgendaDetail(member.getId(), agenda.getId());
 
         // then
         assertThat(actual).usingRecursiveComparison().isEqualTo(expected);
@@ -156,7 +156,7 @@ class AgendaServiceTest {
                 .thenReturn(Optional.empty());
 
         // when & then
-        assertThatThrownBy(() -> agendaService.exitAgenda(agenda.getId(), member.getId()))
+        assertThatThrownBy(() -> memberAgendaService.exitAgenda(agenda.getId(), member.getId()))
                 .isInstanceOf(AgendaException.class)
                 .hasMessage(AGENDA_PARTICIPATION_NOT_FOUND.getMessage());
     }
@@ -173,7 +173,7 @@ class AgendaServiceTest {
                 .thenReturn(Optional.of(agendaMember));
 
         // when
-        agendaService.exitAgenda(agenda.getId(), member.getId());
+        memberAgendaService.exitAgenda(agenda.getId(), member.getId());
 
         // then
         Assertions.assertThat(agendaMember.isDeleted()).isTrue();
@@ -196,7 +196,7 @@ class AgendaServiceTest {
                                 new AgendaLatestChat(2L, new ObjectId(0, 0), null, LocalDateTime.now(), false, null)
                         ));
         // when
-        final List<MyAgendaResponse> myAgenda = agendaService.getMyAgenda(member.getId());
+        final List<MyAgendaResponse> myAgenda = memberAgendaService.getMyAgenda(member.getId());
         // then
         assertThat(myAgenda).hasSize(2);
 

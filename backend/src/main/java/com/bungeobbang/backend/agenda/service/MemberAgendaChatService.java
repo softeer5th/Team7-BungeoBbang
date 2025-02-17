@@ -23,7 +23,7 @@ import java.util.List;
  */
 @Service
 @RequiredArgsConstructor
-public class AgendaChatService {
+public class MemberAgendaChatService {
     private final AgendaRepository agendaRepository;
     private final AgendaChatRepository agendaChatRepository;
     private final AgendaMemberRepository agendaMemberRepository;
