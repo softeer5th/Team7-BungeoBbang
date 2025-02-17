@@ -28,8 +28,18 @@ import useInfiniteScroll from '@/hooks/useInfiniteScroll';
 // import { findChatOpinionTypeByLabel } from '@/utils/findChatOpinionType';
 // import { findChatCategoryType } from '@/utils/findChatCategoryType';
 import { ChatCategoryType } from '@/types/ChatCategoryType';
+import { ChatToast } from '@/components/ChatToast';
+import {
+  FIRST_REMAIN_ITEMS,
+  LAST_REMAIN_ITEMS,
+  MAX_CHAT_DATA_LENGTH,
+  MAX_CHAT_PAGE_DATA,
+} from '@/utils/chat/chat_const';
 
 const OpinionChatPage = () => {
+  const chatSendFieldRef = useRef<HTMLDivElement>(null);
+  const [toastMessage, setToastMeesage] = useState<string | null>(null);
+
   const [chatData, setChatData] = useState<ChatData[]>([]);
   // const [isExitDialogOpen, setExitDialogOpen] = useState(faslse);
   const [message, setMessage] = useState('');
@@ -66,13 +76,26 @@ const OpinionChatPage = () => {
         if (message.adminId === Number(memberId)) {
           if (!getHasDownMore()) {
             isLive.current = true;
-            setChatData((prev) => [...prev, newChat]);
+            setChatData((prev) => {
+              if (MAX_CHAT_DATA_LENGTH - prev.length > 1) {
+                return [...prev.slice(prev.length - MAX_CHAT_DATA_LENGTH + 1), newChat];
+              }
+              return [...prev, newChat];
+            });
+          } else {
+            setToastMeesage('아직 읽지 않은 채팅이 있습니다.');
           }
         } else {
           if (!getHasDownMore()) {
             isLiveReceive.current = true;
-            setChatData((prev) => [...prev, newChat]);
+            setChatData((prev) => {
+              if (MAX_CHAT_DATA_LENGTH - prev.length > 1) {
+                return [...prev.slice(prev.length - MAX_CHAT_DATA_LENGTH + 1), newChat];
+              }
+              return [...prev, newChat];
+            });
           }
+          setToastMeesage('새로운 채팅이 도착했습니다.');
         }
       }
     },
@@ -142,17 +165,6 @@ const OpinionChatPage = () => {
 
   useEnterLeaveHandler('OPINION', 'ADMIN');
 
-  const FIRST_REMAIN_ITEMS = 1;
-  const LAST_REMAIN_ITEMS = 1;
-  const MAX_CHAT_DATA = 10;
-
-  // const [chatData, setChatData] = useState<ChatData[]>([]);
-
-  // const [chatRoomInfo, setChatRoomInfo] = useState<ChatRoomInfo>({
-  // title: '',
-  // adminName: '총학생회',
-  // });
-
   const lastUpChatId = useRef<string>(lastChatId);
   const lastDownChatId = useRef<string>(lastChatId);
   const isInitialLoading = useRef<boolean>(true);
@@ -162,7 +174,7 @@ const OpinionChatPage = () => {
   const isLiveReceive = useRef<boolean>(false);
 
   let upLastItemId: string = '';
-  let downLatItemId: string = '';
+  let downLastItemId: string = '';
 
   const {
     elementRef,
@@ -217,8 +229,13 @@ const OpinionChatPage = () => {
       const formattedData = formatChatData(response.data, true);
 
       setChatData((prev: ChatData[]) => {
-        if (response.data.length < MAX_CHAT_DATA) {
+        if (response.data.length < MAX_CHAT_PAGE_DATA) {
           setHasUpMore(false);
+        }
+
+        if (MAX_CHAT_DATA_LENGTH - formattedData.length < prev.length) {
+          setHasDownMore(true);
+          return [...formattedData, ...prev.slice(0, MAX_CHAT_DATA_LENGTH - formattedData.length)];
         }
         return [...formattedData, ...prev];
       });
@@ -240,9 +257,14 @@ const OpinionChatPage = () => {
       const formattedData = formatChatData(response.data, true);
 
       setChatData((prev: ChatData[]) => {
-        if (response.data.length < MAX_CHAT_DATA) {
+        if (response.data.length < MAX_CHAT_PAGE_DATA) {
           setHasDownMore(false);
         }
+
+        if (MAX_CHAT_DATA_LENGTH - formattedData.length < prev.length) {
+          return [...prev.slice(formattedData.length - MAX_CHAT_DATA_LENGTH), ...formattedData];
+        }
+
         return [...prev, ...formattedData];
       });
     } catch (error) {
@@ -281,9 +303,10 @@ const OpinionChatPage = () => {
     }
 
     if (isDownDirection.current) {
-      rememberCurrentScrollHeight();
       isDownDirection.current = false;
     }
+
+    rememberCurrentScrollHeight();
   }, [chatData]);
 
   return (
@@ -304,28 +327,28 @@ const OpinionChatPage = () => {
           if (chat.type === ChatType.RECEIVE) {
             const chatData = chat as ReceiveChatData;
             if (upLastItemId.length === 0) upLastItemId = chatData.chatId;
-            downLatItemId = chatData.chatId;
+            downLastItemId = chatData.chatId;
 
             return (
               <ReceiverChat
                 chatId={chatData.chatId}
                 key={index}
                 ref={
-                  isUpTriggerItem
+                  isUpTriggerItem || isDownTriggerItem
                     ? (el) => {
                         if (el) {
-                          lastUpChatId.current = upLastItemId;
-                          setTriggerUpItem(el);
-                        }
-                      }
-                    : isDownTriggerItem
-                      ? (el) => {
-                          if (el) {
-                            lastDownChatId.current = downLatItemId;
+                          if (isUpTriggerItem) {
+                            lastUpChatId.current = upLastItemId;
+                            setTriggerUpItem(el);
+                          }
+
+                          if (isDownTriggerItem) {
+                            lastDownChatId.current = downLastItemId;
                             setTriggerDownItem(el);
                           }
                         }
-                      : null
+                      }
+                    : null
                 }
                 receiverIconBackgroundColor={categoryType.iconBackground}
                 receiverIconSrc={categoryType.iconSrc}
@@ -339,28 +362,28 @@ const OpinionChatPage = () => {
             const chatData = chat as SendChatData;
 
             if (upLastItemId.length === 0) upLastItemId = chatData.chatId;
-            downLatItemId = chatData.chatId;
+            downLastItemId = chatData.chatId;
 
             return (
               <SenderChat
                 chatId={chatData.chatId}
                 key={index}
                 ref={
-                  isUpTriggerItem
+                  isUpTriggerItem || isDownTriggerItem
                     ? (el) => {
                         if (el) {
-                          lastUpChatId.current = upLastItemId;
-                          setTriggerUpItem(el);
-                        }
-                      }
-                    : isDownTriggerItem
-                      ? (el) => {
-                          if (el) {
-                            lastDownChatId.current = downLatItemId;
+                          if (isUpTriggerItem) {
+                            lastUpChatId.current = upLastItemId;
+                            setTriggerUpItem(el);
+                          }
+
+                          if (isDownTriggerItem) {
+                            lastDownChatId.current = downLastItemId;
                             setTriggerDownItem(el);
                           }
                         }
-                      : null
+                      }
+                    : null
                 }
                 message={chatData.message}
                 images={chatData.images}
@@ -390,6 +413,7 @@ const OpinionChatPage = () => {
       </S.ChatList>
 
       <ChatSendField
+        ref={chatSendFieldRef}
         initialText={message}
         onChange={setMessage}
         onSendMessage={handleSendMessage}
@@ -419,6 +443,13 @@ const OpinionChatPage = () => {
           currentIndex={selectedImage.index}
           totalImages={currentImageList.length}
           onClose={() => setSelectedImage(null)}
+        />
+      )}
+      {toastMessage && (
+        <ChatToast
+          message={toastMessage}
+          bottom={(chatSendFieldRef.current?.offsetHeight ?? 0) + 15}
+          onDismiss={() => setToastMeesage(null)}
         />
       )}
     </S.Container>

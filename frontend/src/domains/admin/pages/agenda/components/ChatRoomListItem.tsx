@@ -53,7 +53,10 @@ export const ChatRoomListItem = forwardRef<HTMLDivElement, ChatRoomListItemProps
           <BodyContainer
             isBeforeProgress={cardData.progressState === ProgressState.BEFORE}
             onClick={() => {
-              navigate(`/agenda/chat/${cardData.roomId}?lastReadChatId=${cardData.lastReadChatId}`);
+              const isEnd = cardData.progressState === ProgressState.FINISHED;
+              navigate(
+                `/agenda/chat/${cardData.roomId}?isEnd=${isEnd}&lastReadChatId=${cardData.lastReadChatId}`,
+              );
             }}
           >
             <CategoryIcon type={cardData.chatCategoryType} boxSize={30} iconWidth={17} />

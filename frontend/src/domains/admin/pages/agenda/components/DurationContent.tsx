@@ -128,8 +128,13 @@ const CalendarWrapper = styled.div`
   .react-calendar__navigation__arrow:disabled {
     color: #707070;
   }
+
   .react-calendar__navigation button:disabled {
     background-color: transparent;
+  }
+
+  abbr[title] {
+    text-decoration: none;
   }
 
   .react-calendar__month-view__weekdays {
@@ -150,9 +155,9 @@ const CalendarWrapper = styled.div`
     height: 38px;
     width: 38px;
   }
-
   .react-calendar__tile:disabled {
     background-color: transparent;
+    color: #ababab;
   }
 
   .react-calendar__tile--now {
