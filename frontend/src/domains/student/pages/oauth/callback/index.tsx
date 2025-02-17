@@ -41,6 +41,8 @@ const OAuthCallback = () => {
 
     handleOAuthCallback();
   }, [navigate]);
+
+  return <div></div>;
 };
 
 export default OAuthCallback;
