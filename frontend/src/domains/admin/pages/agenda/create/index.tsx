@@ -88,6 +88,7 @@ const CreateAgendaPage = () => {
         setSameDateError(true);
         return;
       }
+      
       const body = {
         title: chatValue.title,
         categoryType: chatValue.category?.type,
@@ -275,7 +276,7 @@ const CreateAgendaPage = () => {
                         onClick={() => {
                           setChatValue((prev) => ({
                             ...prev,
-                            images: prev.images.filter((_, i) => i !== index), // ✅ 괄호 수정
+                            images: prev.images.filter((_, i) => i !== index)
                           }));
                         }}
                       >

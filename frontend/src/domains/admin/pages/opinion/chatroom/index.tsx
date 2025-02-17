@@ -97,8 +97,6 @@ const OpinionChatPage = () => {
           }
           setToastMeesage('새로운 채팅이 도착했습니다.');
         }
-
-        // setChatData((prev) => [...prev, newChat]);
       }
     },
     [roomId, memberId],
