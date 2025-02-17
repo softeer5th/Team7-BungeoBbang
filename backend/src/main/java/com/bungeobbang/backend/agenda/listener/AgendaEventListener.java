@@ -27,7 +27,7 @@ public class AgendaEventListener {
      * 4. 채팅방 참여하기
      */
     @EventListener
-    public void handleAgendaEvent(AgendaMemberEvent event) {
+    public void handleMemberAgendaEvent(AgendaMemberEvent event) {
         switch (event.eventType()) {
             case ENTER -> memberAgendaChatService.updateLastReadToMax(event.agendaId(), event.memberId());
             case CHAT -> {
