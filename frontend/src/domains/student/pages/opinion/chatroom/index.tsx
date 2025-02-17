@@ -43,7 +43,8 @@ const OpinionChatPage = () => {
   const memberId = localStorage.getItem('member_id');
   // const { socket } = useSocketStore();
   const socketManager = useSocketManager();
-  const lastChatId = useLocation().state?.lastChatId || '000000000000000000000000';
+  const location = useLocation();
+  const lastChatId = location.state?.lastChatId || '000000000000000000000000';
 
   const handleMessageReceive = useCallback(
     (message: ChatMessage) => {
@@ -301,7 +302,7 @@ const OpinionChatPage = () => {
         title={chatRoomInfo.title}
         rightIconSrc="/src/assets/icons/exit.svg"
         onLeftIconClick={() => {
-          navigate('/opinion/entry');
+          location.state?.from === 'opinion' ? navigate('/opinion/entry') : navigate(-1);
         }}
         onRightIconClick={() => {
           setExitDialogOpen(true);
