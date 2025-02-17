@@ -7,10 +7,9 @@ import { OpinionStep } from './components/OpinionStep';
 import { CategoryStep } from './components/CategoryStep';
 import { ChatStep } from './components/ChatStep';
 import api from '@/utils/api';
-import { Dialog } from '@/components/Dialog/Dialog';
 import { useSocketManager } from '@/hooks/useSocketManager';
-// import { findChatOpinionType } from '@/utils/findChatOpinionType';
-// import { findChatCategoryType } from '@/utils/findChatCategoryType';
+import { useImageUpload } from '@/hooks/useImageUpload';
+import { ImageFileSizeDialog } from '@/components/Dialog/ImageFileSizeDialog';
 
 const OpinionCategoryPage: React.FC = () => {
   const navigate = useNavigate();
@@ -19,10 +18,9 @@ const OpinionCategoryPage: React.FC = () => {
   const [selectedOpinion, setSelectedOpinion] = useState<string>('');
   const [selectedCategory, setSelectedCategory] = useState<string>('');
   const [message, setMessage] = useState('');
-  const [images, setImages] = useState<string[]>([]);
-  const [showDialog, setShowDialog] = useState(false);
 
-  const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB in bytes
+  const { images, showSizeDialog, handleImageDelete, handleImageUpload, closeSizeDialog } =
+    useImageUpload(10, 5);
 
   const handleBack = () => {
     !selectedOpinion ? navigate(-1) : setSelectedOpinion('');
@@ -36,44 +34,6 @@ const OpinionCategoryPage: React.FC = () => {
 
   const handleCategorySelect = (chipId: string) => {
     setSelectedCategory(chipId);
-  };
-
-  const handleImageDelete = (index: number) => {
-    setImages((prev) => prev.filter((_, i) => i !== index));
-  };
-
-  const uploadImages = async (files: File[]): Promise<string[]> => {
-    const formData = new FormData();
-    files.forEach((file) => {
-      formData.append('images', file);
-    });
-
-    try {
-      const response = await api.post('/api/images', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
-      return response.data.urls;
-    } catch (error) {
-      console.error('이미지 업로드 실패:', error);
-      return [];
-    }
-  };
-
-  const handleImageUpload = async (files: FileList) => {
-    const oversizedFiles = Array.from(files).filter((file) => file.size > MAX_FILE_SIZE);
-
-    if (oversizedFiles.length > 0) {
-      setShowDialog(true);
-      return;
-    }
-
-    const uploadedUrls = await uploadImages(Array.from(files));
-    setImages((prev) => {
-      const combined = [...prev, ...uploadedUrls];
-      return combined.slice(0, 5);
-    });
   };
 
   const handleSendMessage = async () => {
@@ -127,18 +87,8 @@ const OpinionCategoryPage: React.FC = () => {
         textDisabled={!selectedCategory}
         imageDisabled={!selectedCategory}
       />
-      {showDialog && (
-        <Dialog
-          body="10MB 이하의 이미지만 업로드할 수 있습니다."
-          onConfirm={() => setShowDialog(false)}
-          onDismiss={() => setShowDialog(false)}
-          confirmButton={{
-            text: '확인',
-            children: '확인',
-            backgroundColor: '#1F87FF',
-            textColor: '#FFFFFF',
-          }}
-        />
+      {showSizeDialog && (
+        <ImageFileSizeDialog onConfirm={closeSizeDialog} onDismiss={closeSizeDialog} />
       )}
     </S.Container>
   );

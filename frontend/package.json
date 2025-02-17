@@ -17,6 +17,7 @@
     "@rollup/plugin-commonjs": "^28.0.2",
     "@rollup/plugin-node-resolve": "^16.0.0",
     "axios": "^1.7.9",
+    "browser-image-compression": "^2.0.2",
     "dayjs": "^1.11.13",
     "framer-motion": "^12.1.0",
     "html-react-parser": "^5.2.2",
