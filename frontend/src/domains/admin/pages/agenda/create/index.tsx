@@ -1,6 +1,6 @@
 import * as S from './styles';
 import { useTheme } from 'styled-components';
-import { ErrorResponse, useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import ArrowLeftIcon from '/src/assets/icons/arrow-left.svg?react';
 import CameraIcon from '/src/assets/icons/camera.svg?react';
 import DeleteIcon from '/src/assets/icons/close-2.svg?react';
@@ -21,6 +21,7 @@ import { formatServerDataFromDate } from '../util/ChatRoomMapper';
 import { useSocketManager } from '@/hooks/useSocketManager';
 import { SameDateErrorDialog } from '../components/SameDataErrorDialog';
 import { BadWordErrorDialog } from '../components/BadWordErrorDialog';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export interface ChatCreateData {
   roomId?: number | null;
@@ -189,6 +190,7 @@ const CreateAgendaPage = () => {
           <TextField
             value={chatValue.category?.label ?? ''}
             placeholder="카테고리를 선택해주세요"
+            focusable={false}
             onClick={() => setCategoryBottomSheetOpen(true)}
           />
         </S.CategoryContainer>
@@ -202,6 +204,7 @@ const CreateAgendaPage = () => {
                 ? `${formatDate(chatValue.startDate)} - ${formatDate(chatValue.endDate)}`
                 : ''
             }
+            focusable={false}
             placeholder="기간을 선택해주세요"
             onClick={() => setDurationBottomSheetOpen(true)}
           />
@@ -258,23 +261,37 @@ const CreateAgendaPage = () => {
             />
           </S.ImageAddContainer>
           <S.ImageList>
-            {chatValue.images.map((image, index) => {
-              return (
-                <S.ImageItem>
-                  <S.DeleteIconBox
-                    onClick={() => {
-                      setChatValue((prev) => ({
-                        ...prev,
-                        images: prev.images.filter((_, i) => i !== index), // ✅ 괄호 수정
-                      }));
-                    }}
+            <AnimatePresence>
+              {chatValue.images.map((image, index) => {
+                return (
+                  <motion.div
+                    key={image}
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -20 }}
+                    transition={{ duration: 0.2, ease: 'easeInOut' }}
                   >
-                    <DeleteIcon width="16px" height="16px" stroke={theme.colors.grayScaleWhite} />
-                  </S.DeleteIconBox>
-                  <S.ImageBox src={image}></S.ImageBox>
-                </S.ImageItem>
-              );
-            })}
+                    <S.ImageItem>
+                      <S.DeleteIconBox
+                        onClick={() => {
+                          setChatValue((prev) => ({
+                            ...prev,
+                            images: prev.images.filter((_, i) => i !== index), // ✅ 괄호 수정
+                          }));
+                        }}
+                      >
+                        <DeleteIcon
+                          width="16px"
+                          height="16px"
+                          stroke={theme.colors.grayScaleWhite}
+                        />
+                      </S.DeleteIconBox>
+                      <S.ImageBox src={image}></S.ImageBox>
+                    </S.ImageItem>
+                  </motion.div>
+                );
+              })}
+            </AnimatePresence>
           </S.ImageList>
         </S.ImageContainer>
       </S.BodyContainer>

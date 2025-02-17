@@ -16,6 +16,7 @@ interface TextFieldProps {
   errorTextColor?: string;
   isError?: boolean;
   disabled?: boolean;
+  focusable?: boolean;
 }
 
 export const TextField: React.FC<TextFieldProps> = ({
@@ -36,6 +37,7 @@ export const TextField: React.FC<TextFieldProps> = ({
   errorTextColor = '#FF4B4B',
   isError = false,
   disabled = false,
+  focusable = true,
 }) => {
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const newValue = e.target.value;
@@ -46,6 +48,7 @@ export const TextField: React.FC<TextFieldProps> = ({
     <TextFieldContainer>
       <TextFieldInput
         rows={rows}
+        tabIndex={focusable ? 0 : -1}
         variant="body1"
         onClick={onClick}
         value={value}
