@@ -13,6 +13,7 @@ import { bottomItems, moveToDestination } from '../../destinations';
 import { useNavigate } from 'react-router-dom';
 import { findChatCategoryType } from '@/utils/findChatCategoryType';
 import { useSocketManager } from '@/hooks/useSocketManager';
+import { LogoutDialog } from '@/components/Dialog/LogoutDialog';
 
 const chipItems = [
   { itemId: 'ALL', text: '전체' },
@@ -25,6 +26,8 @@ const chipItems = [
 const OpinionEntryPage: React.FC = () => {
   const [selectedChip, setSelectedChip] = useState('ALL');
   const [opinions, setOpinions] = useState<Opinion[]>([]);
+  const [isLogoutDialogOpen, setLogoutDialogOpen] = useState(false);
+
   const navigate = useNavigate();
   const socketManager = useSocketManager();
 
@@ -77,6 +80,7 @@ const OpinionEntryPage: React.FC = () => {
         rightIconSrc="/src/assets/icons/logout.svg"
         foregroundColor="rgba(22, 22, 22, 1)"
         titleColor="rgba(31, 135, 255, 1)"
+        onRightIconClick={() => setLogoutDialogOpen(true)}
       />
       <S.TopAppBarBorder></S.TopAppBarBorder>
       <S.ChipListContainer>
@@ -124,6 +128,12 @@ const OpinionEntryPage: React.FC = () => {
         destinations={bottomItems}
         onItemClick={(itemId) => navigate(moveToDestination(itemId))}
       />
+      {isLogoutDialogOpen && (
+        <LogoutDialog
+          onDismiss={() => setLogoutDialogOpen(false)}
+          onConfirm={() => setLogoutDialogOpen(false)}
+        />
+      )}
     </S.Container>
   );
 };

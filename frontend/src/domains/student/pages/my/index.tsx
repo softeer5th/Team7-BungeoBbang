@@ -18,6 +18,7 @@ import { bottomItems, moveToDestination } from '../destinations.tsx';
 import { useNavigate } from 'react-router-dom';
 import { EmptyContent } from '@/components/EmptyContent.tsx';
 import { useSocketStore, ChatMessage } from '@/store/socketStore.ts';
+import { LogoutDialog } from '@/components/Dialog/LogoutDialog.tsx';
 
 const MyPage = () => {
   const theme = useTheme();
@@ -29,6 +30,7 @@ const MyPage = () => {
   const [startX, setStartX] = useState(0);
   const [translateX, setTranslateX] = useState(0);
   const [tabBarContent, setTabBarContent] = useState<Record<string, ChatPreviewData[]>>({});
+  const [isLogoutDialogOpen, setLogoutDialogOpen] = useState(false);
 
   const tabItems: TabBarItemProps[] = [
     {
@@ -146,7 +148,7 @@ const MyPage = () => {
         leftIconSrc="/src/assets/icons/logo.svg"
         rightIconSrc="/src/assets/icons/logout.svg"
         titleColor={theme.colors.sementicMain}
-        onRightIconClick={() => {}}
+        onRightIconClick={() => setLogoutDialogOpen(true)}
       />
       <TabBar
         currentDestination={tabItems[activeIndex].itemId}
@@ -182,6 +184,12 @@ const MyPage = () => {
         destinations={bottomItems}
         onItemClick={(itemId) => navigate(moveToDestination(itemId))}
       />
+      {isLogoutDialogOpen && (
+        <LogoutDialog
+          onDismiss={() => setLogoutDialogOpen(false)}
+          onConfirm={() => setLogoutDialogOpen(false)}
+        />
+      )}
     </S.Container>
   );
 };
