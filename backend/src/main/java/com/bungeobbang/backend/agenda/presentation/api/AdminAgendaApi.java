@@ -6,7 +6,9 @@ import com.bungeobbang.backend.agenda.dto.response.AgendaChatResponse;
 import com.bungeobbang.backend.agenda.dto.response.AgendaDetailResponse;
 import com.bungeobbang.backend.agenda.dto.response.AgendaResponse;
 import com.bungeobbang.backend.agenda.dto.response.admin.AdminAgendaResponse;
+import com.bungeobbang.backend.agenda.dto.response.admin.AgendaCategoryResponse;
 import com.bungeobbang.backend.agenda.dto.response.admin.AgendaCreationResponse;
+import com.bungeobbang.backend.agenda.dto.response.admin.AgendaStatisticResponse;
 import com.bungeobbang.backend.agenda.status.AgendaStatusType;
 import com.bungeobbang.backend.auth.common.Auth;
 import com.bungeobbang.backend.auth.domain.Accessor;
@@ -141,5 +143,31 @@ public interface AdminAgendaApi {
             @RequestParam(required = false) ObjectId chatId,
 
             @RequestParam(required = false, name = "scroll") ScrollType scrollType
+    );
+
+    @Operation(summary = "답해요 월 통계")
+    @GetMapping("/statistics/month")
+    ResponseEntity<AgendaStatisticResponse> getAgendaByMonth(
+            @RequestParam int year,
+            @RequestParam int month
+    );
+
+    @Operation(summary = "답해요 월 카테고리 통계")
+    @GetMapping("/statistics/month/category")
+    ResponseEntity<List<AgendaCategoryResponse>> getAgendaByCategory(
+            @RequestParam int year,
+            @RequestParam int month
+    );
+
+    @Operation(summary = "답해요 월 통계")
+    @GetMapping("/statistics/year")
+    ResponseEntity<AgendaStatisticResponse> getAgendaByYear(
+            @RequestParam int year
+    );
+
+    @Operation(summary = "답해요 월 카테고리 통계")
+    @GetMapping("/statistics/year/category")
+    ResponseEntity<List<AgendaCategoryResponse>> getAgendaByCategory(
+            @RequestParam int year
     );
 }

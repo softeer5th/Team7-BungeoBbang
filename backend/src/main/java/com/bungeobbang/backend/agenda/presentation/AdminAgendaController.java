@@ -5,7 +5,9 @@ import com.bungeobbang.backend.agenda.dto.request.AgendaEditRequest;
 import com.bungeobbang.backend.agenda.dto.response.AgendaChatResponse;
 import com.bungeobbang.backend.agenda.dto.response.AgendaDetailResponse;
 import com.bungeobbang.backend.agenda.dto.response.admin.AdminAgendaResponse;
+import com.bungeobbang.backend.agenda.dto.response.admin.AgendaCategoryResponse;
 import com.bungeobbang.backend.agenda.dto.response.admin.AgendaCreationResponse;
+import com.bungeobbang.backend.agenda.dto.response.admin.AgendaStatisticResponse;
 import com.bungeobbang.backend.agenda.presentation.api.AdminAgendaApi;
 import com.bungeobbang.backend.agenda.service.AdminAgendaChatService;
 import com.bungeobbang.backend.agenda.service.AdminAgendaService;
@@ -90,4 +92,30 @@ public class AdminAgendaController implements AdminAgendaApi {
             @RequestParam(required = false, name = "scroll") ScrollType scrollType) {
         return ResponseEntity.ok(adminAgendaChatService.getChats(accessor.id(), agendaId, chatId, scrollType));
     }
+
+    @Override
+    public ResponseEntity<AgendaStatisticResponse> getAgendaByMonth(
+            @RequestParam int year,
+            @RequestParam int month) {
+        final AgendaStatisticResponse response = adminAgendaService.getAgendaStatisticsByMonth(year, month);
+        return ResponseEntity.ok(response);
+    }
+
+    @Override
+    public ResponseEntity<List<AgendaCategoryResponse>> getAgendaByCategory(
+            @RequestParam int year,
+            @RequestParam int month) {
+        return ResponseEntity.ok(adminAgendaService.getAgendaCountByCategory(year, month));
+    }
+
+    @Override
+    public ResponseEntity<AgendaStatisticResponse> getAgendaByYear(int year) {
+        return ResponseEntity.ok(adminAgendaService.getAgendaStatisticsByMonth(year));
+    }
+
+    @Override
+    public ResponseEntity<List<AgendaCategoryResponse>> getAgendaByCategory(int year) {
+        return ResponseEntity.ok(adminAgendaService.getAgendaCountByCategory(year));
+    }
+
 }
