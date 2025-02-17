@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import React from 'react';
+import { useEffect } from 'react';
 import { BorderProps } from './border/BorderProps';
 import Typography from '../styles/Typography';
 
@@ -9,6 +9,7 @@ import LogoutIcon from '/src/assets/icons/logout.svg?react';
 import ExitIcon from '/src/assets/icons/exit.svg?react';
 import InfomationIcon from '/src/assets/icons/information-circle-contained.svg?react';
 import { getBorderStyle } from './border/getBorderType';
+import { updateThemeColor } from '@/utils/chat/updateThemeColor';
 
 const IconComponents: { [key: string]: React.FC<React.SVGProps<SVGSVGElement>> } = {
   '/src/assets/icons/arrow-left.svg': ArrowLeftIcon,
@@ -43,6 +44,16 @@ export const TopAppBar: React.FC<TopAppBarProps> = ({
 }) => {
   const LeftIconComponent = leftIconSrc ? IconComponents[leftIconSrc] : null;
   const RightIconComponent = rightIconSrc ? IconComponents[rightIconSrc] : null;
+
+  useEffect(() => {
+    updateThemeColor(backgroundColor || '#FFFFFF');
+
+    return () => {
+      // 컴포넌트 언마운트시 기본색으로 복귀
+      updateThemeColor('#FFFFFF');
+    };
+  }, [backgroundColor]);
+
   return (
     <TopAppBarContainer backgroundColor={backgroundColor} border={border}>
       {LeftIconComponent && (

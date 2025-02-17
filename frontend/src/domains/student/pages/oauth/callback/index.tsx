@@ -41,8 +41,6 @@ const OAuthCallback = () => {
 
     handleOAuthCallback();
   }, [navigate]);
-
-  return <div>로딩 스패너 넣기 </div>;
 };
 
 export default OAuthCallback;

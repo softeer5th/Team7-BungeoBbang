@@ -61,7 +61,7 @@ if (!self.define) {
       require,
     };
     registry[uri] = Promise.all(
-      depsNames.map((depName) => specialDeps[depName] || require(depName)),
+      depsNames.map((depName) => specialDeps[depName] || require(depName))
     ).then((deps) => {
       factory(...deps);
       return exports;
@@ -70,6 +70,41 @@ if (!self.define) {
 }
 define(["./workbox-ed3775ef"], function (workbox) {
   "use strict";
+
+  self.addEventListener("message", (event) => {
+    if (event.data.type === "UPDATE_THEME_COLOR") {
+      // PWA의 테마 색상 업데이트
+      const newColor = event.data.color;
+
+      // 매니페스트 캐시 업데이트
+      caches.open("workbox-runtime-cache").then((cache) => {
+        cache.keys().then((keys) => {
+          keys.forEach((request) => {
+            if (request.url.includes("manifest")) {
+              cache.match(request).then((response) => {
+                if (response) {
+                  response.json().then((manifest) => {
+                    const updatedManifest = {
+                      ...manifest,
+                      theme_color: newColor,
+                      background_color: newColor,
+                    };
+
+                    cache.put(
+                      request,
+                      new Response(JSON.stringify(updatedManifest), {
+                        headers: response.headers,
+                      })
+                    );
+                  });
+                }
+              });
+            }
+          });
+        });
+      });
+    }
+  });
 
   self.skipWaiting();
   workbox.clientsClaim();
@@ -86,13 +121,13 @@ define(["./workbox-ed3775ef"], function (workbox) {
         revision: "0.urptpi2qum",
       },
     ],
-    {},
+    {}
   );
   workbox.cleanupOutdatedCaches();
   workbox.registerRoute(
     new workbox.NavigationRoute(workbox.createHandlerBoundToURL("index.html"), {
       allowlist: [/^\/$/],
-    }),
+    })
   );
   workbox.registerRoute(
     /^https:\/\/api\.onu-univ\.site\/.*/i,
@@ -105,6 +140,6 @@ define(["./workbox-ed3775ef"], function (workbox) {
         }),
       ],
     }),
-    "GET",
+    "GET"
   );
 });
