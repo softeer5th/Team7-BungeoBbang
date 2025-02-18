@@ -60,6 +60,8 @@ const OpinionChatPage = () => {
 
   const handleMessageReceive = useCallback(
     (message: ChatMessage) => {
+      setIsReminded(false);
+      checkLastThreeChats(3) ? setIsRemindEnabled(true) : setIsRemindEnabled(false);
       if (message.roomType === 'OPINION' && message.opinionId === Number(roomId)) {
         const newChat = {
           type: message.memberId === Number(memberId) ? ChatType.SEND : ChatType.RECEIVE,
@@ -98,32 +100,29 @@ const OpinionChatPage = () => {
           }
           setToastMeesage('새로운 채팅이 도착했습니다.');
         }
-
-        // setTimeout(() => {
-        //   if (elementRef.current) {
-        //     elementRef.current.scrollTop = elementRef.current.scrollHeight;
-        //   }
-        // }, 100);
       }
     },
     [roomId, memberId],
   );
 
-  const checkLastThreeChats = useCallback(() => {
-    if (chatData.length < 2) return false;
+  const checkLastThreeChats = useCallback(
+    (count: number) => {
+      if (chatData.length < count) return false;
 
-    const actualChats = chatData.filter(
-      (chat) => chat.type === ChatType.SEND || chat.type === ChatType.RECEIVE,
-    );
+      const actualChats = chatData.filter(
+        (chat) => chat.type === ChatType.SEND || chat.type === ChatType.RECEIVE,
+      );
 
-    if (actualChats.length < 2) {
-      return false;
-    }
+      if (actualChats.length < count) {
+        return false;
+      }
 
-    const lastTwoChats = actualChats.slice(-2);
-    const isAllStudentMessages = lastTwoChats.every((chat) => chat.type === ChatType.SEND);
-    return isAllStudentMessages;
-  }, [chatData]);
+      const lastTwoChats = actualChats.slice(-count);
+      const isAllStudentMessages = lastTwoChats.every((chat) => chat.type === ChatType.SEND);
+      return isAllStudentMessages;
+    },
+    [chatData],
+  );
 
   const handleSendRemind = async () => {
     !isReminded && (await api.patch(`/student/opinions/${roomId}/remind`));
@@ -132,49 +131,21 @@ const OpinionChatPage = () => {
     setDialogText('학생회에 리마인드 알림을 전송했어요.');
   };
 
-  // useEffect(() => {
-  //   if (!roomId) return;
-
-  // const fetchData = async () => {
-  //   try {
-  //     const enterResponse = await api.get(`/api/opinions/${roomId}`);
-  //     enterResponse.data.isReminded && setIsReminded(true);
-  //     const response = await api.get(`/api/opinions/${roomId}/chat`, {
-  //       params: { chatId: lastChatId, scroll: 'INITIAL' },
-  //     });
-
-  //     const formattedData = formatChatData(response.data, false);
-  //     setChatData(formattedData);
-  //   } catch (error) {
-  //     console.error('채팅 데이터 불러오기 실패:', error);
-  //   }
-  // };
-
-  // fetchData();
-  // }, [roomId, socket]);
-
   useEffect(() => {
     const unsubscribe = subscribe('OPINION', Number(roomId), handleMessageReceive);
+
     return () => unsubscribe();
   }, [roomId, subscribe, handleMessageReceive]);
-
-  // chatData가 변경될 때마다 버튼 상태 업데이트
-  // useEffect(() => {
-  //   setIsRemindEnabled(checkLastThreeChats());
-  // }, [chatData, checkLastThreeChats]);
 
   const handleSendMessage = useCallback(
     (message: string, images: string[] = []) => {
       sendMessage('OPINION', Number(roomId), message, images, false);
       setMessage('');
       handleImageDelete(-1);
-      setIsRemindEnabled(checkLastThreeChats());
+      setIsRemindEnabled(checkLastThreeChats(2));
     },
     [roomId, sendMessage, checkLastThreeChats, handleImageDelete],
   );
-
-  // const { elementRef, useScrollOnUpdate } = useScroll<HTMLDivElement>();
-  // useScrollOnUpdate(chatData);
 
   const [selectedImage, setSelectedImage] = useState<{ url: string; index: number } | null>(null);
   const [currentImageList, setCurrentImageList] = useState<string[]>([]);
@@ -234,11 +205,13 @@ const OpinionChatPage = () => {
         setChatData(formattedData);
       }
 
-      enterResponse.data.isReminded && setIsReminded(true);
       setChatRoomInfo({
         title: '',
         adminName: `${enterResponse.data.universityName} 총학생회`,
       });
+
+      enterResponse.data.isReminded && setIsReminded(true);
+      console.log('isRemindEnabled', isRemindEnabled);
 
       isInitialLoading.current = false;
     } catch (error) {
@@ -257,7 +230,6 @@ const OpinionChatPage = () => {
       });
       const formattedData = formatChatData(response.data, false);
 
-      console.log('up data', response.data);
       setChatData((prev: ChatData[]) => {
         if (response.data.length < MAX_CHAT_PAGE_DATA) {
           setHasUpMore(false);
