@@ -274,7 +274,7 @@ const ChatSendContainer = styled.div<{
   padding: 8px 16px 8px 16px;
   background-color: ${(props) => props.bcakgroundColor};
   gap: 8px;
-  padding-bottom: env(safe-area-inset-bottom);
+  padding-bottom: calc(env(safe-area-inset-bottom) + 15px);
 `;
 
 const ImageUploadBox = styled.div<{ backgroundColor: string }>`
