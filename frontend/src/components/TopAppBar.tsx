@@ -94,6 +94,7 @@ const TopAppBarContainer = styled.div<{
   border?: BorderProps;
 }>`
   width: 100%;
+  min-height: 40px;
   position: sticky;
   top: 0px;
   display: flex;
