@@ -39,6 +39,7 @@ export const useScroll = <T extends HTMLElement>() => {
 
   const rememberCurrentScrollHeight = () => {
     if (elementRef.current) {
+      console.log('remember!!!', elementRef.current.scrollHeight);
       previousScrollHeight.current = elementRef.current.scrollHeight;
     }
   };

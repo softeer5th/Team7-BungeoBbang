@@ -17,7 +17,7 @@ import MoreChatButton from './MoreChatButton.tsx';
 import { useNavigate } from 'react-router-dom';
 import { ExitDialog } from './Exitdialog.tsx';
 import api from '@/utils/api.ts';
-import { formatChatData } from '@/utils/chat/formatChatData.ts';
+import { addDateDivider, formatChatData } from '@/utils/chat/formatChatData.ts';
 import { ImagePreview } from '@/components/Chat/ImagePreview.tsx';
 import { useImageUpload } from '@/hooks/useImageUpload.ts';
 import { ImageFileSizeDialog } from '@/components/Dialog/ImageFileSizeDialog.tsx';
@@ -33,6 +33,7 @@ import {
   LAST_REMAIN_ITEMS,
   MAX_CHAT_DATA_LENGTH,
   MAX_CHAT_PAGE_DATA,
+  RECENT_CHAT_ID,
 } from '@/utils/chat/chat_const.ts';
 
 interface ChatPageProps {
@@ -102,17 +103,7 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
             images: message.images || [],
           };
           if (message.memberId === Number(memberId)) {
-            if (!getHasDownMore()) {
-              isLive.current = true;
-              setChatData((prev) => {
-                if (MAX_CHAT_DATA_LENGTH - prev.length > 1) {
-                  return [...prev.slice(prev.length - MAX_CHAT_DATA_LENGTH + 1), newChat];
-                }
-                return [...prev, newChat];
-              });
-            } else {
-              setToastMeesage('아직 읽지 않은 채팅이 있습니다.');
-            }
+            getInitialChatDataFromRecent();
           } else {
             if (!getHasDownMore()) {
               isLiveReceive.current = true;
@@ -122,8 +113,9 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
                 }
                 return [...prev, newChat];
               });
+            } else {
+              setToastMeesage('새로운 채팅이 도착했습니다.');
             }
-            setToastMeesage('새로운 채팅이 도착했습니다.');
           }
         }
       },
@@ -159,10 +151,11 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
 
     const lastUpChatId = useRef<string>(lastChatId);
     const lastDownChatId = useRef<string>(lastChatId);
-    const isInitialLoading = useRef<boolean>(true);
+    const isInitialTopLoading = useRef<boolean>(true);
+    const isInitialRecentLoading = useRef<boolean>(true);
     const isUpDirection = useRef<boolean>(false);
     const isDownDirection = useRef<boolean>(false);
-    const isLive = useRef<boolean>(false);
+    // const isLive = useRef<boolean>(false);
     const isLiveReceive = useRef<boolean>(false);
 
     let upLastItemId: string = '';
@@ -177,7 +170,16 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
     } = useScroll<HTMLDivElement>();
 
     const getInitialChatData = async () => {
+      if (lastUpChatId.current === RECENT_CHAT_ID) {
+        getInitialChatDataFromRecent();
+      } else {
+        getInitialChatDataFromTop();
+      }
+    };
+
+    const getInitialChatDataFromTop = async () => {
       try {
+        isInitialTopLoading.current = true;
         const [response, chatInfo] = await Promise.all([
           api.get(`/student/agendas/${roomId}/chat`, {
             params: {
@@ -199,15 +201,39 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
           title: chatInfo.data.title,
           adminName: chatInfo.data.adminName,
         });
+      } catch (error) {
+        console.error('fail to get chat data', error);
+      }
+    };
 
-        isInitialLoading.current = false;
+    const getInitialChatDataFromRecent = async () => {
+      try {
+        isInitialRecentLoading.current = true;
+        const [response, chatInfo] = await Promise.all([
+          api.get(`/student/agendas/${roomId}/chat`, {
+            params: {
+              chatId: RECENT_CHAT_ID,
+              scroll: 'INITIAL',
+            },
+          }),
+          api.get(`/student/agendas/${roomId}`),
+        ]);
+        console.log('responsesseee', response);
+
+        const formattedData = formatChatData(response.data, true);
+
+        setHasDownMore(false);
+        setChatData(formattedData);
+        setChatRoomInfo({
+          title: chatInfo.data.title,
+          adminName: chatInfo.data.adminName,
+        });
       } catch (error) {
         console.error('fail to get chat data', error);
       }
     };
 
     const getMoreUpChatData = async () => {
-      console.log('up!!!', isInitialLoading);
       try {
         isUpDirection.current = true;
         const response = await api.get(`/student/agendas/${roomId}/chat`, {
@@ -274,11 +300,20 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
       });
 
     useLayoutEffect(() => {
-      console.log('getchasdata', chatData);
       if (!elementRef.current) return;
+      console.log('getchasdata', chatData);
 
-      if (isInitialLoading.current === true) {
+      if (isInitialTopLoading.current === true) {
         scrollToTop();
+
+        isInitialTopLoading.current = false;
+        return;
+      }
+
+      if (isInitialRecentLoading.current === true) {
+        scrollToBottom();
+
+        isInitialRecentLoading.current = false;
         return;
       }
 
@@ -289,19 +324,23 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
         return;
       }
 
-      if (isLive.current) {
-        if (isLiveReceive.current) {
-          isLiveReceive.current = false;
-          return;
-        }
-        scrollToBottom();
-      }
-
       if (isDownDirection.current) {
+        rememberCurrentScrollHeight();
         isDownDirection.current = false;
       }
 
-      rememberCurrentScrollHeight();
+      // if(isLiveReceive.current){
+
+      // }
+
+      // if (isLive.current) {
+      //   console.log('live', isLive.current, isLiveReceive.current);
+      //   if (isLiveReceive.current) {
+      //     isLiveReceive.current = false;
+      //     return;
+      //   }
+      //   scrollToBottom();
+      // }
     }, [chatData]);
 
     return (
@@ -323,70 +362,100 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
             const isDownTriggerItem = chatIndex === chatData.length - LAST_REMAIN_ITEMS;
 
             if (chat.type === ChatType.RECEIVE) {
-              const chatData = chat as ReceiveChatData;
+              const curChatData = chat as ReceiveChatData;
 
-              if (upLastItemId.length === 0) upLastItemId = chatData.chatId;
-              downLastItemId = chatData.chatId;
+              if (upLastItemId.length === 0) upLastItemId = curChatData.chatId;
+              downLastItemId = curChatData.chatId;
 
               return (
-                <ReceiverChat
-                  key={chatData.chatId}
-                  chatId={chatData.chatId}
-                  ref={
-                    isUpTriggerItem || isDownTriggerItem
-                      ? (el) => {
-                          if (el) {
-                            if (isUpTriggerItem) {
-                              lastUpChatId.current = upLastItemId;
-                              setTriggerUpItem(el);
-                            }
+                <>
+                  {(() => {
+                    const date = addDateDivider(
+                      curChatData,
+                      chatIndex > 0 ? chatData[chatIndex - 1] : null,
+                    );
 
-                            if (isDownTriggerItem) {
-                              lastDownChatId.current = downLastItemId;
-                              setTriggerDownItem(el);
+                    return date ? <TextBadge text={date} /> : null;
+                  })()}
+                  <ReceiverChat
+                    key={curChatData.chatId}
+                    chatId={curChatData.chatId}
+                    ref={
+                      isUpTriggerItem
+                        ? (el) => {
+                            if (el) {
+                              if (isUpTriggerItem) {
+                                lastUpChatId.current = upLastItemId;
+                                setTriggerUpItem(el);
+                              }
                             }
                           }
-                        }
-                      : null
-                  }
-                  receiverName={chatRoomInfo.adminName}
-                  message={chatData.message}
-                  images={chatData.images}
-                  timeText={chatData.time}
-                  onImageClick={(imageUrl) => handleImageClick(imageUrl, chatData.images || [])}
-                />
+                        : isDownTriggerItem
+                          ? (el) => {
+                              if (el) {
+                                if (isDownTriggerItem) {
+                                  lastDownChatId.current = downLastItemId;
+                                  setTriggerDownItem(el);
+                                }
+                              }
+                            }
+                          : null
+                    }
+                    receiverName={chatRoomInfo.adminName}
+                    message={curChatData.message}
+                    images={curChatData.images}
+                    timeText={curChatData.time}
+                    onImageClick={(imageUrl) => handleImageClick(imageUrl, chatData.images || [])}
+                  />
+                </>
               );
             } else if (chat.type === ChatType.SEND) {
-              const chatData = chat as SendChatData;
-              if (upLastItemId.length === 0) upLastItemId = chatData.chatId;
-              downLastItemId = chatData.chatId;
+              const curChatData = chat as SendChatData;
+              if (upLastItemId.length === 0) upLastItemId = curChatData.chatId;
+              downLastItemId = curChatData.chatId;
 
               return (
-                <SenderChat
-                  key={chatData.chatId}
-                  chatId={chatData.chatId}
-                  ref={
-                    isUpTriggerItem || isDownTriggerItem
-                      ? (el) => {
-                          if (el) {
-                            if (isUpTriggerItem) {
-                              lastUpChatId.current = upLastItemId;
-                              setTriggerUpItem(el);
-                            }
+                <>
+                  {(() => {
+                    const date = addDateDivider(
+                      curChatData,
+                      chatIndex > 0 ? chatData[chatIndex - 1] : null,
+                    );
 
-                            if (isDownTriggerItem) {
-                              lastDownChatId.current = downLastItemId;
-                              setTriggerDownItem(el);
+                    return date ? <TextBadge text={date} /> : null;
+                  })()}
+                  <SenderChat
+                    key={curChatData.chatId}
+                    chatId={curChatData.chatId}
+                    ref={
+                      isUpTriggerItem
+                        ? (el) => {
+                            if (el) {
+                              if (isUpTriggerItem) {
+                                lastUpChatId.current = upLastItemId;
+                                setTriggerUpItem(el);
+                              }
                             }
                           }
-                        }
-                      : null
-                  }
-                  message={chatData.message}
-                  images={chatData.images}
-                  timeText={chatData.time}
-                  onImageClick={(imageUrl) => handleImageClick(imageUrl, chatData.images || [])}
-                />
+                        : isDownTriggerItem
+                          ? (el) => {
+                              if (el) {
+                                if (isDownTriggerItem) {
+                                  lastDownChatId.current = downLastItemId;
+                                  setTriggerDownItem(el);
+                                }
+                              }
+                            }
+                          : null
+                    }
+                    message={curChatData.message}
+                    images={curChatData.images}
+                    timeText={curChatData.time}
+                    onImageClick={(imageUrl) =>
+                      handleImageClick(imageUrl, curChatData.images || [])
+                    }
+                  />
+                </>
               );
             } else if (chat.type === ChatType.INFO) {
               const chatData = chat as InfoChatData;

@@ -32,6 +32,7 @@ import {
   LAST_REMAIN_ITEMS,
   MAX_CHAT_DATA_LENGTH,
   MAX_CHAT_PAGE_DATA,
+  RECENT_CHAT_ID,
 } from '@/utils/chat/chat_const.ts';
 
 interface ChatPageProps {
@@ -102,8 +103,9 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
                 }
                 return [...prev, newChat];
               });
+            } else {
+              setToastMeesage('새로운 채팅이 도착했습니다.');
             }
-            setToastMeesage('새로운 채팅이 도착했습니다.');
           }
         }
       },
@@ -139,14 +141,13 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
     );
 
     let upLastItemId: string = '';
-    let downLatItemId: string = '';
+    let downLastItemId: string = '';
 
     const [chatRoomInfo, setChatRoomInfo] = useState<ChatRoomInfo>({
       title: '',
       adminName: '총학생회',
     });
 
-    const RECENT_CHAT_ID = 'ffffffffffffffffffffffff';
     const lastUpChatId = useRef<string | null>(lastChatId);
     const lastDownChatId = useRef<string | null>(lastChatId);
     const isInitialTopLoading = useRef<boolean>(true);
@@ -184,9 +185,9 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
           }),
           api.get(`/admin/agendas/${roomId}`),
         ]);
-        console.log('responsesseee', response);
-
         const formattedData = formatChatData(response.data, true);
+
+        console.log('responsesseee', response, formattedData);
 
         setChatData(formattedData);
         setChatRoomInfo({
@@ -317,6 +318,11 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
         return;
       }
 
+      if (isDownDirection.current) {
+        rememberCurrentScrollHeight();
+        isDownDirection.current = false;
+      }
+
       // if(isLiveReceive.current){
 
       // }
@@ -329,14 +335,6 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
       //   }
       //   scrollToBottom();
       // }
-
-      // if (isDownDirection.current) {
-      //   isDownDirection.current = false;
-      // }
-    }, [chatData]);
-
-    useEffect(() => {
-      rememberCurrentScrollHeight();
     }, [chatData]);
 
     const colorMap = useRef(new Map<number, string>());
@@ -380,7 +378,7 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
             if (chat.type === ChatType.RECEIVE) {
               const curChatData = chat as ReceiveChatData;
               if (upLastItemId.length === 0) upLastItemId = curChatData.chatId;
-              downLatItemId = curChatData.chatId;
+              downLastItemId = curChatData.chatId;
 
               const randomColor = getRandomValue(
                 colorMap.current,
@@ -402,21 +400,25 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
                   <ReceiverChat
                     chatId={curChatData.chatId}
                     ref={
-                      isUpTriggerItem || isDownTriggerItem
+                      isUpTriggerItem
                         ? (el) => {
                             if (el) {
                               if (isUpTriggerItem) {
                                 lastUpChatId.current = upLastItemId;
                                 setTriggerUpItem(el);
                               }
-
-                              if (isDownTriggerItem) {
-                                lastDownChatId.current = downLatItemId;
-                                setTriggerDownItem(el);
-                              }
                             }
                           }
-                        : null
+                        : isDownTriggerItem
+                          ? (el) => {
+                              if (el) {
+                                if (isDownTriggerItem) {
+                                  lastDownChatId.current = downLastItemId;
+                                  setTriggerDownItem(el);
+                                }
+                              }
+                            }
+                          : null
                     }
                     receiverIconBackgroundColor={randomColor}
                     receiverIconSrc={randomImg}
@@ -431,7 +433,7 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
               const curChatData = chat as SendChatData;
 
               if (upLastItemId.length === 0) upLastItemId = curChatData.chatId;
-              downLatItemId = curChatData.chatId;
+              downLastItemId = curChatData.chatId;
 
               return (
                 <>
@@ -446,26 +448,32 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
                   <SenderChat
                     chatId={curChatData.chatId}
                     ref={
-                      isUpTriggerItem || isDownTriggerItem
+                      isUpTriggerItem
                         ? (el) => {
                             if (el) {
                               if (isUpTriggerItem) {
                                 lastUpChatId.current = upLastItemId;
                                 setTriggerUpItem(el);
                               }
-
-                              if (isDownTriggerItem) {
-                                lastDownChatId.current = downLatItemId;
-                                setTriggerDownItem(el);
-                              }
                             }
                           }
-                        : null
+                        : isDownTriggerItem
+                          ? (el) => {
+                              if (el) {
+                                if (isDownTriggerItem) {
+                                  lastDownChatId.current = downLastItemId;
+                                  setTriggerDownItem(el);
+                                }
+                              }
+                            }
+                          : null
                     }
                     message={curChatData.message}
                     images={curChatData.images}
                     timeText={curChatData.time}
-                    onImageClick={(imageUrl) => handleImageClick(imageUrl, chatData.images || [])}
+                    onImageClick={(imageUrl) =>
+                      handleImageClick(imageUrl, curChatData.images || [])
+                    }
                   />
                 </>
               );

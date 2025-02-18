@@ -121,5 +121,6 @@ const ChatMessageText = styled(Typography)<{
 }>`
   text-align: start;
   white-space: pre-line;
+  overflow-wrap: break-word;
   color: ${(props) => props.textColor};
 `;

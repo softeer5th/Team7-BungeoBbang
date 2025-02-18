@@ -1,8 +1,8 @@
-import React from 'react';
+// import React from 'react';
 import {
   ChatData,
   ChatType,
-  InfoChatData,
+  // InfoChatData,
   ReceiveChatData,
   SendChatData,
 } from '@/domains/student/pages/agenda/chat/chat-page/ChatData';
@@ -55,6 +55,7 @@ export const formatChatData = (
         minute: '2-digit',
       }),
       images: item.images || [],
+      createdAt: item.createdAt,
     };
 
     if (item.isAdmin) {
@@ -67,6 +68,7 @@ export const formatChatData = (
     return baseChat as SendChatData;
   });
 
+  return formattedChats;
   // 날짜 구분선 추가
   // const chatsWithDateDividers: ChatData[] = [];
   // let currentDate = '';
