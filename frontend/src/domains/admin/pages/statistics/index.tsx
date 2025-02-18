@@ -205,9 +205,8 @@ const StatisticsPage = () => {
                   {statsData &&
                     Object.entries(statsData.opinionTypeCounts).map(([key, count]) => (
                       <OpinionItem key={key}>
-                        <CategoryCount>
-                          <Typography variant="heading1">{count}</Typography>
-                        </CategoryCount>
+                        <Typography variant="heading1">{count}</Typography>
+
                         <OpinionName>
                           <Typography variant="body4">{getOpinionTypeName(key)}</Typography>
                         </OpinionName>
@@ -229,7 +228,8 @@ const StatisticsPage = () => {
                           <img src={categoryInfo.iconSrc} alt={categoryInfo.label} />
                         </CategoryIcon>
                         <CategoryName>{categoryInfo.label}</CategoryName>
-                        <CategoryCount>{count}</CategoryCount>
+
+                        <Typography variant="heading1">{count}</Typography>
                       </CategoryItem>
                     );
                   })}
@@ -243,7 +243,7 @@ const StatisticsPage = () => {
               <StatsGrid currentTab={currentTab}>
                 <StatItem>
                   <StatValue>{agendaStats?.agendaCount || 0}</StatValue>
-                  <StatLabel>개설된 채팅방수</StatLabel>
+                  <StatLabel>개설된 채팅방수</StatLabel>
                 </StatItem>
                 <StatItem>
                   <StatValue>{agendaStats?.participateCount || 0}</StatValue>
@@ -263,7 +263,7 @@ const StatisticsPage = () => {
                         <img src={categoryInfo.iconSrc} alt={categoryInfo.label} />
                       </CategoryIcon>
                       <CategoryName>{categoryInfo.label}</CategoryName>
-                      <CategoryCount>{stat.count}</CategoryCount>
+                      <Typography variant="heading1">{stat.count}</Typography>
                     </CategoryItem>
                   );
                 })}
@@ -369,6 +369,20 @@ const StatsGrid = styled.div<{ currentTab: string }>`
 
 const StatItem = styled.div`
   text-align: center;
+  position: relative;
+
+  &:not(:last-child) {
+    &::after {
+      content: '';
+      position: absolute;
+      right: -8px; // gap의 절반 크기만큼 조정
+      top: 50%;
+      transform: translateY(-50%);
+      height: 40px; // 높이 조정 가능
+      width: 1px;
+      background-color: #e0e0e0;
+    }
+  }
 `;
 
 const StatValue = styled.div`
@@ -399,6 +413,17 @@ const OpinionItem = styled.div`
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  position: relative;
+  &:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    height: 50px;
+    width: 1px;
+    background-color: #e0e0e0;
+  }
 `;
 
 const OpinionName = styled.div`
@@ -421,6 +446,19 @@ const CategoryItem = styled.div`
   align-items: center;
   gap: 12px;
   padding: 8px 0;
+  &:not(:last-child) {
+    position: relative;
+
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: -6px; // 여기서 숫자를 조절하여 border 위치 조정
+      left: 0;
+      width: 100%;
+      height: 1px;
+      background-color: #f4f4f4;
+    }
+  }
 `;
 
 const CategoryIcon = styled.div<{ background: string }>`
@@ -441,11 +479,6 @@ const CategoryIcon = styled.div<{ background: string }>`
 const CategoryName = styled.span`
   flex: 1;
   font-size: 14px;
-`;
-
-const CategoryCount = styled.span`
-  font-size: 14px;
-  font-weight: 600;
 `;
 
 export default StatisticsPage;
