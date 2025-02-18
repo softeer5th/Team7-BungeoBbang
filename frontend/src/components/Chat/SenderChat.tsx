@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 import Typography from '../../styles/Typography';
-import { forwardRef, useEffect, useRef } from 'react';
+import { forwardRef } from 'react';
 
 interface SenderChatProps {
   chatId: string;

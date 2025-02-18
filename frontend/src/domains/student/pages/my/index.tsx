@@ -25,7 +25,9 @@ const MyPage = () => {
   const navigate = useNavigate();
   const { subscribe } = useSocketStore();
 
-  const [activeIndex, setActiveIndex] = useState(0);
+  const [activeIndex, setActiveIndex] = useState(() => {
+    return Number(sessionStorage.getItem('activeTabIndex')) || 0;
+  });
   const containerRef = useRef<HTMLDivElement>(null);
   const [startX, setStartX] = useState(0);
   const [translateX, setTranslateX] = useState(0);
@@ -100,6 +102,8 @@ const MyPage = () => {
     const width = containerRef.current?.offsetWidth || 375;
 
     setTranslateX(scrollLeft + -activeIndex * width);
+
+    sessionStorage.setItem('activeTabIndex', String(activeIndex));
   }, [activeIndex]);
 
   const handleNewMessage = useCallback((message: ChatMessage) => {
