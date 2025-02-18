@@ -15,7 +15,7 @@ interface CountTextFieldProps {
   disabled?: boolean;
 }
 
-export const CountTextField: React.FC<CountTextFieldProps> = ({
+const CountTextField: React.FC<CountTextFieldProps> = ({
   value,
   maxLength,
   placeholder,
@@ -44,7 +44,7 @@ export const CountTextField: React.FC<CountTextFieldProps> = ({
       <TextFieldInput
         rows={rows}
         variant="body1"
-        value={value}
+        value={disabled ? '' : value}
         placeholder={placeholder}
         onChange={handleInputChange}
         placeholderColor={placeholderColor}
@@ -58,6 +58,8 @@ export const CountTextField: React.FC<CountTextFieldProps> = ({
     </CountTextFieldContainer>
   );
 };
+
+export default CountTextField;
 
 const CountTextFieldContainer = styled.div`
   display: flex;

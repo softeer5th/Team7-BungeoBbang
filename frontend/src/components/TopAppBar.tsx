@@ -97,6 +97,7 @@ const TopAppBarContainer = styled.div<{
   min-height: 40px;
   position: sticky;
   top: 0px;
+  box-sizing: border-box;
   display: flex;
   align-items: center;
   justify-content: center;
