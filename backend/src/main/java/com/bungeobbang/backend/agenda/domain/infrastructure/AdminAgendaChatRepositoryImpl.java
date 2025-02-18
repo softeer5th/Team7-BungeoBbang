@@ -160,7 +160,7 @@ public class AdminAgendaChatRepositoryImpl implements AdminAgendaChatRepository 
             }
         }
 
-        query.limit(10);
+        query.limit(15);
 
         final List<AgendaChat> result = mongoTemplate.find(query, AgendaChat.class);
 
