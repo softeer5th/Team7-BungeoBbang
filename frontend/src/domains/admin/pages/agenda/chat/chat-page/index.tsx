@@ -488,13 +488,17 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
           <SendDialog
             message={message}
             images={images}
-            onConfirm={() => handleSendMessage(message, images)}
+            onConfirm={() => {
+              handleSendMessage(message, images);
+              setShowSendDialog(false); // 얘 나중에 삭제
+            }}
             onDismiss={() => setShowSendDialog(false)}
           />
         )}
         {showSizeDialog && (
           <ImageFileSizeDialog onConfirm={closeSizeDialog} onDismiss={closeSizeDialog} />
         )}
+
         {selectedImage && (
           <ImagePreview
             imageUrl={selectedImage.url}

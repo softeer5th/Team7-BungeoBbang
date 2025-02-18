@@ -3,6 +3,7 @@ import parse from 'html-react-parser';
 import styled, { useTheme } from 'styled-components';
 import Typography from '@/styles/Typography';
 import { Button } from '@/components/Button';
+import { useEffect } from 'react';
 
 interface SendDialogProps {
   message: string;
@@ -24,6 +25,20 @@ export const SendDialog: React.FC<SendDialogProps> = ({
     return null;
   }
 
+  // 학생회 채팅 엔터로
+  const handleKeyDown = (e: KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      onConfirm();
+    }
+  };
+
+  useEffect(() => {
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, []);
+//보내는 로직 추후 삭제하삼
   const dialog = (
     <DialogOverlay onClick={onDismiss}>
       <DialogContainer>
