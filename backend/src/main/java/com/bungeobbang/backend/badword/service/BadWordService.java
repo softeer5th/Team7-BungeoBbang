@@ -46,10 +46,7 @@ public class BadWordService {
         if (detectedWords.size() > allowedWords.size()) throw new BadWordException(BADWORD_INCLUDED);
     }
 
-    // todo : 수정
     public void validate(String... texts) {
-        if (Arrays.stream(texts).anyMatch(text -> !badWordsTrie.searchBadWords(text).isEmpty())) {
-            throw new BadWordException(BADWORD_INCLUDED);
-        }
+        Arrays.stream(texts).parallel().forEach(this::validate);
     }
 }
