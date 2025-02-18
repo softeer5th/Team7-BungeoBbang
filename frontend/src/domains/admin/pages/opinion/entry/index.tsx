@@ -14,6 +14,7 @@ import { useNavigate } from 'react-router-dom';
 import { findChatCategoryType } from '@/utils/findChatCategoryType';
 import { useSocketManager } from '@/hooks/useSocketManager';
 import { LogoutDialog } from '@/components/Dialog/LogoutDialog';
+import { formatLastChatTime } from '@/utils/chat/lastChatTime';
 
 const chipItems = [
   { itemId: 'ALL', text: '전체' },
@@ -46,12 +47,7 @@ const OpinionEntryPage: React.FC = () => {
           category: findChatCategoryType(item.opinion.categoryType),
           title: ChatOpinionType[item.opinion.opinionType]?.label,
           text: item.lastChat.content,
-          time: new Date(item.lastChat.createdAt).toLocaleTimeString('ko-KR', {
-            hour: '2-digit',
-            minute: '2-digit',
-            hour12: false,
-            dayPeriod: undefined,
-          }),
+          time: formatLastChatTime(item.lastChat.createdAt),
           iconColor: '#FFC107',
           hasAlarm: item.hasNewChat,
           createdAt: item.lastChat.createdAt,

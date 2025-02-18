@@ -1,6 +1,7 @@
 import { CategoryIcon } from '@/components/CategoryIcon';
 import * as S from './styles';
 import { ChatCategoryType } from '@/types/ChatCategoryType';
+import { formatLastChatTime } from '@/utils/chat/lastChatTime';
 
 interface OpinionItemProps {
   category: ChatCategoryType;
