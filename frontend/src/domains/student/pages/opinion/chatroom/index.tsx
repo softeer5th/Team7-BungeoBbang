@@ -61,8 +61,6 @@ const OpinionChatPage = () => {
 
   const handleMessageReceive = useCallback(
     (message: ChatMessage) => {
-      setIsReminded(false);
-      checkLastThreeChats(3) ? setIsRemindEnabled(true) : setIsRemindEnabled(false);
       if (message.roomType === 'OPINION' && message.opinionId === Number(roomId)) {
         const newChat = {
           type: message.memberId === Number(memberId) ? ChatType.SEND : ChatType.RECEIVE,
@@ -134,10 +132,13 @@ const OpinionChatPage = () => {
       sendMessage('OPINION', Number(roomId), message, images, false);
       setMessage('');
       handleImageDelete(-1);
-      setIsRemindEnabled(checkLastThreeChats(2));
     },
     [roomId, sendMessage, checkLastThreeChats, handleImageDelete],
   );
+
+  useEffect(() => {
+    setIsRemindEnabled(checkLastThreeChats(3));
+  }, [chatData, checkLastThreeChats]);
 
   const [selectedImage, setSelectedImage] = useState<{ url: string; index: number } | null>(null);
   const [currentImageList, setCurrentImageList] = useState<string[]>([]);
@@ -212,7 +213,6 @@ const OpinionChatPage = () => {
     }
   };
 
-
   const getInitialChatDataFromRecent = async () => {
     try {
       isInitialRecentLoading.current = true;
@@ -236,7 +236,6 @@ const OpinionChatPage = () => {
         title: '',
         adminName: `${enterResponse.data.universityName} 총학생회`,
       });
-
     } catch (error) {
       console.error('fail to get chat data', error);
     }
