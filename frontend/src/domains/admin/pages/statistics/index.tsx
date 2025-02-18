@@ -1,5 +1,3 @@
-'use client';
-
 import { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { TopAppBar } from '@/components/TopAppBar';
@@ -9,6 +7,10 @@ import { bottomItems, moveToDestination } from '../destinations';
 import { useNavigate } from 'react-router-dom';
 import { LogoutDialog } from '@/components/Dialog/LogoutDialog';
 import api from '@/utils/api';
+import leftArrowIcon from '@/assets/icons/chevron-left.svg';
+import rightArrowIcon from '@/assets/icons/chevron-right.svg';
+import Typography from '@/styles/Typography';
+import { ChatCategoryType } from '@/types/ChatCategoryType';
 
 interface StatisticsData {
   opinionCount: number;
@@ -102,15 +104,15 @@ const StatisticsPage = () => {
     { itemId: 'answer', title: '답해요' },
   ];
 
-  // 카테고리 이름 변환 함수
-  const getCategoryName = (key: string) => {
-    const names: Record<string, string> = {
-      ACADEMICS: '학사',
-      FACILITIES: '시설·환경',
-      BUDGET: '예산',
-      EVENTS: '행사',
-    };
-    return names[key] || key;
+  const getCategoryInfo = (key: string) => {
+    const category = ChatCategoryType[key as keyof typeof ChatCategoryType];
+    return (
+      category || {
+        label: key,
+        iconSrc: '/assets/icons/bubble.svg',
+        iconBackground: '#FFDBD8',
+      }
+    );
   };
 
   // 의견 유형 이름 변환 함수
@@ -119,7 +121,7 @@ const StatisticsPage = () => {
       IMPROVEMENT: '개선',
       NEED: '필요',
       SUGGESTION: '제안',
-      INQUIRY: '문의',
+      INQUIRY: '궁금',
     };
     return names[key] || key;
   };
@@ -156,21 +158,23 @@ const StatisticsPage = () => {
 
       <Content>
         <PeriodSelector>
-          <ArrowButton onClick={() => handleDateChange(-1)}>{'<'}</ArrowButton>
-          <Period>
+          <ArrowButton onClick={() => handleDateChange(-1)}>
+            <img src={leftArrowIcon} alt="이전" />
+          </ArrowButton>
+          <Typography variant="display2">
             {isMonthly
               ? `${currentDate.getFullYear()}년 ${currentDate.getMonth() + 1}월`
               : `${currentDate.getFullYear()}년`}
-          </Period>
+          </Typography>
           <ArrowButton onClick={() => handleDateChange(1)} disabled={!canIncrement()}>
-            {'>'}
+            <img src={rightArrowIcon} alt="다음" />
           </ArrowButton>
           <ToggleGroup>
             <ToggleButton active={isMonthly} onClick={() => setIsMonthly(true)}>
-              월간
+              <Typography variant="heading4">월간</Typography>
             </ToggleButton>
             <ToggleButton active={!isMonthly} onClick={() => setIsMonthly(false)}>
-              연간
+              <Typography variant="heading4">연간</Typography>
             </ToggleButton>
           </ToggleGroup>
         </PeriodSelector>
@@ -178,7 +182,7 @@ const StatisticsPage = () => {
           <>
             <StatsCard>
               <StatsTitle>말해요</StatsTitle>
-              <StatsGrid>
+              <StatsGrid currentTab={currentTab}>
                 <StatItem>
                   <StatValue>{statsData?.opinionCount || 0}</StatValue>
                   <StatLabel>의견 수</StatLabel>
@@ -196,27 +200,39 @@ const StatisticsPage = () => {
 
             <StatsCard>
               <StatsTitle>의견 종류</StatsTitle>
-              <CategoryList>
-                {statsData &&
-                  Object.entries(statsData.opinionTypeCounts).map(([key, count]) => (
-                    <CategoryItem key={key}>
-                      <CategoryName>{getOpinionTypeName(key)}</CategoryName>
-                      <CategoryCount>{count}</CategoryCount>
-                    </CategoryItem>
-                  ))}
-              </CategoryList>
+              <OpinionKindWrapper>
+                <OpinionKind>
+                  {statsData &&
+                    Object.entries(statsData.opinionTypeCounts).map(([key, count]) => (
+                      <OpinionItem key={key}>
+                        <Typography variant="heading1">{count}</Typography>
+
+                        <OpinionName>
+                          <Typography variant="body4">{getOpinionTypeName(key)}</Typography>
+                        </OpinionName>
+                      </OpinionItem>
+                    ))}
+                </OpinionKind>
+              </OpinionKindWrapper>
             </StatsCard>
 
             <StatsCard>
               <StatsTitle>카테고리</StatsTitle>
               <CategoryList>
                 {statsData &&
-                  Object.entries(statsData.categoryTypeCounts).map(([key, count]) => (
-                    <CategoryItem key={key}>
-                      <CategoryName>{getCategoryName(key)}</CategoryName>
-                      <CategoryCount>{count}</CategoryCount>
-                    </CategoryItem>
-                  ))}
+                  Object.entries(statsData.categoryTypeCounts).map(([key, count]) => {
+                    const categoryInfo = getCategoryInfo(key);
+                    return (
+                      <CategoryItem key={key}>
+                        <CategoryIcon background={categoryInfo.iconBackground}>
+                          <img src={categoryInfo.iconSrc} alt={categoryInfo.label} />
+                        </CategoryIcon>
+                        <CategoryName>{categoryInfo.label}</CategoryName>
+
+                        <Typography variant="heading1">{count}</Typography>
+                      </CategoryItem>
+                    );
+                  })}
               </CategoryList>
             </StatsCard>
           </>
@@ -224,27 +240,33 @@ const StatisticsPage = () => {
           <>
             <StatsCard>
               <StatsTitle>답해요</StatsTitle>
-              <StatsGrid>
+              <StatsGrid currentTab={currentTab}>
                 <StatItem>
                   <StatValue>{agendaStats?.agendaCount || 0}</StatValue>
-                  <StatLabel>개설한 채팅방</StatLabel>
+                  <StatLabel>개설된 채팅방수</StatLabel>
                 </StatItem>
                 <StatItem>
                   <StatValue>{agendaStats?.participateCount || 0}</StatValue>
-                  <StatLabel>참여자 수</StatLabel>
+                  <StatLabel>의견 수</StatLabel>
                 </StatItem>
               </StatsGrid>
             </StatsCard>
 
             <StatsCard>
-              <StatsTitle>카테고리별 통계</StatsTitle>
+              <StatsTitle>카테고리</StatsTitle>
               <CategoryList>
-                {agendaStats?.categoryStats.map((stat) => (
-                  <CategoryItem key={stat.categoryType}>
-                    <CategoryName>{getCategoryName(stat.categoryType)}</CategoryName>
-                    <CategoryCount>{stat.count}</CategoryCount>
-                  </CategoryItem>
-                ))}
+                {agendaStats?.categoryStats.map((stat) => {
+                  const categoryInfo = getCategoryInfo(stat.categoryType);
+                  return (
+                    <CategoryItem key={stat.categoryType}>
+                      <CategoryIcon background={categoryInfo.iconBackground}>
+                        <img src={categoryInfo.iconSrc} alt={categoryInfo.label} />
+                      </CategoryIcon>
+                      <CategoryName>{categoryInfo.label}</CategoryName>
+                      <Typography variant="heading1">{stat.count}</Typography>
+                    </CategoryItem>
+                  );
+                })}
               </CategoryList>
             </StatsCard>
           </>
@@ -277,10 +299,10 @@ const Container = styled.div`
 
 const Content = styled.main`
   flex: 1;
-  padding: 16px;
+  padding: 0 16px 16px 16px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 8px;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
 `;
@@ -288,8 +310,8 @@ const Content = styled.main`
 const PeriodSelector = styled.div`
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 8px 0;
+  gap: 10px;
+  padding: 12px 0;
 `;
 
 const ArrowButton = styled.button<{ disabled?: boolean }>`
@@ -297,17 +319,15 @@ const ArrowButton = styled.button<{ disabled?: boolean }>`
   background: none;
   cursor: ${({ disabled }) => (disabled ? 'not-allowed' : 'pointer')};
   color: ${({ disabled }) => (disabled ? 'rgba(198, 198, 198, 1)' : 'rgba(57, 57, 57, 1)')};
-  font-size: 24px;
-  padding: 8px;
-
-  &:disabled {
-    color: rgba(198, 198, 198, 1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  img {
+    filter: ${({ disabled }) =>
+      disabled
+        ? 'brightness(0) saturate(100%) invert(91%) sepia(0%) saturate(42%) hue-rotate(223deg) brightness(90%) contrast(87%)'
+        : 'brightness(0) saturate(100%) invert(23%) sepia(0%) saturate(0%) hue-rotate(246deg) brightness(98%) contrast(84%)'};
   }
-`;
-
-const Period = styled.span`
-  font-size: 18px;
-  font-weight: 600;
 `;
 
 const ToggleGroup = styled.div`
@@ -315,13 +335,13 @@ const ToggleGroup = styled.div`
   display: flex;
   background: #eeeeee;
   border-radius: 20px;
-  padding: 4px;
+  padding: 2px;
 `;
 
 const ToggleButton = styled.button<{ active?: boolean }>`
   border: none;
-  padding: 6px 12px;
-  border-radius: 16px;
+  padding: 10px 16px;
+  border-radius: 99px;
   background: ${(props) => (props.active ? '#FFFFFF' : 'transparent')};
   font-size: 14px;
   cursor: pointer;
@@ -341,14 +361,28 @@ const StatsTitle = styled.h2`
   font-weight: 600;
 `;
 
-const StatsGrid = styled.div`
+const StatsGrid = styled.div<{ currentTab: string }>`
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(${(props) => (props.currentTab === 'ask' ? 3 : 2)}, 1fr);
   gap: 16px;
 `;
 
 const StatItem = styled.div`
   text-align: center;
+  position: relative;
+
+  &:not(:last-child) {
+    &::after {
+      content: '';
+      position: absolute;
+      right: -8px; // gap의 절반 크기만큼 조정
+      top: 50%;
+      transform: translateY(-50%);
+      height: 40px; // 높이 조정 가능
+      width: 1px;
+      background-color: #e0e0e0;
+    }
+  }
 `;
 
 const StatValue = styled.div`
@@ -362,6 +396,44 @@ const StatLabel = styled.div`
   color: #666666;
   margin-top: 4px;
 `;
+const OpinionKindWrapper = styled.div`
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
+const OpinionKind = styled.div`
+  display: flex;
+  gap: 2px;
+`;
+
+const OpinionItem = styled.div`
+  padding: 8px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  &:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    height: 50px;
+    width: 1px;
+    background-color: #e0e0e0;
+  }
+`;
+
+const OpinionName = styled.div`
+  font-size: 14px;
+  display: flex;
+  min-width: 26px;
+  align-items: center;
+  justify-content: center;
+  color: #8d8d8d;
+`;
 
 const CategoryList = styled.div`
   display: flex;
@@ -373,23 +445,40 @@ const CategoryItem = styled.div`
   display: flex;
   align-items: center;
   gap: 12px;
+  padding: 8px 0;
+  &:not(:last-child) {
+    position: relative;
+
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: -6px; // 여기서 숫자를 조절하여 border 위치 조정
+      left: 0;
+      width: 100%;
+      height: 1px;
+      background-color: #f4f4f4;
+    }
+  }
 `;
 
-// const CategoryIcon = styled.div`
-//   width: 32px;
-//   height: 32px;
-//   border-radius: 50%;
-//   background: #f5f5f5;
-// `;
+const CategoryIcon = styled.div<{ background: string }>`
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: ${(props) => props.background};
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  img {
+    width: 20px;
+    height: 20px;
+  }
+`;
 
 const CategoryName = styled.span`
   flex: 1;
   font-size: 14px;
-`;
-
-const CategoryCount = styled.span`
-  font-size: 14px;
-  font-weight: 600;
 `;
 
 export default StatisticsPage;
