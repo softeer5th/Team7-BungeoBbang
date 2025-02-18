@@ -70,6 +70,10 @@ const OpinionChatPage = () => {
           }),
           images: message.images || [],
         };
+        if (newChat.type === ChatType.RECEIVE) {
+          setIsRemindEnabled(false);
+          setIsReminded(false);
+        }
         if (message.memberId === Number(memberId)) {
           if (!getHasDownMore()) {
             isLive.current = true;
@@ -106,21 +110,24 @@ const OpinionChatPage = () => {
   );
 
   const checkLastThreeChats = useCallback(() => {
-    if (chatData.length < 3) return false;
+    if (chatData.length < 2) return false;
 
     const actualChats = chatData.filter(
       (chat) => chat.type === ChatType.SEND || chat.type === ChatType.RECEIVE,
     );
 
-    if (actualChats.length < 3) return false;
+    if (actualChats.length < 2) {
+      return false;
+    }
 
-    const lastThreeChats = actualChats.slice(-3);
-    const isAllStudentMessages = lastThreeChats.every((chat) => chat.type === ChatType.SEND);
+    const lastTwoChats = actualChats.slice(-2);
+    const isAllStudentMessages = lastTwoChats.every((chat) => chat.type === ChatType.SEND);
     return isAllStudentMessages;
   }, [chatData]);
 
   const handleSendRemind = async () => {
     !isReminded && (await api.patch(`/student/opinions/${roomId}/remind`));
+    setIsRemindEnabled(false);
     setIsReminded(true);
     setDialogText('학생회에 리마인드 알림을 전송했어요.');
   };
@@ -152,22 +159,18 @@ const OpinionChatPage = () => {
   }, [roomId, subscribe, handleMessageReceive]);
 
   // chatData가 변경될 때마다 버튼 상태 업데이트
-  useEffect(() => {
-    setIsRemindEnabled(checkLastThreeChats());
-    isRemindEnabled
-      ? setDialogText(
-          `학생회의 답장이 오기전까지 \n 3번만 작성할수 있어요 \n 답장이 없을경우 리마인드 버튼을 눌러주세요`,
-        )
-      : setDialogText('');
-  }, [chatData, checkLastThreeChats]);
+  // useEffect(() => {
+  //   setIsRemindEnabled(checkLastThreeChats());
+  // }, [chatData, checkLastThreeChats]);
 
   const handleSendMessage = useCallback(
     (message: string, images: string[] = []) => {
       sendMessage('OPINION', Number(roomId), message, images, false);
       setMessage('');
       handleImageDelete(-1);
+      setIsRemindEnabled(checkLastThreeChats());
     },
-    [roomId, sendMessage],
+    [roomId, sendMessage, checkLastThreeChats, handleImageDelete],
   );
 
   // const { elementRef, useScrollOnUpdate } = useScroll<HTMLDivElement>();
@@ -448,11 +451,11 @@ const OpinionChatPage = () => {
         onImageDelete={handleImageDelete}
         onImageUpload={handleImageUpload}
         maxLength={500}
-        textDisabled={isRemindEnabled}
+        textDisabled={isRemindEnabled || isReminded}
         disabledPlaceHolder={
           isReminded ? '리마인드를 전송한 상태입니다.' : '답장이 없을 시 리마인드 버튼을 눌러주세요'
         }
-        isRemindMode={isRemindEnabled}
+        isRemindMode={isRemindEnabled || isReminded}
         isReminded={isReminded}
       />
 
