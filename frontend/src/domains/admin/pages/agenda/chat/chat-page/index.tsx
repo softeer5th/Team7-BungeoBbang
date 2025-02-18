@@ -93,17 +93,12 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
             images: message.images || [],
             createdAt: message.createdAt,
           };
+
           if (message.adminId === Number(memberId)) {
-            getInitialChatDataFromRecent();
+            getReloadChatDataFromRecent();
           } else {
-            if (!getHasDownMore()) {
-              isLiveReceive.current = true;
-              setChatData((prev) => {
-                if (MAX_CHAT_DATA_LENGTH - prev.length > 1) {
-                  return [...prev.slice(prev.length - MAX_CHAT_DATA_LENGTH + 1), newChat];
-                }
-                return [...prev, newChat];
-              });
+            if (!getHasDownMore() && isWatchingBottom()) {
+              getReloadChatDataFromRecent();
             }
             setToastMeesage('새로운 채팅이 도착했습니다.');
           }
@@ -150,11 +145,13 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
 
     const lastUpChatId = useRef<string | null>(lastChatId);
     const lastDownChatId = useRef<string | null>(lastChatId);
-    const isInitialTopLoading = useRef<boolean>(true);
-    const isInitialRecentLoading = useRef<boolean>(true);
+    const isInitialTopLoading = useRef<boolean>(false);
+    const isInitialRecentLoading = useRef<boolean>(false);
     const isUpDirection = useRef<boolean>(false);
     const isDownDirection = useRef<boolean>(false);
-    const isLiveReceive = useRef<boolean>(false);
+    // const isLiveReceive = useRef<boolean>(false);
+
+    const isUpOverflow = useRef<boolean>(false);
 
     const {
       elementRef,
@@ -162,6 +159,8 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
       scrollToBottom,
       remainCurrentScroll,
       rememberCurrentScrollHeight,
+      restoreScrollTop,
+      isWatchingBottom,
     } = useScroll<HTMLDivElement>();
 
     const getInitialChatData = async () => {
@@ -225,8 +224,32 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
       }
     };
 
-    const getMoreUpChatData = async () => {
+    const getReloadChatDataFromRecent = async () => {
       try {
+        // isInitialRecentLoading.current = true;
+        const response = await api.get(`/admin/agendas/${roomId}/chat`, {
+          params: {
+            chatId: RECENT_CHAT_ID,
+            scroll: 'INITIAL',
+          },
+        });
+
+        console.log('responsesseee', response);
+
+        const formattedData = formatChatData(response.data, true);
+
+        setHasDownMore(false);
+        setChatData(formattedData);
+      } catch (error) {
+        console.error('fail to get chat data', error);
+      }
+    };
+
+    const getMoreUpChatData = async () => {
+      // return;
+      try {
+        console.log('??? ', isUpDirection.current);
+        if (isUpDirection.current) return;
         isUpDirection.current = true;
         const response = await api.get(`/admin/agendas/${roomId}/chat`, {
           params: {
@@ -242,14 +265,15 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
             setHasUpMore(false);
           }
 
-          if (MAX_CHAT_DATA_LENGTH - formattedData.length < prev.length) {
-            setHasDownMore(true);
-            return [
-              ...formattedData,
-              ...prev.slice(0, MAX_CHAT_DATA_LENGTH - formattedData.length),
-            ];
-          }
+          // if (MAX_CHAT_DATA_LENGTH - formattedData.length < prev.length) {
+          //   // setHasDownMore(true);
+          //   // return [
+          //   //   ...formattedData,
+          //   //   ...prev.slice(0, MAX_CHAT_DATA_LENGTH - formattedData.length),
+          //   // ];
+          // }else{
           return [...formattedData, ...prev];
+          // }
         });
       } catch (error) {
         console.error('fail to get chat data', error);
@@ -257,7 +281,9 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
     };
 
     const getMoreDownChatData = async () => {
+      return;
       try {
+        if (isDownDirection.current) return;
         isDownDirection.current = true;
         const response = await api.get(`/admin/agendas/${roomId}/chat`, {
           params: {
@@ -293,27 +319,40 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
       });
 
     useLayoutEffect(() => {
-      if (!elementRef.current) return;
+      if (!elementRef.current || chatData.length === 0) return;
       console.log('getchasdata', chatData);
 
       if (isInitialTopLoading.current === true) {
         scrollToTop();
-
+        console.log('scroll top end');
         isInitialTopLoading.current = false;
         return;
-      }
-
-      if (isInitialRecentLoading.current === true) {
+      } else if (isInitialRecentLoading.current === true) {
         scrollToBottom();
 
+        console.log('scroll bottom end');
         isInitialRecentLoading.current = false;
         return;
       }
 
       if (isUpDirection.current === true) {
+        if (isUpOverflow.current === true) {
+          restoreScrollTop();
+          isUpOverflow.current = false;
+          isUpDirection.current = false;
+          return;
+        }
         remainCurrentScroll();
 
+        console.log('scroll remain end');
+
+        if (MAX_CHAT_DATA_LENGTH < chatData.length) {
+          isUpOverflow.current = true;
+          setChatData((prev) => prev.slice(0, MAX_CHAT_DATA_LENGTH));
+        }
+
         isUpDirection.current = false;
+
         return;
       }
 
