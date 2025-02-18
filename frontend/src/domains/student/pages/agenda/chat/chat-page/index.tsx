@@ -191,12 +191,7 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
         ]);
         console.log('responsesseee', response);
         const formattedData = formatChatData(response.data, false);
-        if (lastUpChatId.current === 'ffffffffffffffffffffffff' && formattedData.length > 1) {
-          setChatData([...formattedData.slice(formattedData.length - 2)]);
-        } else {
-          setChatData(formattedData);
-        }
-
+        setChatData(formattedData);
         setChatRoomInfo({
           title: chatInfo.data.title,
           adminName: chatInfo.data.adminName,
@@ -328,19 +323,6 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
         rememberCurrentScrollHeight();
         isDownDirection.current = false;
       }
-
-      // if(isLiveReceive.current){
-
-      // }
-
-      // if (isLive.current) {
-      //   console.log('live', isLive.current, isLiveReceive.current);
-      //   if (isLiveReceive.current) {
-      //     isLiveReceive.current = false;
-      //     return;
-      //   }
-      //   scrollToBottom();
-      // }
     }, [chatData]);
 
     return (
@@ -458,19 +440,6 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
                     }
                   />
                 </>
-              );
-            } else if (chat.type === ChatType.INFO) {
-              const chatData = chat as InfoChatData;
-              return <TextBadge text={chatData.message} />;
-            } else if (chat.type === ChatType.MORE) {
-              const chatData = chat as MoreChatData;
-              return (
-                <MoreChatButton
-                  key={chatIndex}
-                  text={chatData.text}
-                  iconSrc={chatData.iconSrc}
-                  onClick={chatData.onMoreClick}
-                />
               );
             }
             return null;

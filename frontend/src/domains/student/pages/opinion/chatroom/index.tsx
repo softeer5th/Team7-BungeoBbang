@@ -84,12 +84,6 @@ const OpinionChatPage = () => {
           }
           setToastMeesage('새로운 채팅이 도착했습니다.');
         }
-
-        // setTimeout(() => {
-        //   if (elementRef.current) {
-        //     elementRef.current.scrollTop = elementRef.current.scrollHeight;
-        //   }
-        // }, 100);
       }
     },
     [roomId, memberId],
@@ -133,9 +127,6 @@ const OpinionChatPage = () => {
     [roomId, sendMessage],
   );
 
-  // const { elementRef, useScrollOnUpdate } = useScroll<HTMLDivElement>();
-  // useScrollOnUpdate(chatData);
-
   const [selectedImage, setSelectedImage] = useState<{ url: string; index: number } | null>(null);
   const [currentImageList, setCurrentImageList] = useState<string[]>([]);
 
@@ -161,7 +152,6 @@ const OpinionChatPage = () => {
   const isInitialRecentLoading = useRef<boolean>(true);
   const isUpDirection = useRef<boolean>(false);
   const isDownDirection = useRef<boolean>(false);
-  // const isLive = useRef<boolean>(false);
   const isLiveReceive = useRef<boolean>(false);
 
   let upLastItemId: string = '';
@@ -222,7 +212,7 @@ const OpinionChatPage = () => {
       ]);
       console.log('responsesseee', response);
 
-      const formattedData = formatChatData(response.data, true);
+      const formattedData = formatChatData(response.data, false);
 
       setHasDownMore(false);
       setChatData(formattedData);
@@ -445,19 +435,6 @@ const OpinionChatPage = () => {
               </>
             );
           }
-          // } else if (chat.type === ChatType.INFO) {
-          //   const chatData = chat as InfoChatData;
-          //   return <TextBadge text={chatData.message} />;
-          // } else if (chat.type === ChatType.MORE) {
-          //   const chatData = chat as MoreChatData;
-          //   return (
-          //     <MoreChatButton
-          //       text={chatData.text}
-          //       iconSrc={chatData.iconSrc}
-          //       onClick={chatData.onMoreClick}
-          //     />
-          //   );
-          // }
           return null;
         })}
       </S.ChatList>
