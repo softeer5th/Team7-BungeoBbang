@@ -91,6 +91,7 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
               minute: '2-digit',
             }),
             images: message.images || [],
+            createdAt: message.createdAt,
           };
           if (message.adminId === Number(memberId)) {
             getInitialChatDataFromRecent();
