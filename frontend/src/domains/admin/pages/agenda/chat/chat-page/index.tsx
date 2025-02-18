@@ -4,7 +4,7 @@ import { ChatSendField } from '@/components/Chat/ChatSendField.tsx';
 import { ReceiverChat } from '@/components/Chat/ReceiverChat.tsx';
 import { SenderChat } from '@/components/Chat/SenderChat.tsx';
 import { TextBadge } from '@/components/Chat/TextBadge.tsx';
-import { ChatData, ChatType, InfoChatData, ReceiveChatData, SendChatData } from './ChatData.tsx';
+import { ChatData, ChatType, ReceiveChatData, SendChatData } from './ChatData.tsx';
 import { useNavigate } from 'react-router-dom';
 import { forwardRef, useCallback, useState, useEffect, useRef, useLayoutEffect } from 'react';
 import { useSocketStore, ChatMessage } from '@/store/socketStore';
@@ -424,7 +424,9 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
                     message={curChatData.message}
                     images={curChatData.images}
                     timeText={curChatData.time}
-                    onImageClick={(imageUrl) => handleImageClick(imageUrl, chatData.images || [])}
+                    onImageClick={(imageUrl) =>
+                      handleImageClick(imageUrl, curChatData.images || [])
+                    }
                   />
                 </>
               );

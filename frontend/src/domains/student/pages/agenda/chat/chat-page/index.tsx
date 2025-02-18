@@ -404,7 +404,9 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
                     message={curChatData.message}
                     images={curChatData.images}
                     timeText={curChatData.time}
-                    onImageClick={(imageUrl) => handleImageClick(imageUrl, chatData.images || [])}
+                    onImageClick={(imageUrl) =>
+                      handleImageClick(imageUrl, curChatData.images || [])
+                    }
                   />
                 </>
               );

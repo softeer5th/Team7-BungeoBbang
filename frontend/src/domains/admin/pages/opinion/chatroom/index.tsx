@@ -5,8 +5,8 @@ import { TopAppBar } from '@/components/TopAppBar';
 import {
   ChatData,
   ChatType,
-  InfoChatData,
-  MoreChatData,
+  // InfoChatData,
+  // MoreChatData,
   ReceiveChatData,
   SendChatData,
 } from '@/domains/student/pages/agenda/chat/chat-page/ChatData';
@@ -14,7 +14,7 @@ import { ChatSendField } from '@/components/Chat/ChatSendField';
 import { ReceiverChat } from '@/components/Chat/ReceiverChat';
 import { SenderChat } from '@/components/Chat/SenderChat';
 import { TextBadge } from '@/components/Chat/TextBadge';
-import MoreChatButton from '@/domains/student/pages/agenda/chat/chat-page/MoreChatButton';
+// import MoreChatButton from '@/domains/student/pages/agenda/chat/chat-page/MoreChatButton';
 // import { ExitDialog } from '@/domains/student/pages/agenda/chat/chat-page/Exitdialog';
 import api from '@/utils/api';
 import { addDateDivider, formatChatData } from '@/utils/chat/formatChatData';
@@ -438,7 +438,7 @@ const OpinionChatPage = () => {
                   message={curChatData.message}
                   images={curChatData.images}
                   timeText={curChatData.time}
-                  onImageClick={(imageUrl) => handleImageClick(imageUrl, chatData.images || [])}
+                  onImageClick={(imageUrl) => handleImageClick(imageUrl, curChatData.images || [])}
                 />
               </>
             );
