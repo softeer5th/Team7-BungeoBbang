@@ -1,7 +1,6 @@
 import React from 'react';
 import * as S from './styles';
 import { ChatPreviewData } from '../data/ChatPreviewData';
-import { formatDate, formatTime } from '../util/AgendaChatRoomMapper';
 import { useNavigate } from 'react-router-dom';
 import { formatLastChatTime } from '@/utils/chat/lastChatTime';
 
