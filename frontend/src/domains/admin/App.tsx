@@ -6,6 +6,7 @@ import OpinionEntryPage from './pages/opinion/entry';
 import CreateAgendaPage from './pages/agenda/create';
 import OpinionChatPage from './pages/opinion/chatroom';
 import { AdminProtectedRoute } from '@/routes/AdminProtectedRoute';
+import StatisticsPage from './pages/statistics';
 
 function AdminApp() {
   return (
@@ -21,6 +22,7 @@ function AdminApp() {
           <Route path="/agenda/chat/:roomId" element={<AgendaChatPage />} />
           <Route path="/opinion/entry" element={<OpinionEntryPage />} />
           <Route path="/opinion/chat/:roomId" element={<OpinionChatPage />} />
+          <Route path="/statistics" element={<StatisticsPage />} />
         </Route>
       </Routes>
     </BrowserRouter>
