@@ -40,6 +40,7 @@ public class BadWordService {
     }
 
     public void validate(String text) {
+        text = text.toLowerCase();
         Map<Integer, List<String>> detectedWords = badWordsTrie.searchBadWords(text);
         Map<Integer, List<String>> allowedWords = allowedWordsTrie.searchBadWords(text);
         if (detectedWords.size() > allowedWords.size()) throw new BadWordException(BADWORD_INCLUDED);
