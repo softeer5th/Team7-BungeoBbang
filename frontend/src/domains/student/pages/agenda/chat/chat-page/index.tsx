@@ -101,6 +101,7 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
               minute: '2-digit',
             }),
             images: message.images || [],
+            createdAt: message.createdAt,
           };
           if (message.memberId === Number(memberId)) {
             getInitialChatDataFromRecent();
@@ -516,6 +517,7 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
           <ChatToast
             message={toastMessage}
             bottom={(chatSendFieldRef.current?.offsetHeight ?? 0) + 15}
+            onClick={() => getInitialChatDataFromRecent()}
             onDismiss={() => setToastMeesage(null)}
           />
         )}

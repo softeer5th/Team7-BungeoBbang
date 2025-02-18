@@ -31,7 +31,7 @@ export const SenderChat = forwardRef<HTMLDivElement, SenderChatProps>(
       <SenderChatContainer id={`id${chatId}`} ref={ref}>
         {images && images.length > 0 && (
           <ImageContainer>
-            {images.map((image, index) => {
+            {images.reverse().map((image, index) => {
               return (
                 <ImageBox
                   src={image}
