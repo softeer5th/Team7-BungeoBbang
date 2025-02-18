@@ -161,7 +161,7 @@ const OpinionChatPage = () => {
   const isInitialRecentLoading = useRef<boolean>(true);
   const isUpDirection = useRef<boolean>(false);
   const isDownDirection = useRef<boolean>(false);
-  const isLive = useRef<boolean>(false);
+  // const isLive = useRef<boolean>(false);
   const isLiveReceive = useRef<boolean>(false);
 
   let upLastItemId: string = '';
@@ -301,11 +301,20 @@ const OpinionChatPage = () => {
     });
 
   useLayoutEffect(() => {
-    console.log('getchasdata', chatData);
     if (!elementRef.current) return;
+    console.log('getchasdata', chatData);
 
-    if (isInitialLoading.current === true) {
+    if (isInitialTopLoading.current === true) {
       scrollToTop();
+
+      isInitialTopLoading.current = false;
+      return;
+    }
+
+    if (isInitialRecentLoading.current === true) {
+      scrollToBottom();
+
+      isInitialRecentLoading.current = false;
       return;
     }
 
@@ -316,18 +325,10 @@ const OpinionChatPage = () => {
       return;
     }
 
-    if (isLive.current) {
-      if (isLiveReceive.current) {
-        isLiveReceive.current = false;
-        return;
-      }
-      scrollToBottom();
-    }
-
     if (isDownDirection.current) {
+      rememberCurrentScrollHeight();
       isDownDirection.current = false;
     }
-    rememberCurrentScrollHeight();
   }, [chatData]);
 
   return (
