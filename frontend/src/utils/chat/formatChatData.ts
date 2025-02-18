@@ -104,7 +104,6 @@ export const formatChatData = (
 export const addDateDivider = (currentChatData: ChatData, previousChatData: ChatData | null) => {
   if (!currentChatData) return null;
 
-  // 현재 메시지의 날짜 계산
   const currentChatDate = new Date(
     (currentChatData as ReceiveChatData | SendChatData).createdAt,
   ).toLocaleDateString('ko-KR', {
@@ -114,12 +113,10 @@ export const addDateDivider = (currentChatData: ChatData, previousChatData: Chat
     weekday: 'long',
   });
 
-  // 이전 메시지가 없으면 날짜 구분선 추가
   if (!previousChatData) {
     return currentChatDate;
   }
 
-  // 이전 메시지의 날짜 계산
   const previousChatDate = new Date(
     (previousChatData as ReceiveChatData | SendChatData).createdAt,
   ).toLocaleDateString('ko-KR', {
@@ -129,11 +126,9 @@ export const addDateDivider = (currentChatData: ChatData, previousChatData: Chat
     weekday: 'long',
   });
 
-  // 날짜가 다르면 날짜 구분선 추가
   if (currentChatDate !== previousChatDate) {
     return currentChatDate;
   }
 
-  // 날짜가 같으면 빈 Fragment 반환
   return null;
 };

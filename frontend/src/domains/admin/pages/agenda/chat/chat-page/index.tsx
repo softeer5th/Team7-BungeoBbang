@@ -91,6 +91,7 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
               minute: '2-digit',
             }),
             images: message.images || [],
+            createdAt: message.createdAt,
           };
           if (message.adminId === Number(memberId)) {
             getInitialChatDataFromRecent();
@@ -153,7 +154,6 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
     const isInitialRecentLoading = useRef<boolean>(true);
     const isUpDirection = useRef<boolean>(false);
     const isDownDirection = useRef<boolean>(false);
-    // const isLive = useRef<boolean>(false);
     const isLiveReceive = useRef<boolean>(false);
 
     const {
@@ -321,19 +321,6 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
         rememberCurrentScrollHeight();
         isDownDirection.current = false;
       }
-
-      // if(isLiveReceive.current){
-
-      // }
-
-      // if (isLive.current) {
-      //   console.log('live', isLive.current, isLiveReceive.current);
-      //   if (isLiveReceive.current) {
-      //     isLiveReceive.current = false;
-      //     return;
-      //   }
-      //   scrollToBottom();
-      // }
     }, [chatData]);
 
     const colorMap = useRef(new Map<number, string>());
@@ -479,10 +466,6 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
                 </>
               );
             }
-            // } else if (chat.type === ChatType.INFO) {
-            //   const chatData = chat as InfoChatData;
-            //   return <TextBadge text={chatData.message} />;
-            // }
             return null;
           })}
         </S.ChatList>

@@ -135,8 +135,9 @@ const AgendaPage = () => {
                           state: { lastChatId: room.lastChatId },
                         },
                       );
+                    } else {
+                      setSelectedChatRoomEnter(room.roomId);
                     }
-                    setSelectedChatRoomEnter(room.roomId);
                   }}
                 />
               );
