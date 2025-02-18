@@ -241,6 +241,15 @@ const OpinionChatPage = () => {
     }
   };
 
+  const handleImageChange = (newIndex: number) => {
+    if (selectedImage && currentImageList.length > 0) {
+      setSelectedImage({
+        url: currentImageList[newIndex],
+        index: newIndex,
+      });
+    }
+  };
+
   const getMoreUpChatData = async () => {
     try {
       isUpDirection.current = true;
@@ -492,10 +501,12 @@ const OpinionChatPage = () => {
       )}
       {selectedImage && (
         <ImagePreview
-          imageUrl={selectedImage.url}
+          // imageUrl={selectedImage.url}
           currentIndex={selectedImage.index}
           totalImages={currentImageList.length}
           onClose={() => setSelectedImage(null)}
+          onChangeImage={handleImageChange}
+          imageList={currentImageList}
         />
       )}
       {toastMessage && (

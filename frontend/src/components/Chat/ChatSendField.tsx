@@ -122,6 +122,15 @@ export const ChatSendField = forwardRef<HTMLDivElement, ChatSendFieldProps>(
       }
     };
 
+    const handleImageChange = (newIndex: number) => {
+      if (selectedImage && currentImageList.length > 0) {
+        setSelectedImage({
+          url: currentImageList[newIndex],
+          index: newIndex,
+        });
+      }
+    };
+
     const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
       if (event.target.files && event.target.files.length > 0) {
         onImageUpload(event.target.files);
@@ -254,10 +263,12 @@ export const ChatSendField = forwardRef<HTMLDivElement, ChatSendFieldProps>(
         </ChatSendContainer>
         {selectedImageIndex !== null && (
           <ImagePreview
-            imageUrl={images[selectedImageIndex]}
+            // imageUrl={images[selectedImageIndex]}
             onClose={() => setSelectedImageIndex(null)}
             currentIndex={selectedImageIndex}
             totalImages={images.length}
+            onChangeImage={handleImageChange}
+            imageList={images}
           />
         )}
       </>

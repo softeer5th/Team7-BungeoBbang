@@ -124,6 +124,15 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
       setCurrentImageList(images);
     };
 
+    const handleImageChange = (newIndex: number) => {
+      if (selectedImage && currentImageList.length > 0) {
+        setSelectedImage({
+          url: currentImageList[newIndex],
+          index: newIndex,
+        });
+      }
+    };
+
     useEnterLeaveHandler('AGENDA', 'ADMIN');
 
     useEffect(() => {
@@ -501,10 +510,12 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
 
         {selectedImage && (
           <ImagePreview
-            imageUrl={selectedImage.url}
+            // imageUrl={selectedImage.url}
+            onClose={() => setSelectedImage(null)}
             currentIndex={selectedImage.index}
             totalImages={currentImageList.length}
-            onClose={() => setSelectedImage(null)}
+            onChangeImage={handleImageChange}
+            imageList={currentImageList}
           />
         )}
         {toastMessage && (
