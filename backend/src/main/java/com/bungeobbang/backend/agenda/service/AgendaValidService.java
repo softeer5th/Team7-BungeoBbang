@@ -21,7 +21,7 @@ public class AgendaValidService {
         if (agenda.getStartDate().isAfter(LocalDate.now()))
             throw new AgendaException(ErrorCode.AGENDA_NOT_STARTED);
 
-        if (agenda.getEndDate().isBefore(LocalDate.now()))
+        if (agenda.getEndDate().isBefore(LocalDate.now()) || agenda.isEnd())
             throw new AgendaException(ErrorCode.AGENDA_CLOSED);
     }
 

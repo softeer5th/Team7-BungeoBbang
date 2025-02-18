@@ -139,6 +139,7 @@ public class CustomAgendaRepositoryImpl implements CustomAgendaRepository {
                         agenda.university.id.eq(universityId)
                                 .and(agenda.startDate.loe(LocalDate.now())) // 이미 시작됨
                                 .and(agenda.endDate.goe(LocalDate.now())) // 아직 종료되지 않음
+                                .and(agenda.isEnd.not())
                                 .and(gtEndDateOrEqEndDateAndGtId(endDate, agendaId)) // 무한 스크롤
                 )
                 .orderBy(agenda.endDate.asc(), agenda.id.asc()) // 종료 날짜 오름차순 정렬
@@ -197,7 +198,7 @@ public class CustomAgendaRepositoryImpl implements CustomAgendaRepository {
                 .where(
                         agenda.university.id.eq(universityId)
                                 .and(agenda.endDate.lt(LocalDate.now())) // 종료된 상태
-                                .and(agenda.isEnd)
+                                .or(agenda.isEnd)
                                 .and(ltEndDateOrEqEndDateAndGtId(endDate, agendaId)) // 무한 스크롤
                 )
                 .orderBy(agenda.endDate.desc(), agenda.id.asc()) // 종료 날짜 내림차순 정렬
