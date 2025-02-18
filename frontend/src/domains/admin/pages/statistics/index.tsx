@@ -325,6 +325,7 @@ const ToggleButton = styled.button<{ active?: boolean }>`
   background: ${(props) => (props.active ? '#FFFFFF' : 'transparent')};
   font-size: 14px;
   cursor: pointer;
+  color: ${(props) => (props.active ? '#222222' : '#C6C6C6')};
 `;
 
 const StatsCard = styled.div`
