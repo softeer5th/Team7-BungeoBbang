@@ -269,8 +269,8 @@ const StatisticsPage = () => {
 const Container = styled.div`
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
-  max-height: 100vh;
+  min-height: 100svh;
+  max-height: 100svh;
   background-color: #f5f5f5;
   overflow: hidden;
 `;
