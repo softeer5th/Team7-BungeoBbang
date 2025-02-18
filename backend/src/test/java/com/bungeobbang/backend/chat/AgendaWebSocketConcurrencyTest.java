@@ -14,6 +14,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.test.context.jdbc.Sql;
@@ -37,6 +38,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class AgendaWebSocketConcurrencyTest {
     private static WebSocketSession session;
     private final Long ACTIVE_AGENDA_ID = 1L;
+    @Value("${test.member.count:100}")
     private final int memberCount = 100;
     @LocalServerPort
     int port;
@@ -97,7 +99,7 @@ public class AgendaWebSocketConcurrencyTest {
     }
 
     @Test
-    @DisplayName("학생이 동시에 n개의 메세지를 보내면 학생회는 n개 모두 수신받아야한다.")
+    @DisplayName("학생 n명이 동시에 메세지를 보내면 학생회는 n개 모두 수신받아야한다.")
     void sendChats() throws Exception {
         // given
         StandardWebSocketClient client = new StandardWebSocketClient();
