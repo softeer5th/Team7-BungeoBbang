@@ -1,6 +1,8 @@
+// import React from 'react';
 import {
   ChatData,
   ChatType,
+  // InfoChatData,
   ReceiveChatData,
   SendChatData,
 } from '@/domains/student/pages/agenda/chat/chat-page/ChatData';
@@ -53,6 +55,7 @@ export const formatChatData = (
         minute: '2-digit',
       }),
       images: item.images || [],
+      createdAt: item.createdAt,
     };
 
     if (item.isAdmin) {
@@ -65,34 +68,74 @@ export const formatChatData = (
     return baseChat as SendChatData;
   });
 
+  return formattedChats;
   // 날짜 구분선 추가
-  const chatsWithDateDividers: ChatData[] = [];
-  let currentDate = '';
+  // const chatsWithDateDividers: ChatData[] = [];
+  // let currentDate = '';
 
-  formattedChats.forEach((chat) => {
-    const chatMessage = (chat as ReceiveChatData | SendChatData).message;
-    const originalChat = sortedData.find((item) => item.chat === chatMessage);
+  // formattedChats.forEach((chat) => {
+  //   const chatMessage = (chat as ReceiveChatData | SendChatData).message;
+  //   const originalChat = sortedData.find((item) => item.chat === chatMessage);
 
-    if (!originalChat) return;
+  //   if (!originalChat) return;
 
-    const chatDate = new Date(originalChat.createdAt).toLocaleDateString('ko-KR', {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      weekday: 'long',
-    });
+  //   const chatDate = new Date(originalChat.createdAt).toLocaleDateString('ko-KR', {
+  //     year: 'numeric',
+  //     month: '2-digit',
+  //     day: '2-digit',
+  //     weekday: 'long',
+  //   });
 
-    if (currentDate !== chatDate) {
-      chatsWithDateDividers.push({
-        chatId: '',
-        type: ChatType.INFO,
-        message: chatDate,
-      });
-      currentDate = chatDate;
-    }
+  //   if (currentDate !== chatDate) {
+  //     chatsWithDateDividers.push({
+  //       chatId: '',
+  //       type: ChatType.INFO,
+  //       message: chatDate,
+  //     });
+  //     currentDate = chatDate;
+  //   }
 
-    chatsWithDateDividers.push(chat);
+  //   chatsWithDateDividers.push(chat);
+  // });
+
+  // return chatsWithDateDividers;
+};
+
+export const addDateDivider = (currentChatData: ChatData, previousChatData: ChatData | null) => {
+  if (!currentChatData) return null;
+
+  console.log('current data', currentChatData, previousChatData);
+
+  // 현재 메시지의 날짜 계산
+  const currentChatDate = new Date(
+    (currentChatData as ReceiveChatData | SendChatData).createdAt,
+  ).toLocaleDateString('ko-KR', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    weekday: 'long',
   });
 
-  return chatsWithDateDividers;
+  // 이전 메시지가 없으면 날짜 구분선 추가
+  if (!previousChatData) {
+    return currentChatDate;
+  }
+
+  // 이전 메시지의 날짜 계산
+  const previousChatDate = new Date(
+    (previousChatData as ReceiveChatData | SendChatData).createdAt,
+  ).toLocaleDateString('ko-KR', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    weekday: 'long',
+  });
+
+  // 날짜가 다르면 날짜 구분선 추가
+  if (currentChatDate !== previousChatDate) {
+    return currentChatDate;
+  }
+
+  // 날짜가 같으면 빈 Fragment 반환
+  return null;
 };

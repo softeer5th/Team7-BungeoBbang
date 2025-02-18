@@ -17,7 +17,7 @@ import { TextBadge } from '@/components/Chat/TextBadge.tsx';
 import MoreChatButton from '../../agenda/chat/chat-page/MoreChatButton.tsx';
 import { ExitDialog } from '../../agenda/chat/chat-page/Exitdialog.tsx';
 import api from '@/utils/api.ts';
-import { formatChatData } from '@/utils/chat/formatChatData.ts';
+import { addDateDivider, formatChatData } from '@/utils/chat/formatChatData.ts';
 import { useImageUpload } from '@/hooks/useImageUpload.ts';
 import { useSocketStore, ChatMessage } from '@/store/socketStore';
 import { useSocketManager } from '@/hooks/useSocketManager.ts';
@@ -204,7 +204,7 @@ const OpinionChatPage = () => {
   const isLiveReceive = useRef<boolean>(false);
 
   let upLastItemId: string = '';
-  let downLatItemId: string = '';
+  let downLastItemId: string = '';
 
   const {
     elementRef,
@@ -362,28 +362,32 @@ const OpinionChatPage = () => {
             const chatData = chat as ReceiveChatData;
 
             if (upLastItemId.length === 0) upLastItemId = chatData.chatId;
-            downLatItemId = chatData.chatId;
+            downLastItemId = chatData.chatId;
 
             return (
               <ReceiverChat
                 key={chatData.chatId}
                 chatId={chatData.chatId}
                 ref={
-                  isUpTriggerItem || isDownTriggerItem
+                  isUpTriggerItem
                     ? (el) => {
                         if (el) {
                           if (isUpTriggerItem) {
                             lastUpChatId.current = upLastItemId;
                             setTriggerUpItem(el);
                           }
-
-                          if (isDownTriggerItem) {
-                            lastDownChatId.current = downLatItemId;
-                            setTriggerDownItem(el);
-                          }
                         }
                       }
-                    : null
+                    : isDownTriggerItem
+                      ? (el) => {
+                          if (el) {
+                            if (isDownTriggerItem) {
+                              lastDownChatId.current = downLastItemId;
+                              setTriggerDownItem(el);
+                            }
+                          }
+                        }
+                      : null
                 }
                 receiverName={chatData.name}
                 message={chatData.message}
@@ -393,37 +397,51 @@ const OpinionChatPage = () => {
               />
             );
           } else if (chat.type === ChatType.SEND) {
-            const chatData = chat as SendChatData;
+            const curChatData = chat as SendChatData;
 
-            if (upLastItemId.length === 0) upLastItemId = chatData.chatId;
-            downLatItemId = chatData.chatId;
+            if (upLastItemId.length === 0) upLastItemId = curChatData.chatId;
+            downLastItemId = curChatData.chatId;
 
             return (
-              <SenderChat
-                key={chatData.chatId}
-                chatId={chatData.chatId}
-                ref={
-                  isUpTriggerItem || isDownTriggerItem
-                    ? (el) => {
-                        if (el) {
-                          if (isUpTriggerItem) {
-                            lastUpChatId.current = upLastItemId;
-                            setTriggerUpItem(el);
-                          }
+              <>
+                {(() => {
+                  const date = addDateDivider(
+                    curChatData,
+                    chatIndex > 0 ? chatData[chatIndex - 1] : null,
+                  );
 
-                          if (isDownTriggerItem) {
-                            lastDownChatId.current = downLatItemId;
-                            setTriggerDownItem(el);
+                  return date ? <TextBadge text={date} /> : null;
+                })()}
+                <SenderChat
+                  key={curChatData.chatId}
+                  chatId={curChatData.chatId}
+                  ref={
+                    isUpTriggerItem
+                      ? (el) => {
+                          if (el) {
+                            if (isUpTriggerItem) {
+                              lastUpChatId.current = upLastItemId;
+                              setTriggerUpItem(el);
+                            }
                           }
                         }
-                      }
-                    : null
-                }
-                message={chatData.message}
-                images={chatData.images}
-                timeText={chatData.time}
-                onImageClick={(imageUrl) => handleImageClick(imageUrl, chatData.images || [])}
-              />
+                      : isDownTriggerItem
+                        ? (el) => {
+                            if (el) {
+                              if (isDownTriggerItem) {
+                                lastDownChatId.current = downLastItemId;
+                                setTriggerDownItem(el);
+                              }
+                            }
+                          }
+                        : null
+                  }
+                  message={curChatData.message}
+                  images={curChatData.images}
+                  timeText={curChatData.time}
+                  onImageClick={(imageUrl) => handleImageClick(imageUrl, curChatData.images || [])}
+                />
+              </>
             );
           } else if (chat.type === ChatType.INFO) {
             const chatData = chat as InfoChatData;
