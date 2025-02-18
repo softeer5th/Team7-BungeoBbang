@@ -123,12 +123,7 @@ export const ChatSendField = forwardRef<HTMLDivElement, ChatSendFieldProps>(
     };
 
     const handleImageChange = (newIndex: number) => {
-      if (selectedImage && currentImageList.length > 0) {
-        setSelectedImage({
-          url: currentImageList[newIndex],
-          index: newIndex,
-        });
-      }
+      setSelectedImageIndex(newIndex);
     };
 
     const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import ArrowLeft from '@/assets/icons/arrow-left.svg?react';
 import Typography from '@/styles/Typography';
