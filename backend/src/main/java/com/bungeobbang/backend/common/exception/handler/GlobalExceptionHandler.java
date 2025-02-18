@@ -1,6 +1,7 @@
 package com.bungeobbang.backend.common.exception.handler;
 
 import com.bungeobbang.backend.common.exception.DomainException;
+import com.bungeobbang.backend.common.exception.ErrorCode;
 import com.bungeobbang.backend.common.exception.response.ErrorResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +19,6 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleMethodArgumentNotValidException(final MethodArgumentNotValidException e) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorResponse(e.getFieldError().getDefaultMessage(), -1));
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorResponse(e.getFieldError().getDefaultMessage(), ErrorCode.INVALID_AUTHORIZATION_CODE.getCode()));
     }
 }
