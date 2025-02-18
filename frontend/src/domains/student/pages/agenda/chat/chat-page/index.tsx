@@ -1,19 +1,11 @@
 import * as S from './styles.ts';
 import { TopAppBar } from '@/components/TopAppBar';
 import { useEffect, useState, useCallback, forwardRef, useLayoutEffect, useRef } from 'react';
-import {
-  ChatData,
-  ChatType,
-  InfoChatData,
-  MoreChatData,
-  ReceiveChatData,
-  SendChatData,
-} from './ChatData.tsx';
+import { ChatData, ChatType, ReceiveChatData, SendChatData } from './ChatData.tsx';
 import { ChatSendField } from '@/components/Chat/ChatSendField.tsx';
 import { ReceiverChat } from '@/components/Chat/ReceiverChat.tsx';
 import { SenderChat } from '@/components/Chat/SenderChat.tsx';
 import { TextBadge } from '@/components/Chat/TextBadge.tsx';
-import MoreChatButton from './MoreChatButton.tsx';
 import { useNavigate } from 'react-router-dom';
 import { ExitDialog } from './Exitdialog.tsx';
 import api from '@/utils/api.ts';
@@ -22,7 +14,6 @@ import { ImagePreview } from '@/components/Chat/ImagePreview.tsx';
 import { useImageUpload } from '@/hooks/useImageUpload.ts';
 import { ImageFileSizeDialog } from '@/components/Dialog/ImageFileSizeDialog.tsx';
 import { useSocketStore, ChatMessage } from '@/store/socketStore.ts';
-// import { useScroll } from '@/hooks/useScrollBottom';
 import { useEnterLeaveHandler } from '@/hooks/useEnterLeaveHandler.ts';
 import useInfiniteScroll from '@/hooks/useInfiniteScroll.tsx';
 import { useScroll } from '@/hooks/useScrollBottom.tsx';
@@ -53,7 +44,6 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
     { roomId, isEnd, isParticipate, lastChatId },
     // ref,
   ) => {
-    // const [chatData, setChatData] = useState<ChatData[]>([]);
     const chatSendFieldRef = useRef<HTMLDivElement>(null);
     const [toastMessage, setToastMeesage] = useState<string | null>(null);
     const [isExitDialogOpen, setExitDialogOpen] = useState(false);
