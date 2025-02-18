@@ -5,8 +5,8 @@ import { useEffect, useState, useCallback, useLayoutEffect, useRef } from 'react
 import {
   ChatData,
   ChatType,
-  InfoChatData,
-  MoreChatData,
+  // InfoChatData,
+  // MoreChatData,
   ReceiveChatData,
   SendChatData,
 } from '../../agenda/chat/chat-page/ChatData.tsx';
@@ -14,7 +14,7 @@ import { ChatSendField } from '@/components/Chat/ChatSendField.tsx';
 import { ReceiverChat } from '@/components/Chat/ReceiverChat.tsx';
 import { SenderChat } from '@/components/Chat/SenderChat.tsx';
 import { TextBadge } from '@/components/Chat/TextBadge.tsx';
-import MoreChatButton from '../../agenda/chat/chat-page/MoreChatButton.tsx';
+// import MoreChatButton from '../../agenda/chat/chat-page/MoreChatButton.tsx';
 import { ExitDialog } from '../../agenda/chat/chat-page/Exitdialog.tsx';
 import api from '@/utils/api.ts';
 import { addDateDivider, formatChatData } from '@/utils/chat/formatChatData.ts';
@@ -33,6 +33,7 @@ import {
   LAST_REMAIN_ITEMS,
   MAX_CHAT_DATA_LENGTH,
   MAX_CHAT_PAGE_DATA,
+  RECENT_CHAT_ID,
 } from '@/utils/chat/chat_const.ts';
 
 const OpinionChatPage = () => {
@@ -67,19 +68,10 @@ const OpinionChatPage = () => {
             minute: '2-digit',
           }),
           images: message.images || [],
+          createdAt: message.createdAt,
         };
         if (message.memberId === Number(memberId)) {
-          if (!getHasDownMore()) {
-            isLive.current = true;
-            setChatData((prev) => {
-              if (MAX_CHAT_DATA_LENGTH - prev.length > 1) {
-                return [...prev.slice(prev.length - MAX_CHAT_DATA_LENGTH + 1), newChat];
-              }
-              return [...prev, newChat];
-            });
-          } else {
-            setToastMeesage('아직 읽지 않은 채팅이 있습니다.');
-          }
+          getInitialChatDataFromRecent();
         } else {
           if (!getHasDownMore()) {
             isLiveReceive.current = true;
@@ -121,27 +113,6 @@ const OpinionChatPage = () => {
     !isReminded && (await api.patch(`/student/opinions/${roomId}/remind`));
     setIsReminded(true);
   };
-
-  // useEffect(() => {
-  //   if (!roomId) return;
-
-  // const fetchData = async () => {
-  //   try {
-  //     const enterResponse = await api.get(`/api/opinions/${roomId}`);
-  //     enterResponse.data.isReminded && setIsReminded(true);
-  //     const response = await api.get(`/api/opinions/${roomId}/chat`, {
-  //       params: { chatId: lastChatId, scroll: 'INITIAL' },
-  //     });
-
-  //     const formattedData = formatChatData(response.data, false);
-  //     setChatData(formattedData);
-  //   } catch (error) {
-  //     console.error('채팅 데이터 불러오기 실패:', error);
-  //   }
-  // };
-
-  // fetchData();
-  // }, [roomId, socket]);
 
   useEffect(() => {
     const unsubscribe = subscribe('OPINION', Number(roomId), handleMessageReceive);
@@ -186,7 +157,8 @@ const OpinionChatPage = () => {
 
   const lastUpChatId = useRef<string>(lastChatId);
   const lastDownChatId = useRef<string>(lastChatId);
-  const isInitialLoading = useRef<boolean>(true);
+  const isInitialTopLoading = useRef<boolean>(true);
+  const isInitialRecentLoading = useRef<boolean>(true);
   const isUpDirection = useRef<boolean>(false);
   const isDownDirection = useRef<boolean>(false);
   const isLive = useRef<boolean>(false);
@@ -204,7 +176,16 @@ const OpinionChatPage = () => {
   } = useScroll<HTMLDivElement>();
 
   const getInitialChatData = async () => {
+    if (lastUpChatId.current === RECENT_CHAT_ID) {
+      getInitialChatDataFromRecent();
+    } else {
+      getInitialChatDataFromTop();
+    }
+  };
+
+  const getInitialChatDataFromTop = async () => {
     try {
+      isInitialTopLoading.current = true;
       const [response, enterResponse] = await Promise.all([
         api.get(`/api/opinions/${roomId}/chat`, {
           params: {
@@ -216,20 +197,40 @@ const OpinionChatPage = () => {
       ]);
 
       const formattedData = formatChatData(response.data, false);
-      // setChatData(formattedData);
-      if (lastUpChatId.current === 'ffffffffffffffffffffffff' && formattedData.length > 1) {
-        setChatData([...formattedData.slice(formattedData.length - 2)]);
-      } else {
-        setChatData(formattedData);
-      }
-
+      setChatData(formattedData);
       enterResponse.data.isReminded && setIsReminded(true);
       setChatRoomInfo({
         title: '',
         adminName: `${enterResponse.data.universityName} 총학생회`,
       });
+    } catch (error) {
+      console.error('fail to get chat data', error);
+    }
+  };
 
-      isInitialLoading.current = false;
+  const getInitialChatDataFromRecent = async () => {
+    try {
+      isInitialRecentLoading.current = true;
+      const [response, enterResponse] = await Promise.all([
+        api.get(`/api/opinions/${roomId}/chat`, {
+          params: {
+            chatId: RECENT_CHAT_ID,
+            scroll: 'INITIAL',
+          },
+        }),
+        api.get(`/api/opinions/${roomId}`),
+      ]);
+      console.log('responsesseee', response);
+
+      const formattedData = formatChatData(response.data, true);
+
+      setHasDownMore(false);
+      setChatData(formattedData);
+      enterResponse.data.isReminded && setIsReminded(true);
+      setChatRoomInfo({
+        title: '',
+        adminName: `${enterResponse.data.universityName} 총학생회`,
+      });
     } catch (error) {
       console.error('fail to get chat data', error);
     }
@@ -348,42 +349,52 @@ const OpinionChatPage = () => {
           const isDownTriggerItem = chatIndex === chatData.length - LAST_REMAIN_ITEMS;
 
           if (chat.type === ChatType.RECEIVE) {
-            const chatData = chat as ReceiveChatData;
+            const curChatData = chat as ReceiveChatData;
 
-            if (upLastItemId.length === 0) upLastItemId = chatData.chatId;
-            downLastItemId = chatData.chatId;
+            if (upLastItemId.length === 0) upLastItemId = curChatData.chatId;
+            downLastItemId = curChatData.chatId;
 
             return (
-              <ReceiverChat
-                key={chatData.chatId}
-                chatId={chatData.chatId}
-                ref={
-                  isUpTriggerItem
-                    ? (el) => {
-                        if (el) {
-                          if (isUpTriggerItem) {
-                            lastUpChatId.current = upLastItemId;
-                            setTriggerUpItem(el);
-                          }
-                        }
-                      }
-                    : isDownTriggerItem
+              <>
+                {(() => {
+                  const date = addDateDivider(
+                    curChatData,
+                    chatIndex > 0 ? chatData[chatIndex - 1] : null,
+                  );
+
+                  return date ? <TextBadge text={date} /> : null;
+                })()}
+                <ReceiverChat
+                  key={curChatData.chatId}
+                  chatId={curChatData.chatId}
+                  ref={
+                    isUpTriggerItem
                       ? (el) => {
                           if (el) {
-                            if (isDownTriggerItem) {
-                              lastDownChatId.current = downLastItemId;
-                              setTriggerDownItem(el);
+                            if (isUpTriggerItem) {
+                              lastUpChatId.current = upLastItemId;
+                              setTriggerUpItem(el);
                             }
                           }
                         }
-                      : null
-                }
-                receiverName={chatData.name}
-                message={chatData.message}
-                images={chatData.images}
-                timeText={chatData.time}
-                onImageClick={(imageUrl) => handleImageClick(imageUrl, chatData.images || [])}
-              />
+                      : isDownTriggerItem
+                        ? (el) => {
+                            if (el) {
+                              if (isDownTriggerItem) {
+                                lastDownChatId.current = downLastItemId;
+                                setTriggerDownItem(el);
+                              }
+                            }
+                          }
+                        : null
+                  }
+                  receiverName={curChatData.name}
+                  message={curChatData.message}
+                  images={curChatData.images}
+                  timeText={curChatData.time}
+                  onImageClick={(imageUrl) => handleImageClick(imageUrl, curChatData.images || [])}
+                />
+              </>
             );
           } else if (chat.type === ChatType.SEND) {
             const curChatData = chat as SendChatData;
@@ -432,19 +443,20 @@ const OpinionChatPage = () => {
                 />
               </>
             );
-          } else if (chat.type === ChatType.INFO) {
-            const chatData = chat as InfoChatData;
-            return <TextBadge text={chatData.message} />;
-          } else if (chat.type === ChatType.MORE) {
-            const chatData = chat as MoreChatData;
-            return (
-              <MoreChatButton
-                text={chatData.text}
-                iconSrc={chatData.iconSrc}
-                onClick={chatData.onMoreClick}
-              />
-            );
           }
+          // } else if (chat.type === ChatType.INFO) {
+          //   const chatData = chat as InfoChatData;
+          //   return <TextBadge text={chatData.message} />;
+          // } else if (chat.type === ChatType.MORE) {
+          //   const chatData = chat as MoreChatData;
+          //   return (
+          //     <MoreChatButton
+          //       text={chatData.text}
+          //       iconSrc={chatData.iconSrc}
+          //       onClick={chatData.onMoreClick}
+          //     />
+          //   );
+          // }
           return null;
         })}
       </S.ChatList>
@@ -498,6 +510,7 @@ const OpinionChatPage = () => {
         <ChatToast
           message={toastMessage}
           bottom={(chatSendFieldRef.current?.offsetHeight ?? 0) + 15}
+          onClick={() => getInitialChatDataFromRecent()}
           onDismiss={() => setToastMeesage(null)}
         />
       )}

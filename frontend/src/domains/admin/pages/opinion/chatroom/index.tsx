@@ -72,6 +72,7 @@ const OpinionChatPage = () => {
             minute: '2-digit',
           }),
           images: message.images || [],
+          createdAt: message.createdAt,
         };
 
         if (message.adminId === Number(memberId)) {
@@ -501,6 +502,7 @@ const OpinionChatPage = () => {
         <ChatToast
           message={toastMessage}
           bottom={(chatSendFieldRef.current?.offsetHeight ?? 0) + 15}
+          onClick={() => getInitialChatDataFromRecent()}
           onDismiss={() => setToastMeesage(null)}
         />
       )}
