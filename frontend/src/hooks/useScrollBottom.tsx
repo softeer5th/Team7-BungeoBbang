@@ -4,7 +4,8 @@ import { ChatData } from '@/domains/student/pages/agenda/chat/chat-page/ChatData
 export const useScroll = <T extends HTMLElement>() => {
   const previousScrollHeight = useRef<number | null>(null);
   const elementRef = useRef<T>(null);
-  const previousScrollTop = useRef<number|null>(null);
+  const previousScrollTopFromUp = useRef<number|null>(null);
+  const previousScrollTopFromDown = useRef<number|null>(null);
 
   // Scroll to the bottom
   const scrollToBottom = useCallback(() => {
@@ -17,7 +18,7 @@ export const useScroll = <T extends HTMLElement>() => {
 
   // Scroll to the top
   const scrollToTop = useCallback(() => {
-    console.log('scrolltotop');
+    // console.log('scrolltotop');
     if (elementRef.current) {
       elementRef.current.scrollTop = 0;
 
@@ -26,7 +27,7 @@ export const useScroll = <T extends HTMLElement>() => {
   }, []);
 
   const remainCurrentScroll = () => {
-    console.log('remain', elementRef.current?.scrollHeight, previousScrollHeight.current);
+    // console.log('remain', elementRef.current?.scrollHeight, previousScrollHeight.current);
     if (elementRef.current) {
       const currentHeight = elementRef.current.scrollHeight;
 
@@ -34,22 +35,32 @@ export const useScroll = <T extends HTMLElement>() => {
       const scrollTop = elementRef.current.scrollTop + (currentHeight - previousHeight);
 
       elementRef.current.scrollTop = scrollTop;
-      previousScrollTop.current = scrollTop;
+      previousScrollTopFromUp.current = scrollTop;
       previousScrollHeight.current = currentHeight;
     }
   };
 
-  const restoreScrollTop = () => {
-    if(elementRef.current && previousScrollTop.current){
-      elementRef.current.scrollTop = previousScrollTop.current;
+  const restoreScrollTopFromUp = () => {
+    if(elementRef.current && previousScrollTopFromUp.current){
+      elementRef.current.scrollTop = previousScrollTopFromUp.current;
       previousScrollHeight.current = elementRef.current.scrollHeight;
+    }
+  }
+
+  const restoreScrollTopFromDown = () => {
+    if(elementRef.current && previousScrollHeight.current && previousScrollTopFromDown.current){
+      const diff = previousScrollHeight.current - elementRef.current.scrollHeight;
+      elementRef.current.scrollTop = previousScrollTopFromDown.current - diff;
+      previousScrollHeight.current = elementRef.current.scrollHeight;
+      previousScrollTopFromDown.current = elementRef.current.scrollTop;
     }
   }
 
   const rememberCurrentScrollHeight = () => {
     if (elementRef.current) {
-      console.log('remember!!!', elementRef.current.scrollHeight);
+      // console.log('remember!!!', elementRef.current.scrollTop, elementRef.current.scrollHeight, previousScrollHeight.current);
       previousScrollHeight.current = elementRef.current.scrollHeight;
+      previousScrollTopFromDown.current = elementRef.current.scrollTop;
     }
   };
 
@@ -75,7 +86,8 @@ export const useScroll = <T extends HTMLElement>() => {
     remainCurrentScroll,
     useScrollOnUpdate,
     rememberCurrentScrollHeight,
-    restoreScrollTop,
+    restoreScrollTopFromUp,
+    restoreScrollTopFromDown,
     isWatchingBottom,
   };
 };

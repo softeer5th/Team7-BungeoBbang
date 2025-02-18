@@ -152,6 +152,7 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
     // const isLiveReceive = useRef<boolean>(false);
 
     const isUpOverflow = useRef<boolean>(false);
+    const isDownOverflow = useRef<boolean>(false);
 
     const {
       elementRef,
@@ -159,7 +160,8 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
       scrollToBottom,
       remainCurrentScroll,
       rememberCurrentScrollHeight,
-      restoreScrollTop,
+      restoreScrollTopFromUp,
+      restoreScrollTopFromDown,
       isWatchingBottom,
     } = useScroll<HTMLDivElement>();
 
@@ -213,7 +215,7 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
 
         const formattedData = formatChatData(response.data, true);
 
-        setHasDownMore(false);
+        // setHasDownMore(false);
         setChatData(formattedData);
         setChatRoomInfo({
           title: chatInfo.data.title,
@@ -246,9 +248,7 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
     };
 
     const getMoreUpChatData = async () => {
-      // return;
       try {
-        console.log('??? ', isUpDirection.current);
         if (isUpDirection.current) return;
         isUpDirection.current = true;
         const response = await api.get(`/admin/agendas/${roomId}/chat`, {
@@ -265,15 +265,7 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
             setHasUpMore(false);
           }
 
-          // if (MAX_CHAT_DATA_LENGTH - formattedData.length < prev.length) {
-          //   // setHasDownMore(true);
-          //   // return [
-          //   //   ...formattedData,
-          //   //   ...prev.slice(0, MAX_CHAT_DATA_LENGTH - formattedData.length),
-          //   // ];
-          // }else{
           return [...formattedData, ...prev];
-          // }
         });
       } catch (error) {
         console.error('fail to get chat data', error);
@@ -281,8 +273,9 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
     };
 
     const getMoreDownChatData = async () => {
-      return;
+      // return;
       try {
+        console.log('??? ', isDownDirection.current);
         if (isDownDirection.current) return;
         isDownDirection.current = true;
         const response = await api.get(`/admin/agendas/${roomId}/chat`, {
@@ -298,10 +291,6 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
         setChatData((prev: ChatData[]) => {
           if (response.data.length < MAX_CHAT_PAGE_DATA) {
             setHasDownMore(false);
-          }
-
-          if (MAX_CHAT_DATA_LENGTH - formattedData.length < prev.length) {
-            return [...prev.slice(formattedData.length - MAX_CHAT_DATA_LENGTH), ...formattedData];
           }
 
           return [...prev, ...formattedData];
@@ -337,18 +326,21 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
 
       if (isUpDirection.current === true) {
         if (isUpOverflow.current === true) {
-          restoreScrollTop();
+          restoreScrollTopFromUp();
           isUpOverflow.current = false;
           isUpDirection.current = false;
           return;
         }
         remainCurrentScroll();
 
-        console.log('scroll remain end');
+        // console.log('scroll remain end');
 
         if (MAX_CHAT_DATA_LENGTH < chatData.length) {
           isUpOverflow.current = true;
+
+          setHasDownMore(true);
           setChatData((prev) => prev.slice(0, MAX_CHAT_DATA_LENGTH));
+          return;
         }
 
         isUpDirection.current = false;
@@ -356,8 +348,26 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
         return;
       }
 
-      if (isDownDirection.current) {
+      if (isDownDirection.current === true) {
+        if (isDownOverflow.current === true) {
+          // console.log("down 호출");
+          restoreScrollTopFromDown();
+          isDownOverflow.current = false;
+          isDownDirection.current = false;
+          return;
+        }
+
         rememberCurrentScrollHeight();
+
+        if (MAX_CHAT_DATA_LENGTH < chatData.length) {
+          isDownOverflow.current = true;
+          // console.log("slice!!");
+
+          setHasUpMore(true);
+          setChatData((prev) => prev.slice(chatData.length - MAX_CHAT_DATA_LENGTH));
+          return;
+        }
+
         isDownDirection.current = false;
       }
     }, [chatData]);
