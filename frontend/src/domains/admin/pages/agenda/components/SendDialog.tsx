@@ -20,11 +20,6 @@ export const SendDialog: React.FC<SendDialogProps> = ({
 }) => {
   const theme = useTheme();
 
-  const portalRoot = document.getElementById('portal-root');
-  if (!portalRoot) {
-    return null;
-  }
-
   // 학생회 채팅 엔터로
   const handleKeyDown = (e: KeyboardEvent) => {
     if (e.key === 'Enter') {
@@ -37,8 +32,13 @@ export const SendDialog: React.FC<SendDialogProps> = ({
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, []);
-//보내는 로직 추후 삭제하삼
+  }, [onConfirm]);
+
+  const portalRoot = document.getElementById('portal-root');
+  if (!portalRoot) {
+    return null;
+  }
+
   const dialog = (
     <DialogOverlay onClick={onDismiss}>
       <DialogContainer>
