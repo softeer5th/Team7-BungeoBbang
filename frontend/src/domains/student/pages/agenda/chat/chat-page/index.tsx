@@ -219,7 +219,7 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
         ]);
         console.log('responsesseee', response);
 
-        const formattedData = formatChatData(response.data, true);
+        const formattedData = formatChatData(response.data, false);
 
         setHasDownMore(false);
         setChatData(formattedData);

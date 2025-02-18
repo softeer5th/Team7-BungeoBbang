@@ -104,6 +104,8 @@ export const formatChatData = (
 export const addDateDivider = (currentChatData: ChatData, previousChatData: ChatData | null) => {
   if (!currentChatData) return null;
 
+  console.log('current data', currentChatData, previousChatData);
+
   // 현재 메시지의 날짜 계산
   const currentChatDate = new Date(
     (currentChatData as ReceiveChatData | SendChatData).createdAt,
