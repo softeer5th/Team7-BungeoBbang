@@ -10,6 +10,7 @@ import api from '@/utils/api';
 import { useSocketManager } from '@/hooks/useSocketManager';
 import { useImageUpload } from '@/hooks/useImageUpload';
 import { ImageFileSizeDialog } from '@/components/Dialog/ImageFileSizeDialog';
+import { Dialog } from '@/components/Dialog/Dialog';
 
 const OpinionCategoryPage: React.FC = () => {
   const navigate = useNavigate();
@@ -18,6 +19,7 @@ const OpinionCategoryPage: React.FC = () => {
   const [selectedOpinion, setSelectedOpinion] = useState<string>('');
   const [selectedCategory, setSelectedCategory] = useState<string>('');
   const [message, setMessage] = useState('');
+  const [showProfanityDialog, setShowProfanityDialog] = useState(false);
 
   const { images, showSizeDialog, handleImageDelete, handleImageUpload, closeSizeDialog } =
     useImageUpload(10, 5);
@@ -43,14 +45,18 @@ const OpinionCategoryPage: React.FC = () => {
       content: message,
       images: images,
     };
+
     try {
       const response = await api.post('/student/opinions', messageData);
       if (response.status === 200) {
         socketManager('OPINION', 'START', response.data.opinionId, 'STUDENT');
         navigate('/opinion/chat/' + response.data.opinionId, { state: { from: 'opinion' } });
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('메시지 전송 실패:', error);
+      if (error.response?.status === 400) {
+        setShowProfanityDialog(true);
+      }
     }
   };
 
@@ -89,6 +95,18 @@ const OpinionCategoryPage: React.FC = () => {
       />
       {showSizeDialog && (
         <ImageFileSizeDialog onConfirm={closeSizeDialog} onDismiss={closeSizeDialog} />
+      )}
+      {showProfanityDialog && (
+        <Dialog
+          body="금칙어가 포함되어 있습니다."
+          onConfirm={() => setShowProfanityDialog(false)}
+          onDismiss={() => {}}
+          confirmButton={{
+            text: '확인',
+            backgroundColor: '#1F87FF',
+            textColor: '#FFFFFF',
+          }}
+        />
       )}
     </S.Container>
   );

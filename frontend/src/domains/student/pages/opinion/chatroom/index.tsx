@@ -35,6 +35,7 @@ import {
   MAX_CHAT_PAGE_DATA,
   RECENT_CHAT_ID,
 } from '@/utils/chat/chat_const.ts';
+import { Dialog } from '@/components/Dialog/Dialog.tsx';
 
 const OpinionChatPage = () => {
   const chatSendFieldRef = useRef<HTMLDivElement>(null);
@@ -45,6 +46,7 @@ const OpinionChatPage = () => {
   const [message, setMessage] = useState('');
   const [isRemindEnabled, setIsRemindEnabled] = useState(false);
   const [isReminded, setIsReminded] = useState(false);
+  const [dialogText, setDialogText] = useState('');
   const { images, showSizeDialog, handleImageDelete, handleImageUpload, closeSizeDialog } =
     useImageUpload(10, 5);
 
@@ -59,6 +61,8 @@ const OpinionChatPage = () => {
 
   const handleMessageReceive = useCallback(
     (message: ChatMessage) => {
+      setIsReminded(false);
+      checkLastThreeChats(3) ? setIsRemindEnabled(true) : setIsRemindEnabled(false);
       if (message.roomType === 'OPINION' && message.opinionId === Number(roomId)) {
         const newChat = {
           type: message.memberId === Number(memberId) ? ChatType.SEND : ChatType.RECEIVE,
@@ -70,6 +74,10 @@ const OpinionChatPage = () => {
           images: message.images || [],
           createdAt: message.createdAt,
         };
+        if (newChat.type === ChatType.RECEIVE) {
+          setIsRemindEnabled(false);
+          setIsReminded(false);
+        }
         if (message.memberId === Number(memberId)) {
           getInitialChatDataFromRecent();
         } else {
@@ -89,42 +97,46 @@ const OpinionChatPage = () => {
     [roomId, memberId],
   );
 
-  const checkLastThreeChats = useCallback(() => {
-    if (chatData.length < 3) return false;
+  const checkLastThreeChats = useCallback(
+    (count: number) => {
+      if (chatData.length < count) return false;
 
-    const actualChats = chatData.filter(
-      (chat) => chat.type === ChatType.SEND || chat.type === ChatType.RECEIVE,
-    );
+      const actualChats = chatData.filter(
+        (chat) => chat.type === ChatType.SEND || chat.type === ChatType.RECEIVE,
+      );
 
-    if (actualChats.length < 3) return false;
+      if (actualChats.length < count) {
+        return false;
+      }
 
-    const lastThreeChats = actualChats.slice(-3);
-    const isAllStudentMessages = lastThreeChats.every((chat) => chat.type === ChatType.SEND);
-    return isAllStudentMessages;
-  }, [chatData]);
+      const lastTwoChats = actualChats.slice(-count);
+      const isAllStudentMessages = lastTwoChats.every((chat) => chat.type === ChatType.SEND);
+      return isAllStudentMessages;
+    },
+    [chatData],
+  );
 
   const handleSendRemind = async () => {
     !isReminded && (await api.patch(`/student/opinions/${roomId}/remind`));
+    setIsRemindEnabled(false);
     setIsReminded(true);
+    setDialogText('학생회에 리마인드 알림을 전송했어요.');
   };
 
   useEffect(() => {
     const unsubscribe = subscribe('OPINION', Number(roomId), handleMessageReceive);
+
     return () => unsubscribe();
   }, [roomId, subscribe, handleMessageReceive]);
-
-  // chatData가 변경될 때마다 버튼 상태 업데이트
-  useEffect(() => {
-    setIsRemindEnabled(checkLastThreeChats());
-  }, [chatData, checkLastThreeChats]);
 
   const handleSendMessage = useCallback(
     (message: string, images: string[] = []) => {
       sendMessage('OPINION', Number(roomId), message, images, false);
       setMessage('');
       handleImageDelete(-1);
+      setIsRemindEnabled(checkLastThreeChats(2));
     },
-    [roomId, sendMessage],
+    [roomId, sendMessage, checkLastThreeChats, handleImageDelete],
   );
 
   const [selectedImage, setSelectedImage] = useState<{ url: string; index: number } | null>(null);
@@ -187,8 +199,10 @@ const OpinionChatPage = () => {
       ]);
 
       const formattedData = formatChatData(response.data, false);
+
       setChatData(formattedData);
       enterResponse.data.isReminded && setIsReminded(true);
+
       setChatRoomInfo({
         title: '',
         adminName: `${enterResponse.data.universityName} 총학생회`,
@@ -197,6 +211,7 @@ const OpinionChatPage = () => {
       console.error('fail to get chat data', error);
     }
   };
+
 
   const getInitialChatDataFromRecent = async () => {
     try {
@@ -221,6 +236,7 @@ const OpinionChatPage = () => {
         title: '',
         adminName: `${enterResponse.data.universityName} 총학생회`,
       });
+
     } catch (error) {
       console.error('fail to get chat data', error);
     }
@@ -237,7 +253,6 @@ const OpinionChatPage = () => {
       });
       const formattedData = formatChatData(response.data, false);
 
-      console.log('up data', response.data);
       setChatData((prev: ChatData[]) => {
         if (response.data.length < MAX_CHAT_PAGE_DATA) {
           setHasUpMore(false);
@@ -448,11 +463,11 @@ const OpinionChatPage = () => {
         onImageDelete={handleImageDelete}
         onImageUpload={handleImageUpload}
         maxLength={500}
-        textDisabled={isRemindEnabled}
+        textDisabled={isRemindEnabled || isReminded}
         disabledPlaceHolder={
           isReminded ? '리마인드를 전송한 상태입니다.' : '답장이 없을 시 리마인드 버튼을 눌러주세요'
         }
-        isRemindMode={isRemindEnabled}
+        isRemindMode={isRemindEnabled || isReminded}
         isReminded={isReminded}
       />
 
@@ -490,6 +505,19 @@ const OpinionChatPage = () => {
           bottom={(chatSendFieldRef.current?.offsetHeight ?? 0) + 15}
           onClick={() => getInitialChatDataFromRecent()}
           onDismiss={() => setToastMeesage(null)}
+        />
+      )}
+      {dialogText.length > 0 && (
+        <Dialog
+          body={dialogText}
+          onConfirm={() => setDialogText('')}
+          onDismiss={() => setDialogText('')}
+          confirmButton={{
+            text: '확인',
+            children: '확인',
+            backgroundColor: '#1F87FF',
+            textColor: '#FFFFFF',
+          }}
         />
       )}
     </S.Container>

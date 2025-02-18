@@ -159,12 +159,20 @@ export const useSocketStore = create<SocketState>((set, get) => ({
     const subscriptionKey = `${roomType}:${roomId}`;
 
     // Store the subscription
-    set((state) => ({
-      activeSubscriptions: {
-        ...state.activeSubscriptions,
-        [subscriptionKey]: { callback },
-      },
-    }));
+    set((state) => {
+      const newState = {
+        activeSubscriptions: {
+          ...state.activeSubscriptions,
+          [subscriptionKey]: { callback },
+        },
+      };
+
+      // 구독 추가 시 현재 구독 목록 출력
+      console.log('구독 추가:', subscriptionKey);
+      console.log('현재 구독 목록:', Object.keys(newState.activeSubscriptions));
+
+      return newState;
+    });
 
     if (socket) {
       const messageHandler = (event: MessageEvent) => {
@@ -205,10 +213,15 @@ export const useSocketStore = create<SocketState>((set, get) => ({
     }
 
     return () => {
-      // Remove the subscription when unmounting even if there was no socket
+      // Remove the subscription when unmounting
       set((state) => {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { [subscriptionKey]: removed, ...rest } = state.activeSubscriptions;
+
+        // 구독 해제 시 현재 구독 목록 출력
+        console.log('구독 해제:', subscriptionKey);
+        console.log('현재 구독 목록:', Object.keys(rest));
+
         return { activeSubscriptions: rest };
       });
     };
