@@ -34,6 +34,7 @@ import {
   MAX_CHAT_DATA_LENGTH,
   MAX_CHAT_PAGE_DATA,
 } from '@/utils/chat/chat_const.ts';
+import { Dialog } from '@/components/Dialog/Dialog.tsx';
 
 const OpinionChatPage = () => {
   const chatSendFieldRef = useRef<HTMLDivElement>(null);
@@ -44,6 +45,7 @@ const OpinionChatPage = () => {
   const [message, setMessage] = useState('');
   const [isRemindEnabled, setIsRemindEnabled] = useState(false);
   const [isReminded, setIsReminded] = useState(false);
+  const [dialogText, setDialogText] = useState('');
   const { images, showSizeDialog, handleImageDelete, handleImageUpload, closeSizeDialog } =
     useImageUpload(10, 5);
 
@@ -120,6 +122,7 @@ const OpinionChatPage = () => {
   const handleSendRemind = async () => {
     !isReminded && (await api.patch(`/student/opinions/${roomId}/remind`));
     setIsReminded(true);
+    setDialogText('학생회에 리마인드 알림을 전송했어요.');
   };
 
   // useEffect(() => {
@@ -151,6 +154,11 @@ const OpinionChatPage = () => {
   // chatData가 변경될 때마다 버튼 상태 업데이트
   useEffect(() => {
     setIsRemindEnabled(checkLastThreeChats());
+    isRemindEnabled
+      ? setDialogText(
+          `학생회의 답장이 오기전까지 \n 3번만 작성할수 있어요 \n 답장이 없을경우 리마인드 버튼을 눌러주세요`,
+        )
+      : setDialogText('');
   }, [chatData, checkLastThreeChats]);
 
   const handleSendMessage = useCallback(
@@ -481,6 +489,19 @@ const OpinionChatPage = () => {
           message={toastMessage}
           bottom={(chatSendFieldRef.current?.offsetHeight ?? 0) + 15}
           onDismiss={() => setToastMeesage(null)}
+        />
+      )}
+      {dialogText.length > 0 && (
+        <Dialog
+          body={dialogText}
+          onConfirm={() => setDialogText('')}
+          onDismiss={() => setDialogText('')}
+          confirmButton={{
+            text: '확인',
+            children: '확인',
+            backgroundColor: '#1F87FF',
+            textColor: '#FFFFFF',
+          }}
         />
       )}
     </S.Container>
