@@ -5,8 +5,6 @@ import { TopAppBar } from '@/components/TopAppBar';
 import {
   ChatData,
   ChatType,
-  // InfoChatData,
-  // MoreChatData,
   ReceiveChatData,
   SendChatData,
 } from '@/domains/student/pages/agenda/chat/chat-page/ChatData';
@@ -14,8 +12,6 @@ import { ChatSendField } from '@/components/Chat/ChatSendField';
 import { ReceiverChat } from '@/components/Chat/ReceiverChat';
 import { SenderChat } from '@/components/Chat/SenderChat';
 import { TextBadge } from '@/components/Chat/TextBadge';
-// import MoreChatButton from '@/domains/student/pages/agenda/chat/chat-page/MoreChatButton';
-// import { ExitDialog } from '@/domains/student/pages/agenda/chat/chat-page/Exitdialog';
 import api from '@/utils/api';
 import { addDateDivider, formatChatData } from '@/utils/chat/formatChatData';
 import { useImageUpload } from '@/hooks/useImageUpload';
@@ -25,8 +21,6 @@ import { useScroll } from '@/hooks/useScrollBottom';
 import { ImagePreview } from '@/components/Chat/ImagePreview';
 import { useEnterLeaveHandler } from '@/hooks/useEnterLeaveHandler';
 import useInfiniteScroll from '@/hooks/useInfiniteScroll';
-// import { findChatOpinionTypeByLabel } from '@/utils/findChatOpinionType';
-// import { findChatCategoryType } from '@/utils/findChatCategoryType';
 import { ChatCategoryType } from '@/types/ChatCategoryType';
 import { ChatToast } from '@/components/ChatToast';
 import {
@@ -42,7 +36,6 @@ const OpinionChatPage = () => {
   const [toastMessage, setToastMeesage] = useState<string | null>(null);
 
   const [chatData, setChatData] = useState<ChatData[]>([]);
-  // const [isExitDialogOpen, setExitDialogOpen] = useState(faslse);
   const [message, setMessage] = useState('');
   const [isReminded, setIsReminded] = useState(false);
 
@@ -95,27 +88,6 @@ const OpinionChatPage = () => {
   );
 
   useEffect(() => {
-    if (!roomId) return;
-
-    // const fetchData = async () => {
-    //   try {
-    //     const res = await api.get(`/api/opinions/${roomId}`);
-    //     setIsReminded(res.data.isReminded);
-    //     const response = await api.get(`/api/opinions/${roomId}/chat`, {
-    //       params: { chatId: lastChatId, scroll: 'INITIAL' },
-    //     });
-    //     console.log('채팅 데이터:', response);
-    //     const formattedData = formatChatData(response.data, true);
-    //     setChatData(formattedData);
-    //   } catch (error) {
-    //     console.error('채팅 데이터 불러오기 실패:', error);
-    //   }
-    // };
-
-    // fetchData();
-  }, [roomId]);
-
-  useEffect(() => {
     if (!socket) {
       connect(true); // true for admin
     }
@@ -137,10 +109,6 @@ const OpinionChatPage = () => {
     },
     [roomId, sendMessage],
   );
-
-  // const { elementRef, useScrollOnUpdate } = useScroll<HTMLDivElement>();
-  // // chatData가 업데이트될 때마다 스크롤
-  // useScrollOnUpdate(chatData);
 
   // 이미지 클릭 시 이미지 프리뷰 열기
   const [selectedImage, setSelectedImage] = useState<{ url: string; index: number } | null>(null);
@@ -199,7 +167,6 @@ const OpinionChatPage = () => {
       ]);
 
       const formattedData = formatChatData(response.data, true);
-      // setChatData(formattedData);
 
       setChatData(formattedData);
 
@@ -324,19 +291,6 @@ const OpinionChatPage = () => {
       rememberCurrentScrollHeight();
       isDownDirection.current = false;
     }
-
-    // if(isLiveReceive.current){
-
-    // }
-
-    // if (isLive.current) {
-    //   console.log('live', isLive.current, isLiveReceive.current);
-    //   if (isLiveReceive.current) {
-    //     isLiveReceive.current = false;
-    //     return;
-    //   }
-    //   scrollToBottom();
-    // }
   }, [chatData]);
 
   return (
@@ -444,20 +398,6 @@ const OpinionChatPage = () => {
               </>
             );
           }
-          // } else if (chat.type === ChatType.INFO) {
-          //   const chatData = chat as InfoChatData;
-          //   return <TextBadge text={chatData.message} />;
-          // } else if (chat.type === ChatType.MORE) {
-          //   const chatData = chat as MoreChatData;
-          //   return (
-          //     <MoreChatButton
-          //       key={index}
-          //       text={chatData.text}
-          //       iconSrc={chatData.iconSrc}
-          //       onClick={chatData.onMoreClick}
-          //     />
-          //   );
-          // }
           return null;
         })}
         {isReminded ? (
@@ -476,17 +416,6 @@ const OpinionChatPage = () => {
         maxLength={500}
       />
 
-      {/* {isExitDialogOpen && (
-        <ExitDialog
-          onConfirm={() => {
-            setExitDialogOpen(false);
-            navigate(-1);
-          }}
-          onDismiss={() => {
-            setExitDialogOpen(false);
-          }}
-        />
-      )} */}
       {showSizeDialog && (
         <ImageFileSizeDialog onConfirm={closeSizeDialog} onDismiss={closeSizeDialog} />
       )}
