@@ -85,9 +85,8 @@ const OpinionChatPage = () => {
               }
               return [...prev, newChat];
             });
-          } else {
-            setToastMeesage('새로운 채팅이 도착했습니다.');
           }
+          setToastMeesage('새로운 채팅이 도착했습니다.');
         }
       }
     },
