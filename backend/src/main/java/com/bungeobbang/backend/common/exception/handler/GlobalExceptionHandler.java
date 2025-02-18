@@ -19,6 +19,6 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleMethodArgumentNotValidException(final MethodArgumentNotValidException e) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorResponse(e.getFieldError().getDefaultMessage(), ErrorCode.INVALID_AUTHORIZATION_CODE.getCode()));
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorResponse(e.getFieldError().getDefaultMessage(), ErrorCode.INVALID_METHOD_ARGUMENT.getCode()));
     }
 }
