@@ -11,6 +11,7 @@ export interface ReceiveChatData extends Chat {
   images?: string[];
   message: string;
   time: string;
+  createdAt: string;
 }
 
 export interface SendChatData extends Chat {
@@ -19,6 +20,7 @@ export interface SendChatData extends Chat {
   images?: string[];
   message: string;
   time: string;
+  createdAt: string;
 }
 
 export interface InfoChatData extends Chat {

@@ -7,6 +7,7 @@ interface ChatToastProps {
   message: string;
   bottom: number;
   duration?: number;
+  onClick?: () => void;
   onDismiss?: () => void;
 }
 
@@ -14,6 +15,7 @@ export const ChatToast = ({
   message,
   bottom = 0,
   duration = 3000,
+  onClick = () => {},
   onDismiss = () => {},
 }: ChatToastProps) => {
   const [visible, setVisible] = useState(true);
@@ -36,7 +38,7 @@ export const ChatToast = ({
             exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.5 }}
           >
-            <MessageBox>
+            <MessageBox onClick={onClick}>
               <MessageText variant="caption2">{message}</MessageText>
             </MessageBox>
           </motion.div>
