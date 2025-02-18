@@ -31,7 +31,7 @@ public class CustomOpinionChatRepository {
         Sort sort = scroll.equals(ScrollType.DOWN) ?
                 Sort.by(Sort.Direction.ASC, ID) : Sort.by(Sort.Direction.DESC, ID);
 
-        Pageable pageable = PageRequest.of(0, 10, sort);
+        Pageable pageable = PageRequest.of(0, 15, sort);
         List<OpinionChat> opinionChats = new ArrayList<>(opinionChatRepository.findOpinionChats(opinionId, comparison, chatId, pageable));
         if (scroll.equals(ScrollType.UP) || (scroll.equals(ScrollType.INITIAL) && chatId.equals(MAX_OBJECT_ID)))
             Collections.reverse(opinionChats);
