@@ -13,7 +13,8 @@ export const Container = styled.div`
 
 export const BodyContainer = styled.div`
   flex-grow: 1;
-  overflow: auto;
+  overflow-y: auto;
+
   display: flex;
   flex-direction: column;
   justify-content: center;

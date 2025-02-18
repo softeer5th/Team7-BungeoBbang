@@ -32,11 +32,11 @@ export const TabContent = styled.div<{
 `;
 
 export const ChatPreviewList = styled.div`
-  max-width: 100%;
+  width: 100%;
   max-height: 100%;
   padding: 20px 16px 20px 16px;
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   grid-auto-rows: min-content;
   gap: 15px;
   overflow: auto;
