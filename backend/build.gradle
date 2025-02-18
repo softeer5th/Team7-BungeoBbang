@@ -45,8 +45,6 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
     // Redis
     implementation group: 'io.lettuce', name: 'lettuce-core', version: '6.5.2.RELEASE'
-    // 아호코라식 알고리즘
-    implementation group: 'org.ahocorasick', name: 'ahocorasick', version: '0.6.3'
     // mail
     implementation 'org.springframework.boot:spring-boot-starter-mail'
     // password encoder

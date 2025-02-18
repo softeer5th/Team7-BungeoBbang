@@ -1,16 +1,17 @@
 package com.bungeobbang.backend.badword.service;
 
+import com.bungeobbang.backend.badword.AhoCorasick;
 import com.bungeobbang.backend.badword.domain.BadWord;
 import com.bungeobbang.backend.badword.domain.repository.BadWordRepository;
 import com.bungeobbang.backend.common.exception.BadWordException;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.ahocorasick.trie.Trie;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import static com.bungeobbang.backend.common.exception.ErrorCode.BADWORD_INCLUDED;
 
@@ -19,27 +20,24 @@ import static com.bungeobbang.backend.common.exception.ErrorCode.BADWORD_INCLUDE
 @Slf4j
 public class BadWordService {
     private final BadWordRepository badWordRepository;
-    private Trie trie;
+    private AhoCorasick ahoCorasick;
 
     @PostConstruct
     public void init() {
-        // todo 현재 서버 실행 시 한번만 업데이트 추후에는??
-        List<String> badWords = badWordRepository.findAll().stream().map(BadWord::getWord).toList();
+        List<String> badWords = badWordRepository.findAll().stream()
+                .map(BadWord::getWord)
+                .toList();
 
-        Trie.TrieBuilder builder = Trie.builder().ignoreCase();
-        badWords.forEach(builder::addKeyword);
-
-        trie = builder.build();
+        ahoCorasick = new AhoCorasick(badWords);
     }
 
     public void validate(String text) {
-        if (!trie.parseText(text).isEmpty()) {
-            throw new BadWordException(BADWORD_INCLUDED);
-        }
+        Map<Integer, List<String>> detectedWords = ahoCorasick.searchBadWords(text);
+        if (!detectedWords.isEmpty()) throw new BadWordException(BADWORD_INCLUDED);
     }
 
     public void validate(String... texts) {
-        if (Arrays.stream(texts).anyMatch(text -> !trie.parseText(text).isEmpty())) {
+        if (Arrays.stream(texts).anyMatch(text -> !ahoCorasick.searchBadWords(text).isEmpty())) {
             throw new BadWordException(BADWORD_INCLUDED);
         }
     }
