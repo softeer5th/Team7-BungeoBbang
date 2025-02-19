@@ -1,6 +1,7 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
 import { AUTH_CONFIG } from '@/config/auth';
 import JWTManager from './jwtManager';
+import { handleApiError } from './errorHandler';
 
 interface CustomAxiosRequestConfig extends InternalAxiosRequestConfig {
   _retry?: boolean;
@@ -31,14 +32,10 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   async (error: AxiosError) => {
-    console.log('Error:?');
     const originalRequest = error.config as CustomAxiosRequestConfig;
-    console.log(originalRequest);
 
-    if (
-      (error.response?.status === 401 || error.response?.status === 403) &&
-      !originalRequest._retry
-    ) {
+    // 401 에러이고 재시도하지 않은 경우
+    if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
       const refreshToken = await JWTManager.getRefreshToken();
 
@@ -50,12 +47,17 @@ api.interceptors.response.use(
             return api(originalRequest);
           }
         } catch (refreshError) {
-          console.log('Token refresh failed:', refreshError);
+          // 리프레시 토큰도 만료된 경우
           await JWTManager.clearTokens();
+          window.location.href = '/';
+          return Promise.reject(refreshError);
         }
       }
     }
-    return Promise.reject(error);
+
+    // 에러 처리
+    const apiError = await handleApiError(error);
+    return Promise.reject(apiError);
   },
 );
 

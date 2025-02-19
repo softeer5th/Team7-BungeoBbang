@@ -124,6 +124,15 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
       setCurrentImageList(images);
     };
 
+    const handleImageChange = (newIndex: number) => {
+      if (selectedImage && currentImageList.length > 0) {
+        setSelectedImage({
+          url: currentImageList[newIndex],
+          index: newIndex,
+        });
+      }
+    };
+
     useEnterLeaveHandler('AGENDA', 'ADMIN');
 
     useEffect(() => {
@@ -488,19 +497,25 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
           <SendDialog
             message={message}
             images={images}
-            onConfirm={() => handleSendMessage(message, images)}
+            onConfirm={() => {
+              handleSendMessage(message, images);
+              setShowSendDialog(false); // 얘 나중에 삭제
+            }}
             onDismiss={() => setShowSendDialog(false)}
           />
         )}
         {showSizeDialog && (
           <ImageFileSizeDialog onConfirm={closeSizeDialog} onDismiss={closeSizeDialog} />
         )}
+
         {selectedImage && (
           <ImagePreview
-            imageUrl={selectedImage.url}
+            // imageUrl={selectedImage.url}
+            onClose={() => setSelectedImage(null)}
             currentIndex={selectedImage.index}
             totalImages={currentImageList.length}
-            onClose={() => setSelectedImage(null)}
+            onChangeImage={handleImageChange}
+            imageList={currentImageList}
           />
         )}
         {toastMessage && (

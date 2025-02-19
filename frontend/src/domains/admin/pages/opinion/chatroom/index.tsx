@@ -255,6 +255,15 @@ const OpinionChatPage = () => {
     }
   };
 
+  const handleImageChange = (newIndex: number) => {
+    if (selectedImage && currentImageList.length > 0) {
+      setSelectedImage({
+        url: currentImageList[newIndex],
+        index: newIndex,
+      });
+    }
+  };
+
   const { setTriggerUpItem, setTriggerDownItem, getHasDownMore, setHasUpMore, setHasDownMore } =
     useInfiniteScroll({
       initialFetch: getInitialChatData,
@@ -421,10 +430,11 @@ const OpinionChatPage = () => {
       )}
       {selectedImage && (
         <ImagePreview
-          imageUrl={selectedImage.url}
           currentIndex={selectedImage.index}
           totalImages={currentImageList.length}
           onClose={() => setSelectedImage(null)}
+          onChangeImage={handleImageChange}
+          imageList={currentImageList}
         />
       )}
       {toastMessage && (

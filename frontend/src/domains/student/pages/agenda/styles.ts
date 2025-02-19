@@ -13,7 +13,9 @@ export const Container = styled.div`
 
 export const BodyContainer = styled.div`
   flex-grow: 1;
-  overflow: auto;
+  overflow-y: auto;
+  overflow-x: hidden;
+  width: 100%;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -30,7 +32,7 @@ export const ChatRoomList = styled.div`
   top: -33px;
   padding: 17px 16px 17px 16px;
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   grid-auto-rows: min-content;
   gap: 15px;
 `;
