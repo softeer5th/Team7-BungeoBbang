@@ -1,7 +1,6 @@
 import styled from 'styled-components';
 import Typography from '../../styles/Typography';
 import { forwardRef } from 'react';
-import { motion } from 'framer-motion';
 
 interface SenderChatProps {
   chatId: string;
@@ -31,50 +30,28 @@ export const SenderChat = forwardRef<HTMLDivElement, SenderChatProps>(
     return (
       <SenderChatContainer id={`id${chatId}`} ref={ref}>
         {images && images.length > 0 && (
-          <motion.div
-            initial={{
-              opacity: 0,
-              scale: 0.4, // 65/164 ≈ 0.4 (가로 비율)
-            }}
-            animate={{
-              opacity: 1,
-              scale: 1,
-            }}
-            transition={{
-              duration: 0.5,
-              ease: [0.45, 0, 0.21, 1],
-              delay: 0.05,
-            }}
-          >
-            <ImageContainer>
-              {[...images].reverse().map((image, index) => {
-                return (
-                  <ImageBox
-                    src={image}
-                    key={`${image}${index}`}
-                    onClick={() => onImageClick?.(image)}
-                  />
-                );
-              })}
-            </ImageContainer>
-          </motion.div>
+          <ImageContainer>
+            {[...images].reverse().map((image, index) => {
+              return (
+                <ImageBox
+                  src={image}
+                  key={`${image}${index}`}
+                  onClick={() => onImageClick?.(image)}
+                />
+              );
+            })}
+          </ImageContainer>
         )}
-        <motion.div
-          initial={{ opacity: 0, y: -110 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, ease: [0.45, 0, 0.21, 1], delay: 0.05 }}
-        >
-          <MessageContainer>
-            <TimeText variant="caption3" timeTextColor={timeTextColor}>
-              {timeText}
-            </TimeText>
-            <ChatContainer backgroundColor={backgroundColor}>
-              <ChatMessageText variant="body1" textColor={textColor}>
-                {message}
-              </ChatMessageText>
-            </ChatContainer>
-          </MessageContainer>
-        </motion.div>
+        <MessageContainer>
+          <TimeText variant="caption3" timeTextColor={timeTextColor}>
+            {timeText}
+          </TimeText>
+          <ChatContainer backgroundColor={backgroundColor}>
+            <ChatMessageText variant="body1" textColor={textColor}>
+              {message}
+            </ChatMessageText>
+          </ChatContainer>
+        </MessageContainer>
       </SenderChatContainer>
     );
   },

@@ -36,7 +36,6 @@ import {
   RECENT_CHAT_ID,
 } from '@/utils/chat/chat_const.ts';
 import { Dialog } from '@/components/Dialog/Dialog.tsx';
-import { motion } from 'framer-motion';
 
 const OpinionChatPage = () => {
   const chatSendFieldRef = useRef<HTMLDivElement>(null);
@@ -160,6 +159,7 @@ const OpinionChatPage = () => {
   const isInitialRecentLoading = useRef<boolean>(false);
   const isUpDirection = useRef<boolean>(false);
   const isDownDirection = useRef<boolean>(false);
+  // const isLiveReceive = useRef<boolean>(false);
 
   const isUpOverflow = useRef<boolean>(false);
   const isDownOverflow = useRef<boolean>(false);
@@ -229,7 +229,7 @@ const OpinionChatPage = () => {
 
       const formattedData = formatChatData(response.data, false);
 
-      // setHasDownMore(false);
+      setHasDownMore(false);
       setChatData(formattedData);
       enterResponse.data.isReminded && setIsReminded(true);
       setChatRoomInfo({
@@ -253,7 +253,7 @@ const OpinionChatPage = () => {
 
       const formattedData = formatChatData(response.data, false);
 
-      // setHasDownMore(false);
+      setHasDownMore(false);
       setChatData(formattedData);
     } catch (error) {
       console.error('fail to get chat data', error);
@@ -316,21 +316,15 @@ const OpinionChatPage = () => {
     }
   };
 
-  const {
-    setTriggerUpItem,
-    setTriggerDownItem,
-    getHasUpMore,
-    getHasDownMore,
-    setHasUpMore,
-    setHasDownMore,
-  } = useInfiniteScroll({
-    initialFetch: getInitialChatData,
-    fetchUpMore: getMoreUpChatData,
-    fetchDownMore: getMoreDownChatData,
-  });
+  const { setTriggerUpItem, setTriggerDownItem, getHasDownMore, setHasUpMore, setHasDownMore } =
+    useInfiniteScroll({
+      initialFetch: getInitialChatData,
+      fetchUpMore: getMoreUpChatData,
+      fetchDownMore: getMoreDownChatData,
+    });
 
   useLayoutEffect(() => {
-    if (!elementRef.current || chatData.length === 0) return;
+    if (!elementRef.current) return;
     console.log('getchasdata', chatData);
 
     if (isInitialTopLoading.current === true) {
@@ -347,7 +341,6 @@ const OpinionChatPage = () => {
     }
 
     if (isUpDirection.current === true) {
-      console.log('up!');
       if (isUpOverflow.current === true) {
         restoreScrollTopFromUp();
         isUpOverflow.current = false;
@@ -370,7 +363,6 @@ const OpinionChatPage = () => {
     }
 
     if (isDownDirection.current) {
-      console.log('down!');
       if (isDownOverflow.current === true) {
         // console.log("down 호출");
         restoreScrollTopFromDown();
@@ -409,7 +401,7 @@ const OpinionChatPage = () => {
       />
       <S.ChatList ref={elementRef}>
         {chatData.map((chat, chatIndex) => {
-          const isUpTriggerItem = chatIndex === FIRST_REMAIN_ITEMS && getHasUpMore();
+          const isUpTriggerItem = chatIndex === FIRST_REMAIN_ITEMS;
           const isDownTriggerItem = chatIndex === chatData.length - LAST_REMAIN_ITEMS;
 
           if (chat.type === ChatType.RECEIVE) {
@@ -419,50 +411,46 @@ const OpinionChatPage = () => {
             downLastItemId = curChatData.chatId;
 
             return (
-              <motion.div initial={{ opacity: 0, y: 30 }}>
-                <>
-                  {(() => {
-                    const date = addDateDivider(
-                      curChatData,
-                      chatIndex > 0 ? chatData[chatIndex - 1] : null,
-                    );
+              <>
+                {(() => {
+                  const date = addDateDivider(
+                    curChatData,
+                    chatIndex > 0 ? chatData[chatIndex - 1] : null,
+                  );
 
-                    return date ? <TextBadge text={date} /> : null;
-                  })()}
-                  <ReceiverChat
-                    key={curChatData.chatId}
-                    chatId={curChatData.chatId}
-                    ref={
-                      isUpTriggerItem
+                  return date ? <TextBadge text={date} /> : null;
+                })()}
+                <ReceiverChat
+                  key={curChatData.chatId}
+                  chatId={curChatData.chatId}
+                  ref={
+                    isUpTriggerItem
+                      ? (el) => {
+                          if (el) {
+                            if (isUpTriggerItem) {
+                              lastUpChatId.current = upLastItemId;
+                              setTriggerUpItem(el);
+                            }
+                          }
+                        }
+                      : isDownTriggerItem
                         ? (el) => {
                             if (el) {
-                              if (isUpTriggerItem) {
-                                lastUpChatId.current = upLastItemId;
-                                setTriggerUpItem(el);
+                              if (isDownTriggerItem) {
+                                lastDownChatId.current = downLastItemId;
+                                setTriggerDownItem(el);
                               }
                             }
                           }
-                        : isDownTriggerItem
-                          ? (el) => {
-                              if (el) {
-                                if (isDownTriggerItem) {
-                                  lastDownChatId.current = downLastItemId;
-                                  setTriggerDownItem(el);
-                                }
-                              }
-                            }
-                          : null
-                    }
-                    receiverName={curChatData.name}
-                    message={curChatData.message}
-                    images={curChatData.images}
-                    timeText={curChatData.time}
-                    onImageClick={(imageUrl) =>
-                      handleImageClick(imageUrl, curChatData.images || [])
-                    }
-                  />
-                </>
-              </motion.div>
+                        : null
+                  }
+                  receiverName={curChatData.name}
+                  message={curChatData.message}
+                  images={curChatData.images}
+                  timeText={curChatData.time}
+                  onImageClick={(imageUrl) => handleImageClick(imageUrl, curChatData.images || [])}
+                />
+              </>
             );
           } else if (chat.type === ChatType.SEND) {
             const curChatData = chat as SendChatData;
