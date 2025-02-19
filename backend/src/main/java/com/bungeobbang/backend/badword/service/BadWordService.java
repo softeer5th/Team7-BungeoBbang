@@ -61,7 +61,7 @@ public class BadWordService {
                 .filter(badWord -> allowedWords.keySet().stream()
                         .filter(allowedWord -> allowedWord.contains(badWord))
                         .map(allowedWords::get)
-                        .noneMatch(allowedWordCount -> badWords.get(badWord) > allowedWordCount))
+                        .anyMatch(allowedWordCount -> badWords.get(badWord) > allowedWordCount))
                 .findAny()
                 .ifPresent(badWord -> { throw new BadWordException(BADWORD_INCLUDED, badWord); });
     }
