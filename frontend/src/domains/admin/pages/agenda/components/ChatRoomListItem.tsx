@@ -54,6 +54,7 @@ export const ChatRoomListItem = forwardRef<HTMLDivElement, ChatRoomListItemProps
             isBeforeProgress={cardData.progressState === ProgressState.BEFORE}
             onClick={() => {
               const isEnd = cardData.progressState === ProgressState.FINISHED;
+              console.log('isEnd', isEnd);
               navigate(
                 `/agenda/chat/${cardData.roomId}?isEnd=${isEnd}&lastReadChatId=${cardData.lastReadChatId}`,
               );
