@@ -39,11 +39,31 @@ public class BadWordService {
         allowedWordsTrie = new AhoCorasick(allowedWords);
     }
 
+    /**
+     * 입력된 텍스트에서 금칙어를 검사하는 메서드.
+     *
+     * 1. 입력 텍스트를 소문자로 변환하여 일관된 비교를 수행.
+     * 2. `badWordsTrie`를 통해 텍스트에서 금칙어 목록을 찾고, 해당 단어들의 등장 횟수를 저장.
+     * 3. `allowedWordsTrie`를 통해 허용된 단어 목록을 찾고, 해당 단어들의 등장 횟수를 저장.
+     * 4. 금칙어 목록을 순회하면서 아래 조건을 만족하는 경우 예외 발생:
+     *    - 해당 금칙어가 `allowedWords`(허용된 단어 목록) 중 하나에 포함되지 않거나,
+     *    - 포함된 경우라도 `badWord`의 개수가 `allowedWord`의 개수보다 많을 때.
+     * 5. 조건을 만족하는 `badWord`를 발견하는 즉시 `BadWordException`을 발생시킴.
+     *
+     * @param text 검증할 텍스트
+     * @throws BadWordException 금칙어가 포함된 경우 예외 발생
+     */
     public void validate(String text) {
         text = text.toLowerCase();
-        Map<Integer, List<String>> detectedWords = badWordsTrie.searchBadWords(text);
-        Map<Integer, List<String>> allowedWords = allowedWordsTrie.searchBadWords(text);
-        if (detectedWords.size() > allowedWords.size()) throw new BadWordException(BADWORD_INCLUDED);
+        Map<String, Integer> badWords = badWordsTrie.searchBadWords(text);
+        Map<String, Integer> allowedWords = allowedWordsTrie.searchBadWords(text);
+        badWords.keySet().stream()
+                .filter(badWord -> allowedWords.keySet().stream()
+                        .filter(allowedWord -> allowedWord.contains(badWord))
+                        .map(allowedWords::get)
+                        .noneMatch(allowedWordCount -> badWords.get(badWord) > allowedWordCount))
+                .findAny()
+                .ifPresent(badWord -> { throw new BadWordException(BADWORD_INCLUDED, badWord); });
     }
 
     public void validate(String... texts) {
