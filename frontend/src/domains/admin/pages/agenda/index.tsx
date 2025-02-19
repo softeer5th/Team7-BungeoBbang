@@ -154,7 +154,7 @@ const AgendaPage: React.FC = () => {
       const closed = await api.get('/admin/agendas', { params: params });
 
       const newRooms = closed.data.map((res: ServerData) =>
-        mapResponseToChatRoomListCardData(res, status),
+        mapResponseToChatRoomListCardData(res, 'CLOSED'),
       );
 
       setTabContents((prev) => ({
@@ -183,7 +183,9 @@ const AgendaPage: React.FC = () => {
       };
       const closed = await api.get('/admin/agendas', { params: params });
 
-      const newRooms = closed.data.map(mapResponseToChatRoomListCardData);
+      const newRooms = closed.data.map((res: ServerData) =>
+        mapResponseToChatRoomListCardData(res, 'CLOSED'),
+      );
 
       setTabContents((prev) => ({
         ...prev,

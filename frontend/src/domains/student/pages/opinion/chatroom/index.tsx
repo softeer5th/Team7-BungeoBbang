@@ -72,10 +72,10 @@ const OpinionChatPage = () => {
           images: message.images || [],
           createdAt: message.createdAt,
         };
-        if (newChat.type === ChatType.RECEIVE) {
-          setIsRemindEnabled(false);
-          setIsReminded(false);
-        }
+        // if (newChat.type === ChatType.RECEIVE) {
+        //   setIsRemindEnabled(false);
+        //   setIsReminded(false);
+        // }
         if (message.memberId === Number(memberId)) {
           getReloadChatDataFromRecent();
         } else {
