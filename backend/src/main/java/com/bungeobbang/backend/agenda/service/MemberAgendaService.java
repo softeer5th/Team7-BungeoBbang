@@ -161,7 +161,7 @@ public class MemberAgendaService {
                                     .agendaId(lastChat.agendaId())
                                     .lastChatId(lastChat.chatId())
                                     .count(agenda.getCount())
-                                    .isEnd(agenda.getEndDate().isAfter(LocalDate.now()))
+                                    .isEnd(agenda.getEndDate().isBefore(LocalDate.now()) || agenda.isEnd())
                                     .title(agenda.getTitle())
                                     .categoryType(agenda.getCategoryType())
                                     .createdAt(lastChat.createdAt())
