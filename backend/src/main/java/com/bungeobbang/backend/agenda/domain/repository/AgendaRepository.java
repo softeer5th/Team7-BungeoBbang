@@ -25,7 +25,7 @@ public interface AgendaRepository extends JpaRepository<Agenda, Long> {
             select a from Agenda a
                 where a.university.id = :universityId
                 and a.startDate <= current_date
-                and a.endDate > current_date
+                and a.endDate >= current_date
             """)
     List<Agenda> findActiveAgendasByUniversityId(Long universityId);
 
