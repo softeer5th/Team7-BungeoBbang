@@ -72,7 +72,9 @@ const OpinionChatPage = () => {
         } else {
           if (!getHasDownMore() && isWatchingBottom()) {
             getReloadChatDataFromRecent();
+            return;
           }
+          setHasDownMore(true);
           setToastMeesage('새로운 채팅이 도착했습니다.');
         }
       }
