@@ -239,6 +239,7 @@ export const ChatSendField = forwardRef<HTMLDivElement, ChatSendFieldProps>(
                 backgroundColor={
                   sendDisabled ? sendButtonDisabledBackgroundColor : sendButtonBackgroundColor
                 }
+                disabled={sendDisabled || message.length === 0}
               >
                 {isRemindMode ? (
                   <RemindIcon isReminded={isReminded}>
@@ -412,10 +413,10 @@ const SendButtonWrapper = styled.div`
   height: 30px;
 `;
 
-const SendButtonBox = styled.div<{ backgroundColor: string }>`
+const SendButtonBox = styled.div<{ backgroundColor: string; disabled?: boolean }>`
   width: 30px;
   height: 30px;
-  background-color: ${(props) => props.backgroundColor};
+  background-color: ${(props) => (!props.disabled ? props.backgroundColor : '#e0e0e0')};
   border-radius: 50%;
   display: flex;
   align-items: center;
