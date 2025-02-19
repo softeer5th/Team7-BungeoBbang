@@ -18,6 +18,7 @@ import { AgendaDeleteDialog } from './components/AgendaDeleteDialog';
 import useInfiniteScroll from '@/hooks/useInfiniteScroll';
 import { useSocketManager } from '@/hooks/useSocketManager';
 import plusIcon from '@/assets/icons/plus.svg';
+import { motion } from 'framer-motion';
 
 const tabItems: TabBarItemProps[] = [
   {
@@ -154,7 +155,7 @@ const AgendaPage: React.FC = () => {
       const closed = await api.get('/admin/agendas', { params: params });
 
       const newRooms = closed.data.map((res: ServerData) =>
-        mapResponseToChatRoomListCardData(res, status),
+        mapResponseToChatRoomListCardData(res, 'CLOSED'),
       );
 
       setTabContents((prev) => ({
@@ -183,7 +184,9 @@ const AgendaPage: React.FC = () => {
       };
       const closed = await api.get('/admin/agendas', { params: params });
 
-      const newRooms = closed.data.map(mapResponseToChatRoomListCardData);
+      const newRooms = closed.data.map((res: ServerData) =>
+        mapResponseToChatRoomListCardData(res, 'CLOSED'),
+      );
 
       setTabContents((prev) => ({
         ...prev,
@@ -288,26 +291,55 @@ const AgendaPage: React.FC = () => {
                     }
 
                     return (
-                      <ChatRoomListItem
-                        ref={
-                          isTriggerItem
-                            ? tabIndex == 0
-                              ? setProgressTriggerItem
-                              : setCompleteTriggerItem
-                            : null
-                        }
-                        key={c.roomId}
-                        cardData={c}
-                        onCardEdit={() => navigate(`/agenda/create/${c.roomId}`)}
-                        onCardEnd={() => {
-                          setSelectedCardData(c);
-                          setEndDialogShow(true);
+                      <motion.div
+                        initial={{
+                          opacity: 0,
+                          y: 10,
                         }}
-                        onCardDelete={() => {
-                          setSelectedCardData(c);
-                          setDeleteDialogShow(true);
+                        animate={{
+                          opacity: 1,
+                          y: 0,
                         }}
-                      />
+                        transition={{
+                          y: {
+                            duration: 0.5,
+                            ease: [0.45, 0, 0.21, 1],
+                            delay:
+                              (contentIndex + 1) % 2 === 1
+                                ? (0.2 * (contentIndex + 1)) / 2
+                                : (0.2 * contentIndex) / 2,
+                          },
+                          opacity: {
+                            duration: 0.8,
+                            ease: [0.45, 0, 0.21, 1],
+                            delay:
+                              (contentIndex + 1) % 2 === 1
+                                ? (0.2 * (contentIndex + 1)) / 2
+                                : (0.2 * contentIndex) / 2,
+                          },
+                        }}
+                      >
+                        <ChatRoomListItem
+                          ref={
+                            isTriggerItem
+                              ? tabIndex == 0
+                                ? setProgressTriggerItem
+                                : setCompleteTriggerItem
+                              : null
+                          }
+                          key={c.roomId}
+                          cardData={c}
+                          onCardEdit={() => navigate(`/agenda/create/${c.roomId}`)}
+                          onCardEnd={() => {
+                            setSelectedCardData(c);
+                            setEndDialogShow(true);
+                          }}
+                          onCardDelete={() => {
+                            setSelectedCardData(c);
+                            setDeleteDialogShow(true);
+                          }}
+                        />
+                      </motion.div>
                     );
                   })}
                 </S.ChatPreviewList>

@@ -145,205 +145,219 @@ const CreateAgendaPage = () => {
   }, [chatValue]);
 
   return (
-    <S.Container>
-      <S.TopAppBar>
-        <ArrowLeftIcon
-          stroke={theme.colors.grayScale90}
-          width="24px"
-          height="24px"
-          onClick={() => navigate(-1)}
-        />
-        <S.TitleWrapper>
-          <S.TitleText variant="heading3">새 채팅방</S.TitleText>
-        </S.TitleWrapper>
-        <S.RegisterTextButton
-          variant="heading3"
-          textColor={isValidate ? theme.colors.sementicMain : theme.colors.grayScale40}
-          onClick={() => {
-            if (!isValidate) return;
-
-            if (roomId === NEW_CHAT) {
-              submitChatValue();
-            } else {
-              editChatValue();
-            }
-          }}
-        >
-          등록
-        </S.RegisterTextButton>
-      </S.TopAppBar>
-      <S.BodyContainer>
-        <S.TitleContainer>
-          <SubTitleText text="제목" />
-          <CountTextField
-            value={chatValue.title}
-            maxLength={20}
-            placeholder="의견을 받고 싶은 안건을 작성해주세요"
-            onChange={(newTitle) =>
-              setChatValue((prev: ChatCreateData) => ({ ...prev, title: newTitle }))
-            }
+    <motion.div
+      initial={{ y: '100%' }}
+      animate={{ y: 0 }}
+      exit={{ x: '100%' }}
+      transition={{
+        duration: 0.5,
+        ease: [0.45, 0, 0.21, 1],
+      }}
+    >
+      <S.Container>
+        <S.TopAppBar>
+          <ArrowLeftIcon
+            stroke={theme.colors.grayScale90}
+            width="24px"
+            height="24px"
+            onClick={() => navigate(-1)}
           />
-        </S.TitleContainer>
+          <S.TitleWrapper>
+            <S.TitleText variant="heading3">새 채팅방</S.TitleText>
+          </S.TitleWrapper>
+          <S.RegisterTextButton
+            variant="heading3"
+            textColor={isValidate ? theme.colors.sementicMain : theme.colors.grayScale40}
+            onClick={() => {
+              if (!isValidate) return;
 
-        <S.CategoryContainer>
-          <SubTitleText text="카테고리" />
-          <TextField
-            value={chatValue.category?.label ?? ''}
-            placeholder="카테고리를 선택해주세요"
-            focusable={false}
-            onClick={() => setCategoryBottomSheetOpen(true)}
-          />
-        </S.CategoryContainer>
-
-        <S.DurationContainer>
-          <SubTitleText text="기간 설정" />
-          <TextField
-            disabled={roomId !== NEW_CHAT}
-            value={
-              chatValue.startDate && chatValue.endDate
-                ? `${formatDate(chatValue.startDate)} - ${formatDate(chatValue.endDate)}`
-                : ''
-            }
-            focusable={false}
-            placeholder="기간을 선택해주세요"
-            onClick={() => setDurationBottomSheetOpen(true)}
-          />
-          <S.InfoTextContainer>
-            <InfoIcon width="16px" height="16px" stroke={theme.colors.grayScale60} />
-            <S.InfoText variant="caption2">
-              설정한 날짜의 자정에 개설되며, 오늘 날짜는 즉시 개설됩니다.
-            </S.InfoText>
-          </S.InfoTextContainer>
-        </S.DurationContainer>
-        <SubTitleText text="내용" />
-        <S.DescriptionContainer>
-          <CountTextField
-            rows={13}
-            value={chatValue.description}
-            maxLength={500}
-            placeholder="내용을 입력해주세요."
-            onChange={(newDescription) =>
-              setChatValue((prev: ChatCreateData) => ({ ...prev, description: newDescription }))
-            }
-          />
-        </S.DescriptionContainer>
-
-        <S.ImageContainer>
-          <S.ImageAddContainer>
-            <CameraIcon
-              width="32px"
-              height="32px"
-              fill={theme.colors.grayScale50}
-              stroke={theme.colors.grayScale50}
+              if (roomId === NEW_CHAT) {
+                submitChatValue();
+              } else {
+                editChatValue();
+              }
+            }}
+          >
+            등록
+          </S.RegisterTextButton>
+        </S.TopAppBar>
+        <S.BodyContainer>
+          <S.TitleContainer>
+            <SubTitleText text="제목" />
+            <CountTextField
+              value={chatValue.title}
+              maxLength={20}
+              placeholder="의견을 받고 싶은 안건을 작성해주세요"
+              onChange={(newTitle) =>
+                setChatValue((prev: ChatCreateData) => ({ ...prev, title: newTitle }))
+              }
             />
-            <S.CountTextContainer>
-              <S.CurrentImageCountText
-                variant="heading4"
-                textColor={
-                  chatValue.images.length === 0
-                    ? theme.colors.grayScale40
-                    : theme.colors.sementicMain
-                }
-              >
-                {chatValue.images.length}
-              </S.CurrentImageCountText>
-              <S.TotalImageCountText variant="heading4">/5</S.TotalImageCountText>
-            </S.CountTextContainer>
-            <S.HiddenFileInput
-              type="file"
-              accept="image/*"
-              multiple
-              onChange={(event) => {
-                if (event.target.files && event.target.files.length > 0) {
-                  handleImageUpload(event.target.files);
-                }
-              }}
-            />
-          </S.ImageAddContainer>
-          <S.ImageList>
-            <AnimatePresence>
-              {chatValue.images.map((image, index) => {
-                return (
-                  <motion.div
-                    key={image}
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -20 }}
-                    transition={{ duration: 0.2, ease: 'easeInOut' }}
-                  >
-                    <S.ImageItem>
-                      <S.DeleteIconBox
-                        onClick={() => {
-                          setChatValue((prev) => ({
-                            ...prev,
-                            images: prev.images.filter((_, i) => i !== index),
-                          }));
-                        }}
-                      >
-                        <DeleteIcon
-                          width="16px"
-                          height="16px"
-                          stroke={theme.colors.grayScaleWhite}
-                        />
-                      </S.DeleteIconBox>
-                      <S.ImageBox src={image}></S.ImageBox>
-                    </S.ImageItem>
-                  </motion.div>
-                );
-              })}
-            </AnimatePresence>
-          </S.ImageList>
-        </S.ImageContainer>
-      </S.BodyContainer>
+          </S.TitleContainer>
 
-      <BottomSheet
-        isOpen={isCategoryBottomSheetOpen}
-        onClose={() => {
-          setCategoryBottomSheetOpen(false);
-        }}
-      >
-        <CategoryContent
-          selectedType={chatValue.category}
-          onItemClick={(type: ChatCategoryType) => {
-            setChatValue((prev) => ({ ...prev, category: type }));
+          <S.CategoryContainer>
+            <SubTitleText text="카테고리" />
+            <TextField
+              value={chatValue.category?.label ?? ''}
+              placeholder="카테고리를 선택해주세요"
+              focusable={false}
+              onClick={() => setCategoryBottomSheetOpen(true)}
+            />
+          </S.CategoryContainer>
+
+          <S.DurationContainer>
+            <SubTitleText text="기간 설정" />
+            <TextField
+              disabled={roomId !== NEW_CHAT}
+              value={
+                chatValue.startDate && chatValue.endDate
+                  ? `${formatDate(chatValue.startDate)} - ${formatDate(chatValue.endDate)}`
+                  : ''
+              }
+              focusable={false}
+              placeholder="기간을 선택해주세요"
+              onClick={() => setDurationBottomSheetOpen(true)}
+            />
+            <S.InfoTextContainer>
+              <InfoIcon width="16px" height="16px" stroke={theme.colors.grayScale60} />
+              <S.InfoText variant="caption2">
+                설정한 날짜의 자정에 개설되며, 오늘 날짜는 즉시 개설됩니다.
+              </S.InfoText>
+            </S.InfoTextContainer>
+          </S.DurationContainer>
+          <SubTitleText text="내용" />
+          <S.DescriptionContainer>
+            <CountTextField
+              rows={13}
+              value={chatValue.description}
+              maxLength={500}
+              placeholder="내용을 입력해주세요."
+              onChange={(newDescription) =>
+                setChatValue((prev: ChatCreateData) => ({ ...prev, description: newDescription }))
+              }
+            />
+          </S.DescriptionContainer>
+
+          <S.ImageContainer>
+            <S.ImageAddContainer>
+              <CameraIcon
+                width="32px"
+                height="32px"
+                fill={theme.colors.grayScale50}
+                stroke={theme.colors.grayScale50}
+              />
+              <S.CountTextContainer>
+                <S.CurrentImageCountText
+                  variant="heading4"
+                  textColor={
+                    chatValue.images.length === 0
+                      ? theme.colors.grayScale40
+                      : theme.colors.sementicMain
+                  }
+                >
+                  {chatValue.images.length}
+                </S.CurrentImageCountText>
+                <S.TotalImageCountText variant="heading4">/5</S.TotalImageCountText>
+              </S.CountTextContainer>
+              <S.HiddenFileInput
+                type="file"
+                accept="image/*"
+                multiple
+                onChange={(event) => {
+                  if (event.target.files && event.target.files.length > 0) {
+                    handleImageUpload(event.target.files);
+                  }
+                }}
+              />
+            </S.ImageAddContainer>
+            <S.ImageList>
+              <AnimatePresence>
+                {chatValue.images.map((image, index) => {
+                  return (
+                    <motion.div
+                      key={image}
+                      initial={{ opacity: 0, x: 20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: -20 }}
+                      transition={{ duration: 0.2, ease: 'easeInOut' }}
+                    >
+                      <S.ImageItem>
+                        <S.DeleteIconBox
+                          onClick={() => {
+                            setChatValue((prev) => ({
+                              ...prev,
+                              images: prev.images.filter((_, i) => i !== index),
+                            }));
+                          }}
+                        >
+                          <DeleteIcon
+                            width="16px"
+                            height="16px"
+                            stroke={theme.colors.grayScaleWhite}
+                          />
+                        </S.DeleteIconBox>
+                        <S.ImageBox src={image}></S.ImageBox>
+                      </S.ImageItem>
+                    </motion.div>
+                  );
+                })}
+              </AnimatePresence>
+            </S.ImageList>
+          </S.ImageContainer>
+        </S.BodyContainer>
+
+        <BottomSheet
+          isOpen={isCategoryBottomSheetOpen}
+          onClose={() => {
             setCategoryBottomSheetOpen(false);
           }}
-        />
-      </BottomSheet>
+        >
+          <CategoryContent
+            selectedType={chatValue.category}
+            onItemClick={(type: ChatCategoryType) => {
+              setChatValue((prev) => ({ ...prev, category: type }));
+              setCategoryBottomSheetOpen(false);
+            }}
+          />
+        </BottomSheet>
 
-      <BottomSheet
-        isOpen={isDurationBottomSheetOpen}
-        onClose={() => {
-          setDurationBottomSheetOpen(false);
-        }}
-      >
-        <DurationContent
-          currentDate={
-            chatValue.startDate && chatValue.endDate && [chatValue.startDate, chatValue.endDate]
-          }
-          onDurationSelected={(start: Date, end: Date) => {
+        <BottomSheet
+          isOpen={isDurationBottomSheetOpen}
+          onClose={() => {
             setDurationBottomSheetOpen(false);
-            setChatValue((prev: ChatCreateData) => ({ ...prev, startDate: start, endDate: end }));
           }}
-        />
-      </BottomSheet>
+        >
+          <DurationContent
+            currentDate={
+              chatValue.startDate && chatValue.endDate && [chatValue.startDate, chatValue.endDate]
+            }
+            onDurationSelected={(start: Date, end: Date) => {
+              setDurationBottomSheetOpen(false);
+              setChatValue((prev: ChatCreateData) => ({
+                ...prev,
+                startDate: start,
+                endDate: end,
+              }));
+            }}
+          />
+        </BottomSheet>
 
-      {showSizeDialog && (
-        <ImageFileSizeDialog onConfirm={closeSizeDialog} onDismiss={closeSizeDialog} />
-      )}
-      {isSameDateError && (
-        <SameDateErrorDialog
-          onConfirm={() => setSameDateError(false)}
-          onDismiss={() => setSameDateError(false)}
-        />
-      )}
-      {isBadWordError && (
-        <BadWordErrorDialog
-          onConfirm={() => setBadWordError(false)}
-          onDismiss={() => setBadWordError(false)}
-        />
-      )}
-    </S.Container>
+        {showSizeDialog && (
+          <ImageFileSizeDialog onConfirm={closeSizeDialog} onDismiss={closeSizeDialog} />
+        )}
+        {isSameDateError && (
+          <SameDateErrorDialog
+            onConfirm={() => setSameDateError(false)}
+            onDismiss={() => setSameDateError(false)}
+          />
+        )}
+        {isBadWordError && (
+          <BadWordErrorDialog
+            onConfirm={() => setBadWordError(false)}
+            onDismiss={() => setBadWordError(false)}
+          />
+        )}
+      </S.Container>
+    </motion.div>
   );
 };
 
