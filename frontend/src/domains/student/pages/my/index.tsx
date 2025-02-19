@@ -20,30 +20,30 @@ import { EmptyContent } from '@/components/EmptyContent.tsx';
 import { useSocketStore, ChatMessage } from '@/store/socketStore.ts';
 import { LogoutDialog } from '@/components/Dialog/LogoutDialog.tsx';
 
+const tabItems: TabBarItemProps[] = [
+  {
+    itemId: 'opinion',
+    title: '말해요',
+  },
+  {
+    itemId: 'agenda',
+    title: '답해요',
+  },
+];
+
 const MyPage = () => {
   const theme = useTheme();
   const navigate = useNavigate();
   const { subscribe } = useSocketStore();
 
   const [activeIndex, setActiveIndex] = useState(() => {
-    return Number(sessionStorage.getItem('activeTabIndex')) || 0;
+    return Number(sessionStorage.getItem('activeTabIndex')) || 0;;
   });
+
   const containerRef = useRef<HTMLDivElement>(null);
-  const [startX, setStartX] = useState(0);
   const [translateX, setTranslateX] = useState(0);
   const [tabBarContent, setTabBarContent] = useState<Record<string, ChatPreviewData[]>>({});
   const [isLogoutDialogOpen, setLogoutDialogOpen] = useState(false);
-
-  const tabItems: TabBarItemProps[] = [
-    {
-      itemId: 'opinion',
-      title: '말해요',
-    },
-    {
-      itemId: 'agenda',
-      title: '답해요',
-    },
-  ];
 
   const fetchChatRooms = async () => {
     const result: Record<string, ChatPreviewData[]> = {
@@ -72,39 +72,38 @@ const MyPage = () => {
 
   useEffect(() => {
     fetchChatRooms();
+    scrollTabContent(activeIndex);
   }, []);
 
-  const handleTouchStart = (e: React.TouchEvent) => {
-    setStartX(e.touches[0].clientX);
-  };
-
-  const handleTouchEnd = (e: React.TouchEvent) => {
-    const width = containerRef.current?.offsetWidth || 375;
-    const threshold = width / 2;
-
-    const deltaX = e.changedTouches[0].clientX - startX;
-
-    let newIndex = activeIndex;
-
-    if (Math.abs(deltaX) > threshold) {
-      if (deltaX < 0 && activeIndex < tabItems.length - 1) {
-        newIndex = activeIndex + 1;
-      } else if (deltaX > 0 && activeIndex > 0) {
-        newIndex = activeIndex - 1;
-      }
+  const handleTabContentScroll = () => {
+    if (containerRef.current) {
+      const width = containerRef.current.offsetWidth;
+      const scrollLeft = containerRef.current.scrollLeft;
+      const index = Math.round(scrollLeft / width);
+      setActiveIndex(index);
     }
-    setActiveIndex(newIndex);
   };
 
-  useEffect(() => {
-    const scrollLeft = containerRef.current?.scrollLeft || 0;
+  const handleTabItemClick = (itemId: string) => {
+    const newActiveIndex= tabItems.findIndex((item) => item.itemId === itemId);
 
-    const width = containerRef.current?.offsetWidth || 375;
+    setActiveIndex(newActiveIndex);
 
-    setTranslateX(scrollLeft + -activeIndex * width);
+    scrollTabContent(newActiveIndex);
+  }
 
-    sessionStorage.setItem('activeTabIndex', String(activeIndex));
-  }, [activeIndex]);
+  const scrollTabContent = (index: number) => {
+
+    if(containerRef.current){
+
+      const scrollLeft = containerRef.current?.scrollLeft;
+      const width = containerRef.current?.offsetWidth;
+  
+      setTranslateX(scrollLeft + -index * width);
+  
+      sessionStorage.setItem('activeTabIndex', String(index));
+    }
+  }
 
   const handleNewMessage = useCallback((message: ChatMessage) => {
     setTabBarContent((prev) => {
@@ -157,14 +156,13 @@ const MyPage = () => {
       <TabBar
         currentDestination={tabItems[activeIndex].itemId}
         items={tabItems}
-        onItemClick={(itemId) =>
-          setActiveIndex(tabItems.findIndex((item) => item.itemId === itemId))
-        }
+        onItemClick={handleTabItemClick}
       />
       <S.TabContentContainer
         ref={containerRef}
-        onTouchStart={handleTouchStart}
-        onTouchEnd={handleTouchEnd}
+        onScroll={handleTabContentScroll}
+        // onTouchStart={handleTouchStart}
+        // onTouchEnd={handleTouchEnd}
       >
         {tabItems.map((tab) => {
           const content = tabBarContent[tab.itemId] || [];

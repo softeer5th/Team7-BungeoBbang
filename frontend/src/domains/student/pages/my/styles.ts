@@ -13,8 +13,9 @@ export const Container = styled.div`
 export const TabContentContainer = styled.div`
   flex: 1;
   display: flex;
-  overflow: hidden;
-
+  scroll-snap-type: x mandatory;
+  overflow-x: scroll;
+  
   &::-webkit-scrollbar {
     display: none;
   }
@@ -25,6 +26,8 @@ export const TabContent = styled.div<{
 }>`
   min-width: 100%;
   max-width: 100%;
+
+  scroll-snap-align: center;
 
   transform: translateX(${(props) => props.transX}px);
   transition: transform 0.3s ease;
