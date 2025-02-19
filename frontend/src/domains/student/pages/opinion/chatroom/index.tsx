@@ -36,6 +36,7 @@ import {
   RECENT_CHAT_ID,
 } from '@/utils/chat/chat_const.ts';
 import { Dialog } from '@/components/Dialog/Dialog.tsx';
+import { motion } from 'framer-motion';
 
 const OpinionChatPage = () => {
   const chatSendFieldRef = useRef<HTMLDivElement>(null);
@@ -369,46 +370,50 @@ const OpinionChatPage = () => {
             downLastItemId = curChatData.chatId;
 
             return (
-              <>
-                {(() => {
-                  const date = addDateDivider(
-                    curChatData,
-                    chatIndex > 0 ? chatData[chatIndex - 1] : null,
-                  );
+              <motion.div initial={{ opacity: 0, y: 30 }}>
+                <>
+                  {(() => {
+                    const date = addDateDivider(
+                      curChatData,
+                      chatIndex > 0 ? chatData[chatIndex - 1] : null,
+                    );
 
-                  return date ? <TextBadge text={date} /> : null;
-                })()}
-                <ReceiverChat
-                  key={curChatData.chatId}
-                  chatId={curChatData.chatId}
-                  ref={
-                    isUpTriggerItem
-                      ? (el) => {
-                          if (el) {
-                            if (isUpTriggerItem) {
-                              lastUpChatId.current = upLastItemId;
-                              setTriggerUpItem(el);
-                            }
-                          }
-                        }
-                      : isDownTriggerItem
+                    return date ? <TextBadge text={date} /> : null;
+                  })()}
+                  <ReceiverChat
+                    key={curChatData.chatId}
+                    chatId={curChatData.chatId}
+                    ref={
+                      isUpTriggerItem
                         ? (el) => {
                             if (el) {
-                              if (isDownTriggerItem) {
-                                lastDownChatId.current = downLastItemId;
-                                setTriggerDownItem(el);
+                              if (isUpTriggerItem) {
+                                lastUpChatId.current = upLastItemId;
+                                setTriggerUpItem(el);
                               }
                             }
                           }
-                        : null
-                  }
-                  receiverName={curChatData.name}
-                  message={curChatData.message}
-                  images={curChatData.images}
-                  timeText={curChatData.time}
-                  onImageClick={(imageUrl) => handleImageClick(imageUrl, curChatData.images || [])}
-                />
-              </>
+                        : isDownTriggerItem
+                          ? (el) => {
+                              if (el) {
+                                if (isDownTriggerItem) {
+                                  lastDownChatId.current = downLastItemId;
+                                  setTriggerDownItem(el);
+                                }
+                              }
+                            }
+                          : null
+                    }
+                    receiverName={curChatData.name}
+                    message={curChatData.message}
+                    images={curChatData.images}
+                    timeText={curChatData.time}
+                    onImageClick={(imageUrl) =>
+                      handleImageClick(imageUrl, curChatData.images || [])
+                    }
+                  />
+                </>
+              </motion.div>
             );
           } else if (chat.type === ChatType.SEND) {
             const curChatData = chat as SendChatData;
