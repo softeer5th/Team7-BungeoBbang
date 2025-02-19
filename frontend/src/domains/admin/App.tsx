@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import AdminLogin from './pages/login';
 import AgendaPage from './pages/agenda';
 import AgendaChatPage from './pages/agenda/chat';
@@ -11,9 +11,11 @@ import { ErrorProvider, useError } from '@/contexts/ErrorContext';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { useEffect } from 'react';
 import { setErrorHandler } from '@/utils/errorHandler';
+import { AnimatePresence } from 'framer-motion';
 
 function AppContent() {
   const { showError } = useError();
+  const location = useLocation();
 
   useEffect(() => {
     setErrorHandler(showError);
@@ -21,8 +23,8 @@ function AppContent() {
 
   return (
     <ErrorBoundary onError={showError}>
-      <BrowserRouter>
-        <Routes>
+      <AnimatePresence>
+        <Routes location={location} key={location.pathname}>
           {/* Public routes */}
           <Route path="/" element={<AdminLogin />} />
 
@@ -36,7 +38,7 @@ function AppContent() {
             <Route path="/statistics" element={<StatisticsPage />} />
           </Route>
         </Routes>
-      </BrowserRouter>
+      </AnimatePresence>
     </ErrorBoundary>
   );
 }
@@ -44,7 +46,9 @@ function AppContent() {
 function AdminApp() {
   return (
     <ErrorProvider>
-      <AppContent />
+      <BrowserRouter>
+        <AppContent />
+      </BrowserRouter>
     </ErrorProvider>
   );
 }
