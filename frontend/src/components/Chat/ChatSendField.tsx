@@ -324,6 +324,7 @@ const TextFieldBox = styled.div<{
   width: 100%;
   max-height: 174px;
   padding: 6px 4px 6px 12px;
+  box-sizing: border-box;
   background-color: ${(props) => props.backgroundColor};
   border: ${(props) =>
     `${props.border?.borderWidth || '1px'} solid ${props.border?.borderColor || '#E0E0E0'}`};

@@ -56,10 +56,6 @@ const ButtonContainer = styled.div<{
         })
       : 'border: none;'}
 
-  border: ${(props) =>
-    props.border
-      ? `${props.border?.borderWidth || '1px'} solid ${props.border?.borderColor || '#1F87FF'}`
-      : `none`};
   border-radius: ${(props) => props.border?.borderRadius || '12px'};
   cursor: ${(props) => (props.disabled ? 'not-allowed' : 'pointer')};
 `;
