@@ -8,6 +8,7 @@ export const ChatRoomListItem = styled.div`
   aspect-ratio: 1/1;
   display: flex;
   flex-direction: column;
+  width: 100%;
 `;
 
 export const DDayTextContainer = styled.div`
@@ -57,6 +58,9 @@ export const CardTitleText = styled(Typography)<{
   color: ${(props) =>
     props.isInProgress ? props.theme.colors.grayScale100 : props.theme.colors.grayScale30};
   margin-top: 6px;
+  width: 100%;
+  word-break: break-word;
+  overflow: hidden;
 `;
 
 export const JoinContainer = styled.div`

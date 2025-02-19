@@ -79,6 +79,15 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
       setCurrentImageList(images);
     };
 
+    const handleImageChange = (newIndex: number) => {
+      if (selectedImage && currentImageList.length > 0) {
+        setSelectedImage({
+          url: currentImageList[newIndex],
+          index: newIndex,
+        });
+      }
+    };
+
     const handleMessageReceive = useCallback(
       (message: ChatMessage) => {
         console.log('message', message);
@@ -466,10 +475,12 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
         )}
         {selectedImage && (
           <ImagePreview
-            imageUrl={selectedImage.url}
+            // imageUrl={selectedImage.url}
             currentIndex={selectedImage.index}
             totalImages={currentImageList.length}
             onClose={() => setSelectedImage(null)}
+            onChangeImage={handleImageChange}
+            imageList={currentImageList}
           />
         )}
         {toastMessage && (

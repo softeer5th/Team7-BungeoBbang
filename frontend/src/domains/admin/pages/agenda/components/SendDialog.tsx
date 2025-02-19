@@ -3,6 +3,7 @@ import parse from 'html-react-parser';
 import styled, { useTheme } from 'styled-components';
 import Typography from '@/styles/Typography';
 import { Button } from '@/components/Button';
+import { useEffect } from 'react';
 
 interface SendDialogProps {
   message: string;
@@ -18,6 +19,20 @@ export const SendDialog: React.FC<SendDialogProps> = ({
   onDismiss = () => {},
 }) => {
   const theme = useTheme();
+
+  // 학생회 채팅 엔터로
+  const handleKeyDown = (e: KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      onConfirm();
+    }
+  };
+
+  useEffect(() => {
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [onConfirm]);
 
   const portalRoot = document.getElementById('portal-root');
   if (!portalRoot) {
