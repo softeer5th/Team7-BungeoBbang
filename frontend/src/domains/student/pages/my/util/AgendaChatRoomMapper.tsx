@@ -55,7 +55,7 @@ export const mapAgendaResponseToChatPreviewData = (response: AgendaServerData): 
     lastSendTime: response.lastChat.createdAt,
     lastMessage: response.lastChat.content,
     numOfJoin: response.agenda.count,
-    isInProgress: response.agenda.isEnd,
+    isInProgress: !response.agenda.isEnd,
     hasNewChat: response.hasNewChat,
     lastChatId: response.lastReadChatId,
   };
