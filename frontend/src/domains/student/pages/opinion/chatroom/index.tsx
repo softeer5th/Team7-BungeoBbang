@@ -160,7 +160,6 @@ const OpinionChatPage = () => {
   const isInitialRecentLoading = useRef<boolean>(false);
   const isUpDirection = useRef<boolean>(false);
   const isDownDirection = useRef<boolean>(false);
-  // const isLiveReceive = useRef<boolean>(false);
 
   const isUpOverflow = useRef<boolean>(false);
   const isDownOverflow = useRef<boolean>(false);
@@ -230,7 +229,7 @@ const OpinionChatPage = () => {
 
       const formattedData = formatChatData(response.data, false);
 
-      setHasDownMore(false);
+      // setHasDownMore(false);
       setChatData(formattedData);
       enterResponse.data.isReminded && setIsReminded(true);
       setChatRoomInfo({
@@ -254,7 +253,7 @@ const OpinionChatPage = () => {
 
       const formattedData = formatChatData(response.data, false);
 
-      setHasDownMore(false);
+      // setHasDownMore(false);
       setChatData(formattedData);
     } catch (error) {
       console.error('fail to get chat data', error);
@@ -317,15 +316,21 @@ const OpinionChatPage = () => {
     }
   };
 
-  const { setTriggerUpItem, setTriggerDownItem, getHasDownMore, setHasUpMore, setHasDownMore } =
-    useInfiniteScroll({
-      initialFetch: getInitialChatData,
-      fetchUpMore: getMoreUpChatData,
-      fetchDownMore: getMoreDownChatData,
-    });
+  const {
+    setTriggerUpItem,
+    setTriggerDownItem,
+    getHasUpMore,
+    getHasDownMore,
+    setHasUpMore,
+    setHasDownMore,
+  } = useInfiniteScroll({
+    initialFetch: getInitialChatData,
+    fetchUpMore: getMoreUpChatData,
+    fetchDownMore: getMoreDownChatData,
+  });
 
   useLayoutEffect(() => {
-    if (!elementRef.current) return;
+    if (!elementRef.current || chatData.length === 0) return;
     console.log('getchasdata', chatData);
 
     if (isInitialTopLoading.current === true) {
@@ -342,6 +347,7 @@ const OpinionChatPage = () => {
     }
 
     if (isUpDirection.current === true) {
+      console.log('up!');
       if (isUpOverflow.current === true) {
         restoreScrollTopFromUp();
         isUpOverflow.current = false;
@@ -364,6 +370,7 @@ const OpinionChatPage = () => {
     }
 
     if (isDownDirection.current) {
+      console.log('down!');
       if (isDownOverflow.current === true) {
         // console.log("down 호출");
         restoreScrollTopFromDown();
@@ -402,7 +409,7 @@ const OpinionChatPage = () => {
       />
       <S.ChatList ref={elementRef}>
         {chatData.map((chat, chatIndex) => {
-          const isUpTriggerItem = chatIndex === FIRST_REMAIN_ITEMS;
+          const isUpTriggerItem = chatIndex === FIRST_REMAIN_ITEMS && getHasUpMore();
           const isDownTriggerItem = chatIndex === chatData.length - LAST_REMAIN_ITEMS;
 
           if (chat.type === ChatType.RECEIVE) {

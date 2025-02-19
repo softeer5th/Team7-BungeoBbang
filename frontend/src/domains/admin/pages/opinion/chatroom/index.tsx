@@ -56,7 +56,6 @@ const OpinionChatPage = () => {
   const handleMessageReceive = useCallback(
     (message: ChatMessage) => {
       if (message.roomType === 'OPINION' && message.opinionId === Number(roomId)) {
-        console.log('message1213', getHasDownMore());
         // const newChat = {
         //   type: message.adminId === Number(memberId) ? ChatType.SEND : ChatType.RECEIVE,
         //   message: message.message,
@@ -278,12 +277,18 @@ const OpinionChatPage = () => {
     }
   };
 
-  const { setTriggerUpItem, setTriggerDownItem, getHasDownMore, setHasUpMore, setHasDownMore } =
-    useInfiniteScroll({
-      initialFetch: getInitialChatData,
-      fetchUpMore: getMoreUpChatData,
-      fetchDownMore: getMoreDownChatData,
-    });
+  const {
+    setTriggerUpItem,
+    setTriggerDownItem,
+    getHasUpMore,
+    getHasDownMore,
+    setHasUpMore,
+    setHasDownMore,
+  } = useInfiniteScroll({
+    initialFetch: getInitialChatData,
+    fetchUpMore: getMoreUpChatData,
+    fetchDownMore: getMoreDownChatData,
+  });
 
   useLayoutEffect(() => {
     if (!elementRef.current || chatData.length === 0) return;
@@ -358,7 +363,7 @@ const OpinionChatPage = () => {
 
       <S.ChatList ref={elementRef}>
         {chatData.map((chat, index) => {
-          const isUpTriggerItem = index === FIRST_REMAIN_ITEMS;
+          const isUpTriggerItem = index === FIRST_REMAIN_ITEMS && getHasUpMore();
           const isDownTriggerItem = index === chatData.length - LAST_REMAIN_ITEMS;
 
           if (chat.type === ChatType.RECEIVE) {
