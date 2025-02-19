@@ -293,12 +293,18 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
       }
     };
 
-    const { setTriggerUpItem, setTriggerDownItem, getHasDownMore, setHasUpMore, setHasDownMore } =
-      useInfiniteScroll({
-        initialFetch: getInitialChatData,
-        fetchUpMore: getMoreUpChatData,
-        fetchDownMore: getMoreDownChatData,
-      });
+    const {
+      setTriggerUpItem,
+      setTriggerDownItem,
+      getHasUpMore,
+      getHasDownMore,
+      setHasUpMore,
+      setHasDownMore,
+    } = useInfiniteScroll({
+      initialFetch: getInitialChatData,
+      fetchUpMore: getMoreUpChatData,
+      fetchDownMore: getMoreDownChatData,
+    });
 
     useLayoutEffect(() => {
       if (!elementRef.current || chatData.length === 0) return;
@@ -377,7 +383,7 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
         />
         <S.ChatList ref={elementRef}>
           {chatData.map((chat, chatIndex) => {
-            const isUpTriggerItem = chatIndex === FIRST_REMAIN_ITEMS;
+            const isUpTriggerItem = chatIndex === FIRST_REMAIN_ITEMS && getHasUpMore();
             const isDownTriggerItem = chatIndex === chatData.length - LAST_REMAIN_ITEMS;
 
             if (chat.type === ChatType.RECEIVE) {
