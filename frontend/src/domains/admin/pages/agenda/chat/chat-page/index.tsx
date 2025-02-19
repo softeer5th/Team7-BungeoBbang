@@ -499,6 +499,7 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
                     return date ? <TextBadge text={date} /> : null;
                   })()}
                   <SenderChat
+                    key={curChatData.chatId}
                     chatId={curChatData.chatId}
                     ref={
                       isUpTriggerItem
