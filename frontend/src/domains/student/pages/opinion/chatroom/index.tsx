@@ -254,7 +254,8 @@ const OpinionChatPage = () => {
 
       const formattedData = formatChatData(response.data, false);
 
-      // setHasDownMore(false);
+      setHasUpMore(true);
+      setHasDownMore(false);
       setChatData(formattedData);
     } catch (error) {
       console.error('fail to get chat data', error);

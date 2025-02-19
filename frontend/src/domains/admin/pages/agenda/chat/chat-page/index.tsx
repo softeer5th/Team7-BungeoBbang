@@ -247,10 +247,11 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
           },
         });
 
-        console.log('responsesseee', response);
+        console.log('reload responsesseee', response);
 
         const formattedData = formatChatData(response.data, true);
 
+        setHasUpMore(true);
         setHasDownMore(false);
         setChatData(formattedData);
       } catch (error) {

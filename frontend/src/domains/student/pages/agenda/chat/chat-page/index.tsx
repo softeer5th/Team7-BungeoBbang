@@ -240,6 +240,7 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
 
         const formattedData = formatChatData(response.data, false);
 
+        setHasUpMore(true);
         setHasDownMore(false);
         setChatData(formattedData);
       } catch (error) {
