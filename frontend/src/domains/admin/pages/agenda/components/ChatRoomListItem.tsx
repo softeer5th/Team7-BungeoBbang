@@ -154,6 +154,8 @@ const TitleText = styled(Typography)`
   -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
+  word-break: break-word;
+  width: 100%;
 `;
 
 const DateContainer = styled.div`

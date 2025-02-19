@@ -49,7 +49,7 @@ const OpinionEntryPage = () => {
 
       <S.OpinionEntryContainer>
         <motion.div
-          initial={{ opacity: 0, y: -57 }}
+          initial={{ opacity: 0, y: 57 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, delay: 0.1, ease: 'easeInOut' }}
         >
@@ -74,7 +74,7 @@ const OpinionEntryPage = () => {
         {showStatistic && (
           <S.StatisticWrapper>
             <motion.div
-              initial={{ opacity: 0, y: -85 }}
+              initial={{ opacity: 0, y: 85 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.9, ease: 'easeInOut' }}
             >
@@ -93,7 +93,7 @@ const OpinionEntryPage = () => {
               </S.StatisticContainer>
             </motion.div>
             <motion.div
-              initial={{ opacity: 0, y: -85 }}
+              initial={{ opacity: 0, y: 85 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.9, ease: 'easeInOut' }}
             >

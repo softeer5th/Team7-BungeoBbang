@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { ProtectedRoute } from '@/routes/StudentProtectedRoute';
 import LoginPage from './pages/login';
 import OAuthCallback from './pages/oauth/callback';
@@ -15,9 +15,11 @@ import { ErrorProvider, useError } from '@/contexts/ErrorContext';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { useEffect } from 'react';
 import { setErrorHandler } from '@/utils/errorHandler';
+import { AnimatePresence } from 'framer-motion';
 
 function AppContent() {
   const { showError } = useError();
+  const location = useLocation();
 
   useEffect(() => {
     setErrorHandler(showError);
@@ -25,8 +27,8 @@ function AppContent() {
 
   return (
     <ErrorBoundary onError={showError}>
-      <BrowserRouter>
-        <Routes>
+      <AnimatePresence>
+        <Routes location={location} key={location.pathname}>
           {/* Public routes */}
           <Route path="/" element={<LoginPage />} />
           <Route path="/kakao/redirect" element={<OAuthCallback />} />
@@ -45,7 +47,7 @@ function AppContent() {
             <Route path="/opinion/chat/:roomId" element={<OpinionChatPage />} />
           </Route>
         </Routes>
-      </BrowserRouter>
+      </AnimatePresence>
     </ErrorBoundary>
   );
 }
@@ -53,7 +55,9 @@ function AppContent() {
 function StudentApp() {
   return (
     <ErrorProvider>
-      <AppContent />
+      <BrowserRouter>
+        <AppContent />
+      </BrowserRouter>
     </ErrorProvider>
   );
 }
