@@ -425,6 +425,7 @@ const SendButtonBox = styled.div<{ backgroundColor: string; disabled?: boolean }
   position: absolute;
   right: 4px;
   bottom: 6px;
+  transition: background-color 0.3s cubic-bezier(0.65, 0, 0.35, 1);
 `;
 
 const RemindIcon = styled.div<{ isReminded?: boolean }>`
