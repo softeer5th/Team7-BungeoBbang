@@ -8,7 +8,7 @@ interface InfiniteScrollOptions {
 }
 
 const useInfiniteScroll = ({
-  threshold = 1.0,
+  threshold = 0.5,
   initialFetch,
   fetchUpMore,
   fetchDownMore,
@@ -25,14 +25,17 @@ const useInfiniteScroll = ({
 
   const setHasUpMore = (newHasUpMore: boolean) => {
     hasUpMore.current = newHasUpMore;
+    // console.log("hasupmore", hasUpMore.current);
   };
 
   const setHasDownMore = (newHasDownMore: boolean) => {
     hasDownMore.current = newHasDownMore;
+    // console.log("hasdownmore", hasDownMore.current);
   };
 
   const setTriggerUpItem = (element: HTMLDivElement) => {
     if (upObserver.current && element) {
+      // console.log("up item~~", element);
       upObserver.current.disconnect();
       upObserver.current.observe(element);
       upTriggerRef.current = element;
@@ -54,7 +57,9 @@ const useInfiniteScroll = ({
       upObserver.current = new IntersectionObserver(
         (entries) => {
           const [entry] = entries;
-          if (entry.isIntersecting && hasUpMore.current && fetchUpMore) {
+          // console.log("oberse!!", entry.isIntersecting, hasUpMore.current, fetchUpMore, !!fetchUpMore);
+          if (entry.isIntersecting && hasUpMore.current && !!fetchUpMore) {
+            // console.log("왜 여긴 못 오지")
             fetchUpMore();
           }
         },
@@ -71,7 +76,15 @@ const useInfiniteScroll = ({
       downObserver.current = new IntersectionObserver(
         (entries) => {
           const [entry] = entries;
-          if (entry.isIntersecting && hasDownMore.current && fetchDownMore) {
+          // console.log(
+          //   'oberse!!',
+          //   entry.isIntersecting,
+          //   hasDownMore.current,
+          //   fetchDownMore,
+          //   !!fetchDownMore,
+          // );
+
+          if (entry.isIntersecting && hasDownMore.current && !!fetchDownMore) {
             fetchDownMore();
           }
         },
