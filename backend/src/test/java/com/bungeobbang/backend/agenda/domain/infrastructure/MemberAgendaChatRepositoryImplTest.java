@@ -117,25 +117,30 @@ class MemberAgendaChatRepositoryImplTest {
 
             // then
             assertThat(chatsByScroll)
-                    .hasSize(10)
+                    .hasSize(15)
                     .extracting("chat")
-                    .containsExactly("5", "7", "10", "14", "15", "20", "21", "22", "24", "26");
+                    .containsExactly("5", "7", "10", "14", "15", "20", "21", "22", "24", "26",
+                            "27",
+                            "28",
+                            "29",
+                            "31",
+                            "33");
         }
 
         @Test
         @DisplayName("UP 스크롤은 해당 채팅을 포함하지 않고 위로 10개를 조회한다.")
         void findChatsByScroll_UP() {
             // given
-            ObjectId chatId = new ObjectId("00000000000000000000001b");
+            ObjectId chatId = new ObjectId("00000000000000000000001c");
 
             // when
             final List<AgendaChat> chatsByScroll = memberAgendaChatRepository.findChatsByScroll(1L, 1L, chatId, ScrollType.UP);
 
             // then
             assertThat(chatsByScroll)
-                    .hasSize(10)
+                    .hasSize(15)
                     .extracting("chat")
-                    .containsExactly("5", "7", "10", "14", "15", "20", "21", "22", "24", "26");
+                    .containsExactly("1", "2", "3", "4", "5", "7", "10", "14", "15", "20", "21", "22", "24", "26", "27");
         }
 
         @Test
@@ -165,9 +170,13 @@ class MemberAgendaChatRepositoryImplTest {
 
             // then
             assertThat(chatsByScroll)
-                    .hasSize(10)
+                    .hasSize(15)
                     .extracting("chat")
-                    .containsExactly("27", "28", "29", "31", "33", "34", "36", "37", "39", "40");
+                    .containsExactly("20",
+                            "21",
+                            "22",
+                            "24",
+                            "26", "27", "28", "29", "31", "33", "34", "36", "37", "39", "40");
         }
     }
 
