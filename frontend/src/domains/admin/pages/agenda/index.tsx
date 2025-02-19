@@ -16,7 +16,6 @@ import { LogoutDialog } from '@/components/Dialog/LogoutDialog';
 import { AgendaEndDialog } from './components/ChatEndDialog';
 import { AgendaDeleteDialog } from './components/AgendaDeleteDialog';
 import useInfiniteScroll from '@/hooks/useInfiniteScroll';
-import JwtManager from '@/utils/jwtManager';
 import { useSocketManager } from '@/hooks/useSocketManager';
 import plusIcon from '@/assets/icons/plus.svg';
 
