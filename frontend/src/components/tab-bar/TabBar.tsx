@@ -23,7 +23,7 @@ export const TabBar: React.FC<TabBarProps> = ({
   selectedTextColor = '#1F87FF',
   onItemClick = () => {},
 }) => {
-  const [selectedItem, setSelectedItem] = useState(currentDestination);
+  const [selectedItem, setSelectedItem] = useState(currentDestination || items[0]?.itemId);
 
   const selectedIndex = items.findIndex((item) => item.itemId === selectedItem);
 
@@ -31,14 +31,16 @@ export const TabBar: React.FC<TabBarProps> = ({
   const tabBarRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    setSelectedItem(currentDestination);
+    if (currentDestination) {
+      setSelectedItem(currentDestination);
+    }
   }, [currentDestination]);
 
   useEffect(() => {
     if (tabBarRef.current) {
       setItemWidth(tabBarRef.current.offsetWidth / items.length);
     }
-  }, [items.length, tabBarRef]);
+  }, [items.length]);
 
   return (
     <TabBarContainer ref={tabBarRef}>
