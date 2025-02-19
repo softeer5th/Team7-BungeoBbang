@@ -57,28 +57,22 @@ const OpinionChatPage = () => {
     (message: ChatMessage) => {
       if (message.roomType === 'OPINION' && message.opinionId === Number(roomId)) {
         console.log('message1213', getHasDownMore());
-        const newChat = {
-          type: message.adminId === Number(memberId) ? ChatType.SEND : ChatType.RECEIVE,
-          message: message.message,
-          time: new Date(message.createdAt).toLocaleTimeString('ko-KR', {
-            hour: '2-digit',
-            minute: '2-digit',
-          }),
-          images: message.images || [],
-          createdAt: message.createdAt,
-        };
+        // const newChat = {
+        //   type: message.adminId === Number(memberId) ? ChatType.SEND : ChatType.RECEIVE,
+        //   message: message.message,
+        //   time: new Date(message.createdAt).toLocaleTimeString('ko-KR', {
+        //     hour: '2-digit',
+        //     minute: '2-digit',
+        //   }),
+        //   images: message.images || [],
+        //   createdAt: message.createdAt,
+        // };
 
         if (message.adminId === Number(memberId)) {
           getInitialChatDataFromRecent();
         } else {
-          if (!getHasDownMore()) {
-            isLiveReceive.current = true;
-            setChatData((prev) => {
-              if (MAX_CHAT_DATA_LENGTH - prev.length > 1) {
-                return [...prev.slice(prev.length - MAX_CHAT_DATA_LENGTH + 1), newChat];
-              }
-              return [...prev, newChat];
-            });
+          if (!getHasDownMore() && isWatchingBottom()) {
+            getReloadChatDataFromRecent();
           }
           setToastMeesage('새로운 채팅이 도착했습니다.');
         }
@@ -127,15 +121,16 @@ const OpinionChatPage = () => {
 
   const lastUpChatId = useRef<string>(lastChatId);
   const lastDownChatId = useRef<string>(lastChatId);
-  const isInitialTopLoading = useRef<boolean>(true);
-  const isInitialRecentLoading = useRef<boolean>(true);
+  const isInitialTopLoading = useRef<boolean>(false);
+  const isInitialRecentLoading = useRef<boolean>(false);
   const isUpDirection = useRef<boolean>(false);
   const isDownDirection = useRef<boolean>(false);
-  // const isLive = useRef<boolean>(false);
-  const isLiveReceive = useRef<boolean>(false);
 
   let upLastItemId: string = '';
   let downLastItemId: string = '';
+
+  const isUpOverflow = useRef<boolean>(false);
+  const isDownOverflow = useRef<boolean>(false);
 
   const {
     elementRef,
@@ -143,6 +138,9 @@ const OpinionChatPage = () => {
     scrollToBottom,
     remainCurrentScroll,
     rememberCurrentScrollHeight,
+    restoreScrollTopFromUp,
+    restoreScrollTopFromDown,
+    isWatchingBottom,
   } = useScroll<HTMLDivElement>();
 
   const getInitialChatData = async () => {
@@ -192,7 +190,7 @@ const OpinionChatPage = () => {
 
       const formattedData = formatChatData(response.data, true);
 
-      setHasDownMore(false);
+      // setHasDownMore(false);
       setChatData(formattedData);
       enterResponse.data.isReminded && setIsReminded(true);
     } catch (error) {
@@ -200,8 +198,31 @@ const OpinionChatPage = () => {
     }
   };
 
+  const getReloadChatDataFromRecent = async () => {
+    try {
+      isInitialRecentLoading.current = true;
+      const response = await api.get(`/api/opinions/${roomId}/chat`, {
+        params: {
+          chatId: RECENT_CHAT_ID,
+          scroll: 'INITIAL',
+        },
+      });
+
+      console.log('responsesseee', response);
+
+      const formattedData = formatChatData(response.data, true);
+
+      // setHasDownMore(false);
+      setChatData(formattedData);
+      // enterResponse.data.isReminded && setIsReminded(true);
+    } catch (error) {
+      console.error('fail to get chat data', error);
+    }
+  };
+
   const getMoreUpChatData = async () => {
     try {
+      if (isUpDirection.current) return;
       isUpDirection.current = true;
       const response = await api.get(`/api/opinions/${roomId}/chat`, {
         params: {
@@ -216,10 +237,6 @@ const OpinionChatPage = () => {
           setHasUpMore(false);
         }
 
-        if (MAX_CHAT_DATA_LENGTH - formattedData.length < prev.length) {
-          setHasDownMore(true);
-          return [...formattedData, ...prev.slice(0, MAX_CHAT_DATA_LENGTH - formattedData.length)];
-        }
         return [...formattedData, ...prev];
       });
     } catch (error) {
@@ -229,6 +246,7 @@ const OpinionChatPage = () => {
 
   const getMoreDownChatData = async () => {
     try {
+      if (isDownDirection.current) return;
       isDownDirection.current = true;
       const response = await api.get(`/api/opinions/${roomId}/chat`, {
         params: {
@@ -244,14 +262,19 @@ const OpinionChatPage = () => {
           setHasDownMore(false);
         }
 
-        if (MAX_CHAT_DATA_LENGTH - formattedData.length < prev.length) {
-          return [...prev.slice(formattedData.length - MAX_CHAT_DATA_LENGTH), ...formattedData];
-        }
-
         return [...prev, ...formattedData];
       });
     } catch (error) {
       console.error('fail to get chat data', error);
+    }
+  };
+
+  const handleImageChange = (newIndex: number) => {
+    if (selectedImage && currentImageList.length > 0) {
+      setSelectedImage({
+        url: currentImageList[newIndex],
+        index: newIndex,
+      });
     }
   };
 
@@ -263,7 +286,7 @@ const OpinionChatPage = () => {
     });
 
   useLayoutEffect(() => {
-    if (!elementRef.current) return;
+    if (!elementRef.current || chatData.length === 0) return;
     console.log('getchasdata', chatData);
 
     if (isInitialTopLoading.current === true) {
@@ -271,9 +294,7 @@ const OpinionChatPage = () => {
 
       isInitialTopLoading.current = false;
       return;
-    }
-
-    if (isInitialRecentLoading.current === true) {
+    } else if (isInitialRecentLoading.current === true) {
       scrollToBottom();
 
       isInitialRecentLoading.current = false;
@@ -281,14 +302,46 @@ const OpinionChatPage = () => {
     }
 
     if (isUpDirection.current === true) {
+      if (isUpOverflow.current === true) {
+        restoreScrollTopFromUp();
+        isUpOverflow.current = false;
+        isUpDirection.current = false;
+        return;
+      }
       remainCurrentScroll();
+
+      if (MAX_CHAT_DATA_LENGTH < chatData.length) {
+        isUpOverflow.current = true;
+
+        setHasDownMore(true);
+        setChatData((prev) => prev.slice(0, MAX_CHAT_DATA_LENGTH));
+        return;
+      }
 
       isUpDirection.current = false;
       return;
     }
 
     if (isDownDirection.current) {
+      if (isDownOverflow.current === true) {
+        // console.log("down 호출");
+        restoreScrollTopFromDown();
+        isDownOverflow.current = false;
+        isDownDirection.current = false;
+        return;
+      }
+
       rememberCurrentScrollHeight();
+
+      if (MAX_CHAT_DATA_LENGTH < chatData.length) {
+        isDownOverflow.current = true;
+        // console.log("slice!!");
+
+        setHasUpMore(true);
+        setChatData((prev) => prev.slice(chatData.length - MAX_CHAT_DATA_LENGTH));
+        return;
+      }
+
       isDownDirection.current = false;
     }
   }, [chatData]);
@@ -421,10 +474,11 @@ const OpinionChatPage = () => {
       )}
       {selectedImage && (
         <ImagePreview
-          imageUrl={selectedImage.url}
           currentIndex={selectedImage.index}
           totalImages={currentImageList.length}
           onClose={() => setSelectedImage(null)}
+          onChangeImage={handleImageChange}
+          imageList={currentImageList}
         />
       )}
       {toastMessage && (

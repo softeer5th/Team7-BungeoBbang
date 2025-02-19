@@ -83,27 +83,22 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
       (message: ChatMessage) => {
         console.log('message', message);
         if (message.roomType === 'AGENDA' && message.agendaId === Number(roomId)) {
-          const newChat = {
-            type: message.adminId === Number(memberId) ? ChatType.SEND : ChatType.RECEIVE,
-            message: message.message,
-            time: new Date(message.createdAt).toLocaleTimeString('ko-KR', {
-              hour: '2-digit',
-              minute: '2-digit',
-            }),
-            images: message.images || [],
-            createdAt: message.createdAt,
-          };
+          // const newChat = {
+          //   type: message.adminId === Number(memberId) ? ChatType.SEND : ChatType.RECEIVE,
+          //   message: message.message,
+          //   time: new Date(message.createdAt).toLocaleTimeString('ko-KR', {
+          //     hour: '2-digit',
+          //     minute: '2-digit',
+          //   }),
+          //   images: message.images || [],
+          //   createdAt: message.createdAt,
+          // };
+
           if (message.adminId === Number(memberId)) {
-            getInitialChatDataFromRecent();
+            getReloadChatDataFromRecent();
           } else {
-            if (!getHasDownMore()) {
-              isLiveReceive.current = true;
-              setChatData((prev) => {
-                if (MAX_CHAT_DATA_LENGTH - prev.length > 1) {
-                  return [...prev.slice(prev.length - MAX_CHAT_DATA_LENGTH + 1), newChat];
-                }
-                return [...prev, newChat];
-              });
+            if (!getHasDownMore() && isWatchingBottom()) {
+              getReloadChatDataFromRecent();
             }
             setToastMeesage('새로운 채팅이 도착했습니다.');
           }
@@ -122,6 +117,15 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
         index: clickedIndex,
       });
       setCurrentImageList(images);
+    };
+
+    const handleImageChange = (newIndex: number) => {
+      if (selectedImage && currentImageList.length > 0) {
+        setSelectedImage({
+          url: currentImageList[newIndex],
+          index: newIndex,
+        });
+      }
     };
 
     useEnterLeaveHandler('AGENDA', 'ADMIN');
@@ -150,11 +154,14 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
 
     const lastUpChatId = useRef<string | null>(lastChatId);
     const lastDownChatId = useRef<string | null>(lastChatId);
-    const isInitialTopLoading = useRef<boolean>(true);
-    const isInitialRecentLoading = useRef<boolean>(true);
+    const isInitialTopLoading = useRef<boolean>(false);
+    const isInitialRecentLoading = useRef<boolean>(false);
     const isUpDirection = useRef<boolean>(false);
     const isDownDirection = useRef<boolean>(false);
-    const isLiveReceive = useRef<boolean>(false);
+    // const isLiveReceive = useRef<boolean>(false);
+
+    const isUpOverflow = useRef<boolean>(false);
+    const isDownOverflow = useRef<boolean>(false);
 
     const {
       elementRef,
@@ -162,6 +169,9 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
       scrollToBottom,
       remainCurrentScroll,
       rememberCurrentScrollHeight,
+      restoreScrollTopFromUp,
+      restoreScrollTopFromDown,
+      isWatchingBottom,
     } = useScroll<HTMLDivElement>();
 
     const getInitialChatData = async () => {
@@ -214,7 +224,7 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
 
         const formattedData = formatChatData(response.data, true);
 
-        setHasDownMore(false);
+        // setHasDownMore(false);
         setChatData(formattedData);
         setChatRoomInfo({
           title: chatInfo.data.title,
@@ -225,8 +235,30 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
       }
     };
 
+    const getReloadChatDataFromRecent = async () => {
+      try {
+        isInitialRecentLoading.current = true;
+        const response = await api.get(`/admin/agendas/${roomId}/chat`, {
+          params: {
+            chatId: RECENT_CHAT_ID,
+            scroll: 'INITIAL',
+          },
+        });
+
+        console.log('responsesseee', response);
+
+        const formattedData = formatChatData(response.data, true);
+
+        setHasDownMore(false);
+        setChatData(formattedData);
+      } catch (error) {
+        console.error('fail to get chat data', error);
+      }
+    };
+
     const getMoreUpChatData = async () => {
       try {
+        if (isUpDirection.current) return;
         isUpDirection.current = true;
         const response = await api.get(`/admin/agendas/${roomId}/chat`, {
           params: {
@@ -242,13 +274,6 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
             setHasUpMore(false);
           }
 
-          if (MAX_CHAT_DATA_LENGTH - formattedData.length < prev.length) {
-            setHasDownMore(true);
-            return [
-              ...formattedData,
-              ...prev.slice(0, MAX_CHAT_DATA_LENGTH - formattedData.length),
-            ];
-          }
           return [...formattedData, ...prev];
         });
       } catch (error) {
@@ -257,7 +282,10 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
     };
 
     const getMoreDownChatData = async () => {
+      // return;
       try {
+        // console.log('??? ', isDownDirection.current);
+        if (isDownDirection.current) return;
         isDownDirection.current = true;
         const response = await api.get(`/admin/agendas/${roomId}/chat`, {
           params: {
@@ -272,10 +300,6 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
         setChatData((prev: ChatData[]) => {
           if (response.data.length < MAX_CHAT_PAGE_DATA) {
             setHasDownMore(false);
-          }
-
-          if (MAX_CHAT_DATA_LENGTH - formattedData.length < prev.length) {
-            return [...prev.slice(formattedData.length - MAX_CHAT_DATA_LENGTH), ...formattedData];
           }
 
           return [...prev, ...formattedData];
@@ -293,32 +317,67 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
       });
 
     useLayoutEffect(() => {
-      if (!elementRef.current) return;
+      if (!elementRef.current || chatData.length === 0) return;
       console.log('getchasdata', chatData);
 
       if (isInitialTopLoading.current === true) {
         scrollToTop();
-
+        console.log('scroll top end');
         isInitialTopLoading.current = false;
         return;
-      }
-
-      if (isInitialRecentLoading.current === true) {
+      } else if (isInitialRecentLoading.current === true) {
         scrollToBottom();
 
+        console.log('scroll bottom end');
         isInitialRecentLoading.current = false;
         return;
       }
 
       if (isUpDirection.current === true) {
+        if (isUpOverflow.current === true) {
+          restoreScrollTopFromUp();
+          isUpOverflow.current = false;
+          isUpDirection.current = false;
+          return;
+        }
+
         remainCurrentScroll();
 
+        // console.log('scroll remain end');
+
+        if (MAX_CHAT_DATA_LENGTH < chatData.length) {
+          isUpOverflow.current = true;
+
+          setHasDownMore(true);
+          setChatData((prev) => prev.slice(0, MAX_CHAT_DATA_LENGTH));
+          return;
+        }
+
         isUpDirection.current = false;
+
         return;
       }
 
-      if (isDownDirection.current) {
+      if (isDownDirection.current === true) {
+        if (isDownOverflow.current === true) {
+          // console.log("down 호출");
+          restoreScrollTopFromDown();
+          isDownOverflow.current = false;
+          isDownDirection.current = false;
+          return;
+        }
+
         rememberCurrentScrollHeight();
+
+        if (MAX_CHAT_DATA_LENGTH < chatData.length) {
+          isDownOverflow.current = true;
+          // console.log("slice!!");
+
+          setHasUpMore(true);
+          setChatData((prev) => prev.slice(chatData.length - MAX_CHAT_DATA_LENGTH));
+          return;
+        }
+
         isDownDirection.current = false;
       }
     }, [chatData]);
@@ -488,19 +547,25 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
           <SendDialog
             message={message}
             images={images}
-            onConfirm={() => handleSendMessage(message, images)}
+            onConfirm={() => {
+              handleSendMessage(message, images);
+              setShowSendDialog(false); // 얘 나중에 삭제
+            }}
             onDismiss={() => setShowSendDialog(false)}
           />
         )}
         {showSizeDialog && (
           <ImageFileSizeDialog onConfirm={closeSizeDialog} onDismiss={closeSizeDialog} />
         )}
+
         {selectedImage && (
           <ImagePreview
-            imageUrl={selectedImage.url}
+            // imageUrl={selectedImage.url}
+            onClose={() => setSelectedImage(null)}
             currentIndex={selectedImage.index}
             totalImages={currentImageList.length}
-            onClose={() => setSelectedImage(null)}
+            onChangeImage={handleImageChange}
+            imageList={currentImageList}
           />
         )}
         {toastMessage && (

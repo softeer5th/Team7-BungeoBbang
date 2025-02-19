@@ -21,7 +21,7 @@ export const mapResponseToChatRoomListCardData = (
   let progressState = ProgressState.IN_PROGRESS;
 
   if (status === 'UPCOMING') progressState = ProgressState.BEFORE;
-  else if (status === 'FINISHED') progressState = ProgressState.FINISHED;
+  else if (status === 'CLOSED') progressState = ProgressState.FINISHED;
 
   return {
     roomId: response.agenda.agendaId,

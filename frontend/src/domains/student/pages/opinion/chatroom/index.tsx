@@ -35,6 +35,7 @@ import {
   MAX_CHAT_PAGE_DATA,
   RECENT_CHAT_ID,
 } from '@/utils/chat/chat_const.ts';
+import { Dialog } from '@/components/Dialog/Dialog.tsx';
 
 const OpinionChatPage = () => {
   const chatSendFieldRef = useRef<HTMLDivElement>(null);
@@ -45,6 +46,7 @@ const OpinionChatPage = () => {
   const [message, setMessage] = useState('');
   const [isRemindEnabled, setIsRemindEnabled] = useState(false);
   const [isReminded, setIsReminded] = useState(false);
+  const [dialogText, setDialogText] = useState('');
   const { images, showSizeDialog, handleImageDelete, handleImageUpload, closeSizeDialog } =
     useImageUpload(10, 5);
 
@@ -70,17 +72,15 @@ const OpinionChatPage = () => {
           images: message.images || [],
           createdAt: message.createdAt,
         };
+        if (newChat.type === ChatType.RECEIVE) {
+          setIsRemindEnabled(false);
+          setIsReminded(false);
+        }
         if (message.memberId === Number(memberId)) {
-          getInitialChatDataFromRecent();
+          getReloadChatDataFromRecent();
         } else {
-          if (!getHasDownMore()) {
-            isLiveReceive.current = true;
-            setChatData((prev) => {
-              if (MAX_CHAT_DATA_LENGTH - prev.length > 1) {
-                return [...prev.slice(prev.length - MAX_CHAT_DATA_LENGTH + 1), newChat];
-              }
-              return [...prev, newChat];
-            });
+          if (!getHasDownMore() && isWatchingBottom()) {
+            getReloadChatDataFromRecent();
           }
           setToastMeesage('새로운 채팅이 도착했습니다.');
         }
@@ -89,34 +89,37 @@ const OpinionChatPage = () => {
     [roomId, memberId],
   );
 
-  const checkLastThreeChats = useCallback(() => {
-    if (chatData.length < 3) return false;
+  const checkLastThreeChats = useCallback(
+    (count: number) => {
+      if (chatData.length < count) return false;
 
-    const actualChats = chatData.filter(
-      (chat) => chat.type === ChatType.SEND || chat.type === ChatType.RECEIVE,
-    );
+      const actualChats = chatData.filter(
+        (chat) => chat.type === ChatType.SEND || chat.type === ChatType.RECEIVE,
+      );
 
-    if (actualChats.length < 3) return false;
+      if (actualChats.length < count) {
+        return false;
+      }
 
-    const lastThreeChats = actualChats.slice(-3);
-    const isAllStudentMessages = lastThreeChats.every((chat) => chat.type === ChatType.SEND);
-    return isAllStudentMessages;
-  }, [chatData]);
+      const lastTwoChats = actualChats.slice(-count);
+      const isAllStudentMessages = lastTwoChats.every((chat) => chat.type === ChatType.SEND);
+      return isAllStudentMessages;
+    },
+    [chatData],
+  );
 
   const handleSendRemind = async () => {
     !isReminded && (await api.patch(`/student/opinions/${roomId}/remind`));
+    setIsRemindEnabled(false);
     setIsReminded(true);
+    setDialogText('학생회에 리마인드 알림을 전송했어요.');
   };
 
   useEffect(() => {
     const unsubscribe = subscribe('OPINION', Number(roomId), handleMessageReceive);
+
     return () => unsubscribe();
   }, [roomId, subscribe, handleMessageReceive]);
-
-  // chatData가 변경될 때마다 버튼 상태 업데이트
-  useEffect(() => {
-    setIsRemindEnabled(checkLastThreeChats());
-  }, [chatData, checkLastThreeChats]);
 
   const handleSendMessage = useCallback(
     (message: string, images: string[] = []) => {
@@ -124,8 +127,12 @@ const OpinionChatPage = () => {
       setMessage('');
       handleImageDelete(-1);
     },
-    [roomId, sendMessage],
+    [roomId, sendMessage, checkLastThreeChats, handleImageDelete],
   );
+
+  useEffect(() => {
+    setIsRemindEnabled(checkLastThreeChats(3));
+  }, [chatData, checkLastThreeChats]);
 
   const [selectedImage, setSelectedImage] = useState<{ url: string; index: number } | null>(null);
   const [currentImageList, setCurrentImageList] = useState<string[]>([]);
@@ -148,11 +155,14 @@ const OpinionChatPage = () => {
 
   const lastUpChatId = useRef<string>(lastChatId);
   const lastDownChatId = useRef<string>(lastChatId);
-  const isInitialTopLoading = useRef<boolean>(true);
-  const isInitialRecentLoading = useRef<boolean>(true);
+  const isInitialTopLoading = useRef<boolean>(false);
+  const isInitialRecentLoading = useRef<boolean>(false);
   const isUpDirection = useRef<boolean>(false);
   const isDownDirection = useRef<boolean>(false);
-  const isLiveReceive = useRef<boolean>(false);
+  // const isLiveReceive = useRef<boolean>(false);
+
+  const isUpOverflow = useRef<boolean>(false);
+  const isDownOverflow = useRef<boolean>(false);
 
   let upLastItemId: string = '';
   let downLastItemId: string = '';
@@ -163,6 +173,9 @@ const OpinionChatPage = () => {
     scrollToBottom,
     remainCurrentScroll,
     rememberCurrentScrollHeight,
+    restoreScrollTopFromUp,
+    restoreScrollTopFromDown,
+    isWatchingBottom,
   } = useScroll<HTMLDivElement>();
 
   const getInitialChatData = async () => {
@@ -187,8 +200,10 @@ const OpinionChatPage = () => {
       ]);
 
       const formattedData = formatChatData(response.data, false);
+
       setChatData(formattedData);
       enterResponse.data.isReminded && setIsReminded(true);
+
       setChatRoomInfo({
         title: '',
         adminName: `${enterResponse.data.universityName} 총학생회`,
@@ -226,6 +241,34 @@ const OpinionChatPage = () => {
     }
   };
 
+  const getReloadChatDataFromRecent = async () => {
+    try {
+      isInitialRecentLoading.current = true;
+      const response = await api.get(`/api/opinions/${roomId}/chat`, {
+        params: {
+          chatId: RECENT_CHAT_ID,
+          scroll: 'INITIAL',
+        },
+      });
+
+      const formattedData = formatChatData(response.data, false);
+
+      setHasDownMore(false);
+      setChatData(formattedData);
+    } catch (error) {
+      console.error('fail to get chat data', error);
+    }
+  };
+
+  const handleImageChange = (newIndex: number) => {
+    if (selectedImage && currentImageList.length > 0) {
+      setSelectedImage({
+        url: currentImageList[newIndex],
+        index: newIndex,
+      });
+    }
+  };
+
   const getMoreUpChatData = async () => {
     try {
       isUpDirection.current = true;
@@ -237,15 +280,9 @@ const OpinionChatPage = () => {
       });
       const formattedData = formatChatData(response.data, false);
 
-      console.log('up data', response.data);
       setChatData((prev: ChatData[]) => {
         if (response.data.length < MAX_CHAT_PAGE_DATA) {
           setHasUpMore(false);
-        }
-
-        if (MAX_CHAT_DATA_LENGTH - formattedData.length < prev.length) {
-          setHasDownMore(true);
-          return [...formattedData, ...prev.slice(0, MAX_CHAT_DATA_LENGTH - formattedData.length)];
         }
 
         return [...formattedData, ...prev];
@@ -272,10 +309,6 @@ const OpinionChatPage = () => {
           setHasDownMore(false);
         }
 
-        if (MAX_CHAT_DATA_LENGTH - formattedData.length < prev.length) {
-          return [...prev.slice(formattedData.length - MAX_CHAT_DATA_LENGTH), ...formattedData];
-        }
-
         return [...prev, ...formattedData];
       });
     } catch (error) {
@@ -296,27 +329,59 @@ const OpinionChatPage = () => {
 
     if (isInitialTopLoading.current === true) {
       scrollToTop();
-
+      console.log('scroll top end');
       isInitialTopLoading.current = false;
       return;
-    }
-
-    if (isInitialRecentLoading.current === true) {
+    } else if (isInitialRecentLoading.current === true) {
       scrollToBottom();
 
+      console.log('scroll bottom end');
       isInitialRecentLoading.current = false;
       return;
     }
 
     if (isUpDirection.current === true) {
+      if (isUpOverflow.current === true) {
+        restoreScrollTopFromUp();
+        isUpOverflow.current = false;
+        isUpDirection.current = false;
+        return;
+      }
+
       remainCurrentScroll();
+
+      if (MAX_CHAT_DATA_LENGTH < chatData.length) {
+        isUpOverflow.current = true;
+
+        setHasDownMore(true);
+        setChatData((prev) => prev.slice(0, MAX_CHAT_DATA_LENGTH));
+        return;
+      }
 
       isUpDirection.current = false;
       return;
     }
 
     if (isDownDirection.current) {
+      if (isDownOverflow.current === true) {
+        // console.log("down 호출");
+        restoreScrollTopFromDown();
+        isDownOverflow.current = false;
+        isDownDirection.current = false;
+        return;
+      }
+
       rememberCurrentScrollHeight();
+
+      if (MAX_CHAT_DATA_LENGTH < chatData.length) {
+        isDownOverflow.current = true;
+        // console.log("slice!!");
+
+        setHasUpMore(true);
+        setChatData((prev) => prev.slice(chatData.length - MAX_CHAT_DATA_LENGTH));
+        return;
+      }
+
       isDownDirection.current = false;
     }
   }, [chatData]);
@@ -448,11 +513,11 @@ const OpinionChatPage = () => {
         onImageDelete={handleImageDelete}
         onImageUpload={handleImageUpload}
         maxLength={500}
-        textDisabled={isRemindEnabled}
+        textDisabled={isRemindEnabled || isReminded}
         disabledPlaceHolder={
           isReminded ? '리마인드를 전송한 상태입니다.' : '답장이 없을 시 리마인드 버튼을 눌러주세요'
         }
-        isRemindMode={isRemindEnabled}
+        isRemindMode={isRemindEnabled || isReminded}
         isReminded={isReminded}
       />
 
@@ -478,10 +543,12 @@ const OpinionChatPage = () => {
       )}
       {selectedImage && (
         <ImagePreview
-          imageUrl={selectedImage.url}
+          // imageUrl={selectedImage.url}
           currentIndex={selectedImage.index}
           totalImages={currentImageList.length}
           onClose={() => setSelectedImage(null)}
+          onChangeImage={handleImageChange}
+          imageList={currentImageList}
         />
       )}
       {toastMessage && (
@@ -490,6 +557,19 @@ const OpinionChatPage = () => {
           bottom={(chatSendFieldRef.current?.offsetHeight ?? 0) + 15}
           onClick={() => getInitialChatDataFromRecent()}
           onDismiss={() => setToastMeesage(null)}
+        />
+      )}
+      {dialogText.length > 0 && (
+        <Dialog
+          body={dialogText}
+          onConfirm={() => setDialogText('')}
+          onDismiss={() => setDialogText('')}
+          confirmButton={{
+            text: '확인',
+            children: '확인',
+            backgroundColor: '#1F87FF',
+            textColor: '#FFFFFF',
+          }}
         />
       )}
     </S.Container>
