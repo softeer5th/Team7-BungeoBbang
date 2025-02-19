@@ -1,7 +1,5 @@
-import { BorderType } from '@/components/border/BorderProps';
 import type { Meta, StoryObj } from '@storybook/react';
 import { useArgs } from '@storybook/preview-api';
-import { TextField } from '@/components/text-field/TextField';
 import { TabBar } from '@/components/tab-bar/TabBar';
 
 const meta: Meta<typeof TabBar> = {
