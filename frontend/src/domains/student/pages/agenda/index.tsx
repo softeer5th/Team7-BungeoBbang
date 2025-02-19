@@ -14,6 +14,7 @@ import { mapResponseToChatListCardData, ServerData } from './util/ChatRoomCardMa
 import useInfiniteScroll from '@/hooks/useInfiniteScroll';
 import { ChatEnterDialog } from './components/ChatEnterDialog';
 import { useSocketManager } from '@/hooks/useSocketManager';
+import { motion } from 'framer-motion';
 
 const AgendaPage = () => {
   const MAX_PAGE_ITEMS = 6;
@@ -119,27 +120,50 @@ const AgendaPage = () => {
               }
 
               return (
-                <ChatRoomListItem
-                  key={room.roomId}
-                  ref={isTriggerItem ? setTriggerItem : null}
-                  room={room}
-                  onClick={() => {
-                    const isEnd = !room.isInProgress;
-                    const isParticipate = room.isParticipate;
-                    console.log(isEnd, isParticipate);
-                    if (isEnd || isParticipate) {
-                      console.log('여기', room.lastChatId);
-                      navigate(
-                        `/agenda/chat/${room.roomId}?isEnd=${isEnd}&isParticipate=${isParticipate}`,
-                        {
-                          state: { lastChatId: room.lastChatId },
-                        },
-                      );
-                    } else {
-                      setSelectedChatRoomEnter(room.roomId);
-                    }
+                <motion.div
+                  initial={{
+                    opacity: 0,
+                    y: 10,
                   }}
-                />
+                  animate={{
+                    opacity: 1,
+                    y: 0,
+                  }}
+                  transition={{
+                    y: {
+                      duration: 0.5,
+                      ease: [0.45, 0, 0.21, 1],
+                      delay: (index + 1) % 2 === 1 ? (0.2 * (index + 1)) / 2 : (0.2 * index) / 2,
+                    },
+                    opacity: {
+                      duration: 0.8,
+                      ease: [0.45, 0, 0.21, 1],
+                      delay: (index + 1) % 2 === 1 ? (0.2 * (index + 1)) / 2 : (0.2 * index) / 2,
+                    },
+                  }}
+                >
+                  <ChatRoomListItem
+                    key={room.roomId}
+                    ref={isTriggerItem ? setTriggerItem : null}
+                    room={room}
+                    onClick={() => {
+                      const isEnd = !room.isInProgress;
+                      const isParticipate = room.isParticipate;
+                      console.log(isEnd, isParticipate);
+                      if (isEnd || isParticipate) {
+                        console.log('여기', room.lastChatId);
+                        navigate(
+                          `/agenda/chat/${room.roomId}?isEnd=${isEnd}&isParticipate=${isParticipate}`,
+                          {
+                            state: { lastChatId: room.lastChatId },
+                          },
+                        );
+                      } else {
+                        setSelectedChatRoomEnter(room.roomId);
+                      }
+                    }}
+                  />
+                </motion.div>
               );
             })}
           </S.ChatRoomList>
