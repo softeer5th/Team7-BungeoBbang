@@ -28,7 +28,7 @@ export const OpinionStep = ({ onOpinionSelect }: OpinionStepProps) => {
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -  30 }}
+          exit={{ opacity: 0, y: -30 }}
           transition={{ duration: 0.4, easeInOut: [0.45, 0, 0.55, 1], delay: 0.1 }}
         >
           <S.ChipListWrapper>
