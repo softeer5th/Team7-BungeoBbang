@@ -14,12 +14,20 @@ export interface ServerData {
   lastReadChatId: string;
 }
 
-export const mapResponseToChatRoomListCardData = (response: ServerData): ChatRoomListCardData => {
+export const mapResponseToChatRoomListCardData = (
+  response: ServerData,
+  status: string,
+): ChatRoomListCardData => {
+  let progressState = ProgressState.IN_PROGRESS;
+
+  if (status === 'UPCOMING') progressState = ProgressState.BEFORE;
+  else if (status === 'FINISHED') progressState = ProgressState.FINISHED;
+
   return {
     roomId: response.agenda.agendaId,
     hasNew: response.hasNewMessage,
     lastReadChatId: response.lastReadChatId,
-    progressState: getProgressState(response.agenda.startDate, response.agenda.endDate),
+    progressState: progressState,
     numOfJoin: response.agenda.count,
     chatCategoryType: findChatCategoryType(response.agenda.categoryType),
     title: response.agenda.title,
@@ -28,15 +36,15 @@ export const mapResponseToChatRoomListCardData = (response: ServerData): ChatRoo
   };
 };
 
-const getProgressState = (startDate: string, endDate: string): ProgressState => {
-  const now = new Date();
-  const start = new Date(startDate);
-  const end = new Date(endDate);
+// const getProgressState = (startDate: string, endDate: string): ProgressState => {
+//   const now = new Date();
+//   const start = new Date(startDate);
+//   const end = new Date(endDate);
 
-  if (now < start) return ProgressState.BEFORE;
-  if (now > end) return ProgressState.FINISHED;
-  return ProgressState.IN_PROGRESS;
-};
+//   if (now < start) return ProgressState.BEFORE;
+//   if (now > end) return ProgressState.FINISHED;
+//   return ProgressState.IN_PROGRESS;
+// };
 
 const findChatCategoryType = (categoryType: string): ChatCategoryType => {
   return (

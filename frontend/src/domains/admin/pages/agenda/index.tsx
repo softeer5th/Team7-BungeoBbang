@@ -124,7 +124,7 @@ const AgendaPage: React.FC = () => {
 
       const response = await api.get('/admin/agendas', { params: params });
 
-      const newRooms = response.data.map(mapResponseToChatRoomListCardData);
+      const newRooms = response.data.map(mapResponseToChatRoomListCardData, status);
 
       setTabContents((prev) => ({
         ...prev,

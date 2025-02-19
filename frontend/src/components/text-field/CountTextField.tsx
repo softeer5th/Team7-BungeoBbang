@@ -15,7 +15,7 @@ interface CountTextFieldProps {
   disabled?: boolean;
 }
 
-const CountTextField: React.FC<CountTextFieldProps> = ({
+export const CountTextField: React.FC<CountTextFieldProps> = ({
   value,
   maxLength,
   placeholder,
@@ -58,8 +58,6 @@ const CountTextField: React.FC<CountTextFieldProps> = ({
     </CountTextFieldContainer>
   );
 };
-
-export default CountTextField;
 
 const CountTextFieldContainer = styled.div`
   display: flex;
