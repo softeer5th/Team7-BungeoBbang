@@ -51,7 +51,7 @@ export const SenderChat = forwardRef<HTMLDivElement, SenderChatProps>(
                   transition={{
                     duration: 0.5,
                     ease: [0.45, 0, 0.21, 1],
-                    delay: 0.05 * index, // 각 이미지마다 순차적으로 애니메이션 적용
+                    delay: 0.2 * index, // 각 이미지마다 순차적으로 애니메이션 적용
                   }}
                 >
                   <ImageBox
