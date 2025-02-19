@@ -2,7 +2,7 @@
   {
     "id": "000000000000000000000001",
     "agendaId": 1,
-    "memberId": 2,
+    "memberId": 1,
     "chat": "1"
   },
   {
@@ -14,13 +14,13 @@
   {
     "id": "000000000000000000000003",
     "agendaId": 1,
-    "memberId": 4,
+    "memberId": 1,
     "chat": "3"
   },
   {
     "id": "000000000000000000000004",
     "agendaId": 1,
-    "memberId": 5,
+    "memberId": 1,
     "chat": "4"
   },
   {

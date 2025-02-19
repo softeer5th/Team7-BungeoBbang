@@ -113,9 +113,14 @@ class AdminAgendaChatRepositoryImplTest {
 
             // then
             Assertions.assertThat(chatsByScroll)
-                    .hasSize(10)
+                    .hasSize(15)
                     .extracting("chat")
-                    .containsExactly("1", "2", "3", "4", "5", "6", "7", "8", "9", "10");
+                    .containsExactly("1", "2", "3", "4", "5", "6", "7", "8", "9", "10",
+                            "11",
+                            "12",
+                            "13",
+                            "14",
+                            "15");
         }
 
         @Test
@@ -128,9 +133,9 @@ class AdminAgendaChatRepositoryImplTest {
 
             // then
             Assertions.assertThat(chatsByScroll)
-                    .hasSize(10)
+                    .hasSize(15)
                     .extracting("chat")
-                    .containsExactly("8", "9", "10", "11", "12", "13", "14", "15", "16", "17");
+                    .containsExactly("3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17");
         }
 
         @Test
@@ -143,9 +148,14 @@ class AdminAgendaChatRepositoryImplTest {
 
             // then
             Assertions.assertThat(chatsByScroll)
-                    .hasSize(10)
+                    .hasSize(15)
                     .extracting("chat")
-                    .containsExactly("5", "6", "7", "8", "9", "10", "11", "12", "13", "14");
+                    .containsExactly("5", "6", "7", "8", "9", "10", "11", "12", "13", "14",
+                            "15",
+                            "16",
+                            "17",
+                            "18",
+                            "19");
         }
 
         @Test
@@ -158,9 +168,13 @@ class AdminAgendaChatRepositoryImplTest {
 
             // then
             Assertions.assertThat(chatsByScroll)
-                    .hasSize(10)
+                    .hasSize(15)
                     .extracting("chat")
-                    .containsExactly("11", "12", "13", "14", "15", "16", "17", "18", "19", "20");
+                    .containsExactly("6",
+                            "7",
+                            "8",
+                            "9",
+                            "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20");
         }
 
         @Test
