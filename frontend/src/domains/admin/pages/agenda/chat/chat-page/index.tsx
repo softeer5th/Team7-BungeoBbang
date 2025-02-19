@@ -99,7 +99,9 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
           } else {
             if (!getHasDownMore() && isWatchingBottom()) {
               getReloadChatDataFromRecent();
+              return;
             }
+            setHasDownMore(true);
             setToastMeesage('새로운 채팅이 도착했습니다.');
           }
         }
@@ -245,10 +247,11 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
           },
         });
 
-        console.log('responsesseee', response);
+        console.log('reload responsesseee', response);
 
         const formattedData = formatChatData(response.data, true);
 
+        setHasUpMore(true);
         setHasDownMore(false);
         setChatData(formattedData);
       } catch (error) {
