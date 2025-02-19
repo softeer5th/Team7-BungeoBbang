@@ -68,11 +68,13 @@ const OpinionChatPage = () => {
         // };
 
         if (message.adminId === Number(memberId)) {
-          getInitialChatDataFromRecent();
+          getReloadChatDataFromRecent();
         } else {
           if (!getHasDownMore() && isWatchingBottom()) {
             getReloadChatDataFromRecent();
+            return;
           }
+          setHasDownMore(true);
           setToastMeesage('새로운 채팅이 도착했습니다.');
         }
       }
@@ -207,11 +209,12 @@ const OpinionChatPage = () => {
         },
       });
 
-      console.log('responsesseee', response);
+      console.log('reload responsesseee', response);
 
       const formattedData = formatChatData(response.data, true);
 
-      // setHasDownMore(false);
+      setHasUpMore(true);
+      setHasDownMore(false);
       setChatData(formattedData);
       // enterResponse.data.isReminded && setIsReminded(true);
     } catch (error) {
