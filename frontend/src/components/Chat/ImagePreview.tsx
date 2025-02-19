@@ -1,20 +1,59 @@
+import { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import ArrowLeft from '@/assets/icons/arrow-left.svg?react';
 import Typography from '@/styles/Typography';
 
 interface ImagePreviewProps {
-  imageUrl: string;
   onClose: () => void;
   currentIndex: number;
   totalImages: number;
+  onChangeImage?: (newIndex: number) => void;
+  imageList: string[];
 }
 
 export const ImagePreview = ({
-  imageUrl,
   onClose,
   currentIndex,
   totalImages,
+  onChangeImage,
+  imageList,
 }: ImagePreviewProps) => {
+  console.log(currentIndex);
+  console.log(totalImages);
+  const [dragDistance, setDragDistance] = useState(-currentIndex * window.innerWidth);
+  const [isDragging, setIsDragging] = useState(false);
+  const touchStartX = useRef<number | null>(null);
+  const requestRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    setDragDistance(-currentIndex * window.innerWidth);
+  }, [currentIndex]);
+
+  const animateDrag = (targetX: number) => {
+    setDragDistance((prev) => prev + (targetX - prev) * 0.1);
+    requestRef.current = requestAnimationFrame(() => animateDrag(targetX));
+  };
+
+  const handleTouchStart = (e: React.TouchEvent | React.MouseEvent) => {
+    setIsDragging(true);
+    touchStartX.current = 'touches' in e ? e.touches[0].clientX : e.clientX;
+    cancelAnimationFrame(requestRef.current!);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent | React.MouseEvent) => {
+    if (!isDragging) return;
+    const currentX = 'touches' in e ? e.touches[0].clientX : e.clientX;
+    setDragDistance(-currentIndex * window.innerWidth + (currentX - (touchStartX.current || 0)));
+  };
+
+  const handleTouchEnd = () => {
+    setIsDragging(false);
+    const targetIndex = Math.round(-dragDistance / window.innerWidth);
+    const newIndex = Math.max(0, Math.min(totalImages - 1, targetIndex));
+    onChangeImage?.(newIndex);
+    animateDrag(-newIndex * window.innerWidth);
+  };
+
   return (
     <PreviewOverlay>
       <Header>
@@ -27,7 +66,27 @@ export const ImagePreview = ({
           </Typography>
         </ImageCounter>
       </Header>
-      <PreviewImage src={imageUrl} onClick={(e) => e.stopPropagation()} />
+      <ImageContainer
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+        onMouseDown={handleTouchStart}
+        onMouseMove={handleTouchMove}
+        onMouseUp={handleTouchEnd}
+      >
+        <ImageSlider
+          style={{
+            transform: `translateX(${dragDistance}px)`,
+            transition: isDragging ? 'none' : 'transform 0.3s ease-out',
+          }}
+        >
+          {imageList.map((img, index) => (
+            <ImageWrapper key={index}>
+              <PreviewImage src={img} alt={`Preview ${index + 1}`} loading="eager" />
+            </ImageWrapper>
+          ))}
+        </ImageSlider>
+      </ImageContainer>
     </PreviewOverlay>
   );
 };
@@ -42,6 +101,8 @@ const PreviewOverlay = styled.div`
   display: flex;
   flex-direction: column;
   z-index: 20000;
+  touch-action: pan-y pinch-zoom;
+  overflow: hidden;
 `;
 
 const Header = styled.div`
@@ -50,8 +111,8 @@ const Header = styled.div`
   padding: 0 16px;
   display: flex;
   align-items: center;
-  padding: 0 16px;
   position: relative;
+  background-color: black;
 `;
 
 const BackButton = styled.button`
@@ -70,8 +131,34 @@ const ImageCounter = styled.span`
   color: white;
 `;
 
-const PreviewImage = styled.img`
+const ImageContainer = styled.div`
   width: 100%;
   height: calc(100% - 56px);
+  overflow: hidden;
+  position: relative;
+  touch-action: pan-x;
+`;
+
+const ImageSlider = styled.div`
+  display: flex;
+  height: 100%;
+  will-change: transform;
+`;
+
+const ImageWrapper = styled.div`
+  flex: 0 0 100%;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
+
+const PreviewImage = styled.img`
+  max-width: 100%;
+  max-height: 100%;
   object-fit: contain;
+  user-select: none;
+  -webkit-user-drag: none;
+  pointer-events: none;
 `;
