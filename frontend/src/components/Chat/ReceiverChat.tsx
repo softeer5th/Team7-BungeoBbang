@@ -1,6 +1,7 @@
 import styled from 'styled-components';
 import Typography from '../../styles/Typography';
 import { forwardRef } from 'react';
+import { motion } from 'framer-motion';
 
 interface ReceiverChatProps {
   chatId: string;
@@ -16,6 +17,10 @@ interface ReceiverChatProps {
   timeTextColor?: string;
   onImageClick?: (imageUrl: string) => void;
 }
+
+const AnimatedImageWrapper = styled(motion.div)`
+  flex-shrink: 0; // 이미지가 축소되지 않도록 설정
+`;
 
 export const ReceiverChat = forwardRef<HTMLDivElement, ReceiverChatProps>(
   (
@@ -37,41 +42,84 @@ export const ReceiverChat = forwardRef<HTMLDivElement, ReceiverChatProps>(
   ) => {
     return (
       <ReceiverChatContainer id={`id${chatId}`} ref={ref}>
-        <NameContainer>
-          {receiverName && (
-            <NameText variant="body2" nameTextColor={nameTextColor}>
-              {receiverName}
-            </NameText>
-          )}
-          {receiverIconSrc && (
-            <IconBox backgroundColor={receiverIconBackgroundColor}>
-              <img width="17px" height="17px" src={receiverIconSrc} />
-            </IconBox>
-          )}
-        </NameContainer>
+        <motion.div
+          initial={{
+            opacity: 0,
+            scale: 0.4,
+          }}
+          animate={{
+            opacity: 1,
+            scale: 1,
+          }}
+          transition={{
+            duration: 0.5,
+            ease: [0.45, 0, 0.21, 1],
+            delay: 0.05,
+          }}
+        >
+          <NameContainer>
+            {receiverName && (
+              <NameText variant="body2" nameTextColor={nameTextColor}>
+                {receiverName}
+              </NameText>
+            )}
+            {receiverIconSrc && (
+              <IconBox backgroundColor={receiverIconBackgroundColor}>
+                <img width="17px" height="17px" src={receiverIconSrc} />
+              </IconBox>
+            )}
+          </NameContainer>
+        </motion.div>
         {images && (
           <ImageContainer>
             {images.map((image, index) => {
               return (
-                <ImageBox
-                  src={image}
+                <AnimatedImageWrapper
                   key={`${image}${index}`}
-                  onClick={() => onImageClick?.(image)}
-                />
+                  initial={{
+                    opacity: 0,
+                    scale: 0.4,
+                  }}
+                  animate={{
+                    opacity: 1,
+                    scale: 1,
+                  }}
+                  transition={{
+                    duration: 0.5,
+                    ease: [0.45, 0, 0.21, 1],
+                    delay: 0.05 * index, // 각 이미지마다 순차적으로 애니메이션 적용
+                  }}
+                >
+                  <ImageBox
+                    src={image}
+                    key={`${image}${index}`}
+                    onClick={() => onImageClick?.(image)}
+                  />
+                </AnimatedImageWrapper>
               );
             })}
           </ImageContainer>
         )}
-        <MessageContainer>
-          <ChatContainer backgroundColor={backgroundColor}>
-            <ChatMessageText variant="body1" textColor={textColor}>
-              {message}
-            </ChatMessageText>
-          </ChatContainer>
-          <TimeText variant="caption3" timeTextColor={timeTextColor}>
-            {timeText}
-          </TimeText>
-        </MessageContainer>
+        <motion.div
+          initial={{ opacity: 0, y: -100 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{
+            duration: 0.4,
+            ease: [0.45, 0, 0.21, 1],
+            delay: 0.05,
+          }}
+        >
+          <MessageContainer>
+            <ChatContainer backgroundColor={backgroundColor}>
+              <ChatMessageText variant="body1" textColor={textColor}>
+                {message}
+              </ChatMessageText>
+            </ChatContainer>
+            <TimeText variant="caption3" timeTextColor={timeTextColor}>
+              {timeText}
+            </TimeText>
+          </MessageContainer>
+        </motion.div>
       </ReceiverChatContainer>
     );
   },
