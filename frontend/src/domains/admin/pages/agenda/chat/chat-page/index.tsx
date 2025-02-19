@@ -237,7 +237,7 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
 
     const getReloadChatDataFromRecent = async () => {
       try {
-        // isInitialRecentLoading.current = true;
+        isInitialRecentLoading.current = true;
         const response = await api.get(`/admin/agendas/${roomId}/chat`, {
           params: {
             chatId: RECENT_CHAT_ID,
@@ -340,6 +340,7 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
           isUpDirection.current = false;
           return;
         }
+
         remainCurrentScroll();
 
         // console.log('scroll remain end');
