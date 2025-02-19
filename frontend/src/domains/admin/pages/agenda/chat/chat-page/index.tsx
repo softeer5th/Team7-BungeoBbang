@@ -83,16 +83,16 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
       (message: ChatMessage) => {
         console.log('message', message);
         if (message.roomType === 'AGENDA' && message.agendaId === Number(roomId)) {
-          const newChat = {
-            type: message.adminId === Number(memberId) ? ChatType.SEND : ChatType.RECEIVE,
-            message: message.message,
-            time: new Date(message.createdAt).toLocaleTimeString('ko-KR', {
-              hour: '2-digit',
-              minute: '2-digit',
-            }),
-            images: message.images || [],
-            createdAt: message.createdAt,
-          };
+          // const newChat = {
+          //   type: message.adminId === Number(memberId) ? ChatType.SEND : ChatType.RECEIVE,
+          //   message: message.message,
+          //   time: new Date(message.createdAt).toLocaleTimeString('ko-KR', {
+          //     hour: '2-digit',
+          //     minute: '2-digit',
+          //   }),
+          //   images: message.images || [],
+          //   createdAt: message.createdAt,
+          // };
 
           if (message.adminId === Number(memberId)) {
             getReloadChatDataFromRecent();
@@ -284,7 +284,7 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
     const getMoreDownChatData = async () => {
       // return;
       try {
-        console.log('??? ', isDownDirection.current);
+        // console.log('??? ', isDownDirection.current);
         if (isDownDirection.current) return;
         isDownDirection.current = true;
         const response = await api.get(`/admin/agendas/${roomId}/chat`, {
