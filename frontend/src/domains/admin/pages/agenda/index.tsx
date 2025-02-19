@@ -10,13 +10,12 @@ import { ChatRoomListCardData } from './components/ChatRoomCardData';
 import { ChatRoomListItem } from './components/ChatRoomListItem';
 import { EmptyContent } from '@/components/EmptyContent';
 import api from '@/utils/api';
-import { mapResponseToChatRoomListCardData } from './util/ChatRoomMapper';
+import { mapResponseToChatRoomListCardData, ServerData } from './util/ChatRoomMapper';
 import { useNavigate } from 'react-router-dom';
 import { LogoutDialog } from '@/components/Dialog/LogoutDialog';
 import { AgendaEndDialog } from './components/ChatEndDialog';
 import { AgendaDeleteDialog } from './components/AgendaDeleteDialog';
 import useInfiniteScroll from '@/hooks/useInfiniteScroll';
-import JwtManager from '@/utils/jwtManager';
 import { useSocketManager } from '@/hooks/useSocketManager';
 import plusIcon from '@/assets/icons/plus.svg';
 
@@ -103,8 +102,7 @@ const AgendaPage: React.FC = () => {
   const fetchProgressChatRooms = async () => {
     try {
       const status = isInProgessEnd.current ? 'UPCOMING' : 'ACTIVE';
-      const access = await JwtManager.getAccessToken();
-      console.log('access', access);
+
       const params =
         status == 'ACTIVE'
           ? {
@@ -124,7 +122,9 @@ const AgendaPage: React.FC = () => {
 
       const response = await api.get('/admin/agendas', { params: params });
 
-      const newRooms = response.data.map(mapResponseToChatRoomListCardData);
+      const newRooms = response.data.map((res: ServerData) =>
+        mapResponseToChatRoomListCardData(res, status),
+      );
 
       setTabContents((prev) => ({
         ...prev,
@@ -153,9 +153,10 @@ const AgendaPage: React.FC = () => {
       };
       const closed = await api.get('/admin/agendas', { params: params });
 
-      const newRooms = closed.data.map(mapResponseToChatRoomListCardData);
+      const newRooms = closed.data.map((res: ServerData) =>
+        mapResponseToChatRoomListCardData(res, status),
+      );
 
-      console.log('newrooms', closed);
       setTabContents((prev) => ({
         ...prev,
         complete: [...(prev.complete ?? []), ...newRooms],

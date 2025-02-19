@@ -78,16 +78,10 @@ const OpinionChatPage = () => {
           setIsReminded(false);
         }
         if (message.memberId === Number(memberId)) {
-          getInitialChatDataFromRecent();
+          getReloadChatDataFromRecent();
         } else {
-          if (!getHasDownMore()) {
-            isLiveReceive.current = true;
-            setChatData((prev) => {
-              if (MAX_CHAT_DATA_LENGTH - prev.length > 1) {
-                return [...prev.slice(prev.length - MAX_CHAT_DATA_LENGTH + 1), newChat];
-              }
-              return [...prev, newChat];
-            });
+          if (!getHasDownMore() && isWatchingBottom()) {
+            getReloadChatDataFromRecent();
           }
           setToastMeesage('새로운 채팅이 도착했습니다.');
         }
@@ -162,11 +156,14 @@ const OpinionChatPage = () => {
 
   const lastUpChatId = useRef<string>(lastChatId);
   const lastDownChatId = useRef<string>(lastChatId);
-  const isInitialTopLoading = useRef<boolean>(true);
-  const isInitialRecentLoading = useRef<boolean>(true);
+  const isInitialTopLoading = useRef<boolean>(false);
+  const isInitialRecentLoading = useRef<boolean>(false);
   const isUpDirection = useRef<boolean>(false);
   const isDownDirection = useRef<boolean>(false);
-  const isLiveReceive = useRef<boolean>(false);
+  // const isLiveReceive = useRef<boolean>(false);
+
+  const isUpOverflow = useRef<boolean>(false);
+  const isDownOverflow = useRef<boolean>(false);
 
   let upLastItemId: string = '';
   let downLastItemId: string = '';
@@ -177,6 +174,9 @@ const OpinionChatPage = () => {
     scrollToBottom,
     remainCurrentScroll,
     rememberCurrentScrollHeight,
+    restoreScrollTopFromUp,
+    restoreScrollTopFromDown,
+    isWatchingBottom,
   } = useScroll<HTMLDivElement>();
 
   const getInitialChatData = async () => {
@@ -242,6 +242,25 @@ const OpinionChatPage = () => {
     }
   };
 
+  const getReloadChatDataFromRecent = async () => {
+    try {
+      isInitialRecentLoading.current = true;
+      const response = await api.get(`/api/opinions/${roomId}/chat`, {
+        params: {
+          chatId: RECENT_CHAT_ID,
+          scroll: 'INITIAL',
+        },
+      });
+
+      const formattedData = formatChatData(response.data, false);
+
+      setHasDownMore(false);
+      setChatData(formattedData);
+    } catch (error) {
+      console.error('fail to get chat data', error);
+    }
+  };
+
   const handleImageChange = (newIndex: number) => {
     if (selectedImage && currentImageList.length > 0) {
       setSelectedImage({
@@ -265,11 +284,6 @@ const OpinionChatPage = () => {
       setChatData((prev: ChatData[]) => {
         if (response.data.length < MAX_CHAT_PAGE_DATA) {
           setHasUpMore(false);
-        }
-
-        if (MAX_CHAT_DATA_LENGTH - formattedData.length < prev.length) {
-          setHasDownMore(true);
-          return [...formattedData, ...prev.slice(0, MAX_CHAT_DATA_LENGTH - formattedData.length)];
         }
 
         return [...formattedData, ...prev];
@@ -296,10 +310,6 @@ const OpinionChatPage = () => {
           setHasDownMore(false);
         }
 
-        if (MAX_CHAT_DATA_LENGTH - formattedData.length < prev.length) {
-          return [...prev.slice(formattedData.length - MAX_CHAT_DATA_LENGTH), ...formattedData];
-        }
-
         return [...prev, ...formattedData];
       });
     } catch (error) {
@@ -320,27 +330,59 @@ const OpinionChatPage = () => {
 
     if (isInitialTopLoading.current === true) {
       scrollToTop();
-
+      console.log('scroll top end');
       isInitialTopLoading.current = false;
       return;
-    }
-
-    if (isInitialRecentLoading.current === true) {
+    } else if (isInitialRecentLoading.current === true) {
       scrollToBottom();
 
+      console.log('scroll bottom end');
       isInitialRecentLoading.current = false;
       return;
     }
 
     if (isUpDirection.current === true) {
+      if (isUpOverflow.current === true) {
+        restoreScrollTopFromUp();
+        isUpOverflow.current = false;
+        isUpDirection.current = false;
+        return;
+      }
+
       remainCurrentScroll();
+
+      if (MAX_CHAT_DATA_LENGTH < chatData.length) {
+        isUpOverflow.current = true;
+
+        setHasDownMore(true);
+        setChatData((prev) => prev.slice(0, MAX_CHAT_DATA_LENGTH));
+        return;
+      }
 
       isUpDirection.current = false;
       return;
     }
 
     if (isDownDirection.current) {
+      if (isDownOverflow.current === true) {
+        // console.log("down 호출");
+        restoreScrollTopFromDown();
+        isDownOverflow.current = false;
+        isDownDirection.current = false;
+        return;
+      }
+
       rememberCurrentScrollHeight();
+
+      if (MAX_CHAT_DATA_LENGTH < chatData.length) {
+        isDownOverflow.current = true;
+        // console.log("slice!!");
+
+        setHasUpMore(true);
+        setChatData((prev) => prev.slice(chatData.length - MAX_CHAT_DATA_LENGTH));
+        return;
+      }
+
       isDownDirection.current = false;
     }
   }, [chatData]);
