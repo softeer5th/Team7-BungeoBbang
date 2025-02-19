@@ -69,7 +69,7 @@ export const BottomNavigation = forwardRef<HTMLDivElement, BottomNavigationProps
             onItemClick={() => {
               setSelectedItem(destination.itemId);
               onItemClick(destination.itemId);
-              if (destination.itemId === 'my') {
+              if (destination.itemId === 'my' && startDestination === 'my') {
                 setHasNewMessage(false);
               }
             }}
