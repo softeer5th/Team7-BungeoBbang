@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { ReceiverChat } from '@/components/Chat/ReceiverChat';
 
 const receiveMeta: Meta<typeof ReceiverChat> = {
-  title: 'Components/Chat',
+  title: 'Components/Chat/Receive',
   component: ReceiverChat,
   argTypes: {
     backgroundColor: { control: 'color' }, // 전체 배경색 변경 가능

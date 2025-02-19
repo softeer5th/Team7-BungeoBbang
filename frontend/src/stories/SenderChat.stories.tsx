@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { SenderChat } from '@/components/Chat/SenderChat';
 
 const sendMeta: Meta<typeof SenderChat> = {
-  title: 'Components/Chat',
+  title: 'Components/Chat/Send',
   component: SenderChat,
   argTypes: {
     backgroundColor: { control: 'color' }, // 전체 배경색 변경 가능
