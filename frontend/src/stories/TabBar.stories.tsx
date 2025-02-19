@@ -2,28 +2,37 @@ import { BorderType } from '@/components/border/BorderProps';
 import type { Meta, StoryObj } from '@storybook/react';
 import { useArgs } from '@storybook/preview-api';
 import { TextField } from '@/components/text-field/TextField';
+import { TabBar } from '@/components/tab-bar/TabBar';
 
-const meta: Meta<typeof TextField> = {
-  title: 'Components/TextField',
-  component: TextField,
+const meta: Meta<typeof TabBar> = {
+  title: 'Components/TabBar',
+  component: TabBar,
   argTypes: {
-    placeholderColor: { control: 'color' },
-    textColor: { control: 'color' },
-    border: { control: 'object' },
-    isError: { control: 'boolean' },
-    disabled: { control: 'boolean' },
-    focusable: { control: 'boolean' },
-    rows: { control: 'number', min: 1, max: 10, step: 1 },
+    backgroundColor: { control: 'color' },
+    selectedItembackgroundColor: { control: 'color' },
+    indicatorColor: { control: 'object' },
+    textColor: { control: 'boolean' },
+    selectedTextColor: { control: 'boolean' },
   },
 };
 
 export default meta;
-type Story = StoryObj<typeof TextField>;
+type Story = StoryObj<typeof TabBar>;
 
 // ✅ 동적으로 값이 변경되는 Input (useArgs 적용)
 export const Default: Story = {
   args: {
-    value: 'Primary Button',
+    currentDestination: 'opinion',
+    items: [
+      {
+        itemId: 'agenda',
+        title: '말해요',
+      },
+      {
+        itemId: 'agenda',
+        title: '말해요',
+      },
+    ],
     placeholder: 'text message...',
     placeholderColor: '#A8A8A8',
     textColor: '#262626',
