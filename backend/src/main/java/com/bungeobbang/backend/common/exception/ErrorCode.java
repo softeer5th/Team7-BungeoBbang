@@ -13,7 +13,7 @@ public enum ErrorCode {
     IMAGE_DELETE_FAIL(5, HttpStatus.INTERNAL_SERVER_ERROR, "이미지 삭제에 실패하였습니다."),
     // Common
     INVALID_CATEGORY_TYPE(6, HttpStatus.BAD_REQUEST, "잘못된 카테고리 타입입니다."),
-    BADWORD_INCLUDED(7, HttpStatus.BAD_REQUEST, "금칙어가 포함되어있습니다."),
+    BADWORD_INCLUDED(7, HttpStatus.BAD_REQUEST, "'%s' 키워드는 입력하실 수 없습니다."),
     JSON_PARSE_FAIL(8, HttpStatus.INTERNAL_SERVER_ERROR, "json 파싱에 실패하였습니다."),
     // Agenda
     NOT_SUPPORT_STATUS(9, HttpStatus.BAD_REQUEST, "지원하지 않는 안건 상태입니다."),
@@ -70,5 +70,9 @@ public enum ErrorCode {
         this.httpStatus = httpStatus;
         this.message = message;
         this.code = code;
+    }
+
+    public String formatMessage(Object... args) {
+        return String.format(message, args);
     }
 }

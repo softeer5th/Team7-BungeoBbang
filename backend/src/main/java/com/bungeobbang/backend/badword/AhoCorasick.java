@@ -55,8 +55,8 @@ public class AhoCorasick {
         }
     }
 
-    public Map<Integer, List<String>> searchBadWords(String text) {
-        Map<Integer, List<String>> foundWords = new HashMap<>();
+    public Map<String, Integer> searchBadWords(String text) {
+        Map<String, Integer> foundWords = new HashMap<>();
         TrieNode node = root;
 
         for (int i = 0; i < text.length(); i++) {
@@ -68,8 +68,7 @@ public class AhoCorasick {
             node = node.children.getOrDefault(ch, root);
 
             for (String word : node.output) {
-                int startIdx = i - word.length() + 1;
-                foundWords.computeIfAbsent(startIdx, k -> new ArrayList<>()).add(word);
+                foundWords.put(word, foundWords.getOrDefault(word, 0) + 1);
             }
         }
         return foundWords;
