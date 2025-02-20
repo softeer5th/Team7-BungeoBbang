@@ -15,18 +15,6 @@ export const TabBarWrapper = styled.div`
   display: flex;
 `;
 
-export const TabContent = styled.div<{
-  transX: number;
-}>`
-  min-width: 100%;
-  max-width: 100%;
-
-  scroll-snap-align: center;
-
-  transform: translateX(${(props) => props.transX}px);
-  transition: transform 0.3s ease;
-`;
-
 export const ChatPreviewList = styled.div`
   width: 100%;
   height: 100%;

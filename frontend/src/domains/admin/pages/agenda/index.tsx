@@ -224,83 +224,81 @@ const AgendaPage: React.FC = () => {
           navigate(-1);
         }}
       />
-      <S.TabBarWrapper>
-        <TabBarContainer
-          tabItems={tabItems}
-          currentTabSelectedIndex={Number(sessionStorage.getItem('activeTabIndex')) || 0}
-          contents={(index) => {
-            const tab = tabItems[index];
-            const content = tabContents[tab.itemId] || [];
-            return content.length > 0 ? (
-              <S.ChatPreviewList>
-                {content.map((c, contentIndex) => {
-                  const isTriggerItem = contentIndex === content.length - TRIGGER_REST_ITEMS;
-                  const isLastItem = contentIndex === content.length - 1;
+      <TabBarContainer
+        tabItems={tabItems}
+        currentTabSelectedIndex={Number(sessionStorage.getItem('activeTabIndex')) || 0}
+        contents={(index) => {
+          const tab = tabItems[index];
+          const content = tabContents[tab.itemId] || [];
+          return content.length > 0 ? (
+            <S.ChatPreviewList>
+              {content.map((c, contentIndex) => {
+                const isTriggerItem = contentIndex === content.length - TRIGGER_REST_ITEMS;
+                const isLastItem = contentIndex === content.length - 1;
 
-                  if (isLastItem) {
-                    lastChatRoom.current[index] = [c.endDate, c.roomId];
-                  }
-
-                  return (
-                    <motion.div
-                      key={c.roomId}
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{
-                        y: {
-                          duration: 0.5,
-                          ease: [0.45, 0, 0.21, 1],
-                          delay:
-                            (contentIndex + 1) % 2 === 1
-                              ? (0.2 * (contentIndex + 1)) / 2
-                              : (0.2 * contentIndex) / 2,
-                        },
-                        opacity: {
-                          duration: 0.8,
-                          ease: [0.45, 0, 0.21, 1],
-                          delay:
-                            (contentIndex + 1) % 2 === 1
-                              ? (0.2 * (contentIndex + 1)) / 2
-                              : (0.2 * contentIndex) / 2,
-                        },
-                      }}
-                    >
-                      <ChatRoomListItem
-                        ref={
-                          isTriggerItem
-                            ? index === 0
-                              ? setProgressTriggerItem
-                              : setCompleteTriggerItem
-                            : null
-                        }
-                        cardData={c}
-                        onCardEdit={() => navigate(`/agenda/create/${c.roomId}`)}
-                        onCardEnd={() => {
-                          setSelectedCardData(c);
-                          setEndDialogShow(true);
-                        }}
-                        onCardDelete={() => {
-                          setSelectedCardData(c);
-                          setDeleteDialogShow(true);
-                        }}
-                      />
-                    </motion.div>
-                  );
-                })}
-              </S.ChatPreviewList>
-            ) : (
-              <EmptyContent
-                showIcon={true}
-                text={
-                  tab.itemId === tabItems[0].itemId
-                    ? `현재 진행중인 채팅방이 없습니다.\n채팅방을 개설해주세요!`
-                    : '현재 종료된 채팅방이 없습니다.'
+                if (isLastItem) {
+                  lastChatRoom.current[index] = [c.endDate, c.roomId];
                 }
-              />
-            );
-          }}
-        />
-      </S.TabBarWrapper>
+
+                return (
+                  <motion.div
+                    key={c.roomId}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{
+                      y: {
+                        duration: 0.5,
+                        ease: [0.45, 0, 0.21, 1],
+                        delay:
+                          (contentIndex + 1) % 2 === 1
+                            ? (0.2 * (contentIndex + 1)) / 2
+                            : (0.2 * contentIndex) / 2,
+                      },
+                      opacity: {
+                        duration: 0.8,
+                        ease: [0.45, 0, 0.21, 1],
+                        delay:
+                          (contentIndex + 1) % 2 === 1
+                            ? (0.2 * (contentIndex + 1)) / 2
+                            : (0.2 * contentIndex) / 2,
+                      },
+                    }}
+                  >
+                    <ChatRoomListItem
+                      ref={
+                        isTriggerItem
+                          ? index === 0
+                            ? setProgressTriggerItem
+                            : setCompleteTriggerItem
+                          : null
+                      }
+                      cardData={c}
+                      onCardEdit={() => navigate(`/agenda/create/${c.roomId}`)}
+                      onCardEnd={() => {
+                        setSelectedCardData(c);
+                        setEndDialogShow(true);
+                      }}
+                      onCardDelete={() => {
+                        setSelectedCardData(c);
+                        setDeleteDialogShow(true);
+                      }}
+                    />
+                  </motion.div>
+                );
+              })}
+            </S.ChatPreviewList>
+          ) : (
+            <EmptyContent
+              showIcon={true}
+              text={
+                tab.itemId === tabItems[0].itemId
+                  ? `현재 진행중인 채팅방이 없습니다.\n채팅방을 개설해주세요!`
+                  : '현재 종료된 채팅방이 없습니다.'
+              }
+            />
+          );
+        }}
+      />
       <S.FloatingActionButton bottom={bottomPx} onClick={() => navigate(`/agenda/create`)}>
         <img src={plusIcon} />
       </S.FloatingActionButton>

@@ -6,6 +6,7 @@ import { TabBar } from './TabBar';
 export interface TabBarContainerProps {
   tabItems: TabBarItemProps[];
   currentTabSelectedIndex: number;
+  backgroundColor?: string;
   onTabItemClick?: (itemId: string) => void;
   contents: (index: number) => React.ReactNode;
 }
@@ -13,16 +14,20 @@ export interface TabBarContainerProps {
 export const TabBarContainer: React.FC<TabBarContainerProps> = ({
   tabItems,
   currentTabSelectedIndex,
+  backgroundColor = '#F4F4F4',
   onTabItemClick = () => {},
   contents,
 }) => {
+  console.log('currentTabSelectedIndex');
+
   const [activeIndex, setActiveIndex] = useState(currentTabSelectedIndex);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const [translateX, setTranslateX] = useState(0);
 
-  const handleTabContentScroll = () => {
+  const handleTabContentScroll = (e: React.UIEvent<HTMLDivElement>) => {
     if (containerRef.current) {
+      e.stopPropagation();
       const width = containerRef.current.offsetWidth;
       const scrollLeft = containerRef.current.scrollLeft;
       const index = Math.round(scrollLeft / width);
@@ -62,13 +67,17 @@ export const TabBarContainer: React.FC<TabBarContainerProps> = ({
   }, [currentTabSelectedIndex]);
 
   return (
-    <TabBarWrapper>
+    <>
       <TabBar
         currentDestination={tabItems[activeIndex].itemId}
         items={tabItems}
         onItemClick={handleTabItemClick}
       />
-      <TabContentContainer ref={containerRef} onScroll={handleTabContentScroll}>
+      <TabContentContainer
+        backgroundColor={backgroundColor}
+        ref={containerRef}
+        onScroll={handleTabContentScroll}
+      >
         {tabItems.map((tab, index) => {
           return (
             <TabContent key={tab.itemId} transX={translateX}>
@@ -77,22 +86,18 @@ export const TabBarContainer: React.FC<TabBarContainerProps> = ({
           );
         })}
       </TabContentContainer>
-    </TabBarWrapper>
+    </>
   );
 };
 
-const TabBarWrapper = styled.div`
-  width: 100%;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-`;
-
-const TabContentContainer = styled.div`
+const TabContentContainer = styled.div<{
+  backgroundColor: string;
+}>`
   flex: 1;
   display: flex;
   scroll-snap-type: x mandatory;
   overflow-x: scroll;
+  background-color: ${(props) => props.backgroundColor};
 
   &::-webkit-scrollbar {
     display: none;

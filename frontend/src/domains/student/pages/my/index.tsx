@@ -116,25 +116,23 @@ const MyPage = () => {
         titleColor={theme.colors.sementicMain}
         onRightIconClick={() => setLogoutDialogOpen(true)}
       />
-      <S.TabBarWrapper>
-        <TabBarContainer
-          tabItems={tabItems}
-          currentTabSelectedIndex={Number(sessionStorage.getItem('activeTabIndex')) || 0}
-          contents={(index) => {
-            const tab = tabItems[index];
-            const content = tabContents[tab.itemId] || [];
-            return content.length > 0 ? (
-              <S.ChatPreviewList>
-                {content.map((c) => (
-                  <ChatPreviewItem key={c.roomId} chatData={c} />
-                ))}
-              </S.ChatPreviewList>
-            ) : (
-              <EmptyContent showIcon={true} text={'현재 개설된 채팅방이 없습니다.'} />
-            );
-          }}
-        />
-      </S.TabBarWrapper>
+      <TabBarContainer
+        tabItems={tabItems}
+        currentTabSelectedIndex={Number(sessionStorage.getItem('activeTabIndex')) || 0}
+        contents={(index) => {
+          const tab = tabItems[index];
+          const content = tabContents[tab.itemId] || [];
+          return content.length > 0 ? (
+            <S.ChatPreviewList>
+              {content.map((c) => (
+                <ChatPreviewItem key={c.roomId} chatData={c} />
+              ))}
+            </S.ChatPreviewList>
+          ) : (
+            <EmptyContent showIcon={true} text={'현재 개설된 채팅방이 없습니다.'} />
+          );
+        }}
+      />
       <BottomNavigation
         startDestination="my"
         destinations={bottomItems}
