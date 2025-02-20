@@ -41,7 +41,6 @@ const MyPage = () => {
 
   const fetchOpinions = useCallback(async () => {
     const response = await api.get('/student/opinions/my');
-    console.log('fetch opinion data');
     return response.data.map((data: OpinionServerData) =>
       mapOpinionResponseToChatPreviewData(data),
     );
@@ -49,7 +48,6 @@ const MyPage = () => {
 
   const fetchAgendas = useCallback(async () => {
     const response = await api.get('/student/agendas/my');
-    console.log('fetch agenda data');
     return response.data.map((data: AgendaServerData) => mapAgendaResponseToChatPreviewData(data));
   }, []);
 
