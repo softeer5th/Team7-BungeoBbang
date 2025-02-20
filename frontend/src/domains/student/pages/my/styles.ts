@@ -10,15 +10,9 @@ export const Container = styled.div`
   overflow: hidden;
 `;
 
-export const TabContentContainer = styled.div`
+export const TabBarWrapper = styled.div`
   flex: 1;
   display: flex;
-  scroll-snap-type: x mandatory;
-  overflow-x: scroll;
-
-  &::-webkit-scrollbar {
-    display: none;
-  }
 `;
 
 export const TabContent = styled.div<{

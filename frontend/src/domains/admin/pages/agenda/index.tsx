@@ -4,7 +4,6 @@ import { TopAppBar } from '@/components/TopAppBar';
 import { useTheme } from 'styled-components';
 import { BottomNavigation } from '@/components/bottom-navigation/BottomNavigation';
 import { bottomItems, moveToDestination } from '../destinations';
-import { TabBar } from '@/components/tab-bar/TabBar';
 import { TabBarItemProps } from '@/components/tab-bar/TabBarItem';
 import { ChatRoomListCardData } from './components/ChatRoomCardData';
 import { ChatRoomListItem } from './components/ChatRoomListItem';
@@ -19,6 +18,7 @@ import useInfiniteScroll from '@/hooks/useInfiniteScroll';
 import { useSocketManager } from '@/hooks/useSocketManager';
 import plusIcon from '@/assets/icons/plus.svg';
 import { motion } from 'framer-motion';
+import { TabBarContainer } from '@/components/tab-bar/TabBarCotainer';
 
 const tabItems: TabBarItemProps[] = [
   {
@@ -41,13 +41,6 @@ const AgendaPage: React.FC = () => {
   const bottomNavRef = useRef<HTMLDivElement>(null);
   const [bottomPx, setBottomPx] = useState(0);
 
-  const [activeIndex, setActiveIndex] = useState(() => {
-    return Number(sessionStorage.getItem('activeTabIndex')) || 0;
-  });
-
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [translateX, setTranslateX] = useState(0);
-
   const [tabContents, setTabContents] = useState<Record<string, ChatRoomListCardData[]>>({});
 
   const [isLogoutDialogShow, setLogoutDialogShow] = useState(false);
@@ -60,34 +53,6 @@ const AgendaPage: React.FC = () => {
 
   const lastChatRoom = useRef<[string | null, number | null][]>(tabItems.map(() => [null, null]));
   const socketManager = useSocketManager();
-
-  const handleTabItemClick = (itemId: string) => {
-    const newActiveIndex = tabItems.findIndex((item) => item.itemId === itemId);
-
-    setActiveIndex(newActiveIndex);
-
-    scrollTabContent(newActiveIndex);
-  };
-
-  const handleTabContentScroll = () => {
-    if (containerRef.current) {
-      const width = containerRef.current.offsetWidth;
-      const scrollLeft = containerRef.current.scrollLeft;
-      const index = Math.round(scrollLeft / width);
-      setActiveIndex(index);
-    }
-  };
-
-  const scrollTabContent = (index: number) => {
-    if (containerRef.current) {
-      const scrollLeft = containerRef.current?.scrollLeft;
-      const width = containerRef.current?.offsetWidth;
-
-      setTranslateX(scrollLeft + -index * width);
-
-      sessionStorage.setItem('activeTabIndex', String(index));
-    }
-  };
 
   const fetchProgressChatRooms = async () => {
     try {
@@ -248,10 +213,6 @@ const AgendaPage: React.FC = () => {
     }
   }, [bottomPx]);
 
-  useEffect(() => {
-    handleTabContentScroll();
-  }, []);
-
   return (
     <S.Container>
       <TopAppBar
@@ -263,97 +224,86 @@ const AgendaPage: React.FC = () => {
           navigate(-1);
         }}
       />
-      <TabBar
-        currentDestination={tabItems[activeIndex].itemId}
-        items={tabItems}
-        onItemClick={handleTabItemClick}
-      />
-      <S.TabContainer ref={containerRef} onScroll={handleTabContentScroll}>
-        {tabItems.map((tab, tabIndex) => {
-          const content = tabContents[tab.itemId] || [];
-          return (
-            <S.TabContent key={tab.itemId} transX={translateX}>
-              {content.length > 0 ? (
-                <S.ChatPreviewList>
-                  {content.map((c, contentIndex) => {
-                    const isTriggerItem = contentIndex === content.length - TRIGGER_REST_ITEMS;
-                    const isLastItem = contentIndex === content.length - 1;
+      <S.TabBarWrapper>
+        <TabBarContainer
+          tabItems={tabItems}
+          currentTabSelectedIndex={Number(sessionStorage.getItem('activeTabIndex')) || 0}
+          contents={(index) => {
+            const tab = tabItems[index];
+            const content = tabContents[tab.itemId] || [];
+            return content.length > 0 ? (
+              <S.ChatPreviewList>
+                {content.map((c, contentIndex) => {
+                  const isTriggerItem = contentIndex === content.length - TRIGGER_REST_ITEMS;
+                  const isLastItem = contentIndex === content.length - 1;
 
-                    if (isLastItem) {
-                      lastChatRoom.current[tabIndex] = [c.endDate, c.roomId];
-                    }
-
-                    return (
-                      <motion.div
-                        initial={{
-                          opacity: 0,
-                          y: 10,
-                        }}
-                        animate={{
-                          opacity: 1,
-                          y: 0,
-                        }}
-                        transition={{
-                          y: {
-                            duration: 0.5,
-                            ease: [0.45, 0, 0.21, 1],
-                            delay:
-                              (contentIndex + 1) % 2 === 1
-                                ? (0.2 * (contentIndex + 1)) / 2
-                                : (0.2 * contentIndex) / 2,
-                          },
-                          opacity: {
-                            duration: 0.8,
-                            ease: [0.45, 0, 0.21, 1],
-                            delay:
-                              (contentIndex + 1) % 2 === 1
-                                ? (0.2 * (contentIndex + 1)) / 2
-                                : (0.2 * contentIndex) / 2,
-                          },
-                        }}
-                      >
-                        <ChatRoomListItem
-                          ref={
-                            isTriggerItem
-                              ? tabIndex == 0
-                                ? setProgressTriggerItem
-                                : setCompleteTriggerItem
-                              : null
-                          }
-                          key={c.roomId}
-                          cardData={c}
-                          onCardEdit={() => navigate(`/agenda/create/${c.roomId}`)}
-                          onCardEnd={() => {
-                            setSelectedCardData(c);
-                            setEndDialogShow(true);
-                          }}
-                          onCardDelete={() => {
-                            setSelectedCardData(c);
-                            setDeleteDialogShow(true);
-                          }}
-                        />
-                      </motion.div>
-                    );
-                  })}
-                </S.ChatPreviewList>
-              ) : (
-                <EmptyContent
-                  showIcon={true}
-                  text={
-                    tab.itemId === tabItems[0].itemId
-                      ? `현재 진행중인 채팅방이 없습니다.
-                       채팅방을 개설해주세요!`
-                      : '현재 종료된 채팅방이 없습니다.'
+                  if (isLastItem) {
+                    lastChatRoom.current[index] = [c.endDate, c.roomId];
                   }
-                />
-              )}
-            </S.TabContent>
-          );
-        })}
-        <S.FloatingActionButton bottom={bottomPx} onClick={() => navigate(`/agenda/create`)}>
-          <img src={plusIcon} />
-        </S.FloatingActionButton>
-      </S.TabContainer>
+
+                  return (
+                    <motion.div
+                      key={c.roomId}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{
+                        y: {
+                          duration: 0.5,
+                          ease: [0.45, 0, 0.21, 1],
+                          delay:
+                            (contentIndex + 1) % 2 === 1
+                              ? (0.2 * (contentIndex + 1)) / 2
+                              : (0.2 * contentIndex) / 2,
+                        },
+                        opacity: {
+                          duration: 0.8,
+                          ease: [0.45, 0, 0.21, 1],
+                          delay:
+                            (contentIndex + 1) % 2 === 1
+                              ? (0.2 * (contentIndex + 1)) / 2
+                              : (0.2 * contentIndex) / 2,
+                        },
+                      }}
+                    >
+                      <ChatRoomListItem
+                        ref={
+                          isTriggerItem
+                            ? index === 0
+                              ? setProgressTriggerItem
+                              : setCompleteTriggerItem
+                            : null
+                        }
+                        cardData={c}
+                        onCardEdit={() => navigate(`/agenda/create/${c.roomId}`)}
+                        onCardEnd={() => {
+                          setSelectedCardData(c);
+                          setEndDialogShow(true);
+                        }}
+                        onCardDelete={() => {
+                          setSelectedCardData(c);
+                          setDeleteDialogShow(true);
+                        }}
+                      />
+                    </motion.div>
+                  );
+                })}
+              </S.ChatPreviewList>
+            ) : (
+              <EmptyContent
+                showIcon={true}
+                text={
+                  tab.itemId === tabItems[0].itemId
+                    ? `현재 진행중인 채팅방이 없습니다.\n채팅방을 개설해주세요!`
+                    : '현재 종료된 채팅방이 없습니다.'
+                }
+              />
+            );
+          }}
+        />
+      </S.TabBarWrapper>
+      <S.FloatingActionButton bottom={bottomPx} onClick={() => navigate(`/agenda/create`)}>
+        <img src={plusIcon} />
+      </S.FloatingActionButton>
       <BottomNavigation
         ref={bottomNavRef}
         startDestination={bottomItems[0].itemId}
