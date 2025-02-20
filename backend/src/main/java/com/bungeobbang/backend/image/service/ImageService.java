@@ -3,7 +3,9 @@ package com.bungeobbang.backend.image.service;
 
 import com.bungeobbang.backend.common.exception.ImageException;
 import com.bungeobbang.backend.image.domain.ImageFile;
+import com.bungeobbang.backend.image.dto.request.PresignedUrlRequest;
 import com.bungeobbang.backend.image.dto.response.ImageResponse;
+import com.bungeobbang.backend.image.dto.response.PresignedUrlResponse;
 import com.bungeobbang.backend.image.infrastrcture.S3ImageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -20,6 +22,10 @@ public class ImageService {
     private static final int MAX_IMAGE_LIST_SIZE = 10;
     private static final int EMPTY_IMAGE_LIST_SIZE = 0;
     private final S3ImageService s3ImageService;
+
+    public PresignedUrlResponse getPresignedUrl(PresignedUrlRequest request) {
+        return s3ImageService.generatePresignedUrl(request.contentType());
+    }
 
     public ImageResponse save(List<MultipartFile> images) {
         validateSizeOfImages(images.size());
