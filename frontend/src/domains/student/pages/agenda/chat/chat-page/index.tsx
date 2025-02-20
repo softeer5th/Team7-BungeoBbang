@@ -26,6 +26,7 @@ import {
   MAX_CHAT_PAGE_DATA,
   RECENT_CHAT_ID,
 } from '@/utils/chat/chat_const.ts';
+import { Dialog } from '@/components/Dialog/Dialog.tsx';
 
 interface ChatPageProps {
   roomId: number;
@@ -50,6 +51,7 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
     const [selectedImage, setSelectedImage] = useState<{ url: string; index: number } | null>(null);
     const [currentImageList, setCurrentImageList] = useState<string[]>([]);
     const [message, setMessage] = useState('');
+    const [forbiddenDialog, setForbiddenDialog] = useState(false);
 
     const { images, showSizeDialog, handleImageDelete, handleImageUpload, closeSizeDialog } =
       useImageUpload(10, 5);
@@ -90,7 +92,10 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
 
     const handleMessageReceive = useCallback(
       (message: ChatMessage) => {
-        console.log('message', message);
+        if (message.code === 7) {
+          setForbiddenDialog(true);
+          return;
+        }
         if (message.roomType === 'AGENDA' && message.agendaId === Number(roomId)) {
           // const newChat = {
           //   type: message.memberId === Number(memberId) ? ChatType.SEND : ChatType.RECEIVE,
@@ -536,6 +541,18 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
             bottom={(chatSendFieldRef.current?.offsetHeight ?? 0) + 15}
             onClick={() => getInitialChatDataFromRecent()}
             onDismiss={() => setToastMeesage(null)}
+          />
+        )}
+        {forbiddenDialog && (
+          <Dialog
+            body={'금칙어가 발견됐습니다.\n더 나은 학교를 위해\n금칙어는 자제해주세요.'}
+            onConfirm={() => setForbiddenDialog(false)}
+            onDismiss={() => setForbiddenDialog(false)}
+            confirmButton={{
+              text: '확인',
+              backgroundColor: '#1F87FF',
+              textColor: '#FFFFFF',
+            }}
           />
         )}
       </S.Container>
