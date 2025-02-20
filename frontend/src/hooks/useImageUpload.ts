@@ -32,7 +32,6 @@ export const useImageUpload = (
       const imageUrls = response.data.names.map(
         (name: string) => `${AUTH_CONFIG.API.S3_URL}/${name}`,
       );
-
       console.log('이미지 업로드 성공:', imageUrls);
       return imageUrls;
     } catch (error) {

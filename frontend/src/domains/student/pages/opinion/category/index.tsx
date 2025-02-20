@@ -12,6 +12,8 @@ import { useImageUpload } from '@/hooks/useImageUpload';
 import { ImageFileSizeDialog } from '@/components/Dialog/ImageFileSizeDialog';
 import { Dialog } from '@/components/Dialog/Dialog';
 
+import { ChatOpinionType } from '@/types/ChatOpinionType';
+
 const OpinionCategoryPage: React.FC = () => {
   const navigate = useNavigate();
   const socketManager = useSocketManager();
@@ -48,9 +50,14 @@ const OpinionCategoryPage: React.FC = () => {
 
     try {
       const response = await api.post('/student/opinions', messageData);
-      if (response.status === 200) {
+      if (response.data.opinionId) {
         socketManager('OPINION', 'START', response.data.opinionId, 'STUDENT');
-        navigate('/opinion/chat/' + response.data.opinionId, { state: { from: 'opinion' } });
+        navigate('/opinion/chat/' + response.data.opinionId, {
+          state: {
+            from: 'opinion',
+            title: ChatOpinionType[selectedOpinion as keyof typeof ChatOpinionType].label,
+          },
+        });
       }
     } catch (error: any) {
       console.error('메시지 전송 실패:', error);
