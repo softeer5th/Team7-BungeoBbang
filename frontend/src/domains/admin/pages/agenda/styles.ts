@@ -9,26 +9,11 @@ export const Container = styled.div`
   overflow: hidden;
 `;
 
-export const TabContainer = styled.div`
+export const TabBarWrapper = styled.div`
+  position: relative;
   flex: 1;
   display: flex;
   background-color: ${(props) => props.theme.colors.grayScale10};
-  overflow: hidden;
-
-  &::-webkit-scrollbar {
-    display: none;
-  }
-  position: relative;
-`;
-
-export const TabContent = styled.div<{
-  transX: number;
-}>`
-  min-width: 100%;
-  max-width: 100%;
-
-  transform: translateX(${(props) => props.transX}px);
-  transition: transform 0.3s ease;
 `;
 
 export const ChatPreviewList = styled.div`

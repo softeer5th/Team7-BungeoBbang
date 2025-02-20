@@ -10,24 +10,9 @@ export const Container = styled.div`
   overflow: hidden;
 `;
 
-export const TabContentContainer = styled.div`
+export const TabBarWrapper = styled.div`
   flex: 1;
   display: flex;
-  overflow: hidden;
-
-  &::-webkit-scrollbar {
-    display: none;
-  }
-`;
-
-export const TabContent = styled.div<{
-  transX: number;
-}>`
-  min-width: 100%;
-  max-width: 100%;
-
-  transform: translateX(${(props) => props.transX}px);
-  transition: transform 0.3s ease;
 `;
 
 export const ChatPreviewList = styled.div`

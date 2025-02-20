@@ -20,6 +20,7 @@ export const useEnterLeaveHandler = (
     return () => {
       if (!hasLeft.current && roomId) {
         socketManager(roomType, 'LEAVE', Number(roomId), userType);
+
         hasLeft.current = true;
       }
     };
