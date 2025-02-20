@@ -47,7 +47,8 @@ const OpinionEntryPage: React.FC = () => {
     return response.data;
   }, []);
 
-  const { isLoading } = useQuery('adminOpinions', fetchOpinions, {
+  // const { isLoading } =
+  useQuery('adminOpinions', fetchOpinions, {
     staleTime: 5 * 60 * 1000, // 5분 동안 캐시 유지
     onSuccess: (data: OpinionResponse[]) => {
       const formattedOpinions = data.map((item) => ({
@@ -58,7 +59,7 @@ const OpinionEntryPage: React.FC = () => {
         time: formatLastChatTime(item.lastChat.createdAt),
         iconColor: '#FFC107',
         hasAlarm: item.hasNewChat,
-        createdAt: item.lastChat.createdAt,
+        createdAt: new Date(item.lastChat.createdAt),
         isReminded: item.opinion.isReminded,
         lastChatId: item.lastReadChatId,
       }));

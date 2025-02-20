@@ -61,7 +61,8 @@ const AgendaPage = () => {
     return api.get('/student/agendas', { params: params });
   }, []);
 
-  const { isLoading, data } = useQuery('studentAgendas', fetchChatRooms, {
+  // const { isLoading, data } =
+  useQuery('studentAgendas', fetchChatRooms, {
     staleTime: 5 * 60 * 1000, // 5분 동안 캐시 유지
     onSuccess: (response: { data: ServerData[] }) => {
       const status = isInProgessEnd.current ? 'CLOSED' : 'ACTIVE';

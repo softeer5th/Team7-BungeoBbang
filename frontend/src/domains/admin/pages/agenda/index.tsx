@@ -77,34 +77,31 @@ const AgendaPage: React.FC = () => {
     return api.get('/admin/agendas', { params: params });
   }, []);
 
-  const { isLoading: isProgressLoading, refetch: refetchProgress } = useQuery(
-    'adminAgendasProgress',
-    fetchProgressChatRooms,
-    {
-      staleTime: 5 * 60 * 1000, // 5분 동안 캐시 유지
-      onSuccess: (response: { data: ServerData[] }) => {
-        const status = isInProgessEnd.current ? 'UPCOMING' : 'ACTIVE';
-        const newRooms = response.data.map((res) => mapResponseToChatRoomListCardData(res, status));
+  // const { isLoading: isProgressLoading, refetch: refetchProgress } =
+  useQuery('adminAgendasProgress', fetchProgressChatRooms, {
+    staleTime: 5 * 60 * 1000, // 5분 동안 캐시 유지
+    onSuccess: (response: { data: ServerData[] }) => {
+      const status = isInProgessEnd.current ? 'UPCOMING' : 'ACTIVE';
+      const newRooms = response.data.map((res) => mapResponseToChatRoomListCardData(res, status));
 
-        setTabContents((prev) => ({
-          ...prev,
-          inProgress: [...(prev.inProgress ?? []), ...newRooms],
-        }));
+      setTabContents((prev) => ({
+        ...prev,
+        inProgress: [...(prev.inProgress ?? []), ...newRooms],
+      }));
 
-        if (newRooms.length < MAX_PAGE_ITEMS) {
-          if (!isInProgessEnd.current) {
-            isInProgessEnd.current = true;
-          } else {
-            setProgressHasMore(false);
-          }
+      if (newRooms.length < MAX_PAGE_ITEMS) {
+        if (!isInProgessEnd.current) {
+          isInProgessEnd.current = true;
+        } else {
+          setProgressHasMore(false);
         }
+      }
 
-        if (status === 'UPCOMING') {
-          isFirstUpcoming.current = false;
-        }
-      },
+      if (status === 'UPCOMING') {
+        isFirstUpcoming.current = false;
+      }
     },
-  );
+  });
 
   const fetchCompleteChatRooms = useCallback(async () => {
     const params = {
