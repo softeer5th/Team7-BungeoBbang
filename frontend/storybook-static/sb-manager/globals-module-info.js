@@ -1,6 +1,6 @@
 import ESM_COMPAT_Module from "node:module";
-import { fileURLToPath as ESM_COMPAT_fileURLToPath } from 'node:url';
-import { dirname as ESM_COMPAT_dirname } from 'node:path';
+import { fileURLToPath as ESM_COMPAT_fileURLToPath } from "node:url";
+import { dirname as ESM_COMPAT_dirname } from "node:path";
 const __filename = ESM_COMPAT_fileURLToPath(import.meta.url);
 const __dirname = ESM_COMPAT_dirname(__filename);
 const require = ESM_COMPAT_Module.createRequire(import.meta.url);
@@ -42,7 +42,7 @@ var t = {
     "useState",
     "useSyncExternalStore",
     "useTransition",
-    "version"
+    "version",
   ],
   "react-dom": [
     "__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED",
@@ -56,7 +56,7 @@ var t = {
     "unmountComponentAtNode",
     "unstable_batchedUpdates",
     "unstable_renderSubtreeIntoContainer",
-    "version"
+    "version",
   ],
   "react-dom/client": ["createRoot", "hydrateRoot"],
   "@storybook/icons": [
@@ -299,7 +299,7 @@ var t = {
     "ZoomIcon",
     "ZoomOutIcon",
     "ZoomResetIcon",
-    "iconList"
+    "iconList",
   ],
   "storybook/internal/components": [
     "A",
@@ -370,7 +370,7 @@ var t = {
     "interleaveSeparators",
     "nameSpaceClassNames",
     "resetComponents",
-    "withReset"
+    "withReset",
   ],
   "@storybook/components": [
     "A",
@@ -441,7 +441,7 @@ var t = {
     "interleaveSeparators",
     "nameSpaceClassNames",
     "resetComponents",
-    "withReset"
+    "withReset",
   ],
   "@storybook/core/components": [
     "A",
@@ -512,7 +512,7 @@ var t = {
     "interleaveSeparators",
     "nameSpaceClassNames",
     "resetComponents",
-    "withReset"
+    "withReset",
   ],
   "storybook/internal/manager-api": [
     "ActiveTabs",
@@ -546,7 +546,7 @@ var t = {
     "useSharedState",
     "useStoryPrepared",
     "useStorybookApi",
-    "useStorybookState"
+    "useStorybookState",
   ],
   "@storybook/manager-api": [
     "ActiveTabs",
@@ -580,7 +580,7 @@ var t = {
     "useSharedState",
     "useStoryPrepared",
     "useStorybookApi",
-    "useStorybookState"
+    "useStorybookState",
   ],
   "@storybook/core/manager-api": [
     "ActiveTabs",
@@ -614,7 +614,7 @@ var t = {
     "useSharedState",
     "useStoryPrepared",
     "useStorybookApi",
-    "useStorybookState"
+    "useStorybookState",
   ],
   "storybook/internal/router": [
     "BaseLocationProvider",
@@ -630,7 +630,7 @@ var t = {
     "parsePath",
     "queryFromLocation",
     "stringifyQuery",
-    "useNavigate"
+    "useNavigate",
   ],
   "@storybook/router": [
     "BaseLocationProvider",
@@ -646,7 +646,7 @@ var t = {
     "parsePath",
     "queryFromLocation",
     "stringifyQuery",
-    "useNavigate"
+    "useNavigate",
   ],
   "@storybook/core/router": [
     "BaseLocationProvider",
@@ -662,7 +662,7 @@ var t = {
     "parsePath",
     "queryFromLocation",
     "stringifyQuery",
-    "useNavigate"
+    "useNavigate",
   ],
   "storybook/internal/theming": [
     "CacheProvider",
@@ -688,7 +688,7 @@ var t = {
     "themes",
     "typography",
     "useTheme",
-    "withTheme"
+    "withTheme",
   ],
   "@storybook/theming": [
     "CacheProvider",
@@ -714,7 +714,7 @@ var t = {
     "themes",
     "typography",
     "useTheme",
-    "withTheme"
+    "withTheme",
   ],
   "@storybook/core/theming": [
     "CacheProvider",
@@ -740,7 +740,7 @@ var t = {
     "themes",
     "typography",
     "useTheme",
-    "withTheme"
+    "withTheme",
   ],
   "storybook/internal/theming/create": ["create", "themes"],
   "@storybook/theming/create": ["create", "themes"],
@@ -749,19 +749,19 @@ var t = {
     "Channel",
     "PostMessageTransport",
     "WebsocketTransport",
-    "createBrowserChannel"
+    "createBrowserChannel",
   ],
   "@storybook/channels": [
     "Channel",
     "PostMessageTransport",
     "WebsocketTransport",
-    "createBrowserChannel"
+    "createBrowserChannel",
   ],
   "@storybook/core/channels": [
     "Channel",
     "PostMessageTransport",
     "WebsocketTransport",
-    "createBrowserChannel"
+    "createBrowserChannel",
   ],
   "storybook/internal/core-errors": [
     "ARGTYPES_INFO_REQUEST",
@@ -827,7 +827,7 @@ var t = {
     "UNHANDLED_ERRORS_WHILE_PLAYING",
     "UPDATE_GLOBALS",
     "UPDATE_QUERY_PARAMS",
-    "UPDATE_STORY_ARGS"
+    "UPDATE_STORY_ARGS",
   ],
   "@storybook/core-events": [
     "ARGTYPES_INFO_REQUEST",
@@ -893,7 +893,7 @@ var t = {
     "UNHANDLED_ERRORS_WHILE_PLAYING",
     "UPDATE_GLOBALS",
     "UPDATE_QUERY_PARAMS",
-    "UPDATE_STORY_ARGS"
+    "UPDATE_STORY_ARGS",
   ],
   "@storybook/core/core-events": [
     "ARGTYPES_INFO_REQUEST",
@@ -959,7 +959,7 @@ var t = {
     "UNHANDLED_ERRORS_WHILE_PLAYING",
     "UPDATE_GLOBALS",
     "UPDATE_QUERY_PARAMS",
-    "UPDATE_STORY_ARGS"
+    "UPDATE_STORY_ARGS",
   ],
   "storybook/internal/types": ["Addon_TypesEnum"],
   "@storybook/types": ["Addon_TypesEnum"],
@@ -967,71 +967,76 @@ var t = {
   "storybook/internal/manager-errors": [
     "Category",
     "ProviderDoesNotExtendBaseProviderError",
-    "UncaughtManagerError"
+    "UncaughtManagerError",
   ],
   "@storybook/core-events/manager-errors": [
     "Category",
     "ProviderDoesNotExtendBaseProviderError",
-    "UncaughtManagerError"
+    "UncaughtManagerError",
   ],
   "@storybook/core/manager-errors": [
     "Category",
     "ProviderDoesNotExtendBaseProviderError",
-    "UncaughtManagerError"
+    "UncaughtManagerError",
   ],
   "storybook/internal/client-logger": ["deprecate", "logger", "once", "pretty"],
   "@storybook/client-logger": ["deprecate", "logger", "once", "pretty"],
-  "@storybook/core/client-logger": ["deprecate", "logger", "once", "pretty"]
+  "@storybook/core/client-logger": ["deprecate", "logger", "once", "pretty"],
 };
 
 // src/manager/globals/globals.ts
 var e = {
-  react: "__REACT__",
-  "react-dom": "__REACT_DOM__",
-  "react-dom/client": "__REACT_DOM_CLIENT__",
-  "@storybook/icons": "__STORYBOOK_ICONS__",
-  "storybook/internal/manager-api": "__STORYBOOK_API__",
-  "@storybook/manager-api": "__STORYBOOK_API__",
-  "@storybook/core/manager-api": "__STORYBOOK_API__",
-  "storybook/internal/components": "__STORYBOOK_COMPONENTS__",
-  "@storybook/components": "__STORYBOOK_COMPONENTS__",
-  "@storybook/core/components": "__STORYBOOK_COMPONENTS__",
-  "storybook/internal/channels": "__STORYBOOK_CHANNELS__",
-  "@storybook/channels": "__STORYBOOK_CHANNELS__",
-  "@storybook/core/channels": "__STORYBOOK_CHANNELS__",
-  "storybook/internal/core-errors": "__STORYBOOK_CORE_EVENTS__",
-  "@storybook/core-events": "__STORYBOOK_CORE_EVENTS__",
-  "@storybook/core/core-events": "__STORYBOOK_CORE_EVENTS__",
-  "storybook/internal/manager-errors": "__STORYBOOK_CORE_EVENTS_MANAGER_ERRORS__",
-  "@storybook/core-events/manager-errors": "__STORYBOOK_CORE_EVENTS_MANAGER_ERRORS__",
-  "@storybook/core/manager-errors": "__STORYBOOK_CORE_EVENTS_MANAGER_ERRORS__",
-  "storybook/internal/router": "__STORYBOOK_ROUTER__",
-  "@storybook/router": "__STORYBOOK_ROUTER__",
-  "@storybook/core/router": "__STORYBOOK_ROUTER__",
-  "storybook/internal/theming": "__STORYBOOK_THEMING__",
-  "@storybook/theming": "__STORYBOOK_THEMING__",
-  "@storybook/core/theming": "__STORYBOOK_THEMING__",
-  "storybook/internal/theming/create": "__STORYBOOK_THEMING_CREATE__",
-  "@storybook/theming/create": "__STORYBOOK_THEMING_CREATE__",
-  "@storybook/core/theming/create": "__STORYBOOK_THEMING_CREATE__",
-  "storybook/internal/client-logger": "__STORYBOOK_CLIENT_LOGGER__",
-  "@storybook/client-logger": "__STORYBOOK_CLIENT_LOGGER__",
-  "@storybook/core/client-logger": "__STORYBOOK_CLIENT_LOGGER__",
-  "storybook/internal/types": "__STORYBOOK_TYPES__",
-  "@storybook/types": "__STORYBOOK_TYPES__",
-  "@storybook/core/types": "__STORYBOOK_TYPES__"
-}, n = Object.keys(e);
+    react: "__REACT__",
+    "react-dom": "__REACT_DOM__",
+    "react-dom/client": "__REACT_DOM_CLIENT__",
+    "@storybook/icons": "__STORYBOOK_ICONS__",
+    "storybook/internal/manager-api": "__STORYBOOK_API__",
+    "@storybook/manager-api": "__STORYBOOK_API__",
+    "@storybook/core/manager-api": "__STORYBOOK_API__",
+    "storybook/internal/components": "__STORYBOOK_COMPONENTS__",
+    "@storybook/components": "__STORYBOOK_COMPONENTS__",
+    "@storybook/core/components": "__STORYBOOK_COMPONENTS__",
+    "storybook/internal/channels": "__STORYBOOK_CHANNELS__",
+    "@storybook/channels": "__STORYBOOK_CHANNELS__",
+    "@storybook/core/channels": "__STORYBOOK_CHANNELS__",
+    "storybook/internal/core-errors": "__STORYBOOK_CORE_EVENTS__",
+    "@storybook/core-events": "__STORYBOOK_CORE_EVENTS__",
+    "@storybook/core/core-events": "__STORYBOOK_CORE_EVENTS__",
+    "storybook/internal/manager-errors":
+      "__STORYBOOK_CORE_EVENTS_MANAGER_ERRORS__",
+    "@storybook/core-events/manager-errors":
+      "__STORYBOOK_CORE_EVENTS_MANAGER_ERRORS__",
+    "@storybook/core/manager-errors":
+      "__STORYBOOK_CORE_EVENTS_MANAGER_ERRORS__",
+    "storybook/internal/router": "__STORYBOOK_ROUTER__",
+    "@storybook/router": "__STORYBOOK_ROUTER__",
+    "@storybook/core/router": "__STORYBOOK_ROUTER__",
+    "storybook/internal/theming": "__STORYBOOK_THEMING__",
+    "@storybook/theming": "__STORYBOOK_THEMING__",
+    "@storybook/core/theming": "__STORYBOOK_THEMING__",
+    "storybook/internal/theming/create": "__STORYBOOK_THEMING_CREATE__",
+    "@storybook/theming/create": "__STORYBOOK_THEMING_CREATE__",
+    "@storybook/core/theming/create": "__STORYBOOK_THEMING_CREATE__",
+    "storybook/internal/client-logger": "__STORYBOOK_CLIENT_LOGGER__",
+    "@storybook/client-logger": "__STORYBOOK_CLIENT_LOGGER__",
+    "@storybook/core/client-logger": "__STORYBOOK_CLIENT_LOGGER__",
+    "storybook/internal/types": "__STORYBOOK_TYPES__",
+    "@storybook/types": "__STORYBOOK_TYPES__",
+    "@storybook/core/types": "__STORYBOOK_TYPES__",
+  },
+  n = Object.keys(e);
 
 // src/manager/globals/globals-module-info.ts
 var S = n.reduce(
-  (r, o) => (r[o] = {
-    type: "esm",
-    varName: e[o],
-    namedExports: t[o],
-    defaultExport: !0
-  }, r),
-  {}
+  (r, o) => (
+    (r[o] = {
+      type: "esm",
+      varName: e[o],
+      namedExports: t[o],
+      defaultExport: !0,
+    }),
+    r
+  ),
+  {},
 );
-export {
-  S as globalsModuleInfoMap
-};
+export { S as globalsModuleInfoMap };
