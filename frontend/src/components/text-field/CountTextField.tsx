@@ -44,7 +44,7 @@ export const CountTextField: React.FC<CountTextFieldProps> = ({
       <TextFieldInput
         rows={rows}
         variant="body1"
-        value={value}
+        value={disabled ? '' : value}
         placeholder={placeholder}
         onChange={handleInputChange}
         placeholderColor={placeholderColor}

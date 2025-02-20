@@ -25,6 +25,8 @@ interface CategoryIconProps {
   type: ChatCategoryType;
   showText?: boolean;
   onClick?: () => void;
+  selectedBorderColor?: string;
+  textColor?: string;
   selected?: boolean;
 }
 
@@ -35,6 +37,8 @@ export const CategoryIcon: React.FC<CategoryIconProps> = ({
   type,
   showText = false,
   onClick = () => {},
+  selectedBorderColor = '#1F87FF',
+  textColor = '#525252',
   selected = false,
 }) => {
   return (
@@ -42,12 +46,15 @@ export const CategoryIcon: React.FC<CategoryIconProps> = ({
       size={boxSize}
       onClick={() => onClick()}
       selected={selected}
+      selectedBorderColor={selectedBorderColor}
       backgroundColor={type.iconBackground}
     >
       <Icon iconWidth={iconWidth} src={type.iconSrc} />
 
       {showText && textVariant && (
-        <IconText variant={textVariant as TypographyVariant}>{type.label}</IconText>
+        <IconText variant={textVariant as TypographyVariant} textColor={textColor}>
+          {type.label}
+        </IconText>
       )}
     </IconBox>
   );
@@ -56,6 +63,7 @@ export const CategoryIcon: React.FC<CategoryIconProps> = ({
 const IconBox = styled.div<{
   size: number;
   backgroundColor: string;
+  selectedBorderColor: string;
   selected: boolean;
 }>`
   width: ${(props) => props.size}px;
@@ -66,7 +74,7 @@ const IconBox = styled.div<{
   align-items: center;
   flex-direction: column;
   background-color: ${(props) => props.backgroundColor};
-  border: ${(props) => (props.selected ? `3px solid ${props.theme.colors.sementicMain}` : `none`)};
+  border: ${(props) => (props.selected ? `3px solid ${props.selectedBorderColor}` : `none`)};
   border-radius: 50%;
 `;
 
@@ -77,8 +85,10 @@ const Icon = styled.img<{
   aspect-ratio: 1/1;
 `;
 
-const IconText = styled(Typography)`
-  color: ${(props) => props.theme.colors.grayScale70};
+const IconText = styled(Typography)<{
+  textColor: string;
+}>`
+  color: ${(props) => props.textColor};
   white-space: nowrap;
   margin-top: 4px;
 `;

@@ -1,10 +1,8 @@
 import styled from 'styled-components';
-import parse from 'html-react-parser';
 import { createPortal } from 'react-dom';
-import { Button, ButtonProps } from '../Button';
+import { ButtonProps } from '../Button';
 import { BorderProps } from '../border/BorderProps';
-import Typography from '@/styles/Typography';
-import { getBorderStyle } from '../border/getBorderType';
+import { DialogContainer } from './DialogContainer';
 
 interface DialogProps {
   title?: string;
@@ -40,28 +38,19 @@ export const Dialog: React.FC<DialogProps> = ({
 
   const dialog = (
     <DialogOverlay onClick={onDismiss}>
-      <DialogContainer backgroundColor={backgroundColor} border={border}>
-        {title && (
-          <TitleContainer titleBackgroundColor={titleBackgroundColor}>
-            <TitleText variant="body2" titleTextColor={titleTextColor}>
-              {title}
-            </TitleText>
-          </TitleContainer>
-        )}
-        <BodyText variant="body1" bodyTextColor={bodyTextColor}>
-          {parse(body)}
-        </BodyText>
-        <ButtonContainer>
-          {dissmissButton && (
-            <Button {...dissmissButton} onClick={() => onDismiss()}>
-              {dissmissButton?.text}
-            </Button>
-          )}
-          <Button {...confirmButton} onClick={() => onConfirm()}>
-            {confirmButton?.text}
-          </Button>
-        </ButtonContainer>
-      </DialogContainer>
+      <DialogContainer
+        title={title}
+        body={body}
+        onConfirm={onConfirm}
+        onDismiss={onDismiss}
+        backgroundColor={backgroundColor}
+        titleBackgroundColor={titleBackgroundColor}
+        titleTextColor={titleTextColor}
+        bodyTextColor={bodyTextColor}
+        confirmButton={confirmButton}
+        dissmissButton={dissmissButton}
+        border={border}
+      />
     </DialogOverlay>
   );
   return createPortal(dialog, portalRoot);
@@ -133,3 +122,5 @@ const ButtonContainer = styled.div`
   gap: 8px;
   margin-top: 24px;
 `;
+
+

@@ -27,3 +27,4 @@ dist-ssr
 dev-dist/
 
 .env
+*storybook.log
