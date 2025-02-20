@@ -85,24 +85,14 @@ public class OpinionService {
         );
     }
 
-    @Transactional
-    public void incrementChatCount(final Long opinionId) {
-        Opinion opinion = opinionRepository.findById(opinionId)
-                .orElseThrow(() -> new OpinionException(ErrorCode.INVALID_OPINION));
-        opinion.plusOneChatCount();
-    }
-
+    // 최신 채팅이 3개 미만이거나, 3개 중 학생회 채팅이 존재하는 경우 OK.
+    // 최신 채팅 3개 모두 학생 채팅인경우 예외 발생
     public void validateChatCount(Long opinionId) {
-        Opinion opinion = opinionRepository.findById(opinionId)
-                .orElseThrow(() -> new OpinionException(ErrorCode.INVALID_OPINION));
-        if (opinion.getChatCount() >= 3)
-            throw new OpinionException(ErrorCode.CHAT_COUNT_LIMIT_EXCEEDED);
-    }
-
-    @Transactional
-    public void initChatCount(Long opinionId) {
-        Opinion opinion = opinionRepository.findById(opinionId)
-                .orElseThrow(() -> new OpinionException(ErrorCode.INVALID_OPINION));
-        opinion.resetChatCount();
+        List<OpinionChat> chats = opinionChatRepository.findTop3ByOpinionIdOrderByIdDesc(opinionId);
+        if (chats.size() < 3) return;
+        for (OpinionChat opinionChat : chats) {
+            if (opinionChat.isAdmin()) return;
+        }
+        throw new OpinionException(ErrorCode.CHAT_COUNT_LIMIT_EXCEEDED);
     }
 }
