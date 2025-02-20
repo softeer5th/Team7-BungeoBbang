@@ -10,6 +10,11 @@ interface UseImageUploadReturn {
   closeSizeDialog: () => void;
 }
 
+interface PresignedUrlResponse {
+  presignedUrl: string;
+  fileName: string;
+}
+
 export const useImageUpload = (
   maxSize: number = 10,
   maxCount: number = 5,
@@ -17,24 +22,35 @@ export const useImageUpload = (
   const [images, setImages] = useState<string[]>([]);
   const [showSizeDialog, setShowSizeDialog] = useState(false);
 
-  const uploadImages = async (files: File[]): Promise<string[]> => {
-    const formData = new FormData();
-    files.forEach((file) => {
-      formData.append('images', file);
+  const getSignedUrl = async (file: File): Promise<PresignedUrlResponse> => {
+    const response = await api.post('/api/images/presigned', {
+      contentType: file.type,
     });
+    return response.data;
+  };
 
+  const uploadToS3 = async (file: File, signedUrl: string) => {
+    await fetch(signedUrl, {
+      method: 'PUT',
+      body: file,
+      headers: { 'Content-Type': file.type },
+    });
+  };
+
+  const uploadImages = async (files: File[]): Promise<string[]> => {
     try {
-      const response = await api.post('/api/images', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
-      const imageUrls = response.data.names.map(
-        (name: string) => `${AUTH_CONFIG.API.S3_URL}/${name}`,
-      );
+      const uploadResults = [];
+      for (const file of files) {
+        const { presignedUrl, fileName } = await getSignedUrl(file);
 
-      console.log('이미지 업로드 성공:', imageUrls);
-      return imageUrls;
+        await uploadToS3(file, presignedUrl);
+
+        const imageUrl = `${AUTH_CONFIG.API.S3_URL}/${fileName}`;
+        uploadResults.push(imageUrl);
+      }
+
+      console.log('이미지 업로드 성공:', uploadResults);
+      return uploadResults;
     } catch (error) {
       console.error('이미지 업로드 실패:', error);
       return [];
