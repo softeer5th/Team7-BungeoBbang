@@ -81,14 +81,24 @@ const OpinionChatPage = () => {
           setIsRemindEnabled(false);
           setIsReminded(false);
         }
+
         if (message.memberId === Number(memberId)) {
-          getReloadChatDataFromRecent();
-        } else {
           if (!getHasDownMore() && isWatchingBottom()) {
+            isLiveSendChatAdded.current = true;
+            addNewSocketData(newChat);
+          } else {
             getReloadChatDataFromRecent();
+          }
+        } else {
+          if (!getHasDownMore()) {
+            if (isWatchingBottom()) {
+              isLiveReceiveChatAdded.current = true;
+            } else {
+              setToastMeesage('새로운 채팅이 도착했습니다.');
+            }
+            addNewSocketData(newChat);
             return;
           }
-          setHasDownMore(true);
           setToastMeesage('새로운 채팅이 도착했습니다.');
         }
       }
@@ -166,10 +176,14 @@ const OpinionChatPage = () => {
   const isInitialRecentLoading = useRef<boolean>(false);
   const isUpDirection = useRef<boolean>(false);
   const isDownDirection = useRef<boolean>(false);
-  // const isLiveReceive = useRef<boolean>(false);
+
+  const isLiveSendChatAdded = useRef<boolean>(false);
+  const isLiveReceiveChatAdded = useRef<boolean>(false);
 
   const isUpOverflow = useRef<boolean>(false);
   const isDownOverflow = useRef<boolean>(false);
+  const isLiveSendOverflow = useRef<boolean>(false);
+  const isLiveReceiveOverflow = useRef<boolean>(false);
 
   let upLastItemId: string = '';
   let downLastItemId: string = '';
@@ -325,6 +339,10 @@ const OpinionChatPage = () => {
     }
   };
 
+  const addNewSocketData = (newChat: ChatData) => {
+    setChatData((prev) => [...prev, newChat]);
+  };
+
   const { setTriggerUpItem, setTriggerDownItem, getHasDownMore, setHasUpMore, setHasDownMore } =
     useInfiniteScroll({
       initialFetch: getInitialChatData,
@@ -338,13 +356,10 @@ const OpinionChatPage = () => {
 
     if (isInitialTopLoading.current === true) {
       scrollToTop();
-      console.log('scroll top end');
       isInitialTopLoading.current = false;
       return;
     } else if (isInitialRecentLoading.current === true) {
       scrollToBottom();
-
-      console.log('scroll bottom end');
       isInitialRecentLoading.current = false;
       return;
     }
@@ -373,7 +388,6 @@ const OpinionChatPage = () => {
 
     if (isDownDirection.current) {
       if (isDownOverflow.current === true) {
-        // console.log("down 호출");
         restoreScrollTopFromDown();
         isDownOverflow.current = false;
         isDownDirection.current = false;
@@ -384,7 +398,6 @@ const OpinionChatPage = () => {
 
       if (MAX_CHAT_DATA_LENGTH < chatData.length) {
         isDownOverflow.current = true;
-        // console.log("slice!!");
 
         setHasUpMore(true);
         setChatData((prev) => prev.slice(chatData.length - MAX_CHAT_DATA_LENGTH));
@@ -392,6 +405,49 @@ const OpinionChatPage = () => {
       }
 
       isDownDirection.current = false;
+      return;
+    }
+
+    if (isLiveSendChatAdded.current) {
+      if (isLiveSendOverflow.current === true) {
+        scrollToBottom();
+        isLiveSendOverflow.current = false;
+        isLiveSendChatAdded.current = false;
+        return;
+      }
+
+      scrollToBottom();
+
+      if (MAX_CHAT_DATA_LENGTH < chatData.length) {
+        isLiveSendOverflow.current = true;
+
+        setHasUpMore(true);
+        setChatData((prev) => prev.slice(chatData.length - MAX_CHAT_DATA_LENGTH));
+        return;
+      }
+
+      isLiveSendChatAdded.current = false;
+    }
+
+    if (isLiveReceiveChatAdded.current) {
+      if (isLiveReceiveOverflow.current === true) {
+        scrollToBottom();
+        isLiveReceiveOverflow.current = false;
+        isLiveReceiveChatAdded.current = false;
+        return;
+      }
+
+      scrollToBottom();
+
+      if (MAX_CHAT_DATA_LENGTH < chatData.length) {
+        isLiveReceiveOverflow.current = true;
+
+        setHasUpMore(true);
+        setChatData((prev) => prev.slice(chatData.length - MAX_CHAT_DATA_LENGTH));
+        return;
+      }
+
+      isLiveReceiveChatAdded.current = false;
     }
   }, [chatData]);
 
@@ -564,7 +620,7 @@ const OpinionChatPage = () => {
         <ChatToast
           message={toastMessage}
           bottom={(chatSendFieldRef.current?.offsetHeight ?? 0) + 15}
-          onClick={() => getInitialChatDataFromRecent()}
+          onClick={() => getReloadChatDataFromRecent()}
           onDismiss={() => setToastMeesage(null)}
         />
       )}
