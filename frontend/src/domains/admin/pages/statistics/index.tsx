@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { TopAppBar } from '@/components/TopAppBar';
-import { TabBar } from '@/components/tab-bar/TabBar';
 import { BottomNavigation } from '@/components/bottom-navigation/BottomNavigation';
 import { bottomItems, moveToDestination } from '../destinations';
 import { useNavigate } from 'react-router-dom';
