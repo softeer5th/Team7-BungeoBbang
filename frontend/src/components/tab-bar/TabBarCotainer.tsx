@@ -20,7 +20,7 @@ export const TabBarContainer: React.FC<TabBarContainerProps> = ({
 }) => {
   console.log('currentTabSelectedIndex');
 
-  const [activeIndex, setActiveIndex] = useState(currentTabSelectedIndex);
+  const [activeIndex, setActiveIndex] = useState(currentTabSelectedIndex || 0);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const [translateX, setTranslateX] = useState(0);
