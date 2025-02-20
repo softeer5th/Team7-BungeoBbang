@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { ProtectedRoute } from '@/routes/StudentProtectedRoute';
 import LoginPage from './pages/login';
 import OAuthCallback from './pages/oauth/callback';
@@ -15,11 +15,9 @@ import { ErrorProvider, useError } from '@/contexts/ErrorContext';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { useEffect } from 'react';
 import { setErrorHandler } from '@/utils/errorHandler';
-import { AnimatePresence } from 'framer-motion';
 
 function AppContent() {
   const { showError } = useError();
-  const location = useLocation();
 
   useEffect(() => {
     setErrorHandler(showError);
@@ -27,27 +25,25 @@ function AppContent() {
 
   return (
     <ErrorBoundary onError={showError}>
-      <AnimatePresence>
-        <Routes location={location} key={location.pathname}>
-          {/* Public routes */}
-          <Route path="/" element={<LoginPage />} />
-          <Route path="/kakao/redirect" element={<OAuthCallback />} />
-          <Route path="/google/redirect" element={<OAuthCallback />} />
+      <Routes>
+        {/* Public routes */}
+        <Route path="/" element={<LoginPage />} />
+        <Route path="/kakao/redirect" element={<OAuthCallback />} />
+        <Route path="/google/redirect" element={<OAuthCallback />} />
 
-          {/* Protected routes */}
-          <Route element={<ProtectedRoute />}>
-            <Route path="/email" element={<EmailVerification />} />
-            <Route path="/univ" element={<UniversitySelection />} />
-            <Route path="/agenda" element={<AgendaPage />} />
-            <Route path="/agenda/chat/:roomId" element={<AgendaChatPage />} />
-            <Route path="/my" element={<MyPage />} />
-            <Route path="/login/success" element={<LoginSuccess />} />
-            <Route path="/opinion/entry" element={<OpinionEntryPage />} />
-            <Route path="/opinion/category" element={<OpinionCategoryPage />} />
-            <Route path="/opinion/chat/:roomId" element={<OpinionChatPage />} />
-          </Route>
-        </Routes>
-      </AnimatePresence>
+        {/* Protected routes */}
+        <Route element={<ProtectedRoute />}>
+          <Route path="/email" element={<EmailVerification />} />
+          <Route path="/univ" element={<UniversitySelection />} />
+          <Route path="/agenda" element={<AgendaPage />} />
+          <Route path="/agenda/chat/:roomId" element={<AgendaChatPage />} />
+          <Route path="/my" element={<MyPage />} />
+          <Route path="/login/success" element={<LoginSuccess />} />
+          <Route path="/opinion/entry" element={<OpinionEntryPage />} />
+          <Route path="/opinion/category" element={<OpinionCategoryPage />} />
+          <Route path="/opinion/chat/:roomId" element={<OpinionChatPage />} />
+        </Route>
+      </Routes>
     </ErrorBoundary>
   );
 }

@@ -47,6 +47,7 @@ const OpinionChatPage = () => {
   const [isRemindEnabled, setIsRemindEnabled] = useState(false);
   const [isReminded, setIsReminded] = useState(false);
   const [dialogText, setDialogText] = useState('');
+  const [forbiddenDialog, setForbiddenDialog] = useState(false);
   const { images, showSizeDialog, handleImageDelete, handleImageUpload, closeSizeDialog } =
     useImageUpload(10, 5);
 
@@ -61,6 +62,10 @@ const OpinionChatPage = () => {
 
   const handleMessageReceive = useCallback(
     (message: ChatMessage) => {
+      if (message.code === 7) {
+        setForbiddenDialog(true);
+        return;
+      }
       if (message.roomType === 'OPINION' && message.opinionId === Number(roomId)) {
         const newChat = {
           type: message.memberId === Number(memberId) ? ChatType.SEND : ChatType.RECEIVE,
@@ -571,6 +576,18 @@ const OpinionChatPage = () => {
           confirmButton={{
             text: '확인',
             children: '확인',
+            backgroundColor: '#1F87FF',
+            textColor: '#FFFFFF',
+          }}
+        />
+      )}
+      {forbiddenDialog && (
+        <Dialog
+          body={'금칙어가 발견됐습니다.\n더 나은 학교를 위해\n금칙어는 자제해주세요.'}
+          onConfirm={() => setForbiddenDialog(false)}
+          onDismiss={() => setForbiddenDialog(false)}
+          confirmButton={{
+            text: '확인',
             backgroundColor: '#1F87FF',
             textColor: '#FFFFFF',
           }}

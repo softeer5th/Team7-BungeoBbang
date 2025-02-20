@@ -11,6 +11,7 @@ export interface ChatMessage {
   memberId?: number;
   adminId?: number;
   createdAt: string;
+  code?: number;
 }
 
 interface SocketState {
@@ -184,6 +185,11 @@ export const useSocketStore = create<SocketState>((set, get) => ({
 
           const data = JSON.parse(event.data) as ChatMessage;
           console.log('Received message:', data);
+
+          if (data.code === 7) {
+            callback(data);
+            return;
+          }
 
           if (
             data.roomType === roomType &&
