@@ -60,12 +60,10 @@ const MyPage = () => {
   }, []);
 
   const { refetch: refetchOpinions } = useQuery('my-opinions', fetchOpinions, {
-    staleTime: 3 * 60 * 1000,
     onSuccess: handleOpinionSuccess,
   });
 
   const { refetch: refetchAgendas } = useQuery('my-agendas', fetchAgendas, {
-    staleTime: 3 * 60 * 1000,
     onSuccess: handleAgendaSuccess,
   });
 
