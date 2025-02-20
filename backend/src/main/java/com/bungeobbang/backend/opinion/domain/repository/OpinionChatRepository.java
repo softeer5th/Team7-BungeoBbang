@@ -42,4 +42,7 @@ public interface OpinionChatRepository extends MongoRepository<OpinionChat, Stri
 
     // opinionId에 해당하는 최신 채팅 1개를 가져오는 메서드
     Optional<OpinionChat> findTop1ByOpinionIdOrderByIdDesc(Long opinionId);
+
+    // 최신 채팅 3개 조회
+    List<OpinionChat> findTop3ByOpinionIdOrderByIdDesc(Long opinionId);
 }
