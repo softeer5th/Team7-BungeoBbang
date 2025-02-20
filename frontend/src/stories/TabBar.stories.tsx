@@ -17,7 +17,7 @@ const meta: Meta<typeof TabBar> = {
 export default meta;
 type Story = StoryObj<typeof TabBar>;
 
-export const Default: Story = {
+export const TabBarDefault: Story = {
   args: {
     currentDestination: 'opinion',
     items: [

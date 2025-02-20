@@ -6,7 +6,12 @@ import { TabBar } from './TabBar';
 export interface TabBarContainerProps {
   tabItems: TabBarItemProps[];
   currentTabSelectedIndex: number;
-  backgroundColor?: string;
+  contentBackgroundColor?: string;
+  tabBarBackgroundColor?: string;
+  selectedTabBarItembackgroundColor?: string;
+  indicatorColor?: string;
+  tabBarTextColor?: string;
+  tabBarSelectedTextColor?: string;
   onTabItemClick?: (itemId: string) => void;
   contents: (index: number) => React.ReactNode;
 }
@@ -14,12 +19,15 @@ export interface TabBarContainerProps {
 export const TabBarContainer: React.FC<TabBarContainerProps> = ({
   tabItems,
   currentTabSelectedIndex,
-  backgroundColor = '#F4F4F4',
+  contentBackgroundColor = '#F4F4F4',
+  tabBarBackgroundColor = '#FFFFFF',
+  selectedTabBarItembackgroundColor = '#FFFFFF',
+  indicatorColor = '#1F87FF',
+  tabBarTextColor = '#C6C6C6',
+  tabBarSelectedTextColor = '#1F87FF',
   onTabItemClick = () => {},
   contents,
 }) => {
-  console.log('currentTabSelectedIndex');
-
   const [activeIndex, setActiveIndex] = useState(currentTabSelectedIndex || 0);
 
   const containerRef = useRef<HTMLDivElement>(null);
@@ -72,9 +80,14 @@ export const TabBarContainer: React.FC<TabBarContainerProps> = ({
         currentDestination={tabItems[activeIndex].itemId}
         items={tabItems}
         onItemClick={handleTabItemClick}
+        backgroundColor={tabBarBackgroundColor}
+        selectedItembackgroundColor={selectedTabBarItembackgroundColor}
+        indicatorColor={indicatorColor}
+        textColor={tabBarTextColor}
+        selectedTextColor={tabBarSelectedTextColor}
       />
       <TabContentContainer
-        backgroundColor={backgroundColor}
+        backgroundColor={contentBackgroundColor}
         ref={containerRef}
         onScroll={handleTabContentScroll}
       >
