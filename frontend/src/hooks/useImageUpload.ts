@@ -39,18 +39,24 @@ export const useImageUpload = (
 
   const uploadImages = async (files: File[]): Promise<string[]> => {
     try {
-      const uploadResults = [];
-      for (const file of files) {
-        const { presignedUrl, fileName } = await getSignedUrl(file);
+      const uploadPromises = files.map(async (file) => {
+        try {
+          const { presignedUrl, fileName } = await getSignedUrl(file);
+          await uploadToS3(file, presignedUrl);
 
-        await uploadToS3(file, presignedUrl);
+          return `${AUTH_CONFIG.API.S3_URL}/${fileName}`;
+        } catch (error) {
+          console.error(`파일 업로드 실패: ${file.name}`, error);
+          return null;
+        }
+      });
 
-        const imageUrl = `${AUTH_CONFIG.API.S3_URL}/${fileName}`;
-        uploadResults.push(imageUrl);
-      }
+      const results = await Promise.all(uploadPromises);
 
-      console.log('이미지 업로드 성공:', uploadResults);
-      return uploadResults;
+      const successfulUploads = results.filter((url): url is string => url !== null);
+
+      console.log('이미지 업로드 성공:', successfulUploads);
+      return successfulUploads;
     } catch (error) {
       console.error('이미지 업로드 실패:', error);
       return [];
