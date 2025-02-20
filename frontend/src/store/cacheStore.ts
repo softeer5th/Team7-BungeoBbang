@@ -17,7 +17,8 @@ interface CacheStore {
 export const useCacheStore = create<CacheStore>((set, get) => ({
   cache: {},
 
-  setCache: (key: string, data: any, staleTime = 5 * 60 * 1000) => {  // 기본 5분
+  setCache: (key: string, data: any, staleTime = 5 * 60 * 1000) => {
+    // 기본 5분
     set((state) => ({
       cache: {
         ...state.cache,
