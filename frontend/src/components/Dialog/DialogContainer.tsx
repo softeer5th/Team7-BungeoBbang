@@ -101,6 +101,7 @@ const BodyText = styled(Typography)<{
 }>`
   color: ${(props) => props.bodyTextColor};
   text-align: center;
+  white-space: pre-line;
 `;
 
 const ButtonContainer = styled.div`
