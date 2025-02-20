@@ -29,13 +29,16 @@ public interface OpinionChatRepository extends MongoRepository<OpinionChat, Stri
 
 
     // opinionId별 최신 채팅을 가져오는 쿼리
+    // -> 최신 채팅 끼리도 정렬.
     @Aggregation(pipeline = {
             "{ $match: { opinionId: { $in: ?0 } } }",
-            "{ $sort: { _id: -1 } }",
-            "{ $group: { _id: '$opinionId', chat: { $first: '$$ROOT' } } }",
-            "{ $replaceRoot: { newRoot: '$chat' } }"
+            "{ $sort: { _id: -1 } }", // 최신 채팅이 먼저 오도록 정렬
+            "{ $group: { _id: '$opinionId', chat: { $first: '$$ROOT' } } }", // opinionId 별 최신 채팅 선택
+            "{ $replaceRoot: { newRoot: '$chat' } }", // chat 필드를 최상위 필드로 설정
+            "{ $sort: { _id: -1 } }" // OpinionChat 자체를 최신순으로 정렬
     })
     List<OpinionChat> findLatestChatsByOpinionIds(List<Long> opinionIds);
+
 
     @Query("{ 'opinionId': ?0, '_id': { ?1: ?2 } }")
     List<OpinionChat> findOpinionChats(Long opinionId, String comparison, ObjectId chatId, Pageable pageable);

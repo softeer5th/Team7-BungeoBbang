@@ -16,12 +16,14 @@ public interface OpinionRepository extends JpaRepository<Opinion, Long> {
 
     List<Opinion> findAllByCreatedAtBetweenAndUniversityId(LocalDateTime startDate, LocalDateTime endDate, Long universityId);
 
-    List<Opinion> findAllByCategoryTypeInAndUniversityId(Set<CategoryType> categoryTypes, Long universityId);
+    List<Opinion> findAllByCategoryTypeInAndUniversityIdAndIsRemind(Set<CategoryType> categoryTypes, Long universityId, boolean isRemind);
 
 
     List<Opinion> findAllByMemberId(Long memberId);
 
     List<Opinion> findAllByUniversityId(Long universityId);
+
+    List<Opinion> findAllByUniversityIdAndIsRemind(Long universityId, boolean isRemind);
 
     Long countByCreatedAtBetweenAndUniversityId(LocalDateTime localDateTime, LocalDateTime now, Long id);
 

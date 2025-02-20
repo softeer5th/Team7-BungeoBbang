@@ -21,7 +21,7 @@ public record MemberOpinionsInfoResponse(
         boolean hasNewChat,
         @JsonSerialize(using = ObjectIdSerializer.class)
         ObjectId lastReadChatId
-) implements Comparable<MemberOpinionsInfoResponse> {
+) {
 
     public static MemberOpinionsInfoResponse of(Opinion opinion, OpinionChat lastChat, OpinionLastRead lastRead) {
         return new MemberOpinionsInfoResponse(
@@ -46,10 +46,5 @@ public record MemberOpinionsInfoResponse(
             @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
             LocalDateTime createdAt
     ){
-    }
-
-    @Override
-    public int compareTo(MemberOpinionsInfoResponse o) {
-        return o.lastChat.chatId().compareTo(this.lastChat.chatId());
     }
 }

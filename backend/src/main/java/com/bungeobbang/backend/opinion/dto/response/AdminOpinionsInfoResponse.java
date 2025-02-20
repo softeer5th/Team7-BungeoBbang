@@ -20,7 +20,7 @@ public record AdminOpinionsInfoResponse(
         boolean hasNewChat,
         @JsonSerialize(using = ObjectIdSerializer.class)
         ObjectId lastReadChatId
-) implements Comparable<AdminOpinionsInfoResponse> {
+) {
     public static AdminOpinionsInfoResponse of(Opinion opinion, OpinionChat lastChat, OpinionLastRead lastRead) {
         return new AdminOpinionsInfoResponse(
                 new OpinionInfo(opinion.getId(), opinion.getOpinionType(), opinion.getCategoryType(), opinion.isRemind()),
@@ -45,16 +45,5 @@ public record AdminOpinionsInfoResponse(
             @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
             LocalDateTime createdAt
     ){
-    }
-
-    @Override
-    public int compareTo(AdminOpinionsInfoResponse o) {
-        // 1. isReminded가 true 이면 우선 조회
-        int remindComparison = Boolean.compare(o.opinion.isReminded(), this.opinion.isReminded());
-        if (remindComparison != 0) {
-            return remindComparison;
-        }
-        // 2. 시간순(ObjectId)으로 정렬
-        return o.lastChat.chatId().compareTo(lastChat.chatId());
     }
 }
