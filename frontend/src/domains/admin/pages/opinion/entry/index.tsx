@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import api from '@/utils/api';
 import { TopAppBar } from '@/components/TopAppBar';
 import { BottomNavigation } from '@/components/bottom-navigation/BottomNavigation';
@@ -15,6 +15,7 @@ import { findChatCategoryType } from '@/utils/findChatCategoryType';
 import { useSocketManager } from '@/hooks/useSocketManager';
 import { LogoutDialog } from '@/components/Dialog/LogoutDialog';
 import { formatLastChatTime } from '@/utils/chat/lastChatTime';
+import { useSocketStore, ChatMessage } from '@/store/socketStore';
 
 const chipItems = [
   { itemId: 'ALL', text: '전체' },
@@ -28,6 +29,7 @@ const OpinionEntryPage: React.FC = () => {
   const [selectedChip, setSelectedChip] = useState('ALL');
   const [opinions, setOpinions] = useState<Opinion[]>([]);
   const [isLogoutDialogOpen, setLogoutDialogOpen] = useState(false);
+  const { subscribe } = useSocketStore();
 
   const navigate = useNavigate();
   const socketManager = useSocketManager();
@@ -63,12 +65,40 @@ const OpinionEntryPage: React.FC = () => {
     fetchData();
   }, []);
 
+  const handleNewMessage = useCallback((message: ChatMessage) => {
+    setOpinions((prev) => {
+      const opinionIndex = prev.findIndex((opinion) => Number(opinion.id) === message.opinionId);
+
+      if (opinionIndex !== -1) {
+        const updatedOpinions = [...prev];
+        updatedOpinions[opinionIndex] = {
+          ...updatedOpinions[opinionIndex],
+          text: message.message,
+          time: formatLastChatTime(message.createdAt),
+          hasAlarm: true,
+        };
+
+        const [updatedOpinion] = updatedOpinions.splice(opinionIndex, 1);
+        return [updatedOpinion, ...updatedOpinions];
+      }
+
+      return prev;
+    });
+  }, []);
+
+  useEffect(() => {
+    const unsubscribeOpinion = subscribe('OPINION', -2, handleNewMessage);
+
+    return () => {
+      unsubscribeOpinion();
+    };
+  }, [subscribe, handleNewMessage]);
+
   const filteredOpinions =
     selectedChip === 'ALL'
       ? opinions
       : opinions.filter((opinion) => opinion.category.type === selectedChip);
 
-  console.log('filteredOpinions', filteredOpinions);
   return (
     <S.Container>
       <TopAppBar
