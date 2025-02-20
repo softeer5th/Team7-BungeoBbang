@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import * as S from './styles';
 import api from '@/utils/api';
@@ -77,6 +77,11 @@ const AdminLogin: React.FC = () => {
       setValidate(false);
     }
   };
+
+  useEffect(() => {
+    const AccessToken = localStorage.getItem('access_token');
+    AccessToken ? navigate('/opinion/entry') : null;
+  }, [navigate]);
 
   return (
     <S.Container>

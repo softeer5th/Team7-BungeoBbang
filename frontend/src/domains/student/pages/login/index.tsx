@@ -4,8 +4,12 @@ import { AUTH_CONFIG } from '../../../../config/auth';
 import logoImage from '@/assets/icons/logo.png';
 import kakaoIcon from '@/assets/icons/kakao-logo.png';
 import googleIcon from '@/assets/icons/google-logo.png';
+import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const LoginPage = () => {
+  const navigate = useNavigate();
+
   const handleKakaoLogin = () => {
     const KAKAO_AUTH_URL = `${AUTH_CONFIG.KAKAO.AUTH_URL}?client_id=${AUTH_CONFIG.KAKAO.CLIENT_ID}&redirect_uri=${AUTH_CONFIG.KAKAO.REDIRECT_URI}&response_type=code`;
     window.location.href = KAKAO_AUTH_URL;
@@ -22,6 +26,11 @@ const LoginPage = () => {
     const queryString = new URLSearchParams(params).toString();
     window.location.href = `${GOOGLE_AUTH_URL}?${queryString}`;
   };
+
+  useEffect(() => {
+    const AccessToken = localStorage.getItem('access_token');
+    AccessToken ? navigate('/opinion/entry') : null;
+  }, [navigate]);
 
   return (
     <S.Container>
