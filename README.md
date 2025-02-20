@@ -69,16 +69,11 @@
     </table>
 </p>
 
-
----
-
 ## **🎯 팀 목표**
 - 모든 기능 완성하기
 - 기술을 이해하고 사용하기
 - 기술적 도전과 성장
 - 팀원들의 의견 존중하기
-
----
 
 ## [**🛠 기능 소개**](https://github.com/softeer5th/Team7-BungeoBbang/wiki/%EA%B8%B0%EB%8A%A5-%EC%86%8C%EA%B0%9C)
 | 기능 | 설명 |
@@ -87,7 +82,6 @@
 | **🎤답해요 (그룹 채팅)** | 특정 주제에 대해 학생과 학생회가 **효율적으로 소통할 수 있는 그룹 채팅 기능** |
 | **📊관리자 대시보드** | 학생회의 의견 관리 및 통계 제공 |
 
----
 
 ## 🛠 기술 스택
 | 구분            | 기술 스택 |
@@ -132,6 +126,18 @@
 - Spring Boot 서비스와 연결되어 API 요청을 처리
 
 ---
+## 개발일지
+[위키](https://github.com/softeer5th/Team7-BungeoBbang/wiki)에서 더 많은 일지를 확인할 수 있습니다.
+| 분야 | 링크 | 분야 | 링크 |
+|------|---------------------------------|------|---------------------------------|
+| **FE** | | **BE** | 중복 로그인 방지 (세션 관리) |
+| **FE** | | **BE** | 채팅 전송 중 채팅방 삭제 시 예외 처리 |
+| **FE** | 이미지 업로드 처리 및 최적화 | **BE** | Redis Sync vs Async 비교 |
+| **FE** |  | **BE** | MongoClient vs Spring Data MongoDB |
+| **FE** | | **BE** | @Async 활용한 이메일 전송 비동기 처리 |
+| **FE** | | **BE** | Docker 환경에서 ClassPathResource.getFile() 실패 해결 |
+| **FE** | | **BE** | 부하 테스트 일지 |
+
 
 ## **📑 기획/디자인 링크**
 [📌 기획/디자인 바로가기](https://www.figma.com/design/IRJV9BwrhtyrnwF90MWv6r/%5BTEAM-%EB%B6%80%EB%A6%89%EB%B6%80%EB%A6%89-%EB%B6%95%EC%96%B4%EB%B9%B5%5D-%ED%95%B8%EB%93%9C%EC%98%A4%ED%94%84-%EB%AC%B8%EC%84%9C?node-id=1-1426&p=f&t=t47Mit7sIVFXNLTs-0)
