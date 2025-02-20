@@ -46,7 +46,6 @@ const AgendaPage: React.FC = () => {
   });
 
   const containerRef = useRef<HTMLDivElement>(null);
-  const [startX, setStartX] = useState(0);
   const [translateX, setTranslateX] = useState(0);
 
   const [tabContents, setTabContents] = useState<Record<string, ChatRoomListCardData[]>>({});
@@ -62,43 +61,33 @@ const AgendaPage: React.FC = () => {
   const lastChatRoom = useRef<[string | null, number | null][]>(tabItems.map(() => [null, null]));
   const socketManager = useSocketManager();
 
-  const handleTouchStart = (e: React.TouchEvent) => {
-    setStartX(e.touches[0].clientX);
+  const handleTabItemClick = (itemId: string) => {
+    const newActiveIndex = tabItems.findIndex((item) => item.itemId === itemId);
+
+    setActiveIndex(newActiveIndex);
+
+    scrollTabContent(newActiveIndex);
   };
 
-  const handleTouchEnd = (e: React.TouchEvent) => {
-    const width = containerRef.current?.offsetWidth || 375;
-    const threshold = width / 2;
-
-    const deltaX = e.changedTouches[0].clientX - startX;
-
-    let newIndex = activeIndex;
-
-    if (Math.abs(deltaX) > threshold) {
-      if (deltaX < 0 && activeIndex < tabItems.length - 1) {
-        newIndex = activeIndex + 1;
-      } else if (deltaX > 0 && activeIndex > 0) {
-        newIndex = activeIndex - 1;
-      }
+  const handleTabContentScroll = () => {
+    if (containerRef.current) {
+      const width = containerRef.current.offsetWidth;
+      const scrollLeft = containerRef.current.scrollLeft;
+      const index = Math.round(scrollLeft / width);
+      setActiveIndex(index);
     }
-    setActiveIndex(newIndex);
   };
 
-  useEffect(() => {
-    if (bottomNavRef) {
-      setBottomPx(bottomNavRef.current?.offsetHeight || 17);
+  const scrollTabContent = (index: number) => {
+    if (containerRef.current) {
+      const scrollLeft = containerRef.current?.scrollLeft;
+      const width = containerRef.current?.offsetWidth;
+
+      setTranslateX(scrollLeft + -index * width);
+
+      sessionStorage.setItem('activeTabIndex', String(index));
     }
-  }, [bottomPx]);
-
-  useEffect(() => {
-    const scrollLeft = containerRef.current?.scrollLeft || 0;
-
-    const width = containerRef.current?.offsetWidth || 375;
-
-    setTranslateX(scrollLeft + -activeIndex * width);
-
-    sessionStorage.setItem('activeTabIndex', String(activeIndex));
-  }, [activeIndex]);
+  };
 
   const fetchProgressChatRooms = async () => {
     try {
@@ -253,6 +242,16 @@ const AgendaPage: React.FC = () => {
       fetchDownMore: fetchCompleteChatRooms,
     });
 
+  useEffect(() => {
+    if (bottomNavRef) {
+      setBottomPx(bottomNavRef.current?.offsetHeight || 17);
+    }
+  }, [bottomPx]);
+
+  useEffect(() => {
+    handleTabContentScroll();
+  }, []);
+
   return (
     <S.Container>
       <TopAppBar
@@ -267,15 +266,9 @@ const AgendaPage: React.FC = () => {
       <TabBar
         currentDestination={tabItems[activeIndex].itemId}
         items={tabItems}
-        onItemClick={(itemId) =>
-          setActiveIndex(tabItems.findIndex((item) => item.itemId === itemId))
-        }
+        onItemClick={handleTabItemClick}
       />
-      <S.TabContainer
-        ref={containerRef}
-        onTouchStart={handleTouchStart}
-        onTouchEnd={handleTouchEnd}
-      >
+      <S.TabContainer ref={containerRef} onScroll={handleTabContentScroll}>
         {tabItems.map((tab, tabIndex) => {
           const content = tabContents[tab.itemId] || [];
           return (

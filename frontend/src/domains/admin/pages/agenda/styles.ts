@@ -10,15 +10,16 @@ export const Container = styled.div`
 `;
 
 export const TabContainer = styled.div`
+  position: relative;
   flex: 1;
   display: flex;
   background-color: ${(props) => props.theme.colors.grayScale10};
-  overflow: hidden;
+  overflow-x: scroll;
+  scroll-snap-type: x mandatory;
 
   &::-webkit-scrollbar {
     display: none;
   }
-  position: relative;
 `;
 
 export const TabContent = styled.div<{
@@ -26,6 +27,8 @@ export const TabContent = styled.div<{
 }>`
   min-width: 100%;
   max-width: 100%;
+
+  scroll-snap-align: center;
 
   transform: translateX(${(props) => props.transX}px);
   transition: transform 0.3s ease;

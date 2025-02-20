@@ -15,7 +15,7 @@ export const TabContentContainer = styled.div`
   display: flex;
   scroll-snap-type: x mandatory;
   overflow-x: scroll;
-  
+
   &::-webkit-scrollbar {
     display: none;
   }

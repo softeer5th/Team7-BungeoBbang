@@ -37,7 +37,7 @@ const MyPage = () => {
   const { subscribe } = useSocketStore();
 
   const [activeIndex, setActiveIndex] = useState(() => {
-    return Number(sessionStorage.getItem('activeTabIndex')) || 0;;
+    return Number(sessionStorage.getItem('activeTabIndex')) || 0;
   });
 
   const containerRef = useRef<HTMLDivElement>(null);
@@ -85,25 +85,23 @@ const MyPage = () => {
   };
 
   const handleTabItemClick = (itemId: string) => {
-    const newActiveIndex= tabItems.findIndex((item) => item.itemId === itemId);
+    const newActiveIndex = tabItems.findIndex((item) => item.itemId === itemId);
 
     setActiveIndex(newActiveIndex);
 
     scrollTabContent(newActiveIndex);
-  }
+  };
 
   const scrollTabContent = (index: number) => {
-
-    if(containerRef.current){
-
+    if (containerRef.current) {
       const scrollLeft = containerRef.current?.scrollLeft;
       const width = containerRef.current?.offsetWidth;
-  
+
       setTranslateX(scrollLeft + -index * width);
-  
+
       sessionStorage.setItem('activeTabIndex', String(index));
     }
-  }
+  };
 
   const handleNewMessage = useCallback((message: ChatMessage) => {
     setTabBarContent((prev) => {
@@ -158,12 +156,7 @@ const MyPage = () => {
         items={tabItems}
         onItemClick={handleTabItemClick}
       />
-      <S.TabContentContainer
-        ref={containerRef}
-        onScroll={handleTabContentScroll}
-        // onTouchStart={handleTouchStart}
-        // onTouchEnd={handleTouchEnd}
-      >
+      <S.TabContentContainer ref={containerRef} onScroll={handleTabContentScroll}>
         {tabItems.map((tab) => {
           const content = tabBarContent[tab.itemId] || [];
           return (
