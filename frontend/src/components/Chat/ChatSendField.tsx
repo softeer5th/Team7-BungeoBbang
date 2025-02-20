@@ -135,6 +135,10 @@ export const ChatSendField = forwardRef<HTMLDivElement, ChatSendFieldProps>(
       if (message.trim() || textDisabled) {
         onSendMessage(message, images);
         setMessage('');
+
+        if (textAreaRef.current) {
+          textAreaRef.current.focus();
+        }
       }
     };
 
