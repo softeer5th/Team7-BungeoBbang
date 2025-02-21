@@ -178,7 +178,6 @@ const StatisticsPage = () => {
         tabItems={tabItems}
         currentTabSelectedIndex={tabItems.findIndex((tab) => tab.itemId === currentTab)}
         onTabItemClick={(itemId) => setCurrentTab(itemId)}
-
         contents={() => {
           return (
             <Content>
