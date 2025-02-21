@@ -64,8 +64,8 @@ export const NoTitle: Story = {
 export const WarningDialog: Story = {
   args: {
     title: '학교 리모델링과 관련한 학생 의견 모집',
-    body: `채팅방을 종료하시나요?<br/>
-  종료된 채팅방은 종료 페이지로 이동되며,<br/>
+    body: `채팅방을 종료하시나요?
+    종료된 채팅방은 종료 페이지로 이동되며,
   다시 개설이 되지 않습니다.`,
     backgroundColor: '#FFFFFF',
     titleBackgroundColor: '#F4F4F4',

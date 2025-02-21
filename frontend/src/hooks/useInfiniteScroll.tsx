@@ -59,7 +59,6 @@ const useInfiniteScroll = ({
           const [entry] = entries;
           // console.log("oberse!!", entry.isIntersecting, hasUpMore.current, fetchUpMore, !!fetchUpMore);
           if (entry.isIntersecting && hasUpMore.current && !!fetchUpMore) {
-            // console.log("왜 여긴 못 오지")
             fetchUpMore();
           }
         },

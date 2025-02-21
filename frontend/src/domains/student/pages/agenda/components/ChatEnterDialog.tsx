@@ -25,9 +25,9 @@ export const ChatEnterDialog: React.FC<ChatEnterDialogProps> = ({
 
   return (
     <Dialog
-      body={`채팅방에 입장하시겠어요?<br/>
-      입장한 채팅방의 알림은<br/>
-      <span style="color: #1F87FF; font-weight: 700;">[내 의견]</span>에서 확인할 수 있습니다.`}
+      body={`채팅방에 입장하시겠어요?
+      입장한 채팅방의 알림은
+      <span style="color: #1F87FF; font-weight: 700; line-height:130%">[내 의견]</span>에서 확인할 수 있습니다.`}
       onConfirm={() => onConfirm()}
       onDismiss={() => onDismiss()}
       confirmButton={confirmButton}
