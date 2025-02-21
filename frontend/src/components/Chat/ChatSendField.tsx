@@ -306,9 +306,10 @@ const ChatSendContainer = styled.div<{
   padding: 8px 16px 8px 16px;
   background-color: ${(props) => props.bcakgroundColor};
   gap: 8px;
+  position: sticky; // 추가
+  bottom: 0; // 추가
   padding-bottom: ${(props) =>
     props.isKeyboardVisible ? '15px' : 'calc(env(safe-area-inset-bottom) + 15px)'};
-  transition: padding-bottom 0.3s ease; /* 패딩 변경 시 애니메이션 추가 */
 `;
 
 const ImageUploadBox = styled.div<{ backgroundColor: string }>`
@@ -430,6 +431,8 @@ const TextFieldInput = styled(Typography).attrs({ as: 'textarea' })<{
   border: none;
   background-color: transparent;
   resize: none;
+  -webkit-user-select: text; // 추가
+  user-select: text; // 추가
 
   &::placeholder {
     color: ${(props) => props.placeholderColor};

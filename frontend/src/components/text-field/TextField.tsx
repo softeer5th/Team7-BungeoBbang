@@ -60,6 +60,7 @@ export const TextField: React.FC<TextFieldProps> = ({
         hasError={isError}
         disabled={disabled}
         isFocusable={onClick ? false : true}
+        readOnly={true}
       />
       {isError && errorText && (
         <ErrorText variant="caption2" errorTextColor={errorTextColor}>
