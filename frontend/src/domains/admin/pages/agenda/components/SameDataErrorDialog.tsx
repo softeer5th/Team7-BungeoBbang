@@ -14,9 +14,7 @@ export const SameDateErrorDialog: React.FC<SameDateErrorDialogProps> = ({
 
   return (
     <Dialog
-      body="
-           시작 날짜와 종료 날짜는 동일할 수 없습니다.
-        "
+      body="시작 날짜와 종료 날짜는 동일할 수 없습니다."
       onConfirm={onConfirm}
       onDismiss={onDismiss}
       confirmButton={{

@@ -18,7 +18,7 @@ import { useEnterLeaveHandler } from '@/hooks/useEnterLeaveHandler.ts';
 import useInfiniteScroll from '@/hooks/useInfiniteScroll.tsx';
 import { useScroll } from '@/hooks/useScrollBottom.tsx';
 import { useSocketManager } from '@/hooks/useSocketManager.ts';
-import { ChatToast } from '@/components/ChatToast.tsx';
+import { ChatToast } from '@/components/Toast/ChatToast.tsx';
 import {
   FIRST_REMAIN_ITEMS,
   LAST_REMAIN_ITEMS,

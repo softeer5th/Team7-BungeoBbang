@@ -14,11 +14,9 @@ export const BadWordErrorDialog: React.FC<BadWordErrorDialogProps> = ({
 
   return (
     <Dialog
-      body="
-          금칙어가 발견되었습니다.<br/>
-          더 나은 학교를 위해<br/>
-          금칙어는 자제해주세요.<br/>
-        "
+      body="금칙어가 발견되었습니다.
+          더 나은 학교를 위해
+          금칙어는 자제해주세요."
       onConfirm={onConfirm}
       onDismiss={onDismiss}
       confirmButton={{

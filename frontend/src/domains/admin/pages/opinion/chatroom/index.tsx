@@ -22,7 +22,7 @@ import { ImagePreview } from '@/components/Chat/ImagePreview';
 import { useEnterLeaveHandler } from '@/hooks/useEnterLeaveHandler';
 import useInfiniteScroll from '@/hooks/useInfiniteScroll';
 import { ChatCategoryType } from '@/types/ChatCategoryType';
-import { ChatToast } from '@/components/ChatToast';
+import { ChatToast } from '@/components/Toast/ChatToast';
 import {
   FIRST_REMAIN_ITEMS,
   LAST_REMAIN_ITEMS,

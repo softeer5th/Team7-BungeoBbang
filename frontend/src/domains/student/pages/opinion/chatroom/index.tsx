@@ -27,7 +27,7 @@ import { ImagePreview } from '@/components/Chat/ImagePreview.tsx';
 import { useEnterLeaveHandler } from '@/hooks/useEnterLeaveHandler.ts';
 import { ChatRoomInfo } from '../../agenda/chat/chat-page/index.tsx';
 import useInfiniteScroll from '@/hooks/useInfiniteScroll.tsx';
-import { ChatToast } from '@/components/ChatToast.tsx';
+import { ChatToast } from '@/components/Toast/ChatToast.tsx';
 import {
   FIRST_REMAIN_ITEMS,
   LAST_REMAIN_ITEMS,
