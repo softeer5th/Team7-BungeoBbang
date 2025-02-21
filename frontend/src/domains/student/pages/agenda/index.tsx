@@ -171,7 +171,7 @@ const AgendaPage = () => {
           <S.EmptyTextWrapper>
             {!isFirstUpcoming && (
               <S.EmptyText variant="heading4">현재 개설된 채팅방이 없습니다.</S.EmptyText>
-            )}
+            )}  
           </S.EmptyTextWrapper>
         )}
       </S.BodyContainer>
