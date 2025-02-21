@@ -64,7 +64,7 @@ public class AdminOpinionService {
         // 리마인드 안된 채팅방 조회
         final Map<Long, Opinion> unRemindedOpinions = getOpinionsByCategories(categoryTypes, admin.getUniversity().getId(), false);
 
-        List<AdminOpinionsInfoResponse> responses = convertToAdminOpinionInfoList(remindedOpinions);
+        List<AdminOpinionsInfoResponse> responses = new ArrayList<>(convertToAdminOpinionInfoList(remindedOpinions));
         responses.addAll(convertToAdminOpinionInfoList(unRemindedOpinions));
 
         return responses;
