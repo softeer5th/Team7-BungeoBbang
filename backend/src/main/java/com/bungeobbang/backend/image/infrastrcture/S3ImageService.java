@@ -2,6 +2,7 @@ package com.bungeobbang.backend.image.infrastrcture;
 
 import com.bungeobbang.backend.common.exception.ImageException;
 import com.bungeobbang.backend.image.domain.ImageFile;
+import com.bungeobbang.backend.image.dto.response.PresignedUrlResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -11,9 +12,14 @@ import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.model.S3Exception;
+import software.amazon.awssdk.services.s3.presigner.S3Presigner;
+import software.amazon.awssdk.services.s3.presigner.model.PresignedPutObjectRequest;
+import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignRequest;
 
 import java.io.IOException;
+import java.time.Duration;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
@@ -30,10 +36,26 @@ import static com.bungeobbang.backend.common.exception.ErrorCode.*;
 @RequiredArgsConstructor
 public class S3ImageService {
 
+    private final S3Presigner s3Presigner;
     private final S3Client s3Client;
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
 
+    public PresignedUrlResponse generatePresignedUrl(String contentType) {
+        final String uuid = UUID.randomUUID().toString();
+
+        PutObjectPresignRequest presignRequest = PutObjectPresignRequest.builder()
+                .signatureDuration(Duration.ofMinutes(10))
+                .putObjectRequest(req -> req
+                        .bucket(bucket)
+                        .key(uuid)
+                        .contentType(contentType))
+                .build();
+
+        PresignedPutObjectRequest presignedRequest = s3Presigner.presignPutObject(presignRequest);
+
+        return new PresignedUrlResponse(uuid, presignedRequest.url().toString());
+    }
     /**
      * ✅ 여러 개의 이미지를 비동기적으로 업로드
      *

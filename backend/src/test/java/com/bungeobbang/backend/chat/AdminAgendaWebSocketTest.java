@@ -122,7 +122,7 @@ public class AdminAgendaWebSocketTest {
                 .build());
         MEMBER = memberRepository.save(Member.builder().provider(ProviderType.KAKAO).email("email").loginId("1").university(university).build());
         final String uuid = UUID.randomUUID().toString();
-        final MemberTokens memberTokens = jwtProvider.generateLoginToken(String.valueOf(ADMIN.getId()), Authority.ADMIN, uuid);
+        final MemberTokens memberTokens = jwtProvider.generateLoginToken(String.valueOf(ADMIN.getId()), Authority.ADMIN, uuid, "1");
         uuidRepository.save(Authority.ADMIN, uuid, String.valueOf(ADMIN.getId()));
         StandardWebSocketClient client = new StandardWebSocketClient();
 
@@ -155,7 +155,7 @@ public class AdminAgendaWebSocketTest {
     void testSendChatMessageAndVerifyStorage() throws Exception {
         // given
         AdminWebsocketMessage payload = new AdminWebsocketMessage(RoomType.AGENDA, SocketEventType.CHAT, null, UPCOMING_AGENDA.getId(), "웹소캣 채팅 테스트지롱",
-                List.of("image1", "image2"), ADMIN.getId(), null, 0
+                List.of("image1", "image2"), ADMIN.getId(), null, null, 0
         );
         String messageJson = objectMapper.writeValueAsString(payload);
         // when
@@ -177,7 +177,7 @@ public class AdminAgendaWebSocketTest {
     void sendChatToClosedAgenda() throws IOException, InterruptedException {
         // given
         AdminWebsocketMessage payload = new AdminWebsocketMessage(RoomType.AGENDA, SocketEventType.CHAT, null, CLOSED_AGENDA.getId(), "웹소캣 채팅 테스트지롱",
-                List.of("image1", "image2"), ADMIN.getId(), null, 0
+                List.of("image1", "image2"), ADMIN.getId(), null, null, 0
         );
         String messageJson = objectMapper.writeValueAsString(payload);
         // when
@@ -198,7 +198,7 @@ public class AdminAgendaWebSocketTest {
     void sendChatToActiveAgenda() throws Exception {
         // given
         AdminWebsocketMessage payload = new AdminWebsocketMessage(RoomType.AGENDA, SocketEventType.CHAT, null, ACTIVE_AGENDA.getId(), "웹소캣 채팅 테스트지롱",
-                List.of("image1", "image2"), ADMIN.getId(), null, 0
+                List.of("image1", "image2"), ADMIN.getId(), null, null, 0
         );
         String messageJson = objectMapper.writeValueAsString(payload);
         // when

@@ -42,7 +42,8 @@ public class AdminLoginService {
         MemberTokens memberTokens = jwtProvider.generateLoginToken(
                 admin.getId().toString(),
                 ADMIN,
-                uuid
+                uuid,
+                String.valueOf(admin.getUniversity().getId())
         );
         refreshTokenRepository.saveRefreshToken(ADMIN, String.valueOf(admin.getId()), memberTokens.refreshToken());
 

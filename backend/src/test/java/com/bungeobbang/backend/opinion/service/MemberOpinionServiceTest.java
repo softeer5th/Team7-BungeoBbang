@@ -55,6 +55,8 @@ class MemberOpinionServiceTest {
     private OpinionLastReadRepository opinionLastReadRepository;
     @Mock
     private AnsweredOpinionRepository answeredOpinionRepository;
+    @Mock
+    private OpinionRealTimeChatService opinionRealTimeChatService;
 
     @Test
     @DisplayName("1개월 동안의 의견 통계를 계산한다.")

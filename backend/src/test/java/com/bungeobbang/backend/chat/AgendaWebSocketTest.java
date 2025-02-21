@@ -138,7 +138,7 @@ public class AgendaWebSocketTest {
                 .build());
         MEMBER = memberRepository.save(Member.builder().provider(ProviderType.KAKAO).email("email").loginId("1").university(university).build());
         final String uuid = UUID.randomUUID().toString();
-        final MemberTokens memberTokens = jwtProvider.generateLoginToken(String.valueOf(MEMBER.getId()), Authority.MEMBER, uuid);
+        final MemberTokens memberTokens = jwtProvider.generateLoginToken(String.valueOf(MEMBER.getId()), Authority.MEMBER, uuid, String.valueOf(MEMBER.getUniversity().getId()));
         uuidRepository.save(Authority.MEMBER, uuid, String.valueOf(MEMBER.getId()));
         StandardWebSocketClient client = new StandardWebSocketClient();
 
@@ -171,7 +171,7 @@ public class AgendaWebSocketTest {
     void testSendChatMessageAndVerifyStorage() throws Exception {
         // given
         MemberWebsocketMessage payload = new MemberWebsocketMessage(RoomType.AGENDA, SocketEventType.CHAT, null, UPCOMING_AGENDA.getId(), "웹소캣 채팅 테스트지롱",
-                List.of("image1", "image2"), MEMBER.getId(), null, 0
+                List.of("image1", "image2"), MEMBER.getId(), null, null, 0
         );
         String messageJson = objectMapper.writeValueAsString(payload);
         // when
@@ -193,7 +193,7 @@ public class AgendaWebSocketTest {
     void sendChatToClosedAgenda() throws IOException, InterruptedException {
         // given
         MemberWebsocketMessage payload = new MemberWebsocketMessage(RoomType.AGENDA, SocketEventType.CHAT, null, CLOSED_AGENDA.getId(), "웹소캣 채팅 테스트지롱",
-                List.of("image1", "image2"), MEMBER.getId(), null, 0
+                List.of("image1", "image2"), MEMBER.getId(), null, null, 0
         );
         String messageJson = objectMapper.writeValueAsString(payload);
         // when
@@ -214,7 +214,7 @@ public class AgendaWebSocketTest {
     void sendChatToActiveAgenda() throws Exception {
         // given
         MemberWebsocketMessage payload = new MemberWebsocketMessage(RoomType.AGENDA, SocketEventType.CHAT, null, ACTIVE_AGENDA.getId(), "웹소캣 채팅 테스트지롱",
-                List.of("image1", "image2"), MEMBER.getId(), null, 0
+                List.of("image1", "image2"), MEMBER.getId(), null, null, 0
         );
         String messageJson = objectMapper.writeValueAsString(payload);
         // when
@@ -245,7 +245,7 @@ public class AgendaWebSocketTest {
     void enterAgenda() throws Exception {
         // given
         MemberWebsocketMessage payload = new MemberWebsocketMessage(RoomType.AGENDA, SocketEventType.ENTER, null, ACTIVE_AGENDA.getId(), null,
-                null, MEMBER.getId(), null, 0
+                null, MEMBER.getId(), null, null, 0
         );
         String messageJson = objectMapper.writeValueAsString(payload);
         // when
@@ -276,7 +276,7 @@ public class AgendaWebSocketTest {
         // given
         agendaChatRepository.save(new AgendaChat(null, ACTIVE_AGENDA.getId(), "마지막 채팅", List.of(), true, null, LocalDateTime.now()));
         MemberWebsocketMessage payload = new MemberWebsocketMessage(RoomType.AGENDA, SocketEventType.LEAVE, null, ACTIVE_AGENDA.getId(), null,
-                null, MEMBER.getId(), null, 0
+                null, MEMBER.getId(), null, null, 0
         );
         String messageJson = objectMapper.writeValueAsString(payload);
         // when
@@ -305,11 +305,11 @@ public class AgendaWebSocketTest {
     void participateAndReceiveChat() throws Exception {
         // given
         MemberWebsocketMessage payload = new MemberWebsocketMessage(RoomType.AGENDA, SocketEventType.PARTICIPATE, null, ACTIVE_AGENDA.getId(), null,
-                null, MEMBER.getId(), null, 0
+                null, MEMBER.getId(), null, null, 0
         );
         String memberWebsocketEvent = objectMapper.writeValueAsString(payload);
         final String uuid = UUID.randomUUID().toString();
-        final MemberTokens adminTokens = jwtProvider.generateLoginToken(String.valueOf(ADMIN.getId()), Authority.ADMIN, uuid);
+        final MemberTokens adminTokens = jwtProvider.generateLoginToken(String.valueOf(ADMIN.getId()), Authority.ADMIN, uuid, String.valueOf(MEMBER.getUniversity().getId()));
         uuidRepository.save(Authority.ADMIN, uuid, String.valueOf(ADMIN.getId()));
 
         StandardWebSocketClient client = new StandardWebSocketClient();
@@ -327,7 +327,7 @@ public class AgendaWebSocketTest {
                 URI.create(url)
         ).get(5, TimeUnit.SECONDS);
         AdminWebsocketMessage adminWebsocketMessage = new AdminWebsocketMessage(RoomType.AGENDA, SocketEventType.CHAT, null, ACTIVE_AGENDA.getId(), "학생회입니다~",
-                List.of("image1", "image2"), ADMIN.getId(), null, 0
+                List.of("image1", "image2"), ADMIN.getId(), null, null, 0
         );
 
         String adminMessage = objectMapper.writeValueAsString(adminWebsocketMessage);

@@ -87,7 +87,7 @@ class AdminLoginServiceTest {
                 .thenReturn(TRUE);
 
         final MemberTokens expected = new MemberTokens("access_token", "refresh_token");
-        when(jwtProvider.generateLoginToken(Mockito.anyString(), Mockito.any(Authority.class), Mockito.anyString()))
+        when(jwtProvider.generateLoginToken(Mockito.anyString(), Mockito.any(Authority.class), Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(expected);
         doNothing().when(refreshTokenRepository).saveRefreshToken(Mockito.any(Authority.class), Mockito.anyString(), Mockito.anyString());
 

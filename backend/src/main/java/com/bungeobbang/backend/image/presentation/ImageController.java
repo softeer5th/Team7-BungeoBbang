@@ -1,7 +1,9 @@
 package com.bungeobbang.backend.image.presentation;
 
 import com.bungeobbang.backend.image.dto.request.ImageDeleteRequest;
+import com.bungeobbang.backend.image.dto.request.PresignedUrlRequest;
 import com.bungeobbang.backend.image.dto.response.ImageResponse;
+import com.bungeobbang.backend.image.dto.response.PresignedUrlResponse;
 import com.bungeobbang.backend.image.service.ImageService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
@@ -28,5 +30,11 @@ public class ImageController {
     public ResponseEntity<Void> deleteImages(@RequestBody ImageDeleteRequest request) {
         imageService.delete(request.images());
         return ResponseEntity.noContent().build();
+    }
+
+    @Operation(summary = "presigned Url")
+    @PostMapping("/presigned")
+    public ResponseEntity<PresignedUrlResponse> generatePresignedUrl(@RequestBody PresignedUrlRequest request) {
+        return ResponseEntity.ok(imageService.getPresignedUrl(request));
     }
 }

@@ -63,8 +63,9 @@ public class AdminWebSocketChatHandler extends TextWebSocketHandler {
                 session.sendMessage(new TextMessage("PONG"));
                 return;
             }
+            final Long universityId = Long.valueOf(jwtProvider.getClaim(accessToken, Claim.UNIVERSITY));
             // createdAt 생성하여 requestContainsCreatedAt 객체 생성
-            final AdminWebsocketMessage requestContainsCreatedAt = AdminWebsocketMessage.createResponse(request);
+            final AdminWebsocketMessage requestContainsCreatedAt = AdminWebsocketMessage.createResponse(request, universityId);
 
 
             switch (request.roomType()) {

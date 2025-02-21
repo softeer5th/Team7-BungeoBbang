@@ -56,7 +56,7 @@ public class AgendaWebSocketConcurrencyTest {
     void connectMember() throws ExecutionException, InterruptedException, TimeoutException {
         for (int i = 1; i <= memberCount; i++) {
             final String uuid = UUID.randomUUID().toString();
-            final MemberTokens memberTokens = jwtProvider.generateLoginToken(String.valueOf(i), Authority.MEMBER, uuid);
+            final MemberTokens memberTokens = jwtProvider.generateLoginToken(String.valueOf(i), Authority.MEMBER, uuid, "1");
             uuidRepository.save(Authority.MEMBER, uuid, String.valueOf(i));
             StandardWebSocketClient client = new StandardWebSocketClient();
             String url = "ws://localhost:" + port + "/students";
@@ -105,7 +105,7 @@ public class AgendaWebSocketConcurrencyTest {
         StandardWebSocketClient client = new StandardWebSocketClient();
         String url = "ws://localhost:" + port + "/admins";
         final String uuid = UUID.randomUUID().toString();
-        final MemberTokens memberTokens = jwtProvider.generateLoginToken(String.valueOf(1), Authority.ADMIN, uuid);
+        final MemberTokens memberTokens = jwtProvider.generateLoginToken(String.valueOf(1), Authority.ADMIN, uuid, "1");
         uuidRepository.save(Authority.ADMIN, uuid, String.valueOf(1));
         WebSocketHttpHeaders headers = new WebSocketHttpHeaders();
         headers.add("Sec-WebSocket-Protocol", memberTokens.accessToken());
@@ -128,7 +128,7 @@ public class AgendaWebSocketConcurrencyTest {
                 try {
 
                     MemberWebsocketMessage payload = new MemberWebsocketMessage(RoomType.AGENDA, SocketEventType.CHAT, null, ACTIVE_AGENDA_ID, "채팅",
-                            null, memberId, null, 0
+                            null, memberId, null, null, 0
                     );
                     String messageJson = objectMapper.writeValueAsString(payload);
                     sessions.get(memberId).sendMessage(new TextMessage(messageJson));
