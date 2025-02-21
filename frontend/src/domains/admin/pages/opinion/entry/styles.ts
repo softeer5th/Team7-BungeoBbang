@@ -88,6 +88,7 @@ export const CategoryIcon = styled.div<{ backgroundColor: string }>`
 
 export const OpinionContent = styled.div`
   flex: 1;
+  word-break: break-word;
 `;
 
 export const OpinionHeader = styled.div`
