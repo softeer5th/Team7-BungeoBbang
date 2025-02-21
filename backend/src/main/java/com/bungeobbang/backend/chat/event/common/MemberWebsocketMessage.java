@@ -24,16 +24,18 @@ public record MemberWebsocketMessage(
         @JsonInclude(JsonInclude.Include.NON_NULL)
         Long memberId,
         @JsonInclude(JsonInclude.Include.NON_NULL)
+        Long universityId,
+        @JsonInclude(JsonInclude.Include.NON_NULL)
         @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
         LocalDateTime createdAt,
         @JsonInclude(JsonInclude.Include.NON_NULL)
         int code
 ) {
     public MemberWebsocketMessage(SocketEventType event, String message, int code) {
-        this(null, event, null, null, message, null, null, null, code);
+        this(null, event, null, null, message, null, null, null, null, code);
     }
 
-    public static MemberWebsocketMessage createResponse(MemberWebsocketMessage request) {
+    public static MemberWebsocketMessage createResponse(MemberWebsocketMessage request, Long universityId) {
         return new MemberWebsocketMessage(
                 request.roomType,
                 request.event,
@@ -42,6 +44,7 @@ public record MemberWebsocketMessage(
                 request.message,
                 request.images,
                 request.memberId,
+                universityId,
                 LocalDateTime.now(),
                 0
         );

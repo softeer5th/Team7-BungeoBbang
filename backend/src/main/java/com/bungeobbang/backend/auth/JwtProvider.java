@@ -34,8 +34,9 @@ public class JwtProvider {
 
     public MemberTokens generateLoginToken(final String subject,
                                            final Authority authority,
-                                           final String uuid) {
-        final String accessToken = createTokenWithRole(subject, authority, uuid, accessExpirationTime);
+                                           final String uuid,
+                                           String universityId) {
+        final String accessToken = createTokenWithRole(subject, authority, uuid, universityId, accessExpirationTime);
         final String refreshToken = createToken(EMPTY_SUBJECT, refreshExpirationTime);
         return new MemberTokens(accessToken, refreshToken);
     }
@@ -58,6 +59,24 @@ public class JwtProvider {
                 .setSubject(subject)
                 .claim(Claim.ROLE.toString(), authority)
                 .claim(Claim.UUID.toString(), uuid)
+                .setIssuedAt(now)
+                .setExpiration(expiresAt)
+                .signWith(secretKey, SignatureAlgorithm.HS256)
+                .compact();
+    }
+
+    private String createTokenWithRole(final String subject, final Authority authority,
+                                       final String uuid,
+                                       final String universityId, final Long validityInMilliseconds) {
+        final Date now = new Date();
+        final Date expiresAt = new Date(now.getTime() + validityInMilliseconds);
+
+        return Jwts.builder()
+                .setHeaderParam(Header.TYPE, Header.JWT_TYPE)
+                .setSubject(subject)
+                .claim(Claim.ROLE.toString(), authority)
+                .claim(Claim.UUID.toString(), uuid)
+                .claim(Claim.UNIVERSITY.toString(), universityId)
                 .setIssuedAt(now)
                 .setExpiration(expiresAt)
                 .signWith(secretKey, SignatureAlgorithm.HS256)
