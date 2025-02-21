@@ -56,7 +56,8 @@ public class MemberService {
         final MemberTokens memberTokens = jwtProvider.generateLoginToken(
                 memberId.toString(),
                 MEMBER,
-                uuid);
+                uuid,
+                String.valueOf(member.getUniversity().getId()));
         // refreshToken 저장
         saveRefreshToken(memberId, memberTokens.refreshToken());
 

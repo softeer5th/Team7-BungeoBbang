@@ -1,5 +1,7 @@
 package com.bungeobbang.backend.opinion.service;
 
+import com.bungeobbang.backend.chat.event.opinion.OpinionCreationEvent;
+import com.bungeobbang.backend.chat.type.SocketEventType;
 import com.bungeobbang.backend.common.exception.ErrorCode;
 import com.bungeobbang.backend.common.exception.MemberException;
 import com.bungeobbang.backend.common.exception.OpinionException;
@@ -46,6 +48,8 @@ public class MemberOpinionService {
     private final MemberRepository memberRepository;
     private final OpinionLastReadRepository opinionLastReadRepository;
     private final AnsweredOpinionRepository answeredOpinionRepository;
+
+    private final OpinionRealTimeChatService opinionRealTimeChatService;
     private static final String MIN_OBJECT_ID = "000000000000000000000000";
 
     /**
@@ -110,6 +114,18 @@ public class MemberOpinionService {
                 .lastReadChatId(new ObjectId(MIN_OBJECT_ID))
                 .build();
         opinionLastReadRepository.save(adminLastRead);
+
+        // 새로운 말해요가 생겻다고 학생회에게 알림
+        opinionRealTimeChatService.sendOpinionStartToUniversity(member.getUniversity().getId(),
+                new OpinionCreationEvent(
+                        SocketEventType.START,
+                        creationRequest.categoryType(),
+                        creationRequest.opinionType(),
+                        opinionId,
+                        creationRequest.content(),
+                        opinion.getCreatedAt()
+                ));
+
 
         return new OpinionCreationResponse(opinionId);
     }
@@ -181,8 +197,8 @@ public class MemberOpinionService {
      */
     @Transactional
     public ObjectId saveOpinionChat(final OpinionCreationRequest creationRequest,
-                                     final Member member,
-                                     final Long opinionId) {
+                                    final Member member,
+                                    final Long opinionId) {
         final OpinionChat opinionChat = OpinionChat.builder()
                 .memberId(member.getId())
                 .opinionId(opinionId)
