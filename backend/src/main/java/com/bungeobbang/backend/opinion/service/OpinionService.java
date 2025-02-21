@@ -1,5 +1,6 @@
 package com.bungeobbang.backend.opinion.service;
 
+import com.bungeobbang.backend.auth.domain.Accessor;
 import com.bungeobbang.backend.common.exception.ErrorCode;
 import com.bungeobbang.backend.common.exception.OpinionException;
 import com.bungeobbang.backend.common.type.ScrollType;
@@ -15,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 
 
 /**
@@ -40,17 +42,26 @@ public class OpinionService {
      *
      * @param opinionId  조회할 말해요 채팅방의 ID
      * @param chatId 조회를 시작할 채팅 메시지의 ID
-     * @param userId   요청을 보낸 유저의 ID
+     * @param accessor  요청을 보낸 유저의 접근자
      * @param scroll 스크롤 방향
      * @return OpinionChatResponse 리스트 (해당 채팅방의 메시지 목록)
      */
-    public List<OpinionChatResponse> findOpinionChat(final Long opinionId, ObjectId chatId, final Long userId, ScrollType scroll) {
+    public List<OpinionChatResponse> findOpinionChat(final Long opinionId, ObjectId chatId, final Accessor accessor, ScrollType scroll) {
+        // 본인이 작성한 의견인지 검증
+        if (accessor.isMember()) validateOpinion(opinionId, accessor.id());
         // scroll == INITIAL 이면 마지막읽은 채팅 포함 10개 조회
         // scroll=up 이면 과거 채팅 10개 조회, down 이면 최신 채팅 10개 조회
         return customOpinionChatRepository.findOpinionChats(opinionId, chatId, scroll)
                 .stream()
-                .map(opinionChat -> OpinionChatResponse.of(opinionChat, userId, opinionId))
+                .map(opinionChat -> OpinionChatResponse.of(opinionChat, accessor.id(), opinionId))
                 .toList();
+    }
+
+    private void validateOpinion(final Long opinionId, final Long userId) {
+        Opinion opinion = opinionRepository.findById(opinionId)
+                .orElseThrow(() -> new OpinionException(ErrorCode.INVALID_OPINION));
+        if (!Objects.equals(opinion.getMember().getId(), userId))
+            throw new OpinionException(ErrorCode.UNAUTHORIZED_OPINION_ACCESS);
     }
 
     public OpinionDetailResponse findOpinionDetail(final Long opinionId) {
