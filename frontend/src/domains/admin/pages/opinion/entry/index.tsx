@@ -44,6 +44,7 @@ const OpinionEntryPage: React.FC = () => {
 
   const fetchOpinions = useCallback(async () => {
     const response = await api.get('/admin/opinions');
+
     return response.data;
   }, []);
 
@@ -87,6 +88,7 @@ const OpinionEntryPage: React.FC = () => {
           };
 
           const [updatedOpinion] = updatedOpinions.splice(opinionIndex, 1);
+          console.log('dsds', updatedOpinions);
           return [updatedOpinion, ...updatedOpinions];
         }
 
@@ -147,6 +149,7 @@ const OpinionEntryPage: React.FC = () => {
                       categoryType: opinion.category,
                     },
                   });
+                  invalidateQueries('adminOpinions');
                   socketManager('OPINION', 'ENTER', Number(opinion.id), 'ADMIN');
                 }}
                 createdAt={opinion.createdAt}
