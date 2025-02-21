@@ -197,7 +197,8 @@ export const useSocketStore = create<SocketState>((set, get) => ({
               (roomType === 'AGENDA' && data.agendaId === roomId))
           ) {
             callback(data);
-          } else if (roomId === -1) {
+          } else if (roomId === -1 || roomId === -2) {
+            // -1 은 nav , -2 는 학생회 opinion
             callback(data);
           }
         } catch (error) {

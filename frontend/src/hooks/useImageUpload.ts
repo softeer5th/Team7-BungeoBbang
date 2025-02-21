@@ -10,6 +10,11 @@ interface UseImageUploadReturn {
   closeSizeDialog: () => void;
 }
 
+interface PresignedUrlResponse {
+  presignedUrl: string;
+  fileName: string;
+}
+
 export const useImageUpload = (
   maxSize: number = 10,
   maxCount: number = 5,
@@ -17,24 +22,41 @@ export const useImageUpload = (
   const [images, setImages] = useState<string[]>([]);
   const [showSizeDialog, setShowSizeDialog] = useState(false);
 
-  const uploadImages = async (files: File[]): Promise<string[]> => {
-    const formData = new FormData();
-    files.forEach((file) => {
-      formData.append('images', file);
+  const getSignedUrl = async (file: File): Promise<PresignedUrlResponse> => {
+    const response = await api.post('/api/images/presigned', {
+      contentType: file.type,
     });
+    return response.data;
+  };
 
+  const uploadToS3 = async (file: File, signedUrl: string) => {
+    await fetch(signedUrl, {
+      method: 'PUT',
+      body: file,
+      headers: { 'Content-Type': file.type },
+    });
+  };
+
+  const uploadImages = async (files: File[]): Promise<string[]> => {
     try {
-      const response = await api.post('/api/images', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
-      const imageUrls = response.data.names.map(
-        (name: string) => `${AUTH_CONFIG.API.S3_URL}/${name}`,
-      );
+      const uploadPromises = files.map(async (file) => {
+        try {
+          const { presignedUrl, fileName } = await getSignedUrl(file);
+          await uploadToS3(file, presignedUrl);
 
-      console.log('이미지 업로드 성공:', imageUrls);
-      return imageUrls;
+          return `${AUTH_CONFIG.API.S3_URL}/${fileName}`;
+        } catch (error) {
+          console.error(`파일 업로드 실패: ${file.name}`, error);
+          return null;
+        }
+      });
+
+      const results = await Promise.all(uploadPromises);
+
+      const successfulUploads = results.filter((url): url is string => url !== null);
+
+      console.log('이미지 업로드 성공:', successfulUploads);
+      return successfulUploads;
     } catch (error) {
       console.error('이미지 업로드 실패:', error);
       return [];

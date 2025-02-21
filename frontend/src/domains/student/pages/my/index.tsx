@@ -19,69 +19,65 @@ import { EmptyContent } from '@/components/EmptyContent.tsx';
 import { useSocketStore, ChatMessage } from '@/store/socketStore.ts';
 import { LogoutDialog } from '@/components/Dialog/LogoutDialog.tsx';
 import { TabBarContainer } from '@/components/tab-bar/TabBarCotainer.tsx';
+import { useQuery } from '@/hooks/useQuery';
+import { useCacheStore } from '@/store/cacheStore';
 
 const tabItems: TabBarItemProps[] = [
-  {
-    itemId: 'opinion',
-    title: '말해요',
-  },
-  {
-    itemId: 'agenda',
-    title: '답해요',
-  },
+  { itemId: 'opinion', title: '말해요' },
+  { itemId: 'agenda', title: '답해요' },
 ];
 
 const MyPage = () => {
   const theme = useTheme();
   const navigate = useNavigate();
   const { subscribe } = useSocketStore();
+  const { invalidateQueries } = useCacheStore();
 
-  const [tabContents, setTabContents] = useState<Record<string, ChatPreviewData[]>>({});
+  const [tabContents, setTabContents] = useState<Record<string, ChatPreviewData[]>>({
+    opinion: [],
+    agenda: [],
+  });
   const [isLogoutDialogOpen, setLogoutDialogOpen] = useState(false);
 
-  const fetchChatRooms = async () => {
-    const result: Record<string, ChatPreviewData[]> = {
-      opinion: [],
-      agenda: [],
-    };
-
-    try {
-      const [opinion, agenda] = await Promise.all([
-        api.get('/student/opinions/my'),
-        api.get('/student/agendas/my'),
-      ]);
-
-      result.opinion = opinion.data.map((data: OpinionServerData) =>
-        mapOpinionResponseToChatPreviewData(data),
-      );
-
-      result.agenda = agenda.data.map((data: AgendaServerData) =>
-        mapAgendaResponseToChatPreviewData(data),
-      );
-      setTabContents(result);
-    } catch (error) {
-      console.error('fail to fetch agenda data', error);
-    }
-  };
-
-  useEffect(() => {
-    fetchChatRooms();
+  const fetchOpinions = useCallback(async () => {
+    const response = await api.get('/student/opinions/my');
+    return response.data.map((data: OpinionServerData) =>
+      mapOpinionResponseToChatPreviewData(data),
+    );
   }, []);
 
-  const handleNewMessage = useCallback((message: ChatMessage) => {
-    setTabContents((prev) => {
-      const newContent = { ...prev };
+  const fetchAgendas = useCallback(async () => {
+    const response = await api.get('/student/agendas/my');
+    return response.data.map((data: AgendaServerData) => mapAgendaResponseToChatPreviewData(data));
+  }, []);
 
-      // 메시지 타입에 따라 opinion/agenda 구분
+  const handleOpinionSuccess = useCallback((data: ChatPreviewData[]) => {
+    setTabContents((prev) => ({ ...prev, opinion: data }));
+  }, []);
+
+  const handleAgendaSuccess = useCallback((data: ChatPreviewData[]) => {
+    setTabContents((prev) => ({ ...prev, agenda: data }));
+  }, []);
+
+  const { refetch: refetchOpinions } = useQuery('my-opinions', fetchOpinions, {
+    onSuccess: handleOpinionSuccess,
+  });
+
+  const { refetch: refetchAgendas } = useQuery('my-agendas', fetchAgendas, {
+    onSuccess: handleAgendaSuccess,
+  });
+
+  const handleNewMessage = useCallback(
+    (message: ChatMessage) => {
       const type = message.roomType.toLowerCase();
-      const currentContent = newContent[type] || [];
-
-      // 해당 채팅방 찾기
       const targetRoomId = message.roomType === 'OPINION' ? message.opinionId : message.agendaId;
-      const roomIndex = currentContent.findIndex((item) => item.roomId === targetRoomId);
 
-      if (roomIndex !== -1) {
-        // 기존 채팅방이 있으면 최신 메시지로 업데이트하고 맨 위로 이동
+      setTabContents((prev) => {
+        const currentContent = [...(prev[type] || [])];
+        const roomIndex = currentContent.findIndex((item) => item.roomId === targetRoomId);
+
+        if (roomIndex === -1) return prev;
+
         const updatedRoom = {
           ...currentContent[roomIndex],
           lastMessage: message.message,
@@ -89,14 +85,24 @@ const MyPage = () => {
           hasNewChat: true,
         };
 
-        // 해당 채팅방을 제거하고 맨 앞에 추가
         currentContent.splice(roomIndex, 1);
-        newContent[type] = [updatedRoom, ...currentContent];
-      }
+        const newContent = [updatedRoom, ...currentContent];
 
-      return newContent;
-    });
-  }, []);
+        // 캐시 업데이트
+        if (type === 'opinion') {
+          invalidateQueries('my-opinions');
+        } else {
+          invalidateQueries('my-agendas');
+        }
+
+        return {
+          ...prev,
+          [type]: newContent,
+        };
+      });
+    },
+    [invalidateQueries],
+  );
 
   useEffect(() => {
     const unsubscribeOpinion = subscribe('OPINION', -1, handleNewMessage);
@@ -107,6 +113,11 @@ const MyPage = () => {
       unsubscribeAgenda();
     };
   }, [subscribe, handleNewMessage]);
+
+  useEffect(() => {
+    refetchOpinions();
+    refetchAgendas();
+  }, [refetchOpinions, refetchAgendas]);
 
   return (
     <S.Container>
