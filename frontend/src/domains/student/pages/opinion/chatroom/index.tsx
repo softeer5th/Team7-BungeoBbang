@@ -59,6 +59,7 @@ const OpinionChatPage = () => {
   const socketManager = useSocketManager();
   const location = useLocation();
   const lastChatId = location.state?.lastChatId || '000000000000000000000000';
+  const roomTitle = location.state?.title || '학생회';
 
   const handleMessageReceive = useCallback(
     (message: ChatMessage) => {
@@ -455,7 +456,7 @@ const OpinionChatPage = () => {
     <S.Container>
       <TopAppBar
         leftIconSrc="/src/assets/icons/arrow-left.svg"
-        title={chatRoomInfo.adminName}
+        title={roomTitle}
         rightIconSrc="/src/assets/icons/exit.svg"
         onLeftIconClick={() => {
           location.state?.from === 'opinion' ? navigate('/opinion/entry') : navigate(-1);
@@ -509,7 +510,7 @@ const OpinionChatPage = () => {
                           }
                         : null
                   }
-                  receiverName={curChatData.name}
+                  receiverName={chatRoomInfo.adminName}
                   message={curChatData.message}
                   images={curChatData.images}
                   timeText={curChatData.time}

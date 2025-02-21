@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import api from '@/utils/api';
 import { TopAppBar } from '@/components/TopAppBar';
 import { BottomNavigation } from '@/components/bottom-navigation/BottomNavigation';
@@ -15,6 +15,9 @@ import { findChatCategoryType } from '@/utils/findChatCategoryType';
 import { useSocketManager } from '@/hooks/useSocketManager';
 import { LogoutDialog } from '@/components/Dialog/LogoutDialog';
 import { formatLastChatTime } from '@/utils/chat/lastChatTime';
+import { useSocketStore, ChatMessage } from '@/store/socketStore';
+import { useQuery } from '@/hooks/useQuery';
+import { useCacheStore } from '@/store/cacheStore';
 
 const chipItems = [
   { itemId: 'ALL', text: '전체' },
@@ -28,47 +31,84 @@ const OpinionEntryPage: React.FC = () => {
   const [selectedChip, setSelectedChip] = useState('ALL');
   const [opinions, setOpinions] = useState<Opinion[]>([]);
   const [isLogoutDialogOpen, setLogoutDialogOpen] = useState(false);
+  const { subscribe } = useSocketStore();
+  const { invalidateQueries } = useCacheStore();
+  const [isFirstOpinion, setIsFirstOpinion] = useState(false);
 
   const navigate = useNavigate();
   const socketManager = useSocketManager();
 
   const handleChipClick = (chipId: string) => {
     setSelectedChip(chipId);
-    console.log('chipId', chipId);
   };
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await api.get('/admin/opinions');
-        console.log('response', response);
-        const formattedOpinions = response.data.map((item: OpinionResponse) => ({
-          id: String(item.opinion.id),
-          category: findChatCategoryType(item.opinion.categoryType),
-          title: ChatOpinionType[item.opinion.opinionType]?.label,
-          text: item.lastChat.content,
-          time: formatLastChatTime(item.lastChat.createdAt),
-          iconColor: '#FFC107',
-          hasAlarm: item.hasNewChat,
-          createdAt: item.lastChat.createdAt,
-          isReminded: item.opinion.isReminded,
-          lastChatId: item.lastReadChatId,
-        }));
-
-        setOpinions(formattedOpinions);
-      } catch (error) {
-        console.error('fail to get opinions', error);
-      }
-    };
-    fetchData();
+  const fetchOpinions = useCallback(async () => {
+    const response = await api.get('/admin/opinions');
+    return response.data;
   }, []);
+
+  // const { isLoading } =
+  useQuery('adminOpinions', fetchOpinions, {
+    staleTime: 5 * 60 * 1000, // 5분 동안 캐시 유지
+    onSuccess: (data: OpinionResponse[]) => {
+      const formattedOpinions = data.map((item) => ({
+        id: String(item.opinion.id),
+        category: findChatCategoryType(item.opinion.categoryType),
+        title: ChatOpinionType[item.opinion.opinionType]?.label,
+        text: item.lastChat.content,
+        time: formatLastChatTime(item.lastChat.createdAt),
+        iconColor: '#FFC107',
+        hasAlarm: item.hasNewChat,
+        createdAt: new Date(item.lastChat.createdAt),
+        isReminded: item.opinion.isReminded,
+        lastChatId: item.lastReadChatId,
+      }));
+
+      setOpinions(formattedOpinions);
+      setIsFirstOpinion(true);
+    },
+  });
+
+  const handleNewMessage = useCallback(
+    (message: ChatMessage) => {
+      // 새 메시지가 오면 캐시 무효화
+      invalidateQueries('adminOpinions');
+
+      setOpinions((prev) => {
+        const opinionIndex = prev.findIndex((opinion) => Number(opinion.id) === message.opinionId);
+
+        if (opinionIndex !== -1) {
+          const updatedOpinions = [...prev];
+          updatedOpinions[opinionIndex] = {
+            ...updatedOpinions[opinionIndex],
+            text: message.message,
+            time: formatLastChatTime(message.createdAt),
+            hasAlarm: true,
+          };
+
+          const [updatedOpinion] = updatedOpinions.splice(opinionIndex, 1);
+          return [updatedOpinion, ...updatedOpinions];
+        }
+
+        return prev;
+      });
+    },
+    [invalidateQueries],
+  );
+
+  useEffect(() => {
+    const unsubscribeOpinion = subscribe('OPINION', -2, handleNewMessage);
+
+    return () => {
+      unsubscribeOpinion();
+    };
+  }, [subscribe, handleNewMessage]);
 
   const filteredOpinions =
     selectedChip === 'ALL'
       ? opinions
       : opinions.filter((opinion) => opinion.category.type === selectedChip);
 
-  console.log('filteredOpinions', filteredOpinions);
   return (
     <S.Container>
       <TopAppBar
@@ -115,7 +155,7 @@ const OpinionEntryPage: React.FC = () => {
             ))}
           </S.OpinionList>
         ) : (
-          <EmptyState />
+          isFirstOpinion && <EmptyState />
         )}
       </S.OpinionEntryContainer>
 

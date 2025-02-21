@@ -11,6 +11,7 @@ import rightArrowIcon from '@/assets/icons/chevron-right.svg';
 import Typography from '@/styles/Typography';
 import { ChatCategoryType } from '@/types/ChatCategoryType';
 import { TabBarContainer } from '@/components/tab-bar/TabBarCotainer';
+import { useCacheStore } from '@/store/cacheStore';
 
 interface StatisticsData {
   opinionCount: number;
@@ -48,9 +49,10 @@ const StatisticsPage = () => {
   const [isMonthly, setIsMonthly] = useState(true);
   const [currentDate, setCurrentDate] = useState(new Date());
   const [statsData, setStatsData] = useState<StatisticsData | null>(null);
+  const [agendaStats, setAgendaStats] = useState<AgendaStatisticsData | null>(null);
   const navigate = useNavigate();
   const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
-  const [agendaStats, setAgendaStats] = useState<AgendaStatisticsData | null>(null);
+  const { getCache, setCache } = useCacheStore();
 
   const fetchData = async () => {
     try {
@@ -59,13 +61,32 @@ const StatisticsPage = () => {
       const yearMonth = `${year}-${month.toString().padStart(2, '0')}`;
 
       if (currentTab === 'ask') {
-        // 말해요(opinion) 통계
+        const cacheKey = `opinion-stats-${isMonthly ? yearMonth : year}`;
+
+        const cachedData = getCache(cacheKey);
+
+        if (cachedData) {
+          setStatsData(cachedData);
+          return;
+        }
+
         const endpoint = isMonthly
           ? `/admin/opinions/statistics/month?yearMonth=${yearMonth}`
           : `/admin/opinions/statistics/year?year=${year}`;
         const response = await api.get(endpoint);
         setStatsData(response.data);
+        //2 시간
+        setCache(cacheKey, response.data, 2 * 60 * 60 * 1000);
       } else {
+        const cacheKey = `agenda-stats-${isMonthly ? yearMonth : year}`;
+
+        const cachedData = getCache(cacheKey);
+
+        if (cachedData) {
+          setAgendaStats(cachedData);
+          return;
+        }
+
         const [baseStats, categoryStats] = await Promise.all([
           api.get(
             isMonthly
@@ -78,10 +99,15 @@ const StatisticsPage = () => {
               : `/admin/agendas/statistics/year/category?year=${year}`,
           ),
         ]);
-        setAgendaStats({
+
+        const combinedStats = {
           ...baseStats.data,
           categoryStats: categoryStats.data,
-        });
+        };
+
+        setAgendaStats(combinedStats);
+        // 2시간
+        setCache(cacheKey, combinedStats, 2 * 60 * 60 * 1000);
       }
     } catch (error) {
       console.error('통계 데이터 조회 실패:', error);
@@ -90,7 +116,7 @@ const StatisticsPage = () => {
 
   useEffect(() => {
     fetchData();
-  }, [currentDate, isMonthly]);
+  }, [currentDate, isMonthly, currentTab]);
 
   const handleDateChange = (increment: number) => {
     setCurrentDate((prev) => {

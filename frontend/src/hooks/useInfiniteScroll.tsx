@@ -2,9 +2,9 @@ import { useEffect, useRef } from 'react';
 
 interface InfiniteScrollOptions {
   threshold?: number;
-  initialFetch: () => Promise<void>;
-  fetchUpMore?: () => Promise<void>;
-  fetchDownMore?: () => Promise<void>;
+  initialFetch: () => Promise<any>;
+  fetchUpMore?: () => Promise<any>;
+  fetchDownMore?: () => Promise<any>;
 }
 
 const useInfiniteScroll = ({

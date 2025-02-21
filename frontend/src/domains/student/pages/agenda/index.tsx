@@ -2,7 +2,7 @@ import { BottomNavigation } from '@/components/bottom-navigation/BottomNavigatio
 import * as S from './styles';
 import { TopAppBar } from '@/components/TopAppBar';
 import { useTheme } from 'styled-components';
-import { useRef, useState } from 'react';
+import { useRef, useState, useCallback } from 'react';
 import { ChatRoomListCardData } from './data/ChatRoomListCardData';
 import { BannerContainer } from './components/Banner';
 import { ChatRoomListItem } from './components/ChatRoomListItem';
@@ -15,6 +15,8 @@ import useInfiniteScroll from '@/hooks/useInfiniteScroll';
 import { ChatEnterDialog } from './components/ChatEnterDialog';
 import { useSocketManager } from '@/hooks/useSocketManager';
 import { motion } from 'framer-motion';
+import { useQuery } from '@/hooks/useQuery';
+import { useCacheStore } from '@/store/cacheStore';
 
 const AgendaPage = () => {
   const MAX_PAGE_ITEMS = 6;
@@ -23,48 +25,48 @@ const AgendaPage = () => {
   const theme = useTheme();
   const navigate = useNavigate();
   const socketManager = useSocketManager();
+  const { invalidateQueries } = useCacheStore();
 
   const [isLogoutDialogOpen, setLogoutDialogOpen] = useState(false);
   const [selectedChatRoomEnter, setSelectedChatRoomEnter] = useState<number | null>(null);
 
   const lastChatRoom = useRef<[string, number] | null>(null);
-
   const hasMore = useRef<boolean>(true);
   const isInProgessEnd = useRef<boolean>(false);
   const isFirstUpcoming = useRef<boolean>(false);
 
   const [chatRooms, setChatRooms] = useState<ChatRoomListCardData[]>([]);
 
-  const fetchChatRooms = async () => {
+  const fetchChatRooms = useCallback(async () => {
     if (!hasMore.current) return;
 
-    try {
+    const status = isInProgessEnd.current ? 'CLOSED' : 'ACTIVE';
+    const params =
+      status === 'ACTIVE'
+        ? {
+            status: status,
+            ...(lastChatRoom.current
+              ? { endDate: lastChatRoom.current[0], agendaId: lastChatRoom.current[1] }
+              : {}),
+          }
+        : {
+            status: status,
+            ...(lastChatRoom.current && !isFirstUpcoming.current
+              ? { endDate: lastChatRoom.current[0], agendaId: lastChatRoom.current[1] }
+              : {}),
+          };
+
+    if (status === 'CLOSED') isFirstUpcoming.current = false;
+
+    return api.get('/student/agendas', { params: params });
+  }, []);
+
+  // const { isLoading, data } =
+  useQuery('studentAgendas', fetchChatRooms, {
+    staleTime: 5 * 60 * 1000, // 5분 동안 캐시 유지
+    onSuccess: (response: { data: ServerData[] }) => {
       const status = isInProgessEnd.current ? 'CLOSED' : 'ACTIVE';
-      const params =
-        status == 'ACTIVE'
-          ? {
-              status: status,
-              ...(lastChatRoom.current
-                ? { endDate: lastChatRoom.current[0], agendaId: lastChatRoom.current[1] }
-                : {}),
-            }
-          : {
-              status: status,
-              ...(lastChatRoom.current && !isFirstUpcoming.current
-                ? { endDate: lastChatRoom.current[0], agendaId: lastChatRoom.current[1] }
-                : {}),
-            };
-
-      if (status == 'CLOSED') isFirstUpcoming.current = false;
-
-      const response = await api.get('/student/agendas', {
-        params: params,
-      });
-
-      console.log('response', response);
-      const newRooms = response.data.map((data: ServerData) =>
-        mapResponseToChatListCardData(data, status),
-      );
+      const newRooms = response.data.map((data) => mapResponseToChatListCardData(data, status));
 
       setChatRooms((prev) => [...prev, ...newRooms]);
 
@@ -75,22 +77,23 @@ const AgendaPage = () => {
           setHasMore(false);
         }
       }
-    } catch (error) {
-      console.error('Error fetching data:', error);
-    }
-  };
+    },
+  });
 
   const enterChatRoom = async () => {
     try {
       const selectedRoom = chatRooms.find((room) => room.roomId === selectedChatRoomEnter);
       await api.post(`/student/agendas/${selectedChatRoomEnter}`);
       socketManager('AGENDA', 'PARTICIPATE', selectedChatRoomEnter || -1, 'STUDENT');
-      console.log('selectedRoom', selectedRoom);
+
+      // 채팅방 입장 시 캐시 무효화
+      invalidateQueries('studentAgendas');
+
       navigate(`/agenda/chat/${selectedChatRoomEnter}?isEnd=false&isParticipate=true`, {
         state: { lastChatId: selectedRoom?.lastChatId },
       });
     } catch (error) {
-      console.error('Error fetching data:', error);
+      console.error('채팅방 입장 실패:', error);
     }
   };
 

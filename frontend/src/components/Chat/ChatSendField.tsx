@@ -87,6 +87,7 @@ export const ChatSendField = forwardRef<HTMLDivElement, ChatSendFieldProps>(
   ) => {
     const [message, setMessage] = useState(initialText);
     const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
+    const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
 
     const textAreaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -114,11 +115,30 @@ export const ChatSendField = forwardRef<HTMLDivElement, ChatSendFieldProps>(
       }
     };
 
+    useEffect(() => {
+      const handleResize = () => {
+        if (!window.visualViewport) return;
+        //  뷰포트 높이의 차이로 키보드 표시 여부 감지
+        const isKeyboard = window.visualViewport.offsetTop > 0;
+        setIsKeyboardVisible(isKeyboard);
+      };
+
+      window.visualViewport?.addEventListener('resize', handleResize);
+
+      return () => {
+        window.visualViewport?.removeEventListener('resize', handleResize);
+      };
+    }, []);
+
     const handleSend = () => {
       if (sendDisabled) return;
       if (message.trim() || textDisabled) {
         onSendMessage(message, images);
         setMessage('');
+
+        if (textAreaRef.current) {
+          textAreaRef.current.focus();
+        }
       }
     };
 
@@ -165,7 +185,11 @@ export const ChatSendField = forwardRef<HTMLDivElement, ChatSendFieldProps>(
 
     return (
       <>
-        <ChatSendContainer ref={ref} bcakgroundColor={backgroundColor}>
+        <ChatSendContainer
+          ref={ref}
+          bcakgroundColor={backgroundColor}
+          isKeyboardVisible={isKeyboardVisible}
+        >
           <ImageUploadBox
             backgroundColor={
               isImageDisabled ? imageButtonDisabledBackgroundColor : imageButtonBackgroundColor
@@ -274,6 +298,7 @@ export const ChatSendField = forwardRef<HTMLDivElement, ChatSendFieldProps>(
 
 const ChatSendContainer = styled.div<{
   bcakgroundColor: string;
+  isKeyboardVisible: boolean;
 }>`
   width: 100%;
   display: flex;
@@ -281,7 +306,9 @@ const ChatSendContainer = styled.div<{
   padding: 8px 16px 8px 16px;
   background-color: ${(props) => props.bcakgroundColor};
   gap: 8px;
-  padding-bottom: calc(env(safe-area-inset-bottom) + 15px);
+  padding-bottom: ${(props) =>
+    props.isKeyboardVisible ? '15px' : 'calc(env(safe-area-inset-bottom) + 15px)'};
+  transition: padding-bottom 0.3s ease; /* 패딩 변경 시 애니메이션 추가 */
 `;
 
 const ImageUploadBox = styled.div<{ backgroundColor: string }>`
