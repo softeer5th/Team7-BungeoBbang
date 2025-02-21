@@ -57,25 +57,40 @@ const AgendaPage: React.FC = () => {
   const lastChatRoom = useRef<[string | null, number | null][]>(tabItems.map(() => [null, null]));
   const socketManager = useSocketManager();
 
-  const fetchProgressChatRooms = useCallback(async () => {
-    const status = isInProgessEnd.current ? 'UPCOMING' : 'ACTIVE';
-    const params =
-      status === 'ACTIVE'
-        ? {
-            status: status,
-            ...(lastChatRoom.current
-              ? { endDate: lastChatRoom.current[0][0], agendaId: lastChatRoom.current[0][1] }
-              : {}),
-          }
-        : {
-            status: status,
-            ...(lastChatRoom.current && !isFirstUpcoming.current
-              ? { endDate: lastChatRoom.current[0][0], agendaId: lastChatRoom.current[0][1] }
-              : {}),
-          };
+  const fetchProgressChatRooms = async () => {
+    try {
+      const status = isInProgessEnd.current ? 'UPCOMING' : 'ACTIVE';
 
-    return api.get('/admin/agendas', { params: params });
-  }, []);
+      const params = {
+        status: status,
+        ...(lastChatRoom.current[0][0] && lastChatRoom.current[0][1]
+          ? { endDate: lastChatRoom.current[0][0], agendaId: lastChatRoom.current[0][1] }
+          : {}),
+      };
+
+      const response = await api.get('/admin/agendas', { params: params });
+
+      const newRooms = response.data.map((res: ServerData) =>
+        mapResponseToChatRoomListCardData(res, status),
+      );
+
+      setTabContents((prev) => ({
+        ...prev,
+        inProgress: [...(prev.inProgress ?? []), ...newRooms],
+      }));
+
+      if (newRooms.length < MAX_PAGE_ITEMS) {
+        if (!isInProgessEnd.current) {
+          isInProgessEnd.current = true;
+          fetchProgressChatRooms(); // UPCOMING 데이터도 바로 가져오기
+        } else {
+          setProgressHasMore(false);
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching progress chat rooms:', error);
+    }
+  };
 
   // const { isLoading: isProgressLoading, refetch: refetchProgress } =
   useQuery('adminAgendasProgress', fetchProgressChatRooms, {
