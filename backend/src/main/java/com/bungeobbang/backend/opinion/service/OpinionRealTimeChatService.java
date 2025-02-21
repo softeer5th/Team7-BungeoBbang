@@ -95,9 +95,7 @@ public class OpinionRealTimeChatService {
     public void disconnectAdmin(final AdminDisconnectEvent event) {
         Admin admin = adminRepository.findById(event.adminId())
                 .orElseThrow(() -> new AdminException(ErrorCode.INVALID_ADMIN));
-        opinionRepository.findAllByUniversityId(admin.getUniversity().getId())
-                .forEach(opinion ->
-                        messageQueueService.unsubscribe(event.session(), OPINION_PREFIX + opinion.getId()));
+        messageQueueService.unsubscribe(event.session(), OPINION_UNIV_PREFIX + admin.getUniversity().getId());
     }
 
     public void removeOpinionTopic(final Long opinionId) {
