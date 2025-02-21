@@ -178,6 +178,9 @@ const StatisticsPage = () => {
         currentTabSelectedIndex={tabItems.findIndex((tab) => tab.itemId === currentTab)}
         onTabItemClick={(itemId) => setCurrentTab(itemId)}
         contents={() => {
+          if (!tabItems.find((tab) => tab.itemId === currentTab)) {
+            window.location.reload();
+          }
           return (
             <Content>
               <PeriodSelector>
