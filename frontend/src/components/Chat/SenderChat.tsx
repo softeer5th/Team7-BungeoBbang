@@ -130,6 +130,7 @@ const MessageContainer = styled.div`
   align-items: flex-end;
   gap: 4px;
   margin-top: 4px;
+  word-break: break-word;
 `;
 
 const TimeText = styled(Typography)<{
