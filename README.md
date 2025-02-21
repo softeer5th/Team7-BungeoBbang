@@ -130,13 +130,11 @@
 [위키](https://github.com/softeer5th/Team7-BungeoBbang/wiki)에서 더 많은 일지를 확인할 수 있습니다.
 | 분야 | 링크 | 분야 | 링크 |
 |------|---------------------------------|------|---------------------------------|
-| **FE** | | **BE** | 중복 로그인 방지 (세션 관리) |
-| **FE** | | **BE** | 채팅 전송 중 채팅방 삭제 시 예외 처리 |
-| **FE** | 이미지 업로드 처리 및 최적화 | **BE** | Redis Sync vs Async 비교 |
-| **FE** |  | **BE** | MongoClient vs Spring Data MongoDB |
-| **FE** | | **BE** | @Async 활용한 이메일 전송 비동기 처리 |
-| **FE** | | **BE** | Docker 환경에서 ClassPathResource.getFile() 실패 해결 |
-| **FE** | | **BE** | 부하 테스트 일지 |
+| **FE** | | **BE** | [중복 웹소켓 세션 처리 전략 및 구현 결정](https://github.com/softeer5th/Team7-BungeoBbang/wiki/%EC%A4%91%EB%B3%B5-%EC%9B%B9%EC%86%8C%EC%BC%93-%EC%84%B8%EC%85%98-%EC%B2%98%EB%A6%AC-%EC%A0%84%EB%9E%B5-%EB%B0%8F-%EA%B5%AC%ED%98%84-%EA%B2%B0%EC%A0%95) |
+| **FE** | | **BE** | [채팅방 웹소켓 이벤트 정리](https://github.com/softeer5th/Team7-BungeoBbang/wiki/%EC%B1%84%ED%8C%85%EB%B0%A9-%EC%9B%B9%EC%86%8C%EC%BC%93-%EC%9D%B4%EB%B2%A4%ED%8A%B8-%EC%A0%95%EB%A6%AC) |
+| **FE** | 이미지 업로드 처리 및 최적화 | **BE** | [Redis Sync vs Async 비교] |
+| **FE** |  | **BE** | [MongoClient vs Spring Data MongoDB] |
+
 
 
 ## **📑 기획/디자인 링크**
