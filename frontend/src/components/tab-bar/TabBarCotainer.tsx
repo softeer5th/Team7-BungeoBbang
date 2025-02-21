@@ -109,7 +109,7 @@ const TabContentContainer = styled.div<{
   flex: 1;
   display: flex;
   scroll-snap-type: x mandatory;
-  overflow-x: hidden;
+  overflow-x: scroll;
   background-color: ${(props) => props.backgroundColor};
 
   &::-webkit-scrollbar {
