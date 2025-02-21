@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState, useCallback } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import * as S from './styles';
 import { TopAppBar } from '@/components/TopAppBar';
 import { useTheme } from 'styled-components';
@@ -19,8 +19,6 @@ import { useSocketManager } from '@/hooks/useSocketManager';
 import plusIcon from '@/assets/icons/plus.svg';
 import { motion } from 'framer-motion';
 import { TabBarContainer } from '@/components/tab-bar/TabBarCotainer';
-import { useQuery } from '@/hooks/useQuery';
-import { useCacheStore } from '@/store/cacheStore';
 
 const tabItems: TabBarItemProps[] = [
   {
@@ -39,7 +37,6 @@ const AgendaPage: React.FC = () => {
 
   const theme = useTheme();
   const navigate = useNavigate();
-  const { invalidateQueries } = useCacheStore();
 
   const bottomNavRef = useRef<HTMLDivElement>(null);
   const [bottomPx, setBottomPx] = useState(0);
@@ -61,12 +58,22 @@ const AgendaPage: React.FC = () => {
     try {
       const status = isInProgessEnd.current ? 'UPCOMING' : 'ACTIVE';
 
-      const params = {
-        status: status,
-        ...(lastChatRoom.current[0][0] && lastChatRoom.current[0][1]
-          ? { endDate: lastChatRoom.current[0][0], agendaId: lastChatRoom.current[0][1] }
-          : {}),
-      };
+      const params =
+        status == 'ACTIVE'
+          ? {
+              status: status,
+              ...(lastChatRoom.current
+                ? { endDate: lastChatRoom.current[0][0], agendaId: lastChatRoom.current[0][1] }
+                : {}),
+            }
+          : {
+              status: status,
+              ...(lastChatRoom.current && !isFirstUpcoming.current
+                ? { endDate: lastChatRoom.current[0][0], agendaId: lastChatRoom.current[0][1] }
+                : {}),
+            };
+
+      if (status == 'UPCOMING') isFirstUpcoming.current = false;
 
       const response = await api.get('/admin/agendas', { params: params });
 
@@ -82,7 +89,6 @@ const AgendaPage: React.FC = () => {
       if (newRooms.length < MAX_PAGE_ITEMS) {
         if (!isInProgessEnd.current) {
           isInProgessEnd.current = true;
-          fetchProgressChatRooms(); // UPCOMING 데이터도 바로 가져오기
         } else {
           setProgressHasMore(false);
         }
@@ -92,46 +98,19 @@ const AgendaPage: React.FC = () => {
     }
   };
 
-  // const { isLoading: isProgressLoading, refetch: refetchProgress } =
-  useQuery('adminAgendasProgress', fetchProgressChatRooms, {
-    staleTime: 5 * 60 * 1000, // 5분 동안 캐시 유지
-    onSuccess: (response: { data: ServerData[] }) => {
-      const status = isInProgessEnd.current ? 'UPCOMING' : 'ACTIVE';
-      const newRooms = response.data.map((res) => mapResponseToChatRoomListCardData(res, status));
+  const fetchCompleteChatRooms = async () => {
+    try {
+      const params = {
+        status: 'CLOSED',
+        ...(lastChatRoom.current
+          ? { endDate: lastChatRoom.current[1][0], agendaId: lastChatRoom.current[1][1] }
+          : {}),
+      };
+      const closed = await api.get('/admin/agendas', { params: params });
 
-      setTabContents((prev) => ({
-        ...prev,
-        inProgress: [...(prev.inProgress ?? []), ...newRooms],
-      }));
-
-      if (newRooms.length < MAX_PAGE_ITEMS) {
-        if (!isInProgessEnd.current) {
-          isInProgessEnd.current = true;
-        } else {
-          setProgressHasMore(false);
-        }
-      }
-
-      if (status === 'UPCOMING') {
-        isFirstUpcoming.current = false;
-      }
-    },
-  });
-
-  const fetchCompleteChatRooms = useCallback(async () => {
-    const params = {
-      status: 'CLOSED',
-      ...(lastChatRoom.current
-        ? { endDate: lastChatRoom.current[1][0], agendaId: lastChatRoom.current[1][1] }
-        : {}),
-    };
-    return api.get('/admin/agendas', { params: params });
-  }, []);
-
-  const { refetch: refetchComplete } = useQuery('adminAgendasComplete', fetchCompleteChatRooms, {
-    staleTime: 5 * 60 * 1000, // 5분 동안 캐시 유지
-    onSuccess: (response: { data: ServerData[] }) => {
-      const newRooms = response.data.map((res) => mapResponseToChatRoomListCardData(res, 'CLOSED'));
+      const newRooms = closed.data.map((res: ServerData) =>
+        mapResponseToChatRoomListCardData(res, 'CLOSED'),
+      );
 
       setTabContents((prev) => ({
         ...prev,
@@ -141,13 +120,39 @@ const AgendaPage: React.FC = () => {
       if (newRooms.length < MAX_PAGE_ITEMS) {
         setCompleteHasMore(false);
       }
-    },
-  });
+    } catch (error) {
+      console.error('Error fetching complete chat rooms:', error);
+    }
+  };
 
   const refetchCompleteChatRooms = async () => {
     lastChatRoom.current[1] = [null, null];
     setCompleteHasMore(true);
-    await refetchComplete();
+
+    try {
+      const params = {
+        status: 'CLOSED',
+        ...(lastChatRoom.current
+          ? { endDate: lastChatRoom.current[1][0], agendaId: lastChatRoom.current[1][1] }
+          : {}),
+      };
+      const closed = await api.get('/admin/agendas', { params: params });
+
+      const newRooms = closed.data.map((res: ServerData) =>
+        mapResponseToChatRoomListCardData(res, 'CLOSED'),
+      );
+
+      setTabContents((prev) => ({
+        ...prev,
+        complete: newRooms,
+      }));
+
+      if (newRooms.length < MAX_PAGE_ITEMS) {
+        setCompleteHasMore(false);
+      }
+    } catch (error) {
+      console.error('Error fetching complete chat rooms:', error);
+    }
   };
 
   const handleEndRoom = async () => {
@@ -157,16 +162,13 @@ const AgendaPage: React.FC = () => {
       await api.patch(`/admin/agendas/${selectedCardData?.roomId}/close`);
       socketManager('AGENDA', 'CLOSE', selectedCardData?.roomId, 'ADMIN');
 
-      // 캐시 무효화
-      invalidateQueries('adminAgendas');
-
       setTabContents((prev) => ({
         ...prev,
         inProgress: prev.inProgress.filter((room) => room.roomId !== selectedCardData.roomId),
       }));
       refetchCompleteChatRooms();
     } catch (error) {
-      console.error('채팅방 종료 실패', error);
+      console.error('채팅방 삭제 실패', error);
     }
   };
 
@@ -177,16 +179,15 @@ const AgendaPage: React.FC = () => {
       await api.delete(`/admin/agendas/${selectedCardData?.roomId}`);
       socketManager('AGENDA', 'DELETE', selectedCardData?.roomId, 'ADMIN');
 
-      // 캐시 무효화
-      invalidateQueries('adminAgendas');
-
       setTabContents((prev) => {
         const updatedTabs = { ...prev };
+
         Object.keys(updatedTabs).forEach((tabKey) => {
           updatedTabs[tabKey] = updatedTabs[tabKey].filter(
             (room) => room.roomId !== selectedCardData.roomId,
           );
         });
+
         return updatedTabs;
       });
     } catch (error) {
