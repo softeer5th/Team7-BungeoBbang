@@ -162,6 +162,7 @@ const StatisticsPage = () => {
       return currentDate.getFullYear() < today.getFullYear();
     }
   };
+  console.log(currentTab);
 
   return (
     <Container>
