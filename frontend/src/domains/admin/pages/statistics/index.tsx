@@ -162,6 +162,7 @@ const StatisticsPage = () => {
       return currentDate.getFullYear() < today.getFullYear();
     }
   };
+  console.log(currentTab);
 
   return (
     <Container>
@@ -177,10 +178,8 @@ const StatisticsPage = () => {
         tabItems={tabItems}
         currentTabSelectedIndex={tabItems.findIndex((tab) => tab.itemId === currentTab)}
         onTabItemClick={(itemId) => setCurrentTab(itemId)}
+
         contents={() => {
-          if (!tabItems.find((tab) => tab.itemId === currentTab)) {
-            window.location.reload();
-          }
           return (
             <Content>
               <PeriodSelector>
