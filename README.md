@@ -66,6 +66,12 @@
             <td align="center">BE</td>
             <td align="center">BE</td>
         </tr>
+         <tr>
+            <td align="center">어떤 기능<br>어떤 기능</td>
+            <td align="center">어떤 기능<br>어떤 기능</td>
+            <td align="center">답해요 기능 구현<br>어떤 기능</td>
+            <td align="center">말해요 기능 구현<br>어떤 기능</td>
+        </tr>
     </table>
 </p>
 
@@ -96,7 +102,7 @@
 
 ## **📦 프론트엔드 CI/CD**
 **Netlify를 이용한 자동 배포**  
-🚀 **배포 링크:** [on-u Netlify](https://on-u.netlify.app)  
+🚀 **배포 링크:** [on:u for student](https://onu-univ.site)  
 📌 **주요 단계:**
 - `dev` 브랜치에 `push` 발생 시 Netlify가 자동으로 빌드 및 배포 진행
 - ESLint, Husky를 활용한 코드 스타일 유지
@@ -126,14 +132,14 @@
 - Spring Boot 서비스와 연결되어 API 요청을 처리
 
 ---
-## ✏️개발일지
-[위키](https://github.com/softeer5th/Team7-BungeoBbang/wiki)에서 더 많은 일지를 확인할 수 있습니다.
+## ✏️ 주요 개발일지
+[위키](https://github.com/softeer5th/Team7-BungeoBbang/wiki)에서 모든 개발 일지를 확인할 수 있습니다.
 | 분야 | 링크 | 분야 | 링크 |
 |------|---------------------------------|------|---------------------------------|
-| **FE** | | **BE** | [중복 웹소켓 세션 처리 전략 및 구현 결정](https://github.com/softeer5th/Team7-BungeoBbang/wiki/%EC%A4%91%EB%B3%B5-%EC%9B%B9%EC%86%8C%EC%BC%93-%EC%84%B8%EC%85%98-%EC%B2%98%EB%A6%AC-%EC%A0%84%EB%9E%B5-%EB%B0%8F-%EA%B5%AC%ED%98%84-%EA%B2%B0%EC%A0%95) |
-| **FE** | | **BE** | [채팅방 웹소켓 이벤트 정리](https://github.com/softeer5th/Team7-BungeoBbang/wiki/%EC%B1%84%ED%8C%85%EB%B0%A9-%EC%9B%B9%EC%86%8C%EC%BC%93-%EC%9D%B4%EB%B2%A4%ED%8A%B8-%EC%A0%95%EB%A6%AC) |
-| **FE** | 이미지 업로드 처리 및 최적화 | **BE** | [Redis Sync vs Async 비교] |
-| **FE** |  | **BE** | [MongoClient vs Spring Data MongoDB] |
+| **FE_이지훈** | | **BE_오주은** | [중복 웹소켓 세션 처리 전략 및 구현 결정](https://github.com/softeer5th/Team7-BungeoBbang/wiki/%EC%A4%91%EB%B3%B5-%EC%9B%B9%EC%86%8C%EC%BC%93-%EC%84%B8%EC%85%98-%EC%B2%98%EB%A6%AC-%EC%A0%84%EB%9E%B5-%EB%B0%8F-%EA%B5%AC%ED%98%84-%EA%B2%B0%EC%A0%95) |
+| **FE_이지훈** | | **BE_오주은** | [채팅방 웹소켓 이벤트 정리](https://github.com/softeer5th/Team7-BungeoBbang/wiki/%EC%B1%84%ED%8C%85%EB%B0%A9-%EC%9B%B9%EC%86%8C%EC%BC%93-%EC%9D%B4%EB%B2%A4%ED%8A%B8-%EC%A0%95%EB%A6%AC) |
+| **FE_황유란** | 이미지 업로드 처리 및 최적화 | **BE_전경석** | [Redis Sync vs Async 비교] |
+| **FE_황유란** |  | **BE_전경석** | [MongoClient vs Spring Data MongoDB] |
 
 
 
