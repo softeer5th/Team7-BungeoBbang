@@ -72,6 +72,31 @@ const OpinionEntryPage: React.FC = () => {
 
   const handleNewMessage = useCallback(
     (message: ChatMessage) => {
+      console.log(message);
+      if (message.eventType === 'START') {
+        const newOpinion: Opinion = {
+          id: String(message.opinionId),
+          category: findChatCategoryType(message.categoryType),
+          title: ChatOpinionType[message.opinionType]?.label,
+          text: message.message,
+          time: formatLastChatTime(message.createdAt),
+          iconColor: '#FFC107',
+          hasAlarm: true,
+          createdAt: new Date(message.createdAt),
+          isReminded: true,
+          lastChatId: 0,
+        };
+
+        setOpinions((prev) => {
+          const lastRemindedIndex = prev.findIndex((opinion) => !opinion.isReminded);
+          const insertIndex = lastRemindedIndex === -1 ? prev.length : lastRemindedIndex;
+
+          const updatedOpinions = [...prev];
+          updatedOpinions.splice(insertIndex, 0, newOpinion);
+          return updatedOpinions;
+        });
+        return;
+      }
       // 새 메시지가 오면 캐시 무효화
       invalidateQueries('adminOpinions');
 
@@ -88,8 +113,14 @@ const OpinionEntryPage: React.FC = () => {
           };
 
           const [updatedOpinion] = updatedOpinions.splice(opinionIndex, 1);
-          console.log('dsds', updatedOpinions);
-          return [updatedOpinion, ...updatedOpinions];
+
+          // isReminded가 true인 마지막 항목의 인덱스
+          const lastRemindedIndex = updatedOpinions.findIndex((opinion) => !opinion.isReminded);
+          const insertIndex = lastRemindedIndex === -1 ? updatedOpinions.length : lastRemindedIndex;
+
+          // 새 의견을 적절한 위치에 삽입
+          updatedOpinions.splice(insertIndex, 0, updatedOpinion);
+          return updatedOpinions;
         }
 
         return prev;
