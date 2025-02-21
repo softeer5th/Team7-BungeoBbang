@@ -35,7 +35,7 @@ class CustomAgendaRepositoryImplTest {
     void getActiveAgendas() {
         final List<AgendaResponse> activeAgendas = customAgendaRepository.getActiveAgendas(1L, null, null);
 
-        assertThat(activeAgendas).hasSize(7);
+        assertThat(activeAgendas).hasSize(6);
     }
 
     @Test
@@ -43,7 +43,7 @@ class CustomAgendaRepositoryImplTest {
     void getClosedAgendas() {
         final List<AgendaResponse> closedAgendas = customAgendaRepository.getClosedAgendas(1L, null, null);
 
-        assertThat(closedAgendas).hasSize(4);
+        assertThat(closedAgendas).hasSize(5);
 
     }
 

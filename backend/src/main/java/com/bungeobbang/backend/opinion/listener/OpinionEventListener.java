@@ -41,7 +41,6 @@ public class OpinionEventListener {
                     false,
                         event.websocketMessage().createdAt()
                 );
-                opinionService.incrementChatCount(event.websocketMessage().opinionId());
             }
             // 마지막 채팅 ID 저장
             case LEAVE -> opinionService.updateLastReadToLastChatId(event.websocketMessage().opinionId(), false);
@@ -75,7 +74,6 @@ public class OpinionEventListener {
                         true,
                         event.websocketMessage().createdAt()
                 );
-                opinionService.initChatCount(event.websocketMessage().opinionId());
                 // 통계를 위해 answered_opinion 컬렉션 업데이트(upsert)
                 adminOpinionService.updateAnsweredOpinion(savedChat);
                 adminOpinionService.unsetRemindOpinion(event.websocketMessage().opinionId());

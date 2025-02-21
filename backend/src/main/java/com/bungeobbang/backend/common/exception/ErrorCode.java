@@ -13,7 +13,7 @@ public enum ErrorCode {
     IMAGE_DELETE_FAIL(5, HttpStatus.INTERNAL_SERVER_ERROR, "이미지 삭제에 실패하였습니다."),
     // Common
     INVALID_CATEGORY_TYPE(6, HttpStatus.BAD_REQUEST, "잘못된 카테고리 타입입니다."),
-    BADWORD_INCLUDED(7, HttpStatus.BAD_REQUEST, "금칙어가 포함되어있습니다."),
+    BADWORD_INCLUDED(7, HttpStatus.BAD_REQUEST, "'%s' 키워드는 입력하실 수 없습니다."),
     JSON_PARSE_FAIL(8, HttpStatus.INTERNAL_SERVER_ERROR, "json 파싱에 실패하였습니다."),
     // Agenda
     NOT_SUPPORT_STATUS(9, HttpStatus.BAD_REQUEST, "지원하지 않는 안건 상태입니다."),
@@ -56,7 +56,9 @@ public enum ErrorCode {
     PASSWORD_MISMATCH(41, HttpStatus.BAD_REQUEST, "비밀번호가 일치하지 않습니다."),
     INVALID_ACCESS_TOKEN(42, HttpStatus.UNAUTHORIZED, "올바르지 않은 형식의 AccessToken입니다."),
     REFRESH_TOKEN_MISMATCH(43, HttpStatus.UNAUTHORIZED, "리프레시 토큰이 일치하지 않습니다."),
-    EXPIRED_ACCESS_TOKEN(44, HttpStatus.UNAUTHORIZED, "토큰의 유효기간이 만료되었습니다.");
+    EXPIRED_ACCESS_TOKEN(44, HttpStatus.UNAUTHORIZED, "토큰의 유효기간이 만료되었습니다."),
+    // Common
+    INVALID_METHOD_ARGUMENT(46, HttpStatus.BAD_REQUEST, "유효하지 않은 입력값입니다.");
 
 
 
@@ -68,5 +70,9 @@ public enum ErrorCode {
         this.httpStatus = httpStatus;
         this.message = message;
         this.code = code;
+    }
+
+    public String formatMessage(Object... args) {
+        return String.format(message, args);
     }
 }

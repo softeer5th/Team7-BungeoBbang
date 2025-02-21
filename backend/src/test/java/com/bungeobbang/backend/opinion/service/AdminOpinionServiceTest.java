@@ -2,6 +2,8 @@ package com.bungeobbang.backend.opinion.service;
 
 import com.bungeobbang.backend.admin.domain.Admin;
 import com.bungeobbang.backend.admin.domain.repository.AdminRepository;
+import com.bungeobbang.backend.auth.domain.Accessor;
+import com.bungeobbang.backend.auth.domain.Authority;
 import com.bungeobbang.backend.common.exception.AdminException;
 import com.bungeobbang.backend.common.exception.ErrorCode;
 import com.bungeobbang.backend.common.exception.OpinionException;
@@ -9,9 +11,11 @@ import com.bungeobbang.backend.common.type.CategoryType;
 import com.bungeobbang.backend.opinion.domain.Opinion;
 import com.bungeobbang.backend.opinion.domain.OpinionChat;
 import com.bungeobbang.backend.opinion.domain.OpinionLastRead;
+import com.bungeobbang.backend.opinion.domain.repository.AnsweredOpinionRepository;
 import com.bungeobbang.backend.opinion.domain.repository.OpinionChatRepository;
 import com.bungeobbang.backend.opinion.domain.repository.OpinionLastReadRepository;
 import com.bungeobbang.backend.opinion.domain.repository.OpinionRepository;
+import com.bungeobbang.backend.opinion.dto.response.AdminOpinionStatisticsResponse;
 import com.bungeobbang.backend.opinion.dto.response.AdminOpinionsInfoResponse;
 import org.bson.types.ObjectId;
 import org.junit.jupiter.api.DisplayName;
@@ -21,6 +25,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.Year;
+import java.time.YearMonth;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -44,6 +50,8 @@ class AdminOpinionServiceTest {
     private OpinionLastReadRepository opinionLastReadRepository;
     @Mock
     private AdminRepository adminRepository;
+    @Mock
+    private AnsweredOpinionRepository answeredOpinionRepository;
 
     @Test
     @DisplayName("학생회가 특정 카테고리의 의견 목록을 조회한다.")
@@ -191,5 +199,45 @@ class AdminOpinionServiceTest {
                 .hasMessage(ErrorCode.INVALID_OPINION_CHAT.getMessage());
     }
 
+    @Test
+    @DisplayName("연도별 의견 및 답변 통계 조회 - 정상")
+    void computeYearlyStatistics() {
+        // given
+        Year year = Year.of(2024);
 
+        when(opinionRepository.findAllByCreatedAtBetweenAndUniversityId(any(), any(), anyLong()))
+                .thenReturn(List.of());
+        when(answeredOpinionRepository.countByIdBetweenAndUniversityId(any(), any(), anyLong()))
+                .thenReturn(10L);
+        when(adminRepository.findById(anyLong())).thenReturn(Optional.of(NAVER_ADMIN));
+
+        // when
+        AdminOpinionStatisticsResponse response = adminOpinionService.computeYearlyStatistics(year, new Accessor(1L, Authority.ADMIN));
+
+        // then
+        assertThat(response.opinionCount()).isEqualTo(0);
+        assertThat(response.answerCount()).isEqualTo(10);
+        assertThat(response.answerRate()).isEqualTo(0);
+    }
+
+    @Test
+    @DisplayName("월별 의견 및 답변 통계 조회 - 정상")
+    void computeMonthlyStatistics() {
+        // given
+        YearMonth yearMonth = YearMonth.of(2024, 2);
+
+        when(opinionRepository.findAllByCreatedAtBetweenAndUniversityId(any(), any(), anyLong()))
+                .thenReturn(List.of());
+        when(answeredOpinionRepository.countByIdBetweenAndUniversityId(any(), any(), anyLong()))
+                .thenReturn(5L);
+        when(adminRepository.findById(anyLong())).thenReturn(Optional.of(NAVER_ADMIN));
+
+        // when
+        AdminOpinionStatisticsResponse response = adminOpinionService.computeMonthlyStatistics(yearMonth, new Accessor(1L, Authority.ADMIN));
+
+        // then
+        assertThat(response.opinionCount()).isEqualTo(0);
+        assertThat(response.answerCount()).isEqualTo(5);
+        assertThat(response.answerRate()).isEqualTo(0);
+    }
 }

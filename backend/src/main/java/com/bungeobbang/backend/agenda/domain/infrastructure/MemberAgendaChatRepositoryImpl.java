@@ -106,11 +106,7 @@ public class MemberAgendaChatRepositoryImpl implements MemberAgendaChatRepositor
             ObjectId lastChatId = lastChatMap.getOrDefault(agendaId, MIN_OBJECT_ID);
             ObjectId lastReadChatId = lastReadChatMap.getOrDefault(agendaId, MIN_OBJECT_ID);
 
-            if (lastChatId != null && lastReadChatId != null) {
-                unreadMap.put(agendaId, lastChatId.compareTo(lastReadChatId) > 0);
-            } else {
-                unreadMap.put(agendaId, lastChatId != null);
-            }
+            unreadMap.put(agendaId, lastChatId.compareTo(lastReadChatId) > 0);
         }
 
         return lastChats.stream()
@@ -207,7 +203,7 @@ public class MemberAgendaChatRepositoryImpl implements MemberAgendaChatRepositor
             }
         }
 
-        query.limit(10);
+        query.limit(15);
 
         final List<AgendaChat> result = mongoTemplate.find(query, AgendaChat.class);
 

@@ -5,6 +5,7 @@ import com.bungeobbang.backend.admin.domain.repository.AdminRepository;
 import com.bungeobbang.backend.agenda.domain.Agenda;
 import com.bungeobbang.backend.agenda.domain.AgendaChat;
 import com.bungeobbang.backend.agenda.domain.AgendaImage;
+import com.bungeobbang.backend.agenda.domain.repository.AdminAgendaChatRepository;
 import com.bungeobbang.backend.agenda.domain.repository.AgendaChatRepository;
 import com.bungeobbang.backend.agenda.domain.repository.AgendaImageRepository;
 import com.bungeobbang.backend.agenda.domain.repository.AgendaRepository;
@@ -37,7 +38,7 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class AdminAgendaServiceTest {
+class AdminMemberAgendaServiceTest {
     @InjectMocks
     private AdminAgendaService adminAgendaService;
     @Mock
@@ -51,7 +52,8 @@ class AdminAgendaServiceTest {
 
     @Mock
     private AgendaChatRepository agendaChatRepository;
-    
+    @Mock
+    private AdminAgendaChatRepository adminAgendaChatRepository;
 
     @Test
     @DisplayName("자신이 속하지 않은 대학의 답해요를 조회하면 에러가 발생한다.")

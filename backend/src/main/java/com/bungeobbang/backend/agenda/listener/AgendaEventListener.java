@@ -2,8 +2,9 @@ package com.bungeobbang.backend.agenda.listener;
 
 import com.bungeobbang.backend.agenda.dto.request.AgendaChatRequest;
 import com.bungeobbang.backend.agenda.service.AdminAgendaChatService;
-import com.bungeobbang.backend.agenda.service.AgendaChatService;
 import com.bungeobbang.backend.agenda.service.AgendaRealTimeChatService;
+import com.bungeobbang.backend.agenda.service.AgendaValidService;
+import com.bungeobbang.backend.agenda.service.MemberAgendaChatService;
 import com.bungeobbang.backend.badword.service.BadWordService;
 import com.bungeobbang.backend.chat.event.agenda.AgendaAdminEvent;
 import com.bungeobbang.backend.chat.event.agenda.AgendaMemberEvent;
@@ -15,8 +16,9 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class AgendaEventListener {
     private final BadWordService badWordService;
-    private final AgendaChatService agendaChatService;
+    private final AgendaValidService agendaValidService;
     private final AdminAgendaChatService adminAgendaChatService;
+    private final MemberAgendaChatService memberAgendaChatService;
     private final AgendaRealTimeChatService agendaRealTimeChatService;
 
     /*
@@ -27,14 +29,14 @@ public class AgendaEventListener {
      * 4. 채팅방 참여하기
      */
     @EventListener
-    public void handleAgendaEvent(AgendaMemberEvent event) {
+    public void handleMemberAgendaEvent(AgendaMemberEvent event) {
         switch (event.eventType()) {
-            case ENTER -> agendaChatService.updateLastReadToMax(event.agendaId(), event.memberId());
+            case ENTER -> memberAgendaChatService.updateLastReadToMax(event.agendaId(), event.memberId());
             case CHAT -> {
-                agendaChatService.validAgenda(event.agendaId());
+                agendaValidService.checkAgendaIsActive(event.agendaId());
                 badWordService.validate(event.chat());
                 agendaRealTimeChatService.sendMessageFromMember(event);
-                agendaChatService.saveChat(new AgendaChatRequest(
+                memberAgendaChatService.saveChat(new AgendaChatRequest(
                         event.agendaId(),
                         event.memberId(),
                         event.chat(),
@@ -42,7 +44,7 @@ public class AgendaEventListener {
                         event.createdAt()
                 ));
             }
-            case LEAVE -> agendaChatService.updateLastRead(event.agendaId(), event.memberId());
+            case LEAVE -> memberAgendaChatService.updateLastRead(event.agendaId(), event.memberId());
             case EXIT -> agendaRealTimeChatService.disconnectMemberFromAgenda(event.session(), event.agendaId());
             case PARTICIPATE -> agendaRealTimeChatService.connectMemberFromAgenda(event.session(), event.agendaId());
         }
@@ -62,7 +64,7 @@ public class AgendaEventListener {
         switch (event.eventType()) {
             case ENTER -> adminAgendaChatService.updateLastReadToMax(event.agendaId(), event.adminId());
             case CHAT -> {
-                agendaChatService.validAgenda(event.agendaId());
+                agendaValidService.checkAgendaIsActive(event.agendaId());
                 badWordService.validate(event.chat());
                 agendaRealTimeChatService.sendMessageFromAdmin(event);
                 adminAgendaChatService.saveChat(new AgendaChatRequest(
@@ -76,7 +78,7 @@ public class AgendaEventListener {
             case LEAVE -> adminAgendaChatService.updateLastRead(event.agendaId(), event.adminId());
             case START -> {
                 // 오늘 시작인거만 구독
-                if (adminAgendaChatService.isStartToday(event.agendaId())) {
+                if (agendaValidService.isAgendaStartsToday(event.agendaId())) {
                     agendaRealTimeChatService.connectAdminFromAgenda(event.session(), event.agendaId());
                 }
             }

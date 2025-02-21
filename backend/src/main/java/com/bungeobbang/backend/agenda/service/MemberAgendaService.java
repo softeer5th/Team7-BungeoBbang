@@ -47,7 +47,7 @@ import static com.bungeobbang.backend.common.exception.ErrorCode.INVALID_AGENDA;
  */
 @Service
 @RequiredArgsConstructor
-public class AgendaService {
+public class MemberAgendaService {
     private final AgendaFinders agendaFinders;
     private final AgendaRepository agendaRepository;
     private final MemberRepository memberRepository;
@@ -161,7 +161,7 @@ public class AgendaService {
                                     .agendaId(lastChat.agendaId())
                                     .lastChatId(lastChat.chatId())
                                     .count(agenda.getCount())
-                                    .isEnd(agenda.getEndDate().isAfter(LocalDate.now()))
+                                    .isEnd(agenda.getEndDate().isBefore(LocalDate.now()) || agenda.isEnd())
                                     .title(agenda.getTitle())
                                     .categoryType(agenda.getCategoryType())
                                     .createdAt(lastChat.createdAt())
