@@ -20,7 +20,7 @@ const meta: Meta<typeof CountTextField> = {
     textColor: '#262626',
     disabled: false,
   },
-  tags:['autodocs']
+  tags: ['autodocs'],
 };
 
 export default meta;

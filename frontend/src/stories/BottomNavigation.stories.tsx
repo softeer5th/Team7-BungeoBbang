@@ -4,23 +4,23 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { useState } from 'react';
 
 const meta: Meta<typeof BottomNavigation> = {
-  title: 'Components/BottomNavigation', 
+  title: 'Components/BottomNavigation',
   component: BottomNavigation,
   argTypes: {
     startDestination: {
       control: 'radio',
-      options: ['message', 'home', 'my'], 
+      options: ['message', 'home', 'my'],
     },
 
-    backgroundColor: { control: 'color' }, 
+    backgroundColor: { control: 'color' },
     foregroundColor: { control: 'color' },
-    selectedForegroundColor: { control: 'color' }, 
+    selectedForegroundColor: { control: 'color' },
     alarmColor: { control: 'color' },
-    setAlarm: { control: 'boolean' }, 
-    onItemClick: { action: 'clicked' }, 
+    setAlarm: { control: 'boolean' },
+    onItemClick: { action: 'clicked' },
     border: { control: 'object' },
   },
-  tags:['autodocs']
+  tags: ['autodocs'],
 };
 
 export default meta;
@@ -48,11 +48,7 @@ export const Default: Story = {
     };
 
     return (
-      <BottomNavigation
-        {...args}
-        startDestination={selectedItem}
-        onItemClick={handleItemClick}
-      />
+      <BottomNavigation {...args} startDestination={selectedItem} onItemClick={handleItemClick} />
     );
   },
 };

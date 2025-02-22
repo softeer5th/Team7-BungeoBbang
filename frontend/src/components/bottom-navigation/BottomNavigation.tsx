@@ -9,7 +9,7 @@ interface BottomNavigationProps {
    * 네비게이션 바의 시작 지점 (초기 선택된 탭)
    */
   startDestination: string;
-   /**
+  /**
    * 네비게이션 아이템 목록
    * - `itemId`: 아이템의 고유 ID
    * - `title`: 아이템의 이름
@@ -31,13 +31,13 @@ interface BottomNavigationProps {
    * @default "#1F87FF"
    */
   selectedForegroundColor?: string;
-   /**
+  /**
    * 알림 점의 색상
    * @default "#FF0000"
    */
   alarmColor?: string;
   /**
-   * 네비게이션 테두리 
+   * 네비게이션 테두리
    */
   border?: BorderProps;
   /**
@@ -45,7 +45,7 @@ interface BottomNavigationProps {
    * @default false
    */
   setAlarm?: boolean;
-    /**
+  /**
    * 네비게이션 아이템 클릭 시 호출되는 콜백 함수
    * @param itemId 클릭된 아이템의 `itemId`
    */

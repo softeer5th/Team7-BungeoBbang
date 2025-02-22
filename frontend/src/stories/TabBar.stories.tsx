@@ -12,7 +12,7 @@ const meta: Meta<typeof TabBar> = {
     textColor: { control: 'color' },
     selectedTextColor: { control: 'color' },
   },
-  tags:['autodocs']
+  tags: ['autodocs'],
 };
 
 export default meta;

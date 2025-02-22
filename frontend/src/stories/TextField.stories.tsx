@@ -15,7 +15,7 @@ const meta: Meta<typeof TextField> = {
     focusable: { control: 'boolean' },
     rows: { control: 'number', min: 1, max: 10, step: 1 },
   },
-  tags:['autodocs']
+  tags: ['autodocs'],
 };
 
 export default meta;
@@ -63,7 +63,7 @@ export const WithError: Story = {
         value={value}
         placeholder="input email..."
         onChange={handleChange}
-        isError ={true}
+        isError={true}
         errorText="invalid email"
       />
     );

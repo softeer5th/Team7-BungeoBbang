@@ -11,7 +11,7 @@ const meta: Meta<typeof Button> = {
     border: { control: 'object' },
     disabled: { control: 'boolean' },
   },
-  tags:['autodocs']
+  tags: ['autodocs'],
 };
 
 export default meta;

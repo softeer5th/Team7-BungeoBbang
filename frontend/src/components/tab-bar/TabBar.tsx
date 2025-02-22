@@ -56,7 +56,6 @@ export interface TabBarProps {
   onItemClick?: (itemId: string) => void;
 }
 
-
 export const TabBar: React.FC<TabBarProps> = ({
   currentDestination,
   items,

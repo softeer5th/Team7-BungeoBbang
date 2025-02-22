@@ -11,7 +11,7 @@ const meta: Meta<typeof TopAppBar> = {
     titleColor: { control: 'color' },
     border: { control: 'object' },
   },
-  tags:['autodocs']
+  tags: ['autodocs'],
 };
 
 export default meta;
@@ -39,7 +39,8 @@ export const TitleColor: Story = {
 // ✅ 앱 바 텍스트가 길 경우
 export const TitleOverflow: Story = {
   args: {
-    title: 'Title is Very Very Very Very Very Very  Very Very Very Very Very Very Very Very Very Very Very Very Very Very Very Very Very Very Long',
+    title:
+      'Title is Very Very Very Very Very Very  Very Very Very Very Very Very Very Very Very Very Very Very Very Very Very Very Very Very Long',
     rightIconSrc: '/src/assets/icons/logout.svg',
     backgroundColor: '#FFFFFF',
     foregroundColor: '#262626',
