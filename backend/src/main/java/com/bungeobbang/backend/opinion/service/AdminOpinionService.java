@@ -97,6 +97,8 @@ public class AdminOpinionService {
      */
     private List<AdminOpinionsInfoResponse> convertToAdminOpinionInfoList(final Map<Long, Opinion> opinions) {
         final List<Long> opinionIds = new ArrayList<>(opinions.keySet());
+        if (opinionIds.isEmpty())
+            return Collections.emptyList();
 
         // <OpinionId, OpinionLastRead>
         // 마지막 읽은 채팅 조회
