@@ -53,13 +53,20 @@ const CreateAgendaPage = () => {
     startDate: null,
     endDate: null,
     description: '',
-    images:[],
+    images: [],
   });
 
   const [isSameDateError, setSameDateError] = useState(false);
   const [isBadWordError, setBadWordError] = useState(false);
 
-  const { images, setInitialImages, showSizeDialog, handleImageDelete, handleImageUpload, closeSizeDialog } = useImageUpload(10, 5);
+  const {
+    images,
+    setInitialImages,
+    showSizeDialog,
+    handleImageDelete,
+    handleImageUpload,
+    closeSizeDialog,
+  } = useImageUpload(10, 5);
 
   function checkValidation(): boolean {
     const { title, category, startDate, endDate, description } = chatValue;
@@ -133,10 +140,10 @@ const CreateAgendaPage = () => {
 
   useEffect(() => {
     setChatValue((prev) => ({
-        ...prev, // Spread previous values correctly
-        images: [...images] // Update images with the latest state
+      ...prev, // Spread previous values correctly
+      images: [...images], // Update images with the latest state
     }));
-}, [images]);
+  }, [images]);
 
   useEffect(() => {
     setIsValidate(checkValidation());
@@ -281,7 +288,7 @@ const CreateAgendaPage = () => {
                       <S.ImageItem>
                         <S.DeleteIconBox
                           onClick={() => {
-                            handleImageDelete(index)
+                            handleImageDelete(index);
                           }}
                         >
                           <DeleteIcon

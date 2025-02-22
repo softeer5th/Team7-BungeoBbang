@@ -20,7 +20,7 @@ export const useImageUpload = (
 
   const setInitialImages = (newImages: string[]) => {
     setImages(newImages);
-  }
+  };
 
   const uploadImages = async (files: File[]): Promise<string[]> => {
     const formData = new FormData();
