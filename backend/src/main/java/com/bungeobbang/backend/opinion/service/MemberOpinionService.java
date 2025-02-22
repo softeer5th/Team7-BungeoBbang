@@ -27,6 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -165,7 +166,8 @@ public class MemberOpinionService {
      * @return MemberOpinionListResponse 학생이 생성한 말해요 채팅방 목록 응답 객체
      */
     public List<MemberOpinionsInfoResponse> findMemberOpinionList(final Long memberId) {
-        final List<Opinion> opinions = opinionRepository.findAllByMemberId(memberId);
+        final Map<Long, Opinion> opinions = opinionRepository.findAllByMemberId(memberId)
+                .stream().collect(Collectors.toMap(Opinion::getId, Function.identity()));
         return convertToMemberOpinionInfoList(opinions);
     }
 
@@ -204,6 +206,7 @@ public class MemberOpinionService {
                 .opinionId(opinionId)
                 .chat(creationRequest.content())
                 .images(creationRequest.images())
+                .createdAt(LocalDateTime.now())
                 .build();
         return opinionChatRepository.save(opinionChat).getId();
     }
@@ -216,10 +219,8 @@ public class MemberOpinionService {
      * @param opinions 해당 학생이 개설한 말해요 채팅방 리스트
      * @return 학생의 말해요 채팅방 정보 리스트
      */
-    private List<MemberOpinionsInfoResponse> convertToMemberOpinionInfoList(final List<Opinion> opinions) {
-        final List<Long> opinionIds = opinions.stream()
-                .map(Opinion::getId)
-                .toList();
+    private List<MemberOpinionsInfoResponse> convertToMemberOpinionInfoList(final Map<Long, Opinion> opinions) {
+        final List<Long> opinionIds = new ArrayList<>(opinions.keySet());
 
         // <OpinionId, OpinionLastRead>
         // 마지막 읽은 채팅 조회
@@ -227,31 +228,23 @@ public class MemberOpinionService {
                 .stream()
                 .collect(Collectors.toMap(OpinionLastRead::getOpinionId, Function.identity()));
 
-        // <OpinionId, OpinionChat>
         // 실제 마지막 채팅 조회
-        final Map<Long, OpinionChat> lastChatMap = opinionChatRepository.findLatestChatsByOpinionIds(opinionIds)
-                .stream()
-                .collect(Collectors.toMap(OpinionChat::getOpinionId, Function.identity()));
-
-        return opinions.stream()
-                .map(opinion -> {
-                    OpinionLastRead lastRead = lastReadMap.get(opinion.getId());
-                    OpinionChat lastChat = lastChatMap.get(opinion.getId());
-
-                    if (lastRead == null) {
-                        lastRead = opinionLastReadRepository.save(
-                                OpinionLastRead.builder()
-                                        .opinionId(opinion.getId())
-                                        .isAdmin(false)
-                                        .lastReadChatId(new ObjectId(MIN_OBJECT_ID))
-                                        .build());
-                    }
-                    if (lastChat == null) throw new OpinionException(ErrorCode.INVALID_OPINION_CHAT);
-
-                    return MemberOpinionsInfoResponse.of(opinion, lastChat, lastRead);
-                })
-                .sorted()
-                .toList();
+        List<OpinionChat> lastChats = opinionChatRepository.findLatestChatsByOpinionIds(opinionIds);
+        List<MemberOpinionsInfoResponse> result = new ArrayList<>();
+        for (OpinionChat lastChat : lastChats) {
+            Opinion opinion = opinions.get(lastChat.getOpinionId());
+            OpinionLastRead lastRead = lastReadMap.get(lastChat.getOpinionId());
+            if (lastRead == null) {
+                lastRead = opinionLastReadRepository.save(
+                        OpinionLastRead.builder()
+                                .opinionId(opinion.getId())
+                                .isAdmin(false)
+                                .lastReadChatId(new ObjectId(MIN_OBJECT_ID))
+                                .build());
+            }
+            result.add(MemberOpinionsInfoResponse.of(opinion, lastChat, lastRead));
+        }
+        return result;
     }
 
     private Long getAnsweredCountByPeriod(final LocalDateTime startDateTime, final LocalDateTime endDateTime, final Long universityId) {

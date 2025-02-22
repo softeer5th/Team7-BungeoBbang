@@ -24,6 +24,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 
 import java.time.Year;
 import java.time.YearMonth;
@@ -39,6 +41,7 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 class AdminOpinionServiceTest {
     @InjectMocks
     private AdminOpinionService adminOpinionService;
@@ -62,7 +65,7 @@ class AdminOpinionServiceTest {
 
         Opinion opinion1 = new Opinion(1L, admin.getUniversity(), null, CategoryType.IT, null, false, 1L);
         Opinion opinion2 = new Opinion(2L, admin.getUniversity(), null, CategoryType.EVENTS, null, false, 1L);
-        when(opinionRepository.findAllByCategoryTypeInAndUniversityId(Set.of(CategoryType.IT), admin.getUniversity().getId()))
+        when(opinionRepository.findAllByCategoryTypeInAndUniversityIdAndIsRemind(Set.of(CategoryType.IT), admin.getUniversity().getId(), false))
                 .thenReturn(List.of(opinion1));
 
         // Mock 데이터 설정 (마지막 읽은 채팅 및 최신 채팅)
@@ -93,13 +96,11 @@ class AdminOpinionServiceTest {
         Admin admin = NAVER_ADMIN;
         when(adminRepository.findById(anyLong())).thenReturn(Optional.of(admin));
 
+        // 의견 2개 생성 (isRemind true / false)
         Opinion opinion1 = new Opinion(1L, admin.getUniversity(), null, CategoryType.IT, null, false, 1L);
-        Opinion opinion2 = new Opinion(2L, admin.getUniversity(), null, CategoryType.EVENTS, null, true, 1L);
-        when(opinionRepository.findAllByCategoryTypeInAndUniversityId(Set.of(CategoryType.IT), admin.getUniversity().getId()))
-                .thenReturn(List.of(opinion1, opinion2));
+        Opinion opinion2 = new Opinion(2L, admin.getUniversity(), null, CategoryType.IT, null, true, 1L);
 
-        OpinionLastRead lastRead1 = new OpinionLastRead(new ObjectId(), opinion1.getId(), true, new ObjectId("000000000000000000000000"));
-        OpinionLastRead lastRead2 = new OpinionLastRead(new ObjectId(), opinion2.getId(), true, new ObjectId("000000000000000000000000"));
+        // 마지막 채팅 메시지 생성
         OpinionChat lastChat1 = OpinionChat.builder()
                 .id(new ObjectId())
                 .opinionId(opinion1.getId())
@@ -112,16 +113,36 @@ class AdminOpinionServiceTest {
                 .chat("메시지2")
                 .build();
 
-        when(opinionLastReadRepository.findByOpinionIdInAndIsAdmin(List.of(opinion1.getId(), opinion2.getId()), true))
-                .thenReturn(List.of(lastRead1, lastRead2));
-        when(opinionChatRepository.findLatestChatsByOpinionIds(List.of(opinion1.getId(), opinion2.getId())))
-                .thenReturn(List.of(lastChat1, lastChat2));
+        // 마지막 읽은 채팅 데이터 생성
+        OpinionLastRead lastRead1 = new OpinionLastRead(new ObjectId(), opinion1.getId(), true, new ObjectId("000000000000000000000000"));
+        OpinionLastRead lastRead2 = new OpinionLastRead(new ObjectId(), opinion2.getId(), true, new ObjectId("000000000000000000000000"));
+
+        // isRemind = false
+        when(opinionRepository.findAllByCategoryTypeInAndUniversityIdAndIsRemind(eq(Set.of(CategoryType.IT)), eq(admin.getUniversity().getId()), eq(false)))
+                .thenReturn(List.of(opinion1));
+
+        // isRemind = true
+        when(opinionRepository.findAllByCategoryTypeInAndUniversityIdAndIsRemind(eq(Set.of(CategoryType.IT)), eq(admin.getUniversity().getId()), eq(true)))
+                .thenReturn(List.of(opinion2));
+
+        when(opinionLastReadRepository.findByOpinionIdInAndIsAdmin(eq(List.of(opinion1.getId())), eq(true)))
+                .thenReturn(List.of(lastRead1));
+
+        when(opinionLastReadRepository.findByOpinionIdInAndIsAdmin(eq(List.of(opinion2.getId())), eq(true)))
+                .thenReturn(List.of(lastRead2));
+
+        when(opinionChatRepository.findLatestChatsByOpinionIds(eq(List.of(opinion1.getId()))))
+                .thenReturn(List.of(lastChat1));
+
+        when(opinionChatRepository.findLatestChatsByOpinionIds(eq(List.of(opinion2.getId()))))
+                .thenReturn(List.of(lastChat2));
 
         // when
         List<AdminOpinionsInfoResponse> responses = adminOpinionService.findAdminOpinionList(Set.of(CategoryType.IT), admin.getId());
 
         // then
         assertThat(responses).hasSize(2);
+
         // isRemind == true 인 opinion2 먼저 반환
         assertThat(responses.get(0).opinion().id()).isEqualTo(opinion2.getId());
         assertThat(responses.get(1).opinion().id()).isEqualTo(opinion1.getId());
@@ -149,7 +170,7 @@ class AdminOpinionServiceTest {
         Opinion opinion = new Opinion(1L, admin.getUniversity(), null, CategoryType.IT, null, false, 1L);
         OpinionChat lastChat = OpinionChat.builder()
                 .id(new ObjectId())
-                .opinionId(1L)
+                .opinionId(opinion.getId()) // ID를 정확하게 일치시킴
                 .chat("최신 메시지")
                 .build();
 
@@ -159,14 +180,15 @@ class AdminOpinionServiceTest {
                 .lastReadChatId(new ObjectId("000000000000000000000000"))
                 .build();
 
-        when(opinionRepository.findAllByUniversityId(admin.getUniversity().getId()))
+        when(opinionRepository.findAllByUniversityIdAndIsRemind(eq(admin.getUniversity().getId()), eq(false)))
                 .thenReturn(List.of(opinion));
-        when(opinionLastReadRepository.findByOpinionIdInAndIsAdmin(List.of(1L), true))
+
+        when(opinionLastReadRepository.findByOpinionIdInAndIsAdmin(anyList(), eq(true)))
                 .thenReturn(List.of());
-        when(opinionChatRepository.findLatestChatsByOpinionIds(List.of(1L)))
+
+        when(opinionChatRepository.findLatestChatsByOpinionIds(anyList()))
                 .thenReturn(List.of(lastChat));
 
-        // save() -> lastRead를 반환
         when(opinionLastReadRepository.save(any(OpinionLastRead.class)))
                 .thenReturn(defaultLastRead);
 
@@ -175,28 +197,10 @@ class AdminOpinionServiceTest {
 
         // then
         assertThat(responses).hasSize(1);
-        assertThat(responses.get(0).opinion().id()).isEqualTo(1L);
-        verify(opinionLastReadRepository).save(any(OpinionLastRead.class));
-    }
+        assertThat(responses.get(0).opinion().id()).isEqualTo(opinion.getId());
 
-    @Test
-    @DisplayName("학생회의 말해요 채팅방 목록을 조회할 때 채팅이 아무것도 없는 경우 예외 발생")
-    void findAdminOpinionList_noChats() {
-        // given
-        Admin admin = NAVER_ADMIN;
-        when(adminRepository.findById(anyLong())).thenReturn(Optional.of(admin));
-
-        Opinion opinion = new Opinion(1L, admin.getUniversity(), null, CategoryType.IT, null, false, 1L);
-
-        when(opinionRepository.findAllByUniversityId(admin.getUniversity().getId()))
-                .thenReturn(List.of(opinion));
-        when(opinionChatRepository.findLatestChatsByOpinionIds(List.of(1L)))
-                .thenReturn(List.of());
-
-        // when & then
-        assertThatThrownBy(() -> adminOpinionService.findAdminOpinionList(null, admin.getId()))
-                .isInstanceOf(OpinionException.class)
-                .hasMessage(ErrorCode.INVALID_OPINION_CHAT.getMessage());
+        // save()가 한 번 실행되었는지 검증
+        verify(opinionLastReadRepository, times(1)).save(any(OpinionLastRead.class));
     }
 
     @Test

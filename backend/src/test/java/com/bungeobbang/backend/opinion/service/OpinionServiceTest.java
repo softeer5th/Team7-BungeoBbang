@@ -1,5 +1,7 @@
 package com.bungeobbang.backend.opinion.service;
 
+import com.bungeobbang.backend.auth.domain.Accessor;
+import com.bungeobbang.backend.auth.domain.Authority;
 import com.bungeobbang.backend.common.exception.ErrorCode;
 import com.bungeobbang.backend.common.exception.OpinionException;
 import com.bungeobbang.backend.common.type.CategoryType;
@@ -50,6 +52,12 @@ class OpinionServiceTest {
     void findOpinionChat() {
         // given
         Long opinionId = 1L;
+        Opinion opinion = Opinion.builder()
+                .id(1L)
+                .university(NAVER_UNIVERSITY)
+                .member(NAVER_MEMBER)
+                .build();
+
         Long userId = 1L;
         ObjectId lastChatId = new ObjectId();
         OpinionChat chat = OpinionChat.builder()
@@ -59,12 +67,14 @@ class OpinionServiceTest {
                 .images(emptyList())
                 .build();
 
+        Accessor accessor = new Accessor(1L, Authority.MEMBER);
         // Mock 설정: 특정 값이 들어오면 List<OpinionChat> 반환하도록 설정
         when(customOpinionChatRepository.findOpinionChats(anyLong(), any(ObjectId.class), any()))
                 .thenReturn(List.of(chat));
+        when(opinionRepository.findById(anyLong())).thenReturn(Optional.of(opinion));
 
         // when
-        List<OpinionChatResponse> result = opinionService.findOpinionChat(opinionId, lastChatId, userId, null);
+        List<OpinionChatResponse> result = opinionService.findOpinionChat(opinionId, lastChatId, accessor, null);
 
         // then
         assertThat(result).hasSize(1);

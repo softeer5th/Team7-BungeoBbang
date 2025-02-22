@@ -29,7 +29,7 @@ public class OpinionChatController implements OpinionChatApi {
             @RequestParam(required = true) @Valid final ScrollType scroll,
             @Auth final Accessor accessor) {
         return ResponseEntity.ok().body(opinionService.findOpinionChat(
-                opinionId, chatId, accessor.id(), scroll
+                opinionId, chatId, accessor, scroll
         ));
     }
 

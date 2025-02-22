@@ -161,9 +161,9 @@ class MemberOpinionServiceTest {
 
         when(opinionRepository.findAllByMemberId(anyLong())).thenReturn(opinions);
         when(opinionLastReadRepository.findByOpinionIdInAndIsAdmin(any(), eq(false)))
-                .thenReturn(List.of(fstOpinionLastRead, scdOpinionLastRead));
+                .thenReturn(List.of(scdOpinionLastRead, fstOpinionLastRead));
         when(opinionChatRepository.findLatestChatsByOpinionIds(any()))
-                .thenReturn(List.of(fstOpinionLastChat, scdOpinionLastChat));
+                .thenReturn(List.of(scdOpinionLastChat, fstOpinionLastChat));
 
         // when
         List<MemberOpinionsInfoResponse> response = memberOpinionService.findMemberOpinionList(1L);

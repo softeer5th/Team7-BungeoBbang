@@ -59,8 +59,15 @@ public class AdminOpinionService {
     public List<AdminOpinionsInfoResponse> findAdminOpinionList(final Set<CategoryType> categoryTypes, final Long adminId) {
         Admin admin = adminRepository.findById(adminId)
                 .orElseThrow(() -> new AdminException(ErrorCode.INVALID_ADMIN));
-        final List<Opinion> opinions = getOpinionsByCategories(categoryTypes, admin.getUniversity().getId());
-        return convertToAdminOpinionInfoList(opinions);
+        // 리마인드 된 채팅방 조회.
+        final Map<Long, Opinion> remindedOpinions = getOpinionsByCategories(categoryTypes, admin.getUniversity().getId(), true);
+        // 리마인드 안된 채팅방 조회
+        final Map<Long, Opinion> unRemindedOpinions = getOpinionsByCategories(categoryTypes, admin.getUniversity().getId(), false);
+
+        List<AdminOpinionsInfoResponse> responses = new ArrayList<>(convertToAdminOpinionInfoList(remindedOpinions));
+        responses.addAll(convertToAdminOpinionInfoList(unRemindedOpinions));
+
+        return responses;
     }
 
     /**
@@ -69,11 +76,15 @@ public class AdminOpinionService {
      * @param categoryTypes 조회를 원하는 카테고리의 목록. 없을 경우 전체 카테고리를 조회합니다.
      * @return 카테고리에 해당하는 말해요 채팅방 목록.
      */
-    private List<Opinion> getOpinionsByCategories(final Set<CategoryType> categoryTypes, final Long universityId) {
+    private Map<Long, Opinion> getOpinionsByCategories(final Set<CategoryType> categoryTypes, final Long universityId, boolean isRemind) {
+        // 카테고리가 없으면 해당 대학 말해요 전체 조회
         if (categoryTypes == null || categoryTypes.isEmpty()) {
-            return opinionRepository.findAllByUniversityId(universityId); // 카테고리가 없으면 해당 대학 말해요 전체 조회
+            return opinionRepository.findAllByUniversityIdAndIsRemind(universityId, isRemind)
+                    .stream().collect(Collectors.toMap(Opinion::getId, Function.identity()));
         }
-        return opinionRepository.findAllByCategoryTypeInAndUniversityId(categoryTypes, universityId); // 선택된 카테고리에 해당하는 목록 조회
+        // 선택된 카테고리에 해당하는 목록 조회
+        return opinionRepository.findAllByCategoryTypeInAndUniversityIdAndIsRemind(categoryTypes, universityId, isRemind)
+                .stream().collect(Collectors.toMap(Opinion::getId, Function.identity()));
     }
 
     /**
@@ -84,10 +95,10 @@ public class AdminOpinionService {
      * @return AdminOpinionInfoResponse의 리스트로, 각 채팅방의 정보가 포함된 응답 객체.
      * @throws OpinionException 말해요 채팅방의 마지막 읽은 채팅 또는 최신 채팅 조회 실패 시 발생.
      */
-    private List<AdminOpinionsInfoResponse> convertToAdminOpinionInfoList(final List<Opinion> opinions) {
-        final List<Long> opinionIds = opinions.stream()
-                .map(Opinion::getId)
-                .toList();
+    private List<AdminOpinionsInfoResponse> convertToAdminOpinionInfoList(final Map<Long, Opinion> opinions) {
+        final List<Long> opinionIds = new ArrayList<>(opinions.keySet());
+        if (opinionIds.isEmpty())
+            return Collections.emptyList();
 
         // <OpinionId, OpinionLastRead>
         // 마지막 읽은 채팅 조회
@@ -95,31 +106,23 @@ public class AdminOpinionService {
                 .stream()
                 .collect(Collectors.toMap(OpinionLastRead::getOpinionId, Function.identity()));
 
-        // <OpinionId, OpinionChat>
         // 실제 마지막 채팅 조회
-        final Map<Long, OpinionChat> lastChatMap = opinionChatRepository.findLatestChatsByOpinionIds(opinionIds)
-                .stream()
-                .collect(Collectors.toMap(OpinionChat::getOpinionId, Function.identity()));
-
-        return opinions.stream()
-                .map(opinion -> {
-                    OpinionLastRead lastRead = lastReadMap.get(opinion.getId());
-                    OpinionChat lastChat = lastChatMap.get(opinion.getId());
-
-                    if (lastRead == null) {
-                        lastRead = opinionLastReadRepository.save(OpinionLastRead
-                                .builder()
-                                .opinionId(opinion.getId())
-                                .isAdmin(true)
-                                .lastReadChatId(new ObjectId(MIN_OBJECT_ID))
-                                .build());
-                    }
-                    if (lastChat == null) throw new OpinionException(ErrorCode.INVALID_OPINION_CHAT);
-
-                    return AdminOpinionsInfoResponse.of(opinion, lastChat, lastRead);
-                })
-                .sorted()
-                .toList();
+        List<OpinionChat> lastChats = opinionChatRepository.findLatestChatsByOpinionIds(opinionIds);
+        List<AdminOpinionsInfoResponse> results = new ArrayList<>();
+        for (OpinionChat lastChat : lastChats) {
+            Opinion opinion = opinions.get(lastChat.getOpinionId());
+            OpinionLastRead lastRead = lastReadMap.get(lastChat.getOpinionId());
+            if (lastRead == null) {
+                lastRead = opinionLastReadRepository.save(OpinionLastRead
+                        .builder()
+                        .opinionId(opinion.getId())
+                        .isAdmin(true)
+                        .lastReadChatId(new ObjectId(MIN_OBJECT_ID))
+                        .build());
+            }
+            results.add(AdminOpinionsInfoResponse.of(opinion, lastChat, lastRead));
+        }
+        return results;
     }
 
     @Transactional
