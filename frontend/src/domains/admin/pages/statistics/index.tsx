@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { TopAppBar } from '@/components/TopAppBar';
-import { TabBar } from '@/components/tab-bar/TabBar';
 import { BottomNavigation } from '@/components/bottom-navigation/BottomNavigation';
 import { bottomItems, moveToDestination } from '../destinations';
 import { useNavigate } from 'react-router-dom';
@@ -11,6 +10,8 @@ import leftArrowIcon from '@/assets/icons/chevron-left.svg';
 import rightArrowIcon from '@/assets/icons/chevron-right.svg';
 import Typography from '@/styles/Typography';
 import { ChatCategoryType } from '@/types/ChatCategoryType';
+import { TabBarContainer } from '@/components/tab-bar/TabBarCotainer';
+import { useCacheStore } from '@/store/cacheStore';
 
 interface StatisticsData {
   opinionCount: number;
@@ -38,14 +39,20 @@ interface AgendaStatisticsData {
   }>;
 }
 
+const tabItems = [
+  { itemId: 'ask', title: '말해요' },
+  { itemId: 'answer', title: '답해요' },
+];
+
 const StatisticsPage = () => {
   const [currentTab, setCurrentTab] = useState('ask');
   const [isMonthly, setIsMonthly] = useState(true);
   const [currentDate, setCurrentDate] = useState(new Date());
   const [statsData, setStatsData] = useState<StatisticsData | null>(null);
+  const [agendaStats, setAgendaStats] = useState<AgendaStatisticsData | null>(null);
   const navigate = useNavigate();
   const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
-  const [agendaStats, setAgendaStats] = useState<AgendaStatisticsData | null>(null);
+  const { getCache, setCache } = useCacheStore();
 
   const fetchData = async () => {
     try {
@@ -54,13 +61,32 @@ const StatisticsPage = () => {
       const yearMonth = `${year}-${month.toString().padStart(2, '0')}`;
 
       if (currentTab === 'ask') {
-        // 말해요(opinion) 통계
+        const cacheKey = `opinion-stats-${isMonthly ? yearMonth : year}`;
+
+        const cachedData = getCache(cacheKey);
+
+        if (cachedData) {
+          setStatsData(cachedData);
+          return;
+        }
+
         const endpoint = isMonthly
           ? `/admin/opinions/statistics/month?yearMonth=${yearMonth}`
           : `/admin/opinions/statistics/year?year=${year}`;
         const response = await api.get(endpoint);
         setStatsData(response.data);
+        //2 시간
+        setCache(cacheKey, response.data, 2 * 60 * 60 * 1000);
       } else {
+        const cacheKey = `agenda-stats-${isMonthly ? yearMonth : year}`;
+
+        const cachedData = getCache(cacheKey);
+
+        if (cachedData) {
+          setAgendaStats(cachedData);
+          return;
+        }
+
         const [baseStats, categoryStats] = await Promise.all([
           api.get(
             isMonthly
@@ -73,10 +99,15 @@ const StatisticsPage = () => {
               : `/admin/agendas/statistics/year/category?year=${year}`,
           ),
         ]);
-        setAgendaStats({
+
+        const combinedStats = {
           ...baseStats.data,
           categoryStats: categoryStats.data,
-        });
+        };
+
+        setAgendaStats(combinedStats);
+        // 2시간
+        setCache(cacheKey, combinedStats, 2 * 60 * 60 * 1000);
       }
     } catch (error) {
       console.error('통계 데이터 조회 실패:', error);
@@ -98,11 +129,6 @@ const StatisticsPage = () => {
       return newDate;
     });
   };
-
-  const tabItems = [
-    { itemId: 'ask', title: '말해요' },
-    { itemId: 'answer', title: '답해요' },
-  ];
 
   const getCategoryInfo = (key: string) => {
     const category = ChatCategoryType[key as keyof typeof ChatCategoryType];
@@ -136,6 +162,7 @@ const StatisticsPage = () => {
       return currentDate.getFullYear() < today.getFullYear();
     }
   };
+  console.log(currentTab);
 
   return (
     <Container>
@@ -147,131 +174,131 @@ const StatisticsPage = () => {
         onRightIconClick={() => setLogoutDialogOpen(true)}
       />
 
-      <TabBar
-        currentDestination={currentTab}
-        items={tabItems}
-        onItemClick={setCurrentTab}
-        backgroundColor="#FFFFFF"
-        indicatorColor="#1F87FF"
-        selectedTextColor="#1F87FF"
+      <TabBarContainer
+        tabItems={tabItems}
+        currentTabSelectedIndex={tabItems.findIndex((tab) => tab.itemId === currentTab)}
+        onTabItemClick={(itemId) => setCurrentTab(itemId)}
+        contents={() => {
+          return (
+            <Content>
+              <PeriodSelector>
+                <ArrowButton onClick={() => handleDateChange(-1)}>
+                  <img src={leftArrowIcon} alt="이전" />
+                </ArrowButton>
+                <Typography variant="display2">
+                  {isMonthly
+                    ? `${currentDate.getFullYear()}년 ${currentDate.getMonth() + 1}월`
+                    : `${currentDate.getFullYear()}년`}
+                </Typography>
+                <ArrowButton onClick={() => handleDateChange(1)} disabled={!canIncrement()}>
+                  <img src={rightArrowIcon} alt="다음" />
+                </ArrowButton>
+                <ToggleGroup>
+                  <ToggleButton active={isMonthly} onClick={() => setIsMonthly(true)}>
+                    <Typography variant="heading4">월간</Typography>
+                  </ToggleButton>
+                  <ToggleButton active={!isMonthly} onClick={() => setIsMonthly(false)}>
+                    <Typography variant="heading4">연간</Typography>
+                  </ToggleButton>
+                </ToggleGroup>
+              </PeriodSelector>
+              {currentTab === 'ask' ? (
+                <>
+                  <StatsCard>
+                    <StatsTitle>말해요</StatsTitle>
+                    <StatsGrid currentTab={currentTab}>
+                      <StatItem>
+                        <StatValue>{statsData?.opinionCount || 0}</StatValue>
+                        <StatLabel>의견 수</StatLabel>
+                      </StatItem>
+                      <StatItem>
+                        <StatValue>{statsData?.answerCount || 0}</StatValue>
+                        <StatLabel>답변 수</StatLabel>
+                      </StatItem>
+                      <StatItem>
+                        <StatValue>{statsData?.answerRate || 0}%</StatValue>
+                        <StatLabel>답변률</StatLabel>
+                      </StatItem>
+                    </StatsGrid>
+                  </StatsCard>
+
+                  <StatsCard>
+                    <StatsTitle>의견 종류</StatsTitle>
+                    <OpinionKindWrapper>
+                      <OpinionKind>
+                        {statsData &&
+                          Object.entries(statsData.opinionTypeCounts).map(([key, count]) => (
+                            <OpinionItem key={key}>
+                              <Typography variant="heading1">{count}</Typography>
+
+                              <OpinionName>
+                                <Typography variant="body4">{getOpinionTypeName(key)}</Typography>
+                              </OpinionName>
+                            </OpinionItem>
+                          ))}
+                      </OpinionKind>
+                    </OpinionKindWrapper>
+                  </StatsCard>
+
+                  <StatsCard>
+                    <StatsTitle>카테고리</StatsTitle>
+                    <CategoryList>
+                      {statsData &&
+                        Object.entries(statsData.categoryTypeCounts).map(([key, count]) => {
+                          const categoryInfo = getCategoryInfo(key);
+                          return (
+                            <CategoryItem key={key}>
+                              <CategoryIcon background={categoryInfo.iconBackground}>
+                                <img src={categoryInfo.iconSrc} alt={categoryInfo.label} />
+                              </CategoryIcon>
+                              <CategoryName>{categoryInfo.label}</CategoryName>
+
+                              <Typography variant="heading1">{count}</Typography>
+                            </CategoryItem>
+                          );
+                        })}
+                    </CategoryList>
+                  </StatsCard>
+                </>
+              ) : (
+                <>
+                  <StatsCard>
+                    <StatsTitle>답해요</StatsTitle>
+                    <StatsGrid currentTab={currentTab}>
+                      <StatItem>
+                        <StatValue>{agendaStats?.agendaCount || 0}</StatValue>
+                        <StatLabel>개설된 채팅방수</StatLabel>
+                      </StatItem>
+                      <StatItem>
+                        <StatValue>{agendaStats?.participateCount || 0}</StatValue>
+                        <StatLabel>의견 수</StatLabel>
+                      </StatItem>
+                    </StatsGrid>
+                  </StatsCard>
+
+                  <StatsCard>
+                    <StatsTitle>카테고리</StatsTitle>
+                    <CategoryList>
+                      {agendaStats?.categoryStats.map((stat) => {
+                        const categoryInfo = getCategoryInfo(stat.categoryType);
+                        return (
+                          <CategoryItem key={stat.categoryType}>
+                            <CategoryIcon background={categoryInfo.iconBackground}>
+                              <img src={categoryInfo.iconSrc} alt={categoryInfo.label} />
+                            </CategoryIcon>
+                            <CategoryName>{categoryInfo.label}</CategoryName>
+                            <Typography variant="heading1">{stat.count}</Typography>
+                          </CategoryItem>
+                        );
+                      })}
+                    </CategoryList>
+                  </StatsCard>
+                </>
+              )}
+            </Content>
+          );
+        }}
       />
-
-      <Content>
-        <PeriodSelector>
-          <ArrowButton onClick={() => handleDateChange(-1)}>
-            <img src={leftArrowIcon} alt="이전" />
-          </ArrowButton>
-          <Typography variant="display2">
-            {isMonthly
-              ? `${currentDate.getFullYear()}년 ${currentDate.getMonth() + 1}월`
-              : `${currentDate.getFullYear()}년`}
-          </Typography>
-          <ArrowButton onClick={() => handleDateChange(1)} disabled={!canIncrement()}>
-            <img src={rightArrowIcon} alt="다음" />
-          </ArrowButton>
-          <ToggleGroup>
-            <ToggleButton active={isMonthly} onClick={() => setIsMonthly(true)}>
-              <Typography variant="heading4">월간</Typography>
-            </ToggleButton>
-            <ToggleButton active={!isMonthly} onClick={() => setIsMonthly(false)}>
-              <Typography variant="heading4">연간</Typography>
-            </ToggleButton>
-          </ToggleGroup>
-        </PeriodSelector>
-        {currentTab === 'ask' ? (
-          <>
-            <StatsCard>
-              <StatsTitle>말해요</StatsTitle>
-              <StatsGrid currentTab={currentTab}>
-                <StatItem>
-                  <StatValue>{statsData?.opinionCount || 0}</StatValue>
-                  <StatLabel>의견 수</StatLabel>
-                </StatItem>
-                <StatItem>
-                  <StatValue>{statsData?.answerCount || 0}</StatValue>
-                  <StatLabel>답변 수</StatLabel>
-                </StatItem>
-                <StatItem>
-                  <StatValue>{statsData?.answerRate || 0}%</StatValue>
-                  <StatLabel>답변률</StatLabel>
-                </StatItem>
-              </StatsGrid>
-            </StatsCard>
-
-            <StatsCard>
-              <StatsTitle>의견 종류</StatsTitle>
-              <OpinionKindWrapper>
-                <OpinionKind>
-                  {statsData &&
-                    Object.entries(statsData.opinionTypeCounts).map(([key, count]) => (
-                      <OpinionItem key={key}>
-                        <Typography variant="heading1">{count}</Typography>
-
-                        <OpinionName>
-                          <Typography variant="body4">{getOpinionTypeName(key)}</Typography>
-                        </OpinionName>
-                      </OpinionItem>
-                    ))}
-                </OpinionKind>
-              </OpinionKindWrapper>
-            </StatsCard>
-
-            <StatsCard>
-              <StatsTitle>카테고리</StatsTitle>
-              <CategoryList>
-                {statsData &&
-                  Object.entries(statsData.categoryTypeCounts).map(([key, count]) => {
-                    const categoryInfo = getCategoryInfo(key);
-                    return (
-                      <CategoryItem key={key}>
-                        <CategoryIcon background={categoryInfo.iconBackground}>
-                          <img src={categoryInfo.iconSrc} alt={categoryInfo.label} />
-                        </CategoryIcon>
-                        <CategoryName>{categoryInfo.label}</CategoryName>
-
-                        <Typography variant="heading1">{count}</Typography>
-                      </CategoryItem>
-                    );
-                  })}
-              </CategoryList>
-            </StatsCard>
-          </>
-        ) : (
-          <>
-            <StatsCard>
-              <StatsTitle>답해요</StatsTitle>
-              <StatsGrid currentTab={currentTab}>
-                <StatItem>
-                  <StatValue>{agendaStats?.agendaCount || 0}</StatValue>
-                  <StatLabel>개설된 채팅방수</StatLabel>
-                </StatItem>
-                <StatItem>
-                  <StatValue>{agendaStats?.participateCount || 0}</StatValue>
-                  <StatLabel>의견 수</StatLabel>
-                </StatItem>
-              </StatsGrid>
-            </StatsCard>
-
-            <StatsCard>
-              <StatsTitle>카테고리</StatsTitle>
-              <CategoryList>
-                {agendaStats?.categoryStats.map((stat) => {
-                  const categoryInfo = getCategoryInfo(stat.categoryType);
-                  return (
-                    <CategoryItem key={stat.categoryType}>
-                      <CategoryIcon background={categoryInfo.iconBackground}>
-                        <img src={categoryInfo.iconSrc} alt={categoryInfo.label} />
-                      </CategoryIcon>
-                      <CategoryName>{categoryInfo.label}</CategoryName>
-                      <Typography variant="heading1">{stat.count}</Typography>
-                    </CategoryItem>
-                  );
-                })}
-              </CategoryList>
-            </StatsCard>
-          </>
-        )}
-      </Content>
 
       <BottomNavigation
         startDestination="statistics"

@@ -18,7 +18,7 @@ import { useEnterLeaveHandler } from '@/hooks/useEnterLeaveHandler.ts';
 import useInfiniteScroll from '@/hooks/useInfiniteScroll.tsx';
 import { useScroll } from '@/hooks/useScrollBottom.tsx';
 import { useSocketManager } from '@/hooks/useSocketManager.ts';
-import { ChatToast } from '@/components/ChatToast.tsx';
+import { ChatToast } from '@/components/Toast/ChatToast.tsx';
 import {
   FIRST_REMAIN_ITEMS,
   LAST_REMAIN_ITEMS,
@@ -26,6 +26,7 @@ import {
   MAX_CHAT_PAGE_DATA,
   RECENT_CHAT_ID,
 } from '@/utils/chat/chat_const.ts';
+import { Dialog } from '@/components/Dialog/Dialog.tsx';
 
 interface ChatPageProps {
   roomId: number;
@@ -50,6 +51,7 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
     const [selectedImage, setSelectedImage] = useState<{ url: string; index: number } | null>(null);
     const [currentImageList, setCurrentImageList] = useState<string[]>([]);
     const [message, setMessage] = useState('');
+    const [forbiddenDialog, setForbiddenDialog] = useState(false);
 
     const { images, showSizeDialog, handleImageDelete, handleImageUpload, closeSizeDialog } =
       useImageUpload(10, 5);
@@ -90,27 +92,39 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
 
     const handleMessageReceive = useCallback(
       (message: ChatMessage) => {
-        console.log('message', message);
+        if (message.code === 7) {
+          setForbiddenDialog(true);
+          return;
+        }
         if (message.roomType === 'AGENDA' && message.agendaId === Number(roomId)) {
-          // const newChat = {
-          //   type: message.memberId === Number(memberId) ? ChatType.SEND : ChatType.RECEIVE,
-          //   message: message.message,
-          //   time: new Date(message.createdAt).toLocaleTimeString('ko-KR', {
-          //     hour: '2-digit',
-          //     minute: '2-digit',
-          //   }),
-          //   images: message.images || [],
-          //   createdAt: message.createdAt,
-          // };
+          const newChat = {
+            type: message.memberId === Number(memberId) ? ChatType.SEND : ChatType.RECEIVE,
+            message: message.message,
+            time: new Date(message.createdAt).toLocaleTimeString('ko-KR', {
+              hour: '2-digit',
+              minute: '2-digit',
+            }),
+            images: message.images || [],
+            createdAt: message.createdAt,
+          };
 
           if (message.memberId === Number(memberId)) {
-            getReloadChatDataFromRecent();
-          } else {
             if (!getHasDownMore() && isWatchingBottom()) {
+              isLiveSendChatAdded.current = true;
+              addNewSocketData(newChat);
+            } else {
               getReloadChatDataFromRecent();
+            }
+          } else {
+            if (!getHasDownMore()) {
+              if (isWatchingBottom()) {
+                isLiveReceiveChatAdded.current = true;
+              } else {
+                setToastMeesage('새로운 채팅이 도착했습니다.');
+              }
+              addNewSocketData(newChat);
               return;
             }
-            setHasDownMore(true);
             setToastMeesage('새로운 채팅이 도착했습니다.');
           }
         }
@@ -132,9 +146,6 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
       [roomId, sendMessage],
     );
 
-    // const { elementRef, useScrollOnUpdate } = useScroll<HTMLDivElement>();
-    // useScrollOnUpdate(chatData);
-
     useEnterLeaveHandler('AGENDA', 'STUDENT');
 
     const [chatData, setChatData] = useState<ChatData[]>([]);
@@ -151,8 +162,13 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
     const isUpDirection = useRef<boolean>(false);
     const isDownDirection = useRef<boolean>(false);
 
+    const isLiveSendChatAdded = useRef<boolean>(false);
+    const isLiveReceiveChatAdded = useRef<boolean>(false);
+
     const isUpOverflow = useRef<boolean>(false);
     const isDownOverflow = useRef<boolean>(false);
+    const isLiveSendOverflow = useRef<boolean>(false);
+    const isLiveReceiveOverflow = useRef<boolean>(false);
 
     let upLastItemId: string = '';
     let downLastItemId: string = '';
@@ -296,6 +312,10 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
       }
     };
 
+    const addNewSocketData = (newChat: ChatData) => {
+      setChatData((prev) => [...prev, newChat]);
+    };
+
     const {
       setTriggerUpItem,
       setTriggerDownItem,
@@ -368,6 +388,49 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
         }
 
         isDownDirection.current = false;
+        return;
+      }
+
+      if (isLiveSendChatAdded.current) {
+        if (isLiveSendOverflow.current === true) {
+          scrollToBottom();
+          isLiveSendOverflow.current = false;
+          isLiveSendChatAdded.current = false;
+          return;
+        }
+
+        scrollToBottom();
+
+        if (MAX_CHAT_DATA_LENGTH < chatData.length) {
+          isLiveSendOverflow.current = true;
+
+          setHasUpMore(true);
+          setChatData((prev) => prev.slice(chatData.length - MAX_CHAT_DATA_LENGTH));
+          return;
+        }
+
+        isLiveSendChatAdded.current = false;
+      }
+
+      if (isLiveReceiveChatAdded.current) {
+        if (isLiveReceiveOverflow.current === true) {
+          scrollToBottom();
+          isLiveReceiveOverflow.current = false;
+          isLiveReceiveChatAdded.current = false;
+          return;
+        }
+
+        scrollToBottom();
+
+        if (MAX_CHAT_DATA_LENGTH < chatData.length) {
+          isLiveReceiveOverflow.current = true;
+
+          setHasUpMore(true);
+          setChatData((prev) => prev.slice(chatData.length - MAX_CHAT_DATA_LENGTH));
+          return;
+        }
+
+        isLiveReceiveChatAdded.current = false;
       }
     }, [chatData]);
 
@@ -534,8 +597,20 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
           <ChatToast
             message={toastMessage}
             bottom={(chatSendFieldRef.current?.offsetHeight ?? 0) + 15}
-            onClick={() => getInitialChatDataFromRecent()}
+            onClick={() => getReloadChatDataFromRecent()}
             onDismiss={() => setToastMeesage(null)}
+          />
+        )}
+        {forbiddenDialog && (
+          <Dialog
+            body={'금칙어가 발견됐습니다.\n더 나은 학교를 위해\n금칙어는 자제해주세요.'}
+            onConfirm={() => setForbiddenDialog(false)}
+            onDismiss={() => setForbiddenDialog(false)}
+            confirmButton={{
+              text: '확인',
+              backgroundColor: '#1F87FF',
+              textColor: '#FFFFFF',
+            }}
           />
         )}
       </S.Container>

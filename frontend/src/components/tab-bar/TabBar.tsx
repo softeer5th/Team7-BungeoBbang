@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { TabBarItem, TabBarItemProps } from './TabBarItem';
 
-interface TabBarProps {
+export interface TabBarProps {
   currentDestination: string;
   items: TabBarItemProps[];
   backgroundColor?: string;

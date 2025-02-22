@@ -27,7 +27,7 @@ import { ImagePreview } from '@/components/Chat/ImagePreview.tsx';
 import { useEnterLeaveHandler } from '@/hooks/useEnterLeaveHandler.ts';
 import { ChatRoomInfo } from '../../agenda/chat/chat-page/index.tsx';
 import useInfiniteScroll from '@/hooks/useInfiniteScroll.tsx';
-import { ChatToast } from '@/components/ChatToast.tsx';
+import { ChatToast } from '@/components/Toast/ChatToast.tsx';
 import {
   FIRST_REMAIN_ITEMS,
   LAST_REMAIN_ITEMS,
@@ -47,6 +47,7 @@ const OpinionChatPage = () => {
   const [isRemindEnabled, setIsRemindEnabled] = useState(false);
   const [isReminded, setIsReminded] = useState(false);
   const [dialogText, setDialogText] = useState('');
+  const [forbiddenDialog, setForbiddenDialog] = useState(false);
   const { images, showSizeDialog, handleImageDelete, handleImageUpload, closeSizeDialog } =
     useImageUpload(10, 5);
 
@@ -58,9 +59,14 @@ const OpinionChatPage = () => {
   const socketManager = useSocketManager();
   const location = useLocation();
   const lastChatId = location.state?.lastChatId || '000000000000000000000000';
+  const roomTitle = location.state?.title || '학생회';
 
   const handleMessageReceive = useCallback(
     (message: ChatMessage) => {
+      if (message.code === 7) {
+        setForbiddenDialog(true);
+        return;
+      }
       if (message.roomType === 'OPINION' && message.opinionId === Number(roomId)) {
         const newChat = {
           type: message.memberId === Number(memberId) ? ChatType.SEND : ChatType.RECEIVE,
@@ -76,14 +82,25 @@ const OpinionChatPage = () => {
           setIsRemindEnabled(false);
           setIsReminded(false);
         }
+
         if (message.memberId === Number(memberId)) {
-          getReloadChatDataFromRecent();
-        } else {
           if (!getHasDownMore() && isWatchingBottom()) {
+            isLiveSendChatAdded.current = true;
+            addNewSocketData(newChat);
+          } else {
             getReloadChatDataFromRecent();
+          }
+        } else {
+          console.log('gethasdownmor', getHasDownMore(), isWatchingBottom());
+          if (!getHasDownMore()) {
+            if (isWatchingBottom()) {
+              isLiveReceiveChatAdded.current = true;
+            } else {
+              setToastMeesage('새로운 채팅이 도착했습니다.');
+            }
+            addNewSocketData(newChat);
             return;
           }
-          setHasDownMore(true);
           setToastMeesage('새로운 채팅이 도착했습니다.');
         }
       }
@@ -161,10 +178,14 @@ const OpinionChatPage = () => {
   const isInitialRecentLoading = useRef<boolean>(false);
   const isUpDirection = useRef<boolean>(false);
   const isDownDirection = useRef<boolean>(false);
-  // const isLiveReceive = useRef<boolean>(false);
+
+  const isLiveSendChatAdded = useRef<boolean>(false);
+  const isLiveReceiveChatAdded = useRef<boolean>(false);
 
   const isUpOverflow = useRef<boolean>(false);
   const isDownOverflow = useRef<boolean>(false);
+  const isLiveSendOverflow = useRef<boolean>(false);
+  const isLiveReceiveOverflow = useRef<boolean>(false);
 
   let upLastItemId: string = '';
   let downLastItemId: string = '';
@@ -320,12 +341,22 @@ const OpinionChatPage = () => {
     }
   };
 
-  const { setTriggerUpItem, setTriggerDownItem, getHasDownMore, setHasUpMore, setHasDownMore } =
-    useInfiniteScroll({
-      initialFetch: getInitialChatData,
-      fetchUpMore: getMoreUpChatData,
-      fetchDownMore: getMoreDownChatData,
-    });
+  const addNewSocketData = (newChat: ChatData) => {
+    setChatData((prev) => [...prev, newChat]);
+  };
+
+  const {
+    setTriggerUpItem,
+    setTriggerDownItem,
+    getHasUpMore,
+    getHasDownMore,
+    setHasUpMore,
+    setHasDownMore,
+  } = useInfiniteScroll({
+    initialFetch: getInitialChatData,
+    fetchUpMore: getMoreUpChatData,
+    fetchDownMore: getMoreDownChatData,
+  });
 
   useLayoutEffect(() => {
     if (!elementRef.current) return;
@@ -333,13 +364,10 @@ const OpinionChatPage = () => {
 
     if (isInitialTopLoading.current === true) {
       scrollToTop();
-      console.log('scroll top end');
       isInitialTopLoading.current = false;
       return;
     } else if (isInitialRecentLoading.current === true) {
       scrollToBottom();
-
-      console.log('scroll bottom end');
       isInitialRecentLoading.current = false;
       return;
     }
@@ -368,7 +396,6 @@ const OpinionChatPage = () => {
 
     if (isDownDirection.current) {
       if (isDownOverflow.current === true) {
-        // console.log("down 호출");
         restoreScrollTopFromDown();
         isDownOverflow.current = false;
         isDownDirection.current = false;
@@ -379,7 +406,6 @@ const OpinionChatPage = () => {
 
       if (MAX_CHAT_DATA_LENGTH < chatData.length) {
         isDownOverflow.current = true;
-        // console.log("slice!!");
 
         setHasUpMore(true);
         setChatData((prev) => prev.slice(chatData.length - MAX_CHAT_DATA_LENGTH));
@@ -387,6 +413,49 @@ const OpinionChatPage = () => {
       }
 
       isDownDirection.current = false;
+      return;
+    }
+
+    if (isLiveSendChatAdded.current) {
+      if (isLiveSendOverflow.current === true) {
+        scrollToBottom();
+        isLiveSendOverflow.current = false;
+        isLiveSendChatAdded.current = false;
+        return;
+      }
+
+      scrollToBottom();
+
+      if (MAX_CHAT_DATA_LENGTH < chatData.length) {
+        isLiveSendOverflow.current = true;
+
+        setHasUpMore(true);
+        setChatData((prev) => prev.slice(chatData.length - MAX_CHAT_DATA_LENGTH));
+        return;
+      }
+
+      isLiveSendChatAdded.current = false;
+    }
+
+    if (isLiveReceiveChatAdded.current) {
+      if (isLiveReceiveOverflow.current === true) {
+        scrollToBottom();
+        isLiveReceiveOverflow.current = false;
+        isLiveReceiveChatAdded.current = false;
+        return;
+      }
+
+      scrollToBottom();
+
+      if (MAX_CHAT_DATA_LENGTH < chatData.length) {
+        isLiveReceiveOverflow.current = true;
+
+        setHasUpMore(true);
+        setChatData((prev) => prev.slice(chatData.length - MAX_CHAT_DATA_LENGTH));
+        return;
+      }
+
+      isLiveReceiveChatAdded.current = false;
     }
   }, [chatData]);
 
@@ -394,7 +463,7 @@ const OpinionChatPage = () => {
     <S.Container>
       <TopAppBar
         leftIconSrc="/src/assets/icons/arrow-left.svg"
-        title={chatRoomInfo.adminName}
+        title={roomTitle}
         rightIconSrc="/src/assets/icons/exit.svg"
         onLeftIconClick={() => {
           location.state?.from === 'opinion' ? navigate('/opinion/entry') : navigate(-1);
@@ -405,7 +474,7 @@ const OpinionChatPage = () => {
       />
       <S.ChatList ref={elementRef}>
         {chatData.map((chat, chatIndex) => {
-          const isUpTriggerItem = chatIndex === FIRST_REMAIN_ITEMS;
+          const isUpTriggerItem = chatIndex === FIRST_REMAIN_ITEMS && getHasUpMore();
           const isDownTriggerItem = chatIndex === chatData.length - LAST_REMAIN_ITEMS;
 
           if (chat.type === ChatType.RECEIVE) {
@@ -448,7 +517,7 @@ const OpinionChatPage = () => {
                           }
                         : null
                   }
-                  receiverName={curChatData.name}
+                  receiverName={chatRoomInfo.adminName}
                   message={curChatData.message}
                   images={curChatData.images}
                   timeText={curChatData.time}
@@ -559,7 +628,7 @@ const OpinionChatPage = () => {
         <ChatToast
           message={toastMessage}
           bottom={(chatSendFieldRef.current?.offsetHeight ?? 0) + 15}
-          onClick={() => getInitialChatDataFromRecent()}
+          onClick={() => getReloadChatDataFromRecent()}
           onDismiss={() => setToastMeesage(null)}
         />
       )}
@@ -571,6 +640,18 @@ const OpinionChatPage = () => {
           confirmButton={{
             text: '확인',
             children: '확인',
+            backgroundColor: '#1F87FF',
+            textColor: '#FFFFFF',
+          }}
+        />
+      )}
+      {forbiddenDialog && (
+        <Dialog
+          body={'금칙어가 발견됐습니다.\n더 나은 학교를 위해\n금칙어는 자제해주세요.'}
+          onConfirm={() => setForbiddenDialog(false)}
+          onDismiss={() => setForbiddenDialog(false)}
+          confirmButton={{
+            text: '확인',
             backgroundColor: '#1F87FF',
             textColor: '#FFFFFF',
           }}

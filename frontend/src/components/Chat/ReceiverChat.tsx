@@ -75,6 +75,7 @@ export const ReceiverChat = forwardRef<HTMLDivElement, ReceiverChatProps>(
             {images.map((image, index) => {
               return (
                 <AnimatedImageWrapper
+                  className="w-full"
                   key={`${image}${index}`}
                   initial={{
                     opacity: 0,
@@ -101,6 +102,7 @@ export const ReceiverChat = forwardRef<HTMLDivElement, ReceiverChatProps>(
           </ImageContainer>
         )}
         <motion.div
+          style={{ width: '100%' }}
           initial={{ opacity: 0, y: -100 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{
@@ -134,7 +136,9 @@ const ReceiverChatContainer = styled.div`
   padding-left: 16px;
 `;
 
-const NameContainer = styled.div``;
+const NameContainer = styled.div`
+  margin-bottom: 4px;
+`;
 
 const NameText = styled(Typography)<{
   nameTextColor: string;
@@ -160,8 +164,6 @@ const ImageContainer = styled.div`
   justify-content: flex-start;
   align-items: center;
   gap: 4px;
-  margin-top: 4px;
-  margin-bottom: 4px;
   padding-right: 16px;
   overflow-x: auto;
 
@@ -183,7 +185,7 @@ const MessageContainer = styled.div`
   justify-content: flex-start;
   align-items: flex-end;
   gap: 4px;
-  margin-top: 4px;
+  word-break: break-word;
 `;
 
 const TimeText = styled(Typography)<{

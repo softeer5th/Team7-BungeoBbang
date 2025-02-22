@@ -2,8 +2,7 @@ import { BottomNavigation } from '@/components/bottom-navigation/BottomNavigatio
 import * as S from './styles';
 import { TopAppBar } from '@/components/TopAppBar';
 import { useTheme } from 'styled-components';
-import { useEffect, useRef, useState, useCallback } from 'react';
-import { TabBar } from '@/components/tab-bar/TabBar';
+import { useEffect, useState, useCallback } from 'react';
 import { TabBarItemProps } from '@/components/tab-bar/TabBarItem';
 import { ChatPreviewData } from './data/ChatPreviewData.tsx';
 import { ChatPreviewItem } from './components/ChatPreviewItem.tsx';
@@ -19,107 +18,66 @@ import { useNavigate } from 'react-router-dom';
 import { EmptyContent } from '@/components/EmptyContent.tsx';
 import { useSocketStore, ChatMessage } from '@/store/socketStore.ts';
 import { LogoutDialog } from '@/components/Dialog/LogoutDialog.tsx';
+import { TabBarContainer } from '@/components/tab-bar/TabBarCotainer.tsx';
+import { useQuery } from '@/hooks/useQuery';
+import { useCacheStore } from '@/store/cacheStore';
+
+const tabItems: TabBarItemProps[] = [
+  { itemId: 'opinion', title: '말해요' },
+  { itemId: 'agenda', title: '답해요' },
+];
 
 const MyPage = () => {
   const theme = useTheme();
   const navigate = useNavigate();
   const { subscribe } = useSocketStore();
+  const { invalidateQueries } = useCacheStore();
 
-  const [activeIndex, setActiveIndex] = useState(() => {
-    return Number(sessionStorage.getItem('activeTabIndex')) || 0;
+  const [tabContents, setTabContents] = useState<Record<string, ChatPreviewData[]>>({
+    opinion: [],
+    agenda: [],
   });
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [startX, setStartX] = useState(0);
-  const [translateX, setTranslateX] = useState(0);
-  const [tabBarContent, setTabBarContent] = useState<Record<string, ChatPreviewData[]>>({});
   const [isLogoutDialogOpen, setLogoutDialogOpen] = useState(false);
 
-  const tabItems: TabBarItemProps[] = [
-    {
-      itemId: 'opinion',
-      title: '말해요',
-    },
-    {
-      itemId: 'agenda',
-      title: '답해요',
-    },
-  ];
-
-  const fetchChatRooms = async () => {
-    const result: Record<string, ChatPreviewData[]> = {
-      opinion: [],
-      agenda: [],
-    };
-
-    try {
-      const [opinion, agenda] = await Promise.all([
-        api.get('/student/opinions/my'),
-        api.get('/student/agendas/my'),
-      ]);
-
-      result.opinion = opinion.data.map((data: OpinionServerData) =>
-        mapOpinionResponseToChatPreviewData(data),
-      );
-
-      result.agenda = agenda.data.map((data: AgendaServerData) =>
-        mapAgendaResponseToChatPreviewData(data),
-      );
-      setTabBarContent(result);
-    } catch (error) {
-      console.error('fail to fetch agenda data', error);
-    }
-  };
-
-  useEffect(() => {
-    fetchChatRooms();
+  const fetchOpinions = useCallback(async () => {
+    const response = await api.get('/student/opinions/my');
+    return response.data.map((data: OpinionServerData) =>
+      mapOpinionResponseToChatPreviewData(data),
+    );
   }, []);
 
-  const handleTouchStart = (e: React.TouchEvent) => {
-    setStartX(e.touches[0].clientX);
-  };
+  const fetchAgendas = useCallback(async () => {
+    const response = await api.get('/student/agendas/my');
+    return response.data.map((data: AgendaServerData) => mapAgendaResponseToChatPreviewData(data));
+  }, []);
 
-  const handleTouchEnd = (e: React.TouchEvent) => {
-    const width = containerRef.current?.offsetWidth || 375;
-    const threshold = width / 2;
+  const handleOpinionSuccess = useCallback((data: ChatPreviewData[]) => {
+    setTabContents((prev) => ({ ...prev, opinion: data }));
+  }, []);
 
-    const deltaX = e.changedTouches[0].clientX - startX;
+  const handleAgendaSuccess = useCallback((data: ChatPreviewData[]) => {
+    setTabContents((prev) => ({ ...prev, agenda: data }));
+  }, []);
 
-    let newIndex = activeIndex;
+  const { refetch: refetchOpinions } = useQuery('my-opinions', fetchOpinions, {
+    onSuccess: handleOpinionSuccess,
+  });
 
-    if (Math.abs(deltaX) > threshold) {
-      if (deltaX < 0 && activeIndex < tabItems.length - 1) {
-        newIndex = activeIndex + 1;
-      } else if (deltaX > 0 && activeIndex > 0) {
-        newIndex = activeIndex - 1;
-      }
-    }
-    setActiveIndex(newIndex);
-  };
+  const { refetch: refetchAgendas } = useQuery('my-agendas', fetchAgendas, {
+    onSuccess: handleAgendaSuccess,
+  });
 
-  useEffect(() => {
-    const scrollLeft = containerRef.current?.scrollLeft || 0;
-
-    const width = containerRef.current?.offsetWidth || 375;
-
-    setTranslateX(scrollLeft + -activeIndex * width);
-
-    sessionStorage.setItem('activeTabIndex', String(activeIndex));
-  }, [activeIndex]);
-
-  const handleNewMessage = useCallback((message: ChatMessage) => {
-    setTabBarContent((prev) => {
-      const newContent = { ...prev };
-
-      // 메시지 타입에 따라 opinion/agenda 구분
+  const handleNewMessage = useCallback(
+    (message: ChatMessage) => {
       const type = message.roomType.toLowerCase();
-      const currentContent = newContent[type] || [];
-
-      // 해당 채팅방 찾기
       const targetRoomId = message.roomType === 'OPINION' ? message.opinionId : message.agendaId;
-      const roomIndex = currentContent.findIndex((item) => item.roomId === targetRoomId);
 
-      if (roomIndex !== -1) {
-        // 기존 채팅방이 있으면 최신 메시지로 업데이트하고 맨 위로 이동
+      setTabContents((prev) => {
+        const currentContent = [...(prev[type] || [])];
+        const roomIndex = currentContent.findIndex((item) => item.roomId === targetRoomId);
+
+        if (roomIndex === -1) return prev;
+
         const updatedRoom = {
           ...currentContent[roomIndex],
           lastMessage: message.message,
@@ -127,14 +85,24 @@ const MyPage = () => {
           hasNewChat: true,
         };
 
-        // 해당 채팅방을 제거하고 맨 앞에 추가
         currentContent.splice(roomIndex, 1);
-        newContent[type] = [updatedRoom, ...currentContent];
-      }
+        const newContent = [updatedRoom, ...currentContent];
 
-      return newContent;
-    });
-  }, []);
+        // 캐시 업데이트
+        if (type === 'opinion') {
+          invalidateQueries('my-opinions');
+        } else {
+          invalidateQueries('my-agendas');
+        }
+
+        return {
+          ...prev,
+          [type]: newContent,
+        };
+      });
+    },
+    [invalidateQueries],
+  );
 
   useEffect(() => {
     const unsubscribeOpinion = subscribe('OPINION', -1, handleNewMessage);
@@ -146,6 +114,11 @@ const MyPage = () => {
     };
   }, [subscribe, handleNewMessage]);
 
+  useEffect(() => {
+    refetchOpinions();
+    refetchAgendas();
+  }, [refetchOpinions, refetchAgendas]);
+
   return (
     <S.Container>
       <TopAppBar
@@ -154,35 +127,23 @@ const MyPage = () => {
         titleColor={theme.colors.sementicMain}
         onRightIconClick={() => setLogoutDialogOpen(true)}
       />
-      <TabBar
-        currentDestination={tabItems[activeIndex].itemId}
-        items={tabItems}
-        onItemClick={(itemId) =>
-          setActiveIndex(tabItems.findIndex((item) => item.itemId === itemId))
-        }
-      />
-      <S.TabContentContainer
-        ref={containerRef}
-        onTouchStart={handleTouchStart}
-        onTouchEnd={handleTouchEnd}
-      >
-        {tabItems.map((tab) => {
-          const content = tabBarContent[tab.itemId] || [];
-          return (
-            <S.TabContent key={tab.itemId} transX={translateX}>
-              {content.length > 0 ? (
-                <S.ChatPreviewList>
-                  {content.map((c) => (
-                    <ChatPreviewItem key={c.roomId} chatData={c} />
-                  ))}
-                </S.ChatPreviewList>
-              ) : (
-                <EmptyContent showIcon={true} text={'현재 개설된 채팅방이 없습니다.'} />
-              )}
-            </S.TabContent>
+      <TabBarContainer
+        tabItems={tabItems}
+        currentTabSelectedIndex={Number(sessionStorage.getItem('activeTabIndex')) || 0}
+        contents={(index) => {
+          const tab = tabItems[index];
+          const content = tabContents[tab.itemId] || [];
+          return content.length > 0 ? (
+            <S.ChatPreviewList>
+              {content.map((c) => (
+                <ChatPreviewItem key={c.roomId} chatData={c} />
+              ))}
+            </S.ChatPreviewList>
+          ) : (
+            <EmptyContent showIcon={true} text={'현재 개설된 채팅방이 없습니다.'} />
           );
-        })}
-      </S.TabContentContainer>
+        }}
+      />
       <BottomNavigation
         startDestination="my"
         destinations={bottomItems}

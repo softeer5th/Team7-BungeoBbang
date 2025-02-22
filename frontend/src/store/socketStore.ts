@@ -11,6 +11,7 @@ export interface ChatMessage {
   memberId?: number;
   adminId?: number;
   createdAt: string;
+  code?: number;
 }
 
 interface SocketState {
@@ -127,7 +128,7 @@ export const useSocketStore = create<SocketState>((set, get) => ({
         if (!get().socket) {
           get().connect(isAdmin);
         }
-      }, 5000);
+      }, 1000);
     };
   },
 
@@ -185,13 +186,19 @@ export const useSocketStore = create<SocketState>((set, get) => ({
           const data = JSON.parse(event.data) as ChatMessage;
           console.log('Received message:', data);
 
+          if (data.code === 7) {
+            callback(data);
+            return;
+          }
+
           if (
             data.roomType === roomType &&
             ((roomType === 'OPINION' && data.opinionId === roomId) ||
               (roomType === 'AGENDA' && data.agendaId === roomId))
           ) {
             callback(data);
-          } else if (roomId === -1) {
+          } else if (roomId === -1 || roomId === -2) {
+            // -1 은 nav , -2 는 학생회 opinion
             callback(data);
           }
         } catch (error) {

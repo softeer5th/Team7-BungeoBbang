@@ -15,7 +15,7 @@ interface SenderChatProps {
 }
 
 const AnimatedImageWrapper = styled(motion.div)`
-  flex-shrink: 0; // 이미지가 축소되지 않도록 설정
+  flex-shrink: 0;
 `;
 
 export const SenderChat = forwardRef<HTMLDivElement, SenderChatProps>(
@@ -65,6 +65,7 @@ export const SenderChat = forwardRef<HTMLDivElement, SenderChatProps>(
           </ImageContainer>
         )}
         <motion.div
+          style={{ width: '100%' }}
           initial={{ opacity: 0, y: -100 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{
@@ -130,6 +131,7 @@ const MessageContainer = styled.div`
   align-items: flex-end;
   gap: 4px;
   margin-top: 4px;
+  word-break: break-word;
 `;
 
 const TimeText = styled(Typography)<{

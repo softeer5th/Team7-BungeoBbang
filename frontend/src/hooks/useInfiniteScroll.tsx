@@ -2,9 +2,9 @@ import { useEffect, useRef } from 'react';
 
 interface InfiniteScrollOptions {
   threshold?: number;
-  initialFetch: () => Promise<void>;
-  fetchUpMore?: () => Promise<void>;
-  fetchDownMore?: () => Promise<void>;
+  initialFetch: () => Promise<any>;
+  fetchUpMore?: () => Promise<any>;
+  fetchDownMore?: () => Promise<any>;
 }
 
 const useInfiniteScroll = ({
@@ -59,7 +59,6 @@ const useInfiniteScroll = ({
           const [entry] = entries;
           // console.log("oberse!!", entry.isIntersecting, hasUpMore.current, fetchUpMore, !!fetchUpMore);
           if (entry.isIntersecting && hasUpMore.current && !!fetchUpMore) {
-            // console.log("왜 여긴 못 오지")
             fetchUpMore();
           }
         },

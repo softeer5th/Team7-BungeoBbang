@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import AdminLogin from './pages/login';
 import AgendaPage from './pages/agenda';
 import AgendaChatPage from './pages/agenda/chat';
@@ -11,11 +11,10 @@ import { ErrorProvider, useError } from '@/contexts/ErrorContext';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { useEffect } from 'react';
 import { setErrorHandler } from '@/utils/errorHandler';
-import { AnimatePresence } from 'framer-motion';
+import ProtectedLayout from '@/routes/ProtetedLayout';
 
 function AppContent() {
   const { showError } = useError();
-  const location = useLocation();
 
   useEffect(() => {
     setErrorHandler(showError);
@@ -23,13 +22,13 @@ function AppContent() {
 
   return (
     <ErrorBoundary onError={showError}>
-      <AnimatePresence>
-        <Routes location={location} key={location.pathname}>
-          {/* Public routes */}
-          <Route path="/" element={<AdminLogin />} />
+      <Routes>
+        {/* Public routes */}
+        <Route path="/" element={<AdminLogin />} />
 
-          {/* Protected routes */}
-          <Route element={<AdminProtectedRoute />}>
+        {/* Protected routes */}
+        <Route element={<AdminProtectedRoute />}>
+          <Route element={<ProtectedLayout />}>
             <Route path="/agenda" element={<AgendaPage />} />
             <Route path="/agenda/create/:roomId?" element={<CreateAgendaPage />} />
             <Route path="/agenda/chat/:roomId" element={<AgendaChatPage />} />
@@ -37,8 +36,8 @@ function AppContent() {
             <Route path="/opinion/chat/:roomId" element={<OpinionChatPage />} />
             <Route path="/statistics" element={<StatisticsPage />} />
           </Route>
-        </Routes>
-      </AnimatePresence>
+        </Route>
+      </Routes>
     </ErrorBoundary>
   );
 }
