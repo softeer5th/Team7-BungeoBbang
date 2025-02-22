@@ -4,13 +4,34 @@ import Typography from '../styles/Typography';
 import { getBorderStyle } from './border/getBorderType';
 
 export interface ButtonProps {
+  /**
+   * 버튼에 표시될 텍스트
+   */
   text: string;
+  /**
+   * 버튼의 배경색 (기본값: `#1F87FF`)
+   * @default "#1F87FF"
+   */
+  backgroundColor?: string;
+  /**
+   * 버튼 텍스트의 색상 (기본값: `#FFFFFF`)
+   * @default "#FFFFFF"
+   */
+  textColor?: string;
+  /**
+   * 버튼의 테두리 스타일 (BorderProps 사용)
+   */
+  border?: BorderProps;
+  /**
+   * 버튼 비활성화 여부 (기본값: `false`)
+   * @default false
+   */
+  disabled?: boolean;
+  /**
+   * 버튼 클릭 시 호출되는 콜백 함수
+   */
   onClick?: () => void;
   children?: React.ReactNode;
-  backgroundColor?: string;
-  textColor?: string;
-  border?: BorderProps;
-  disabled?: boolean;
 }
 
 export const Button: React.FC<ButtonProps> = ({

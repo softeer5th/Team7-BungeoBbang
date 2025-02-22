@@ -22,6 +22,7 @@ const meta: Meta<typeof DialogContainer> = {
       default: 'Dark',
     },
   },
+  tags: ['autodocs']
 };
 
 export default meta;

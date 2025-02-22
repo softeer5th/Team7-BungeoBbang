@@ -6,16 +6,66 @@ import { Button, ButtonProps } from '../Button';
 import parse from 'html-react-parser';
 
 interface DialogContainerProps {
+  /**
+   * 다이얼로그의 제목 (선택 사항)
+   * @default ""
+   * @example "알림"
+   */
   title?: string;
+
+  /**
+   * 다이얼로그 본문의 내용 (HTML 태그를 포함 가능)
+   * @example "채팅방에 입장하시겠어요?"
+   */
   body: string;
+
+  /**
+   * 확인 버튼 클릭 시 호출되는 콜백 함수
+   */
   onConfirm: () => void;
+
+  /**
+   * 취소 버튼 클릭 시 호출되는 콜백 함수
+   */
   onDismiss: () => void;
+
+  /**
+   * 다이얼로그 전체 배경 색상
+   * @example "#FFFFFF"
+   */
   backgroundColor?: string;
+
+  /**
+   * 다이얼로그 제목 영역의 배경 색상
+   * @example "#F4F4F4"
+   */
   titleBackgroundColor?: string;
+
+  /**
+   * 다이얼로그 제목 텍스트 색상
+   * @example "#1F87FF"
+   */
   titleTextColor?: string;
+
+  /**
+   * 다이얼로그 본문 텍스트 색상
+   * @example "#393939"
+   */
   bodyTextColor?: string;
+
+  /**
+   * 확인 버튼의 스타일과 동작을 정의하는 `ButtonProps`
+   */
   confirmButton: ButtonProps;
+
+  /**
+   * 취소 버튼의 스타일과 동작을 정의하는 `ButtonProps` (선택 사항)
+   */
   dissmissButton?: ButtonProps;
+
+  /**
+   * 다이얼로그의 테두리 스타일 (`BorderProps` 사용)
+   */
   border?: BorderProps;
 }
 

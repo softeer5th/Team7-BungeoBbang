@@ -13,6 +13,7 @@ const meta: Meta<typeof CategoryIcon> = {
     showText: { control: 'boolean' },
     selected: { control: 'boolean' },
   },
+  tags:['autodocs']
 };
 
 export default meta;

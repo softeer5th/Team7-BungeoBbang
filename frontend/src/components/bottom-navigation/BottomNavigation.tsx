@@ -2,18 +2,53 @@ import styled from 'styled-components';
 import { useState, forwardRef, useEffect } from 'react';
 import { BottomNavigationItem, BottomNavigationItemProps } from './BottomNavigationItem';
 import { BorderProps } from '../border/BorderProps';
-// import { getBorderStyle } from '../border/getBorderType';
 import { useSocketStore } from '@/store/socketStore';
 
 interface BottomNavigationProps {
+  /**
+   * 네비게이션 바의 시작 지점 (초기 선택된 탭)
+   */
   startDestination: string;
+   /**
+   * 네비게이션 아이템 목록
+   * - `itemId`: 아이템의 고유 ID
+   * - `title`: 아이템의 이름
+   * - `iconSrc`: 아이콘 이미지 경로
+   */
   destinations: BottomNavigationItemProps[];
+  /**
+   * 네비게이션 배경 색상
+   * @default "#FFFFFF"
+   */
   backgroundColor?: string;
+  /**
+   * 선택되지 않은 아이콘 색상
+   * @default "#A8A8A8"
+   */
   foregroundColor?: string;
+  /**
+   * 선택된 아이콘 색상
+   * @default "#1F87FF"
+   */
   selectedForegroundColor?: string;
+   /**
+   * 알림 점의 색상
+   * @default "#FF0000"
+   */
   alarmColor?: string;
+  /**
+   * 네비게이션 테두리 
+   */
   border?: BorderProps;
+  /**
+   * 알람 표시 여부
+   * @default false
+   */
   setAlarm?: boolean;
+    /**
+   * 네비게이션 아이템 클릭 시 호출되는 콜백 함수
+   * @param itemId 클릭된 아이템의 `itemId`
+   */
   onItemClick?: (itemId: string) => void;
 }
 

@@ -1,25 +1,26 @@
 import { BorderType } from '@/components/border/BorderProps';
 import { BottomNavigation } from '@/components/bottom-navigation/BottomNavigation';
-// import { BottomNavigationItem } from '@/components/bottom-navigation/BottomNavigationItem';
 import type { Meta, StoryObj } from '@storybook/react';
+import { useState } from 'react';
 
 const meta: Meta<typeof BottomNavigation> = {
-  title: 'Components/BottomNavigation', // Storybook에서 "Components" 폴더 안에 표시됨
+  title: 'Components/BottomNavigation', 
   component: BottomNavigation,
   argTypes: {
     startDestination: {
       control: 'radio',
-      options: ['message', 'home', 'my'], // 선택 가능한 옵션
+      options: ['message', 'home', 'my'], 
     },
 
-    backgroundColor: { control: 'color' }, // 배경색 변경 가능
-    foregroundColor: { control: 'color' }, // 아이콘 기본 색상 변경 가능
-    selectedForegroundColor: { control: 'color' }, // 선택된 아이콘 색상 변경 가능
-    alarmColor: { control: 'color' }, // 알람 색상 변경 가능
-    setAlarm: { control: 'boolean' }, // 알람 표시 여부 토글
-    onItemClick: { action: 'clicked' }, // 클릭 이벤트 감지
+    backgroundColor: { control: 'color' }, 
+    foregroundColor: { control: 'color' },
+    selectedForegroundColor: { control: 'color' }, 
+    alarmColor: { control: 'color' },
+    setAlarm: { control: 'boolean' }, 
+    onItemClick: { action: 'clicked' }, 
     border: { control: 'object' },
   },
+  tags:['autodocs']
 };
 
 export default meta;
@@ -38,6 +39,21 @@ export const Default: Story = {
     selectedForegroundColor: '#1F87FF',
     alarmColor: '#FF0000',
     setAlarm: false,
+  },
+  render: function Render(args) {
+    const [selectedItem, setSelectedItem] = useState(args.startDestination || '');
+
+    const handleItemClick = (itemId: string) => {
+      setSelectedItem(itemId);
+    };
+
+    return (
+      <BottomNavigation
+        {...args}
+        startDestination={selectedItem}
+        onItemClick={handleItemClick}
+      />
+    );
   },
 };
 

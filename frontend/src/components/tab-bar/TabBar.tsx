@@ -3,15 +3,59 @@ import styled from 'styled-components';
 import { TabBarItem, TabBarItemProps } from './TabBarItem';
 
 export interface TabBarProps {
+  /**
+   * 현재 선택된 탭의 ID
+   * @example "home"
+   */
   currentDestination: string;
+
+  /**
+   * 탭 항목 리스트
+   */
   items: TabBarItemProps[];
+
+  /**
+   * 탭 바의 배경 색상 (선택 사항)
+   * @default "#FFFFFF"
+   * @example "#F4F4F4"
+   */
   backgroundColor?: string;
+
+  /**
+   * 선택된 탭의 배경 색상 (선택 사항)
+   * @default "#FFFFFF"
+   * @example "#E0E0E0"
+   */
   selectedItembackgroundColor?: string;
+
+  /**
+   * 탭 인디케이터 색상 (선택 사항)
+   * @default "#1F87FF"
+   * @example "#FF0000"
+   */
   indicatorColor?: string;
+
+  /**
+   * 기본 탭 텍스트 색상 (선택 사항)
+   * @default "#A8A8A8"
+   * @example "#000000"
+   */
   textColor?: string;
+
+  /**
+   * 선택된 탭의 텍스트 색상 (선택 사항)
+   * @default "#1F87FF"
+   * @example "#FFFFFF"
+   */
   selectedTextColor?: string;
+
+  /**
+   * 탭 항목 클릭 시 호출되는 콜백 함수 (선택 사항)
+   * @param itemId 클릭한 탭의 ID
+   */
   onItemClick?: (itemId: string) => void;
 }
+
 
 export const TabBar: React.FC<TabBarProps> = ({
   currentDestination,

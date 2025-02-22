@@ -4,17 +4,76 @@ import { forwardRef } from 'react';
 import { motion } from 'framer-motion';
 
 interface ReceiverChatProps {
+  /**
+   * 채팅 메시지의 고유 ID
+   * @example "chat_12345"
+   */
   chatId: string;
+
+  /**
+   * 메시지를 보낸 사람의 이름 (선택 사항)
+   * @example "총학생회"
+   */
   receiverName?: string;
+
+  /**
+   * 수신자의 아이콘 이미지 URL (선택 사항)
+   * @example "https://example.com/icon.png"
+   */
   receiverIconSrc?: string;
+
+  /**
+   * 수신자의 아이콘 배경 색상 (선택 사항)
+   * @example "#FFE0F7"
+   */
   receiverIconBackgroundColor?: string;
+
+  /**
+   * 채팅 메시지의 내용
+   * @example "안녕하세요, 소중한 의견을 보내주셔서 감사합니다."
+   */
   message: string;
+
+  /**
+   * 첨부된 이미지 URL 배열 (선택 사항)
+   * @example ["https://example.com/image1.jpg", "https://example.com/image2.jpg"]
+   */
   images?: string[];
+
+  /**
+   * 메시지의 전송 시간 텍스트
+   * @example "오후 01:20"
+   */
   timeText: string;
+
+  /**
+   * 수신자 이름의 텍스트 색상 (선택 사항)
+   * @example "#1F87FF"
+   */
   nameTextColor?: string;
+
+  /**
+   * 채팅 메시지의 배경 색상 (선택 사항)
+   * @example "#F4F4F4"
+   */
   backgroundColor?: string;
+
+  /**
+   * 채팅 메시지의 텍스트 색상 (선택 사항)
+   * @example "#393939"
+   */
   textColor?: string;
+
+  /**
+   * 메시지 시간 텍스트의 색상 (선택 사항)
+   * @example "#C6C6C6"
+   */
   timeTextColor?: string;
+
+  /**
+   * 이미지 클릭 시 호출되는 콜백 함수 (선택 사항)
+   * @param imageUrl 클릭한 이미지의 URL
+   */
   onImageClick?: (imageUrl: string) => void;
 }
 

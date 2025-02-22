@@ -12,6 +12,7 @@ const sendMeta: Meta<typeof SenderChat> = {
   args: {
     chatId: '',
   },
+  tags:['autodocs']
 };
 
 export default sendMeta;

@@ -11,12 +11,12 @@ const meta: Meta<typeof TopAppBar> = {
     titleColor: { control: 'color' },
     border: { control: 'object' },
   },
+  tags:['autodocs']
 };
 
 export default meta;
 type Story = StoryObj<typeof TopAppBar>;
 
-// ✅ 기본 앱바 (Primary)
 export const Primary: Story = {
   args: {
     leftIconSrc: '/src/assets/icons/arrow-left.svg',
@@ -27,7 +27,6 @@ export const Primary: Story = {
   },
 };
 
-// ✅ 앱 바 타이틀 색상만 다름
 export const TitleColor: Story = {
   args: {
     leftIconSrc: '/src/assets/icons/logo.svg',
@@ -40,7 +39,8 @@ export const TitleColor: Story = {
 // ✅ 앱 바 텍스트가 길 경우
 export const TitleOverflow: Story = {
   args: {
-    title: 'Title is Very Very Very Very Long',
+    title: 'Title is Very Very Very Very Very Very  Very Very Very Very Very Very Very Very Very Very Very Very Very Very Very Very Very Very Long',
+    rightIconSrc: '/src/assets/icons/logout.svg',
     backgroundColor: '#FFFFFF',
     foregroundColor: '#262626',
   },
