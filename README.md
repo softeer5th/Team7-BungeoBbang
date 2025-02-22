@@ -143,5 +143,6 @@
 
 
 
-## **📑 기획/디자인 링크**
-[📌 기획/디자인 바로가기](https://www.figma.com/design/IRJV9BwrhtyrnwF90MWv6r/%5BTEAM-%EB%B6%80%EB%A6%89%EB%B6%80%EB%A6%89-%EB%B6%95%EC%96%B4%EB%B9%B5%5D-%ED%95%B8%EB%93%9C%EC%98%A4%ED%94%84-%EB%AC%B8%EC%84%9C?node-id=1-1426&p=f&t=t47Mit7sIVFXNLTs-0)
+## **📑 기획/디자인 파일**
+[화면디자인,디스크립션.pdf](https://github.com/user-attachments/files/18921923/default.pdf)
+
