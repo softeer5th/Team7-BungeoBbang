@@ -1,13 +1,7 @@
 [build]
-  base = "frontend"
-  publish = "dist"
-  command = "npm run build"
-
-[[redirects]]
-  from = "https://admin.onu.com/*"
-  to = "/index.html"
-  status = 200
-  
+  base = "frontend"  # 🔥 frontend 폴더를 빌드 기본 경로로 설정
+  command = "npm run build-storybook"
+  publish = "storybook-static"
 
 [[redirects]]
   from = "/*"
