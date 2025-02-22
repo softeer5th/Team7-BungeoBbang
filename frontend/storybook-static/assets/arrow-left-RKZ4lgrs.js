@@ -1,1 +1,22 @@
-import{r as e}from"./index-Dkaqzkgy.js";const o=t=>e.createElement("svg",{width:24,height:24,viewBox:"0 0 24 24",fill:"none",xmlns:"http://www.w3.org/2000/svg",...t},e.createElement("path",{d:"M15 17L10 12L15 7",stroke:"current",fill:"none",strokeWidth:2,strokeLinecap:"round",strokeLinejoin:"round"}));export{o as S};
+import { r as e } from "./index-Dkaqzkgy.js";
+const o = (t) =>
+  e.createElement(
+    "svg",
+    {
+      width: 24,
+      height: 24,
+      viewBox: "0 0 24 24",
+      fill: "none",
+      xmlns: "http://www.w3.org/2000/svg",
+      ...t,
+    },
+    e.createElement("path", {
+      d: "M15 17L10 12L15 7",
+      stroke: "current",
+      fill: "none",
+      strokeWidth: 2,
+      strokeLinecap: "round",
+      strokeLinejoin: "round",
+    }),
+  );
+export { o as S };
