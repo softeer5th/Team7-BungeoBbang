@@ -4,6 +4,7 @@ import { AUTH_CONFIG } from '@/config/auth';
 
 interface UseImageUploadReturn {
   images: string[];
+  setInitialImages: (images: string[]) => void;
   showSizeDialog: boolean;
   handleImageDelete: (index: number) => void;
   handleImageUpload: (files: FileList) => Promise<void>;
@@ -16,6 +17,10 @@ export const useImageUpload = (
 ): UseImageUploadReturn => {
   const [images, setImages] = useState<string[]>([]);
   const [showSizeDialog, setShowSizeDialog] = useState(false);
+
+  const setInitialImages = (newImages: string[]) => {
+    setImages(newImages);
+  }
 
   const uploadImages = async (files: File[]): Promise<string[]> => {
     const formData = new FormData();
@@ -64,6 +69,7 @@ export const useImageUpload = (
 
   return {
     images,
+    setInitialImages,
     showSizeDialog,
     handleImageDelete,
     handleImageUpload,

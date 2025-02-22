@@ -53,15 +53,13 @@ const CreateAgendaPage = () => {
     startDate: null,
     endDate: null,
     description: '',
-    images: ['/src/assets/imgs/preview_img.png'],
+    images:[],
   });
 
   const [isSameDateError, setSameDateError] = useState(false);
   const [isBadWordError, setBadWordError] = useState(false);
 
-  let previousImage: string[] = [];
-
-  const { images, showSizeDialog, handleImageUpload, closeSizeDialog } = useImageUpload(10, 5);
+  const { images, setInitialImages, showSizeDialog, handleImageDelete, handleImageUpload, closeSizeDialog } = useImageUpload(10, 5);
 
   function checkValidation(): boolean {
     const { title, category, startDate, endDate, description } = chatValue;
@@ -73,7 +71,7 @@ const CreateAgendaPage = () => {
       const response = await api.get(`/admin/agendas/${roomId}`);
       const data = mapToChatCreateData(response.data);
       setChatValue(data);
-      previousImage = data.images;
+      setInitialImages(data.images);
     } catch (error) {
       console.error('failed to load previous chat room data', error);
     }
@@ -128,17 +126,17 @@ const CreateAgendaPage = () => {
   }
 
   useEffect(() => {
-    setChatValue((prev) => ({
-      ...prev,
-      images: [...previousImage, ...images],
-    }));
-  }, [images]);
-
-  useEffect(() => {
     if (roomId && roomId !== NEW_CHAT) {
       getPrevAgendaInfo();
     }
   }, []);
+
+  useEffect(() => {
+    setChatValue((prev) => ({
+        ...prev, // Spread previous values correctly
+        images: [...images] // Update images with the latest state
+    }));
+}, [images]);
 
   useEffect(() => {
     setIsValidate(checkValidation());
@@ -283,10 +281,7 @@ const CreateAgendaPage = () => {
                       <S.ImageItem>
                         <S.DeleteIconBox
                           onClick={() => {
-                            setChatValue((prev) => ({
-                              ...prev,
-                              images: prev.images.filter((_, i) => i !== index),
-                            }));
+                            handleImageDelete(index)
                           }}
                         >
                           <DeleteIcon
