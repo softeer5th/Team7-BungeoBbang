@@ -62,7 +62,7 @@ export const ReceiverWithImage: ReceiveStory = {
 export const ReceiverWithIcon: ReceiveStory = {
   args: {
     receiverIconBackgroundColor: '#FFE0F7',
-    receiverIconSrc: './assets/face1.png',
+    receiverIconSrc: '/assets/imgs/face1.png',
 
     message: `안녕하세요, 총학생회입니다.
   
