@@ -24,7 +24,7 @@ const meta: Meta<typeof TabBarContainer> = {
     tabBarSelectedTextColor: '#1F87FF',
     currentTabSelectedIndex: 0,
   },
-  tags:['autodocs']
+  tags: ['autodocs'],
 };
 
 export default meta;

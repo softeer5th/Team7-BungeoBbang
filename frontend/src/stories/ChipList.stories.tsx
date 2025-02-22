@@ -8,14 +8,14 @@ const meta: Meta<typeof ChipList> = {
   component: ChipList,
   argTypes: {
     startItem: { control: 'text' },
-    backgroundColor: { control: 'color' }, 
+    backgroundColor: { control: 'color' },
     itemBackgroundColor: { control: 'color' },
-    itemSelectedBackgroundColor: { control: 'color' }, 
-    itemTextColor: { control: 'color' }, 
-    itemSelectedTextColor: { control: 'color' }, 
-    sidePadding: { control: 'text' }, 
+    itemSelectedBackgroundColor: { control: 'color' },
+    itemTextColor: { control: 'color' },
+    itemSelectedTextColor: { control: 'color' },
+    sidePadding: { control: 'text' },
   },
-  tags:['autodocs']
+  tags: ['autodocs'],
 };
 
 export default meta;

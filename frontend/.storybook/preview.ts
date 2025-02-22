@@ -9,21 +9,16 @@ const preview: Preview = {
         date: /Date$/i,
       },
       backgrounds: {
-        values: [
-          {name: 
-          'gray', value: '#F4F4F4'
-          }
-        ]
+        values: [{ name: "gray", value: "#F4F4F4" }],
       },
     },
     viewport: {
       viewports: {
-        ...INITIAL_VIEWPORTS, 
+        ...INITIAL_VIEWPORTS,
       },
-      defaultViewport: 'iphonex', 
+      defaultViewport: "iphonex",
     },
   },
-
 };
 
 export default preview;

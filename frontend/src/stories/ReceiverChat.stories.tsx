@@ -12,7 +12,7 @@ const receiveMeta: Meta<typeof ReceiverChat> = {
   args: {
     chatId: '',
   },
-  tags:['autodocs']
+  tags: ['autodocs'],
 };
 
 export default receiveMeta;

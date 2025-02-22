@@ -37,7 +37,7 @@ const chatSendFieldMeta: Meta<typeof ChatSendField> = {
     textColor: '#262626',
     disabledTextColor: '#C6C6C6',
   },
-  tags:['autodocs']
+  tags: ['autodocs'],
 };
 
 export default chatSendFieldMeta;
