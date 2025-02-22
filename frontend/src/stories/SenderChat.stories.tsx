@@ -5,9 +5,9 @@ const sendMeta: Meta<typeof SenderChat> = {
   title: 'Components/Chat/Send',
   component: SenderChat,
   argTypes: {
-    backgroundColor: { control: 'color' }, // 전체 배경색 변경 가능
-    textColor: { control: 'color' }, // Chip 배경색 변경 가능
-    timeTextColor: { control: 'color' }, // 선택된 Chip 배경색 변경 가능
+    backgroundColor: { control: 'color' },
+    textColor: { control: 'color' }, 
+    timeTextColor: { control: 'color' }, 
   },
   args: {
     chatId: '',
