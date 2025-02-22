@@ -26,28 +26,26 @@ const w = t(F.div)`
           s &&
             s.length > 0 &&
             e.jsx(k, {
-              children: [...s]
-                .reverse()
-                .map((o, p) =>
-                  e.jsx(
-                    w,
-                    {
-                      initial: { opacity: 0, scale: 0.4 },
-                      animate: { opacity: 1, scale: 1 },
-                      transition: {
-                        duration: 0.5,
-                        ease: [0.45, 0, 0.21, 1],
-                        delay: 0.2 * p,
-                      },
-                      children: e.jsx(
-                        q,
-                        { src: o, onClick: () => (i == null ? void 0 : i(o)) },
-                        `${o}${p}`,
-                      ),
+              children: [...s].reverse().map((o, p) =>
+                e.jsx(
+                  w,
+                  {
+                    initial: { opacity: 0, scale: 0.4 },
+                    animate: { opacity: 1, scale: 1 },
+                    transition: {
+                      duration: 0.5,
+                      ease: [0.45, 0, 0.21, 1],
+                      delay: 0.2 * p,
                     },
-                    `${o}${p}`,
-                  ),
+                    children: e.jsx(
+                      q,
+                      { src: o, onClick: () => (i == null ? void 0 : i(o)) },
+                      `${o}${p}`,
+                    ),
+                  },
+                  `${o}${p}`,
                 ),
+              ),
             }),
           e.jsx(F.div, {
             initial: { opacity: 0, y: -100 },
