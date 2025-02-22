@@ -8,6 +8,7 @@ const meta: Meta<typeof TextBadge> = {
     backgroundColor: { control: 'color' },
     textColor: { control: 'color' },
   },
+  tags:['autodocs']
 };
 
 export default meta;

@@ -9,36 +9,188 @@ import { ImagePreview } from './ImagePreview';
 import { getDefaultBorderStyle } from '../border/getBorderType';
 
 interface ChatSendFieldProps {
+  /**
+   * 입력 필드의 기본 플레이스홀더 텍스트
+   * @default "메시지를 입력하세요..."
+   */
   placeholder?: string;
+
+  /**
+   * 입력이 비활성화된 경우 표시될 플레이스홀더 텍스트
+   * @default "텍스트를 입력할 수 없습니다."
+   */
   disabledPlaceHolder?: string;
+
+  /**
+   * 입력 가능한 최대 문자 길이
+   * @default 500
+   */
   maxLength?: number;
+
+  /**
+   * 초기 입력값
+   */
   initialText?: string;
+
+  /**
+   * 전체 배경색
+   * @example "#FFFFFF"
+   */
   backgroundColor?: string;
+
+  /**
+   * 입력 필드의 배경색
+   * @example "#FFFFFF"
+   */
   textFieldBackgroundColor?: string;
+
+  /**
+   * 입력 필드가 비활성화되었을 때의 배경색
+   * @example "#F4F4F4"
+   */
   textFieldDisabledBackgroundColor?: string;
+
+  /**
+   * 전송 버튼의 배경색
+   * @example "#1F87FF"
+   */
   sendButtonBackgroundColor?: string;
+
+  /**
+   * 비활성화된 전송 버튼의 배경색
+   * @example "#E0E0E0"
+   */
   sendButtonDisabledBackgroundColor?: string;
+
+  /**
+   * 전송 버튼 아이콘 색상
+   * @example "#FFFFFF"
+   */
   sendButtonIconColor?: string;
+
+  /**
+   * 비활성화된 전송 버튼 아이콘 색상
+   * @example "#F4F4F4"
+   */
   sendButtonDisabledIconColor?: string;
+
+  /**
+   * 이미지 업로드 버튼의 배경색
+   * @example "#E0E0E0"
+   */
   imageButtonBackgroundColor?: string;
+
+  /**
+   * 비활성화된 이미지 업로드 버튼의 배경색
+   * @example "#E0E0E0"
+   */
   imageButtonDisabledBackgroundColor?: string;
+
+  /**
+   * 이미지 업로드 버튼 아이콘 색상
+   * @example "#8D8D8D"
+   */
   imageButtonIconColor?: string;
+
+  /**
+   * 비활성화된 이미지 업로드 버튼 아이콘 색상
+   * @example "#F4F4F4"
+   */
   imageButtonDisabledIconColor?: string;
+
+  /**
+   * 플레이스홀더 텍스트 색상
+   * @example "#1F87FF"
+   */
   placeholderColor?: string;
+
+  /**
+   * 비활성화된 플레이스홀더 텍스트 색상
+   * @example "#C6C6C6"
+   */
   disabledPlaceholderColor?: string;
+
+  /**
+   * 입력된 텍스트 색상
+   * @example "#262626"
+   */
   textColor?: string;
+
+  /**
+   * 비활성화된 상태의 입력 텍스트 색상
+   * @example "#C6C6C6"
+   */
   disabledTextColor?: string;
+
+  /**
+   * 입력 필드의 테두리 스타일 (BorderProps 사용)
+   */
   textFieldBorder?: BorderProps;
+
+  /**
+   * 입력값이 변경될 때 호출되는 콜백 함수
+   * @param newValue 변경된 텍스트 값
+   */
   onChange?: (newValue: string) => void;
+
+  /**
+   * 메시지 전송 시 호출되는 콜백 함수
+   * @param message 전송된 메시지 텍스트
+   * @param images 첨부된 이미지 목록
+   */
   onSendMessage?: (message: string, images: string[]) => void;
+
+  /**
+   * 첨부된 이미지 리스트
+   */
   images?: string[];
+
+  /**
+   * 이미지 삭제 시 호출되는 콜백 함수
+   * @param imageId 삭제할 이미지의 ID (인덱스)
+   */
   onImageDelete?: (imageId: number) => void;
+
+  /**
+   * 이미지 업로드 시 호출되는 콜백 함수
+   * @param files 업로드된 파일 리스트
+   */
   onImageUpload?: (files: FileList) => void;
+
+  /**
+   * 첨부할 수 있는 최대 이미지 개수
+   * @default 5
+   */
   maxLengthOfImages?: number;
+
+  /**
+   * 이미지 업로드 비활성화 여부
+   * @default false
+   */
   imageDisabled?: boolean;
+
+  /**
+   * 텍스트 입력 비활성화 여부
+   * @default false
+   */
   textDisabled?: boolean;
+
+  /**
+   * 전송 버튼 비활성화 여부
+   * @default false
+   */
   sendDisabled?: boolean;
+
+  /**
+   * 리마인드 모드 활성화 여부
+   * @default false
+   */
   isRemindMode?: boolean;
+
+  /**
+   * 이미 리마인드된 상태인지 여부
+   * @default false
+   */
   isReminded?: boolean;
 }
 

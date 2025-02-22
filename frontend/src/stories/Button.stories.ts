@@ -11,6 +11,7 @@ const meta: Meta<typeof Button> = {
     border: { control: 'object' },
     disabled: { control: 'boolean' },
   },
+  tags:['autodocs']
 };
 
 export default meta;
@@ -36,13 +37,21 @@ export const Secondary: Story = {
   },
 };
 
-// ✅ Disabled 버튼
+// ✅ Dismiss 버튼
 export const Dismiss: Story = {
   args: {
     text: 'Dismiss Button',
     backgroundColor: '#F4F4F4',
     textColor: '#A8A8A8',
     disabled: false,
+  },
+};
+
+// ✅ Disabled 버튼
+export const Disabled: Story = {
+  args: {
+    text: 'Disabled Button',
+    disabled: true,
   },
 };
 

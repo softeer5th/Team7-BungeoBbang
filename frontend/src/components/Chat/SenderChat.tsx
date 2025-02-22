@@ -4,13 +4,52 @@ import { forwardRef } from 'react';
 import { motion } from 'framer-motion';
 
 interface SenderChatProps {
+  /**
+   * 채팅 메시지의 고유 ID
+   * @example "chat_12345"
+   */
   chatId: string;
+
+  /**
+   * 전송된 채팅 메시지 내용
+   * @example "네, 알겠습니다!"
+   */
   message: string;
+
+  /**
+   * 첨부된 이미지 URL 배열 (선택 사항)
+   * @example ["https://example.com/image1.jpg", "https://example.com/image2.jpg"]
+   */
   images?: string[];
+
+  /**
+   * 메시지의 전송 시간 텍스트
+   * @example "오후 02:45"
+   */
   timeText: string;
+
+  /**
+   * 채팅 메시지의 배경 색상 (선택 사항)
+   * @example "#1F87FF"
+   */
   backgroundColor?: string;
+
+  /**
+   * 채팅 메시지의 텍스트 색상 (선택 사항)
+   * @example "#FFFFFF"
+   */
   textColor?: string;
+
+  /**
+   * 메시지 시간 텍스트의 색상 (선택 사항)
+   * @example "#C6C6C6"
+   */
   timeTextColor?: string;
+
+  /**
+   * 이미지 클릭 시 호출되는 콜백 함수 (선택 사항)
+   * @param imageUrl 클릭한 이미지의 URL
+   */
   onImageClick?: (imageUrl: string) => void;
 }
 

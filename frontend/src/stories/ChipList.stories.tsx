@@ -7,21 +7,20 @@ const meta: Meta<typeof ChipList> = {
   title: 'Components/ChipList',
   component: ChipList,
   argTypes: {
-    startItem: { control: 'text' }, // 기본 선택 아이템 설정 가능
-    backgroundColor: { control: 'color' }, // 전체 배경색 변경 가능
-    itemBackgroundColor: { control: 'color' }, // Chip 배경색 변경 가능
-    itemSelectedBackgroundColor: { control: 'color' }, // 선택된 Chip 배경색 변경 가능
-    itemTextColor: { control: 'color' }, // 기본 텍스트 색상 변경 가능
-    itemSelectedTextColor: { control: 'color' }, // 선택된 텍스트 색상 변경 가능
-    sidePadding: { control: 'text' }, // 좌우 패딩 조정 가능
-    itemBorder: { control: 'object' }, // 테두리 스타일 변경 가능
+    startItem: { control: 'text' },
+    backgroundColor: { control: 'color' }, 
+    itemBackgroundColor: { control: 'color' },
+    itemSelectedBackgroundColor: { control: 'color' }, 
+    itemTextColor: { control: 'color' }, 
+    itemSelectedTextColor: { control: 'color' }, 
+    sidePadding: { control: 'text' }, 
   },
+  tags:['autodocs']
 };
 
 export default meta;
 type Story = StoryObj<typeof ChipList>;
 
-// ✅ 기본 ChipList (사용자가 선택 가능)
 export const Default: Story = {
   args: {
     startItem: 'chip1',

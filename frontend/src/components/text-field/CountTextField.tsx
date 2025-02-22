@@ -4,14 +4,56 @@ import Typography from '../../styles/Typography';
 import { getBorderStyle, getDefaultBorderStyle } from '../border/getBorderType';
 
 interface CountTextFieldProps {
+  /**
+   * 입력 필드의 현재 값
+   */
   value: string;
+
+  /**
+   * 입력 가능한 최대 문자 길이
+   */
   maxLength: number;
+
+  /**
+   * 입력 필드의 placeholder 텍스트
+   * @default ""
+   * @example "내용을 입력하세요..."
+   */
   placeholder?: string;
+
+  /**
+   * 입력 필드의 줄(row) 개수
+   * @default 1
+   */
   rows?: number;
+
+  /**
+   * 입력값이 변경될 때 호출되는 콜백 함수
+   * @param value 변경된 입력 값
+   */
   onChange: (value: string) => void;
+
+  /**
+   * placeholder 텍스트 색상
+   * @example "#A8A8A8"
+   */
   placeholderColor?: string;
+
+  /**
+   * 입력 필드의 텍스트 색상
+   * @example "#262626"
+   */
   textColor?: string;
+
+  /**
+   * 입력 필드의 테두리 스타일 (BorderProps 사용)
+   */
   border?: BorderProps;
+
+  /**
+   * 입력 필드를 비활성화할지 여부
+   * @default false
+   */
   disabled?: boolean;
 }
 

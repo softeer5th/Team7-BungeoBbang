@@ -4,15 +4,70 @@ import { TabBarItemProps } from './TabBarItem';
 import { TabBar } from './TabBar';
 
 export interface TabBarContainerProps {
+  /**
+   * 탭 항목 리스트
+   */
   tabItems: TabBarItemProps[];
+
+  /**
+   * 현재 선택된 탭의 인덱스
+   * @example 0
+   */
   currentTabSelectedIndex: number;
+
+  /**
+   * 컨텐츠 영역의 배경 색상 (선택 사항)
+   * @default "#F4F4F4"
+   * @example "#FFFFFF"
+   */
   contentBackgroundColor?: string;
+
+  /**
+   * 탭 바의 배경 색상 (선택 사항)
+   * @default "#FFFFFF"
+   * @example "#F8F9FA"
+   */
   tabBarBackgroundColor?: string;
+
+  /**
+   * 선택된 탭의 배경 색상 (선택 사항)
+   * @default "#FFFFFF"
+   * @example "#E0E0E0"
+   */
   selectedTabBarItembackgroundColor?: string;
+
+  /**
+   * 탭 인디케이터 색상 (선택 사항)
+   * @default "#1F87FF"
+   * @example "#FF5722"
+   */
   indicatorColor?: string;
+
+  /**
+   * 기본 탭 텍스트 색상 (선택 사항)
+   * @default "#C6C6C6"
+   * @example "#212121"
+   */
   tabBarTextColor?: string;
+
+  /**
+   * 선택된 탭의 텍스트 색상 (선택 사항)
+   * @default "#1F87FF"
+   * @example "#000000"
+   */
   tabBarSelectedTextColor?: string;
+
+  /**
+   * 탭 항목 클릭 시 호출되는 콜백 함수 (선택 사항)
+   * @param itemId 클릭한 탭의 ID
+   */
   onTabItemClick?: (itemId: string) => void;
+
+  /**
+   * 각 탭의 인덱스를 기반으로 렌더링될 컨텐츠를 반환하는 함수
+   * @param index 현재 선택된 탭의 인덱스
+   * @returns 해당 탭에 맞는 React 노드
+   */
   contents: (index: number) => React.ReactNode;
 }
 

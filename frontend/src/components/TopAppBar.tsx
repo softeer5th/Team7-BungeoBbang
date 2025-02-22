@@ -20,14 +20,50 @@ const IconComponents: { [key: string]: React.FC<React.SVGProps<SVGSVGElement>> }
 };
 
 interface TopAppBarProps {
+  /**
+   * 왼쪽 아이콘의 이미지 소스 (선택 사항)
+   * @example "/assets/icons/back.svg"
+   */
   leftIconSrc?: string;
+  /**
+   * 앱 바의 제목 (선택 사항)
+   * @example "홈"
+   */
   title?: string;
+  /**
+   * 오른쪽 아이콘의 이미지 소스 (선택 사항)
+   * @example "/assets/icons/menu.svg"
+   */
   rightIconSrc?: string;
+  /**
+   * 왼쪽 아이콘 클릭 시 호출되는 콜백 함수 (선택 사항)
+   */
   onLeftIconClick?: () => void;
+  /**
+   * 오른쪽 아이콘 클릭 시 호출되는 콜백 함수 (선택 사항)
+   */
   onRightIconClick?: () => void;
+  /**
+   * 앱 바의 배경색 (선택 사항)
+   * @default "#FFFFFF"
+   * @example "#1F87FF"
+   */
   backgroundColor?: string;
+  /**
+   * 아이콘과 텍스트의 색상 (선택 사항)
+   * @default "#000000"
+   * @example "#FFFFFF"
+   */
   foregroundColor?: string;
+  /**
+   * 제목의 색상 (선택 사항)
+   * @default "#000000"
+   * @example "#1F87FF"
+   */
   titleColor?: string;
+  /**
+   * 앱 바의 테두리 스타일 (선택 사항)
+   */
   border?: BorderProps;
 }
 

@@ -2,9 +2,25 @@ import styled from 'styled-components';
 import Typography from '../../styles/Typography';
 import { forwardRef } from 'react';
 
-interface TextBadgeProps {
+export interface TextBadgeProps {
+  /**
+   * 배지에 표시될 텍스트 (선택 사항)
+   * @example "NEW"
+   */
   text?: string;
+
+  /**
+   * 배지의 배경 색상 (선택 사항)
+   * @default "#FF0000"
+   * @example "#1F87FF"
+   */
   backgroundColor?: string;
+
+  /**
+   * 배지의 텍스트 색상 (선택 사항)
+   * @default "#FFFFFF"
+   * @example "#000000"
+   */
   textColor?: string;
 }
 

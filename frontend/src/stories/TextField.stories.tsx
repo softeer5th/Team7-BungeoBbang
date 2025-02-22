@@ -15,6 +15,7 @@ const meta: Meta<typeof TextField> = {
     focusable: { control: 'boolean' },
     rows: { control: 'number', min: 1, max: 10, step: 1 },
   },
+  tags:['autodocs']
 };
 
 export default meta;
@@ -48,13 +49,6 @@ export const WithError: Story = {
     placeholderColor: '#A8A8A8',
     textColor: '#262626',
     disabled: false,
-    border: {
-      borderWidth: '5px',
-      borderColor: 'red',
-      disabledBorderColor: 'blue',
-      borderRadius: '0px',
-      borderType: BorderType.ALL,
-    },
   },
   render: function Render(args) {
     const [{ value }, updateArgs] = useArgs();
@@ -69,6 +63,7 @@ export const WithError: Story = {
         value={value}
         placeholder="input email..."
         onChange={handleChange}
+        isError ={true}
         errorText="invalid email"
       />
     );
