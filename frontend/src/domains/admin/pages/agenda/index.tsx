@@ -50,35 +50,37 @@ const AgendaPage: React.FC = () => {
 
   const isInProgessEnd = useRef<boolean>(false);
   const isFirstUpcoming = useRef<boolean>(true);
-  const isRefetchClosed = useRef<boolean>(false)
+  const isRefetchClosed = useRef<boolean>(false);
 
   const lastChatRoom = useRef<[string | null, number | null][]>(tabItems.map(() => [null, null]));
   const socketManager = useSocketManager();
 
-  const fetchAllChatRooms = async() => {
-    
+  const fetchAllChatRooms = async () => {
     try {
       const [progress, closed] = await Promise.all([
         api.get('/admin/agendas', { params: { status: 'ACTIVE' } }),
         api.get('/admin/agendas', { params: { status: 'CLOSED' } }),
       ]);
-  
+
       setTabContents({
-        inProgress: progress.data.map((res: ServerData) => mapResponseToChatRoomListCardData(res, 'ACTIVE')),
-        complete: closed.data.map((res: ServerData) => mapResponseToChatRoomListCardData(res, 'CLOSED')),
+        inProgress: progress.data.map((res: ServerData) =>
+          mapResponseToChatRoomListCardData(res, 'ACTIVE'),
+        ),
+        complete: closed.data.map((res: ServerData) =>
+          mapResponseToChatRoomListCardData(res, 'CLOSED'),
+        ),
       });
-  
+
       if (progress.data.length < MAX_PAGE_ITEMS) isInProgessEnd.current = true;
       if (closed.data.length < MAX_PAGE_ITEMS) setCompleteHasMore(false);
     } catch (error) {
       console.error('Error fetching all chat rooms:', error);
     }
-  }
+  };
 
   const fetchProgressChatRooms = async () => {
     try {
-
-      if(isRefetchClosed.current) return;
+      if (isRefetchClosed.current) return;
 
       const status = isInProgessEnd.current ? 'UPCOMING' : 'ACTIVE';
 
@@ -123,7 +125,6 @@ const AgendaPage: React.FC = () => {
   };
 
   const fetchCompleteChatRooms = async () => {
-
     try {
       const params = {
         status: 'CLOSED',
@@ -253,7 +254,6 @@ const AgendaPage: React.FC = () => {
       />
       <TabBarContainer
         tabItems={tabItems}
-        currentTabSelectedIndex={Number(sessionStorage.getItem('activeTabIndex')) || 0}
         contents={(index) => {
           const tab = tabItems[index];
           const content = tabContents[tab.itemId] || [];
