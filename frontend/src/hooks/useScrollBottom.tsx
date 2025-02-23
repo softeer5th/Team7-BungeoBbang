@@ -7,18 +7,14 @@ export const useScroll = <T extends HTMLElement>() => {
   const previousScrollTopFromUp = useRef<number | null>(null);
   const previousScrollTopFromDown = useRef<number | null>(null);
 
-  // Scroll to the bottom
   const scrollToBottom = useCallback(() => {
     if (elementRef.current) {
-      // console.log('scrollToBottom', elementRef.current?.scrollHeight, previousScrollHeight.current);
       elementRef.current.scrollTop = elementRef.current.scrollHeight;
       previousScrollHeight.current = elementRef.current.scrollHeight;
     }
   }, []);
 
-  // Scroll to the top
   const scrollToTop = useCallback(() => {
-    // console.log('scrolltotop');
     if (elementRef.current) {
       elementRef.current.scrollTop = 0;
 
@@ -27,7 +23,6 @@ export const useScroll = <T extends HTMLElement>() => {
   }, []);
 
   const remainCurrentScroll = () => {
-    // console.log('remain', elementRef.current?.scrollHeight, previousScrollHeight.current);
     if (elementRef.current) {
       const currentHeight = elementRef.current.scrollHeight;
 
@@ -58,7 +53,6 @@ export const useScroll = <T extends HTMLElement>() => {
 
   const rememberCurrentScrollHeight = () => {
     if (elementRef.current) {
-      // console.log('remember!!!', elementRef.current.scrollTop, elementRef.current.scrollHeight, previousScrollHeight.current);
       previousScrollHeight.current = elementRef.current.scrollHeight;
       previousScrollTopFromDown.current = elementRef.current.scrollTop;
     }

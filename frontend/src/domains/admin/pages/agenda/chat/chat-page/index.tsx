@@ -298,9 +298,7 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
     };
 
     const getMoreDownChatData = async () => {
-      // return;
       try {
-        // console.log('??? ', isDownDirection.current);
         if (isDownDirection.current) return;
         isDownDirection.current = true;
         const response = await api.get(`/admin/agendas/${roomId}/chat`, {
@@ -312,7 +310,6 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
 
         const formattedData = formatChatData(response.data, true);
 
-        console.log('down!!', response);
         setChatData((prev: ChatData[]) => {
           if (response.data.length < MAX_CHAT_PAGE_DATA) {
             setHasDownMore(false);
