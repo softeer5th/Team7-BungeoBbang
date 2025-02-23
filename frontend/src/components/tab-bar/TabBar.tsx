@@ -29,18 +29,16 @@ export const TabBar: React.FC<TabBarProps> = ({
 
   const [itemWidth, setItemWidth] = useState(0);
   const tabBarRef = useRef<HTMLDivElement>(null);
-  
+
   useEffect(() => {
     setSelectedItem(currentDestination);
-  },[currentDestination])
+  }, [currentDestination]);
 
   useEffect(() => {
     if (tabBarRef.current) {
       setItemWidth(tabBarRef.current.offsetWidth / items.length);
     }
   }, [items.length]);
-
-
 
   return (
     <TabBarContainer ref={tabBarRef}>

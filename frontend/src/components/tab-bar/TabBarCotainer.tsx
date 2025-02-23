@@ -1,4 +1,4 @@
-import React, {useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import styled from 'styled-components';
 import { TabBarItemProps } from './TabBarItem';
 import { TabBar } from './TabBar';
@@ -26,7 +26,6 @@ export const TabBarContainer: React.FC<TabBarContainerProps> = ({
   onTabItemClick = () => {},
   contents,
 }) => {
-
   const [activeIndex, setActiveIndex] = useState(0);
 
   const containerRef = useRef<HTMLDivElement>(null);
@@ -38,12 +37,11 @@ export const TabBarContainer: React.FC<TabBarContainerProps> = ({
       const width = containerRef.current.offsetWidth;
       const scrollLeft = containerRef.current.scrollLeft;
       const index = Math.round(scrollLeft / width);
-      if(scrollLeft % width === 0){
-
+      if (scrollLeft % width === 0) {
         setActiveIndex(index);
       }
 
-    console.log("tab item slide", index);
+      console.log('tab item slide', index);
     }
   };
 
@@ -54,7 +52,7 @@ export const TabBarContainer: React.FC<TabBarContainerProps> = ({
 
     scrollTabContent(newActiveIndex);
     onTabItemClick(itemId);
-    console.log("tab item click", newActiveIndex);
+    console.log('tab item click', newActiveIndex);
   };
 
   const scrollTabContent = (index: number) => {
@@ -66,9 +64,7 @@ export const TabBarContainer: React.FC<TabBarContainerProps> = ({
     }
   };
 
-  
-
-  if(tabItems.length === 0) return;
+  if (tabItems.length === 0) return;
 
   return (
     <>

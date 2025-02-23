@@ -34,7 +34,6 @@ const sampleTabItems = [
 
 export const TabBarContainerDefault: TabBarContainerStory = {
   render: function Render(args) {
-
     return (
       <TabBarContainer
         {...args}
