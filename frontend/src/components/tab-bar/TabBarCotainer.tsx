@@ -1,11 +1,10 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, {useRef, useState } from 'react';
 import styled from 'styled-components';
 import { TabBarItemProps } from './TabBarItem';
 import { TabBar } from './TabBar';
 
 export interface TabBarContainerProps {
   tabItems: TabBarItemProps[];
-  currentTabSelectedIndex: number;
   contentBackgroundColor?: string;
   tabBarBackgroundColor?: string;
   selectedTabBarItembackgroundColor?: string;
@@ -18,7 +17,6 @@ export interface TabBarContainerProps {
 
 export const TabBarContainer: React.FC<TabBarContainerProps> = ({
   tabItems,
-  currentTabSelectedIndex,
   contentBackgroundColor = '#F4F4F4',
   tabBarBackgroundColor = '#FFFFFF',
   selectedTabBarItembackgroundColor = '#FFFFFF',
@@ -28,7 +26,8 @@ export const TabBarContainer: React.FC<TabBarContainerProps> = ({
   onTabItemClick = () => {},
   contents,
 }) => {
-  const [activeIndex, setActiveIndex] = useState(currentTabSelectedIndex || 0);
+
+  const [activeIndex, setActiveIndex] = useState(0);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const [translateX, setTranslateX] = useState(0);
@@ -39,7 +38,12 @@ export const TabBarContainer: React.FC<TabBarContainerProps> = ({
       const width = containerRef.current.offsetWidth;
       const scrollLeft = containerRef.current.scrollLeft;
       const index = Math.round(scrollLeft / width);
-      setActiveIndex(index);
+      if(scrollLeft % width === 0){
+
+        setActiveIndex(index);
+      }
+
+    console.log("tab item slide", index);
     }
   };
 
@@ -50,6 +54,7 @@ export const TabBarContainer: React.FC<TabBarContainerProps> = ({
 
     scrollTabContent(newActiveIndex);
     onTabItemClick(itemId);
+    console.log("tab item click", newActiveIndex);
   };
 
   const scrollTabContent = (index: number) => {
@@ -58,21 +63,12 @@ export const TabBarContainer: React.FC<TabBarContainerProps> = ({
       const width = containerRef.current?.offsetWidth;
 
       setTranslateX(scrollLeft + -index * width);
-
-      sessionStorage.setItem('activeTabIndex', String(index));
     }
   };
 
-  useEffect(() => {
-    scrollTabContent(activeIndex);
-  }, []);
+  
 
-  useEffect(() => {
-    const newActiveIndex = currentTabSelectedIndex ?? (tabItems[0].itemId || 0);
-    setActiveIndex(newActiveIndex);
-
-    scrollTabContent(newActiveIndex);
-  }, [currentTabSelectedIndex]);
+  if(tabItems.length === 0) return;
 
   return (
     <>

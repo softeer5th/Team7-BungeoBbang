@@ -1,5 +1,4 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { useArgs } from '@storybook/preview-api';
 import styled from 'styled-components';
 import { TabBarContainer } from '@/components/tab-bar/TabBarCotainer';
 
@@ -13,7 +12,6 @@ const meta: Meta<typeof TabBarContainer> = {
     indicatorColor: { control: 'color' },
     tabBarTextColor: { control: 'color' },
     tabBarSelectedTextColor: { control: 'color' },
-    currentTabSelectedIndex: { control: 'number' },
   },
   args: {
     contentBackgroundColor: '#F4F4F4',
@@ -22,7 +20,6 @@ const meta: Meta<typeof TabBarContainer> = {
     indicatorColor: '#1F87FF',
     tabBarTextColor: '#C6C6C6',
     tabBarSelectedTextColor: '#1F87FF',
-    currentTabSelectedIndex: 0,
   },
 };
 
@@ -37,19 +34,11 @@ const sampleTabItems = [
 
 export const TabBarContainerDefault: TabBarContainerStory = {
   render: function Render(args) {
-    const [{ currentTabSelectedIndex }, updateArgs] = useArgs();
-
-    const handleTabChange = (itemId: string) => {
-      const newIndex = sampleTabItems.findIndex((tab) => tab.itemId === itemId);
-      updateArgs({ currentTabSelectedIndex: newIndex });
-    };
 
     return (
       <TabBarContainer
         {...args}
         tabItems={sampleTabItems}
-        currentTabSelectedIndex={currentTabSelectedIndex}
-        onTabItemClick={handleTabChange}
         contents={(index: number) => (
           <TabContent>📌 현재 선택된 탭: {sampleTabItems[index].title}</TabContent>
         )}
