@@ -68,7 +68,7 @@
         </tr>
          <tr>
             <td align="center">어떤 기능<br>어떤 기능</td>
-            <td align="center">어떤 기능<br>어떤 기능</td>
+            <td align="center">답해요 기능 구현</td>
             <td align="center">답해요 기능 구현</td>
             <td align="center">말해요 기능 구현</td>
         </tr>
