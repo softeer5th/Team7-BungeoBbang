@@ -138,8 +138,8 @@
 |------|---------------------------------|------|---------------------------------|
 | **FE_이지훈** | | **BE_오주은** | [중복 웹소켓 세션 처리 전략 및 구현 결정](https://github.com/softeer5th/Team7-BungeoBbang/wiki/%EC%A4%91%EB%B3%B5-%EC%9B%B9%EC%86%8C%EC%BC%93-%EC%84%B8%EC%85%98-%EC%B2%98%EB%A6%AC-%EC%A0%84%EB%9E%B5-%EB%B0%8F-%EA%B5%AC%ED%98%84-%EA%B2%B0%EC%A0%95) |
 | **FE_이지훈** | | **BE_오주은** | [채팅방 웹소켓 이벤트 정리](https://github.com/softeer5th/Team7-BungeoBbang/wiki/%EC%B1%84%ED%8C%85%EB%B0%A9-%EC%9B%B9%EC%86%8C%EC%BC%93-%EC%9D%B4%EB%B2%A4%ED%8A%B8-%EC%A0%95%EB%A6%AC) |
-| **FE_황유란** | 이미지 업로드 처리 및 최적화 | **BE_전경석** | [Redis Sync vs Async 비교](https://github.com/softeer5th/Team7-BungeoBbang/wiki/Redis-sync-vs-Async) |
-| **FE_황유란** |  | **BE_전경석** | [금칙어 필터링](https://github.com/softeer5th/Team7-BungeoBbang/wiki/%EA%B8%88%EC%B9%99%EC%96%B4-%ED%95%84%ED%84%B0%EB%A7%81) |
+| **FE_황유란** | [공통 컴포넌트 구현 및 문서화](https://github.com/softeer5th/Team7-BungeoBbang/wiki/%EA%B3%B5%ED%86%B5-%EC%BB%B4%ED%8F%AC%EB%84%8C%ED%8A%B8-%EB%AC%B8%EC%84%9C%ED%99%94%EB%A5%BC-%ED%86%B5%ED%95%B4-UI-%EC%9E%AC%EC%82%AC%EC%9A%A9%EC%84%B1-%ED%96%A5%EC%83%81) | **BE_전경석** | [Redis Sync vs Async 비교](https://github.com/softeer5th/Team7-BungeoBbang/wiki/Redis-sync-vs-Async) |
+| **FE_황유란** | [채팅 무한스크롤](https://github.com/softeer5th/Team7-BungeoBbang/wiki/%EC%9C%84%EC%95%84%EB%9E%98%EB%A1%9C-%EB%AC%B4%ED%95%9C-%EC%8A%A4%ED%81%AC%EB%A1%A4-%EA%B5%AC%ED%98%84%ED%95%B4%EC%84%9C-%EC%BB%A4%EC%8A%A4%ED%85%80-%ED%9B%85-%EB%A7%8C%EB%93%A4%EA%B8%B0) | **BE_전경석** | [금칙어 필터링](https://github.com/softeer5th/Team7-BungeoBbang/wiki/%EA%B8%88%EC%B9%99%EC%96%B4-%ED%95%84%ED%84%B0%EB%A7%81) |
 
 
 
