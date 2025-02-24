@@ -53,6 +53,7 @@ const useInfiniteScroll = ({
       upObserver.current = new IntersectionObserver(
         (entries) => {
           const [entry] = entries;
+          console.log('up item!');
           if (entry.isIntersecting && hasUpMore.current && !!fetchUpMore) {
             fetchUpMore();
           }
@@ -70,6 +71,7 @@ const useInfiniteScroll = ({
       downObserver.current = new IntersectionObserver(
         (entries) => {
           const [entry] = entries;
+          console.log('down item!');
 
           if (entry.isIntersecting && hasDownMore.current && !!fetchDownMore) {
             fetchDownMore();

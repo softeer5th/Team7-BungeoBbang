@@ -33,9 +33,7 @@ export const formatChatData = (
   adminName?: string,
 ): ChatData[] => {
   // 날짜순으로 정렬
-  const sortedData = [...serverData].sort(
-    (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
-  );
+  const sortedData = [...serverData].sort((a, b) => a.chatId.localeCompare(b.chatId));
 
   // 기본 채팅 데이터 포맷팅
   const formattedChats: ChatData[] = sortedData.map((item) => {
