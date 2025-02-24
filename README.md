@@ -102,6 +102,8 @@
 - ESLint, Prettier, Husky를 활용하여 코드 스타일 및 품질 유지
 
 ---
+## [⛓️ 아키텍처](https://github.com/softeer5th/Team7-BungeoBbang/wiki/%EC%95%84%ED%82%A4%ED%85%8D%EC%B2%98)
+백엔드 아키텍처를 설명한 위키 주소입니다.
 
 ## **📦 백엔드 CI/CD**
 **GitHub Actions + Docker + Nginx로 자동 배포**  
@@ -124,6 +126,12 @@
 - Nginx가 리버스 프록시 역할 수행
 - Let's Encrypt를 사용하여 HTTPS 인증 적용
 - Spring Boot 서비스와 연결되어 API 요청을 처리
+
+## [📝 API 명세서](https://api.onu-univ.site/swagger-ui/index.html)
+API 명세서 swagger 링크입니다.
+
+## [🗄️ Database](https://github.com/softeer5th/Team7-BungeoBbang/wiki/database)
+데이터베이스 구조를 설명하는 위키 링크입니다.
 
 ---
 ## ✏️ 주요 개발일지
