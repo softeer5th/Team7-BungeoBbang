@@ -42,7 +42,7 @@ export const RotatingMessages = () => {
 const AnimateWrapper = styled.div`
   height: 76px;
   display: flex;
-  align-items: center;
+  align-items: end;
 `;
 const StyledTypography = styled(Typography)`
   white-space: pre-line;
