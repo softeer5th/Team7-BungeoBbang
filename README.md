@@ -5,6 +5,7 @@
 
 
 ## 🚀 서비스 설명
+![image](https://github.com/user-attachments/assets/4df6508b-9c5a-416f-ba66-92d4a0e23fe4)
 <h2 align="center"> 🎓 학생과 학생회를 연결하는 능동적인 소통 플랫폼 <strong>on:u</strong></h1>
 
 <p align="center">
@@ -42,7 +43,9 @@
     학생회는 보다 명확하게 학생들의 의견을 반영할 수 있는 환경을 만들 수 있어요. 🏫🚸
 </p>
 
-
+## **🔗 링크**
+ **학생 페이지 배포 링크:** [on:u for student](https://onu-univ.site)  
+ **학생회 페이지 배포 링크:** [on:u for student council](https://admin.onu-univ.site)  
 ## **👥 팀원 소개**
 
 
@@ -69,6 +72,7 @@
     </table>
 </p>
 
+
 ## **🎯 팀 목표**
 - 모든 기능 완성하기
 - 기술을 이해하고 사용하기
@@ -93,16 +97,43 @@
 | **Back CI/CD** | ![GitHub Actions](https://img.shields.io/badge/GitHub%20Actions-%232088FF.svg?style=flat&logo=github-actions&logoColor=white) ![Docker](https://img.shields.io/badge/Docker-%232496ED.svg?style=flat&logo=docker&logoColor=white) ![Nginx](https://img.shields.io/badge/Nginx-%23009639.svg?style=flat&logo=nginx&logoColor=white) |
 
 ---
+## ⛓️ 프론트엔드 아키텍처
+### Directory Structure
 
+```
+frontend/
+├── public/
+├── src/
+│ ├── assets/
+│ │ ├── icons/
+│ │ └── imgs/
+│ ├── components/ # 공통 컴포넌트
+│ ├── config/ # 환경 설정 (API URL)
+│ ├── domains/ # 학생 / 학생회 도메인 구현 폴더
+│ │ ├── student/ 학생 도메인
+│ │ └── admin/ 학생회 도메인
+│ ├── hooks/ # 전역 커스텀 훅
+│ ├── routes/ # 라우팅 관련
+│ ├── store/ # 전역 상태 관리
+│ ├── stories/ # 스토리북 관련
+│ ├── styles/ # 전역 스타일 관련
+│ ├── types/ # 타입 정의
+│ ├── utils/ # 유틸리티 함수
+│ ├── index.css
+│ ├── main.tsx # 진입점
+
+```
 ## **📦 프론트엔드 CI/CD**
-**Netlify를 이용한 자동 배포**  
-🚀 **배포 링크:** [on:u for student](https://onu-univ.site)  
+<img src='https://github.com/user-attachments/assets/77d0d066-f181-46d0-ad3b-5578e469bf3f' width="700px">
+
+
+
 📌 **주요 단계:**
 - `dev` 브랜치에 `push` 발생 시 Netlify가 자동으로 빌드 및 배포 진행
-- ESLint, Prettier, Husky를 활용하여 코드 스타일 및 품질 유지
+- pre-commit 단계에서 ESLint, Prettier, Husky를 활용하여 코드 스타일 및 품질 유지 
 
 ---
-## [⛓️ 아키텍처](https://github.com/softeer5th/Team7-BungeoBbang/wiki/%EC%95%84%ED%82%A4%ED%85%8D%EC%B2%98)
+## [⛓️ 백엔드 아키텍처](https://github.com/softeer5th/Team7-BungeoBbang/wiki/%EC%95%84%ED%82%A4%ED%85%8D%EC%B2%98)
 백엔드 아키텍처를 설명한 위키 주소입니다.
 
 ## **📦 백엔드 CI/CD**
