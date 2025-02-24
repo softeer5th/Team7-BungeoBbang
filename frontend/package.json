@@ -64,8 +64,11 @@
     "vite": "^6.1.0",
     "vite-plugin-pwa": "^0.21.1"
   },
-  "husky": {
-    "configFile": ".huskyrc.json"
+  "lint-staged": {
+    "**/*.{ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ]
   },
   "eslintConfig": {
     "extends": [

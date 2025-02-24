@@ -1,1 +1,1 @@
-   cd frontend && npm run lint && npm run format && tsc --noEmit
+cd frontend && npx lint-staged
