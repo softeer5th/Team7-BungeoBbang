@@ -1,11 +1,10 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import styled from 'styled-components';
 import { TabBarItemProps } from './TabBarItem';
 import { TabBar } from './TabBar';
 
 export interface TabBarContainerProps {
   tabItems: TabBarItemProps[];
-  currentTabSelectedIndex: number;
   contentBackgroundColor?: string;
   tabBarBackgroundColor?: string;
   selectedTabBarItembackgroundColor?: string;
@@ -18,7 +17,6 @@ export interface TabBarContainerProps {
 
 export const TabBarContainer: React.FC<TabBarContainerProps> = ({
   tabItems,
-  currentTabSelectedIndex,
   contentBackgroundColor = '#F4F4F4',
   tabBarBackgroundColor = '#FFFFFF',
   selectedTabBarItembackgroundColor = '#FFFFFF',
@@ -28,10 +26,9 @@ export const TabBarContainer: React.FC<TabBarContainerProps> = ({
   onTabItemClick = () => {},
   contents,
 }) => {
-  const [activeIndex, setActiveIndex] = useState(currentTabSelectedIndex || 0);
+  const [activeIndex, setActiveIndex] = useState(0);
 
   const containerRef = useRef<HTMLDivElement>(null);
-  const [translateX, setTranslateX] = useState(0);
 
   const handleTabContentScroll = (e: React.UIEvent<HTMLDivElement>) => {
     if (containerRef.current) {
@@ -39,40 +36,25 @@ export const TabBarContainer: React.FC<TabBarContainerProps> = ({
       const width = containerRef.current.offsetWidth;
       const scrollLeft = containerRef.current.scrollLeft;
       const index = Math.round(scrollLeft / width);
-      setActiveIndex(index);
+      if (scrollLeft % width === 0) {
+        setActiveIndex(index);
+      }
     }
   };
 
   const handleTabItemClick = (itemId: string) => {
     const newActiveIndex = tabItems.findIndex((item) => item.itemId === itemId);
-
     setActiveIndex(newActiveIndex);
-
-    scrollTabContent(newActiveIndex);
+    if (containerRef.current) {
+      containerRef.current.scrollTo({
+        left: newActiveIndex * containerRef.current.offsetWidth,
+        behavior: 'smooth',
+      });
+    }
     onTabItemClick(itemId);
   };
 
-  const scrollTabContent = (index: number) => {
-    if (containerRef.current) {
-      const scrollLeft = containerRef.current?.scrollLeft;
-      const width = containerRef.current?.offsetWidth;
-
-      setTranslateX(scrollLeft + -index * width);
-
-      sessionStorage.setItem('activeTabIndex', String(index));
-    }
-  };
-
-  useEffect(() => {
-    scrollTabContent(activeIndex);
-  }, []);
-
-  useEffect(() => {
-    const newActiveIndex = currentTabSelectedIndex ?? (tabItems[0].itemId || 0);
-    setActiveIndex(newActiveIndex);
-
-    scrollTabContent(newActiveIndex);
-  }, [currentTabSelectedIndex]);
+  if (tabItems.length === 0) return;
 
   return (
     <>
@@ -92,11 +74,7 @@ export const TabBarContainer: React.FC<TabBarContainerProps> = ({
         onScroll={handleTabContentScroll}
       >
         {tabItems.map((tab, index) => {
-          return (
-            <TabContent key={tab.itemId} transX={translateX}>
-              {contents(index)}
-            </TabContent>
-          );
+          return <TabContent key={tab.itemId}>{contents(index)}</TabContent>;
         })}
       </TabContentContainer>
     </>
@@ -117,14 +95,9 @@ const TabContentContainer = styled.div<{
   }
 `;
 
-export const TabContent = styled.div<{
-  transX: number;
-}>`
+export const TabContent = styled.div`
   min-width: 100%;
   max-width: 100%;
 
   scroll-snap-align: center;
-
-  transform: translateX(${(props) => props.transX}px);
-  transition: transform 0.3s ease;
 `;

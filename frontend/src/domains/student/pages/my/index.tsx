@@ -129,7 +129,6 @@ const MyPage = () => {
       />
       <TabBarContainer
         tabItems={tabItems}
-        currentTabSelectedIndex={Number(sessionStorage.getItem('activeTabIndex')) || 0}
         contents={(index) => {
           const tab = tabItems[index];
           const content = tabContents[tab.itemId] || [];

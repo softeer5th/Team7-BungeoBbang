@@ -204,7 +204,6 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
           }),
           api.get(`/student/agendas/${roomId}`),
         ]);
-        console.log('responsesseee', response);
         const formattedData = formatChatData(response.data, false);
         setChatData(formattedData);
         setChatRoomInfo({
@@ -228,8 +227,6 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
           }),
           api.get(`/student/agendas/${roomId}`),
         ]);
-        console.log('responsesseee', response);
-
         const formattedData = formatChatData(response.data, false);
 
         setHasDownMore(false);
@@ -252,7 +249,6 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
             scroll: 'INITIAL',
           },
         });
-        console.log('responsesseee', response);
 
         const formattedData = formatChatData(response.data, false);
 
@@ -273,7 +269,6 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
             scroll: 'UP',
           },
         });
-        console.log('up!!', response.data);
         const formattedData = formatChatData(response.data, false);
 
         setChatData((prev: ChatData[]) => {
@@ -331,17 +326,13 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
 
     useLayoutEffect(() => {
       if (!elementRef.current || chatData.length === 0) return;
-      console.log('getchasdata', chatData);
 
       if (isInitialTopLoading.current === true) {
         scrollToTop();
-        console.log('scroll top end');
         isInitialTopLoading.current = false;
         return;
       } else if (isInitialRecentLoading.current === true) {
         scrollToBottom();
-
-        console.log('scroll bottom end');
         isInitialRecentLoading.current = false;
         return;
       }
@@ -370,7 +361,6 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
 
       if (isDownDirection.current) {
         if (isDownOverflow.current === true) {
-          // console.log("down 호출");
           restoreScrollTopFromDown();
           isDownOverflow.current = false;
           isDownDirection.current = false;
@@ -380,7 +370,6 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
         rememberCurrentScrollHeight();
         if (MAX_CHAT_DATA_LENGTH < chatData.length) {
           isDownOverflow.current = true;
-          // console.log("slice!!");
 
           setHasUpMore(true);
           setChatData((prev) => prev.slice(chatData.length - MAX_CHAT_DATA_LENGTH));
