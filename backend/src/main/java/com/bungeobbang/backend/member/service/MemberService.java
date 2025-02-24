@@ -46,8 +46,17 @@ public class MemberService {
         final OauthProvider oauthProvider = oauthProviders.mapping(providerType);
         final OauthUserInfo oauthUserInfo = oauthProvider.getUserInfo(code);
         final Member member = findOrCreateMember(oauthUserInfo.getSocialLoginId(), providerType);
-
         Long memberId = member.getId();
+
+        if (member.getUniversity() == null) {
+            return new MemberLoginResult(
+                    memberId,
+                    false,
+                    null,
+                    null
+            );
+        }
+
         final String uuid = UUID.randomUUID().toString();
         // uuid 저장
         saveUuid(String.valueOf(memberId), uuid);
@@ -56,7 +65,8 @@ public class MemberService {
         final MemberTokens memberTokens = jwtProvider.generateLoginToken(
                 memberId.toString(),
                 MEMBER,
-                uuid);
+                uuid,
+                String.valueOf(member.getUniversity().getId()));
         // refreshToken 저장
         saveRefreshToken(memberId, memberTokens.refreshToken());
 
@@ -69,7 +79,7 @@ public class MemberService {
     }
 
     @Transactional
-    public void updateUniversityInfo(final MemberUniversityUpdateRequest request) {
+    public MemberLoginResult updateUniversityInfo(final MemberUniversityUpdateRequest request) {
         final Member member = memberRepository.findById(request.memberId())
                 .orElseThrow(() -> new AuthException(INVALID_MEMBER));
         final University university = universityRepository.findById(request.universityId())
@@ -80,6 +90,27 @@ public class MemberService {
         }
 
         member.updateUniversity(university, request.email());
+
+        Long memberId = member.getId();
+        final String uuid = UUID.randomUUID().toString();
+        // uuid 저장
+        saveUuid(String.valueOf(memberId), uuid);
+
+        // jwt 생성
+        final MemberTokens memberTokens = jwtProvider.generateLoginToken(
+                memberId.toString(),
+                MEMBER,
+                uuid,
+                String.valueOf(member.getUniversity().getId()));
+        // refreshToken 저장
+        saveRefreshToken(memberId, memberTokens.refreshToken());
+
+        return new MemberLoginResult(
+                memberId,
+                member.getUniversity() != null,
+                memberTokens.accessToken(),
+                memberTokens.refreshToken()
+        );
     }
 
     public AccessTokenResponse extend(String authorizeHeader, String refreshToken) {

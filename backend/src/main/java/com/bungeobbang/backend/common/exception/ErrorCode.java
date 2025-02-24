@@ -33,6 +33,7 @@ public enum ErrorCode {
     INVALID_OPINION_CHAT(22, HttpStatus.NOT_FOUND, "말해요 채팅 조회에 실패하였습니다."),
     INVALID_OPINION_LAST_READ(23, HttpStatus.NOT_FOUND, "말해요 마지막 읽은 채팅 id 조회에 실패하였습니다."),
     UNAUTHORIZED_OPINION_ACCESS(24, HttpStatus.FORBIDDEN, "본인이 작성한 말해요 의견이 아닙니다."),
+    UNAUTHORIZED_UNIVERSITY_OPINION_ACCESS(47, HttpStatus.FORBIDDEN, "본인 대학교의 말해요 의견이 아닙니다."),
     DELETED_OPINION(25, HttpStatus.NOT_FOUND, "삭제된 말해요 채팅방입니다."),
     ALREADY_REMINDED(26, HttpStatus.BAD_REQUEST, "이미 리마인드된 의견입니다."),
     CHAT_COUNT_LIMIT_EXCEEDED(45, HttpStatus.BAD_REQUEST, "채팅 개수를 초과하였습니다."),

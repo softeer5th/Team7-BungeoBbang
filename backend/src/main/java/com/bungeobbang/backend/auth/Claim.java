@@ -3,6 +3,7 @@ package com.bungeobbang.backend.auth;
 public enum Claim {
     ROLE("role"),
     UUID("uuid"),
+    UNIVERSITY("universityId"),
     ;
     private final String name;
 

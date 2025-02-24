@@ -24,16 +24,18 @@ public record AdminWebsocketMessage(
         @JsonInclude(JsonInclude.Include.NON_NULL)
         Long adminId,
         @JsonInclude(JsonInclude.Include.NON_NULL)
+        Long universityId,
+        @JsonInclude(JsonInclude.Include.NON_NULL)
         @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
         LocalDateTime createdAt,
         @JsonInclude(JsonInclude.Include.NON_NULL)
         int code
 ) {
     public AdminWebsocketMessage(SocketEventType event, String message, int errorCode) {
-        this(null, event, null, null, message, null, null, null, errorCode);
+        this(null, event, null, null, message, null, null, null, null, errorCode);
     }
 
-    public static AdminWebsocketMessage createResponse(AdminWebsocketMessage request) {
+    public static AdminWebsocketMessage createResponse(AdminWebsocketMessage request, Long universityId) {
         return new AdminWebsocketMessage(
                 request.roomType,
                 request.event,
@@ -42,6 +44,7 @@ public record AdminWebsocketMessage(
                 request.message,
                 request.images,
                 request.adminId,
+                universityId,
                 LocalDateTime.now(),
                 0
         );

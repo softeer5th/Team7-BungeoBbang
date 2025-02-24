@@ -63,7 +63,8 @@ public class MemberWebSocketChatHandler extends TextWebSocketHandler {
                 session.sendMessage(new TextMessage("PONG"));
                 return;
             }
-            final MemberWebsocketMessage requestContainsCreatedAt = MemberWebsocketMessage.createResponse(request);
+            final Long universityId = Long.valueOf(jwtProvider.getClaim(accessToken, Claim.UNIVERSITY));
+            final MemberWebsocketMessage requestContainsCreatedAt = MemberWebsocketMessage.createResponse(request, universityId);
 
             switch (request.roomType()) {
                 case AGENDA -> publisher.publishEvent(AgendaMemberEvent.from(session, requestContainsCreatedAt));

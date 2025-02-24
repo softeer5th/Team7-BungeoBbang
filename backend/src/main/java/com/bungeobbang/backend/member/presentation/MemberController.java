@@ -51,8 +51,12 @@ public class MemberController {
     }
 
     @PatchMapping("/university")
-    public ResponseEntity<Void> updateUniversity(@RequestBody @Valid final MemberUniversityUpdateRequest request) {
-        memberService.updateUniversityInfo(request);
-        return ResponseEntity.ok().build();
+    public ResponseEntity<MemberLoginResponse> updateUniversity(@RequestBody @Valid final MemberUniversityUpdateRequest request) {
+        final MemberLoginResult memberLoginResult = memberService.updateUniversityInfo(request);
+
+        return ResponseEntity.ok()
+                .header(ACCESS_TOKEN, memberLoginResult.accessToken())
+                .header(REFRESH_TOKEN, memberLoginResult.refreshToken())
+                .body(new MemberLoginResponse(memberLoginResult.memberId(), memberLoginResult.isEmailVerified()));
     }
 }

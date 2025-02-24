@@ -69,35 +69,11 @@ public class AdminAgendaChatRepositoryImpl implements AdminAgendaChatRepository 
     public Map<Long, AdminAgendaSubResult> findUnreadStatus(List<Long> agendaIdList, Long adminId) {
         Map<Long, AdminAgendaSubResult> result = new HashMap<>();
 
-        // ✅ 1. 최신 채팅 가져오기 (각 agendaId별로 _id가 가장 큰 값)
-        MatchOperation matchStage = Aggregation.match(Criteria.where(AGENDA_ID).in(agendaIdList));
-        SortOperation sortStage = Aggregation.sort(org.springframework.data.domain.Sort.by(DESC, ID));
-        GroupOperation groupStage = Aggregation.group(AGENDA_ID)
-                .first("$$ROOT").as(LAST_CHAT);
-
-        // Project - lastChat에서 _id, chat, createdAt만 유지
-        ProjectionOperation projectStage = Aggregation.project()
-                .and(ID).as(LastChat.AGENDA_ID)  // 원래 _id를 agendaId로 매핑
-                .and("lastChat._id").as(LastChat.CHAT_ID)
-                .and("lastChat.chat").as(LastChat.CONTENT)
-                .and("lastChat.createdAt").as(LastChat.CREATED_AT);
-
-        Aggregation aggregation = Aggregation.newAggregation(
-                matchStage,
-                sortStage,
-                groupStage,
-                projectStage);
-
-        AggregationResults<LastChat> lastChatsResult = mongoTemplate.aggregate(aggregation, AGENDA_COLLECTION, LastChat.class);
-
-        List<LastChat> lastChats = lastChatsResult.getMappedResults();
+        //  ✅ 1. 모든 agendaId에 대한 lastChat 조회
+        final List<LastChat> lastChats = findLastChats(agendaIdList);
 
         // ✅ 2. 모든 agendaId에 대한 lastReadChatId 조회
-        List<AgendaAdminLastReadChat> lastReadChats = mongoTemplate.find(
-                new org.springframework.data.mongodb.core.query.Query(
-                        Criteria.where(AGENDA_ID).in(agendaIdList)
-                                .and(ADMIN_ID).is(adminId)
-                ), AgendaAdminLastReadChat.class);
+        List<AgendaAdminLastReadChat> lastReadChats = findLastReadChatsByAdminId(agendaIdList, adminId);
 
         // ✅ 3. 결과를 Map 형태로 변환
         Map<Long, ObjectId> lastChatMap = lastChats.stream()
@@ -116,7 +92,40 @@ public class AdminAgendaChatRepositoryImpl implements AdminAgendaChatRepository 
         return result;
     }
 
-    public void upsertAdminLastReadChat(Long agendaId, Long adminId, ObjectId lastChatId) {
+    public List<AgendaAdminLastReadChat> findLastReadChatsByAdminId(List<Long> agendaIdList, Long adminId) {
+        return mongoTemplate.find(
+                new Query(
+                        Criteria.where(AGENDA_ID).in(agendaIdList)
+                                .and(ADMIN_ID).is(adminId)
+                ), AgendaAdminLastReadChat.class);
+    }
+
+    public List<LastChat> findLastChats(List<Long> agendaIdList) {
+        // ✅ 1. 최신 채팅 가져오기 (각 agendaId별로 _id가 가장 큰 값)
+        MatchOperation matchStage = Aggregation.match(Criteria.where(AGENDA_ID).in(agendaIdList));
+        SortOperation sortStage = Aggregation.sort(Sort.by(DESC, ID));
+        GroupOperation groupStage = Aggregation.group(AGENDA_ID)
+                .first("$$ROOT").as(LAST_CHAT);
+
+        // Project - lastChat에서 _id, chat, createdAt만 유지
+        ProjectionOperation projectStage = Aggregation.project()
+                .and(ID).as(LastChat.AGENDA_ID)  // 원래 _id를 agendaId로 매핑
+                .and("lastChat._id").as(LastChat.CHAT_ID)
+                .and("lastChat.chat").as(LastChat.CONTENT)
+                .and("lastChat.createdAt").as(LastChat.CREATED_AT);
+
+        Aggregation aggregation = Aggregation.newAggregation(
+                matchStage,
+                sortStage,
+                groupStage,
+                projectStage);
+
+        AggregationResults<LastChat> lastChatsResult = mongoTemplate.aggregate(aggregation, AGENDA_COLLECTION, LastChat.class);
+
+        return lastChatsResult.getMappedResults();
+    }
+
+    public void upsertLastReadChat(Long agendaId, Long adminId, ObjectId lastChatId) {
         Query query = new Query();
         query.addCriteria(Criteria.where(ADMIN_ID).is(adminId)
                 .and(AGENDA_ID).is(agendaId));

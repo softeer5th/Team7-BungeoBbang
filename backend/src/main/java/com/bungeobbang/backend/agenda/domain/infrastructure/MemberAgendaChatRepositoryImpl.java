@@ -89,11 +89,7 @@ public class MemberAgendaChatRepositoryImpl implements MemberAgendaChatRepositor
 
         final List<LastChat> lastChats = mongoTemplate.aggregate(aggregation, AGENDA_COLLECTION, LastChat.class).getMappedResults();
 
-        List<AgendaLastReadChat> lastReadChats = mongoTemplate.find(
-                new Query(
-                        Criteria.where(AGENDA_ID).in(agendaIdList)
-                                .and(MEMBER_ID).is(memberId)
-                ), AgendaLastReadChat.class);
+        List<AgendaLastReadChat> lastReadChats = getLastReadChats(agendaIdList, memberId);
 
         Map<Long, ObjectId> lastChatMap = lastChats.stream()
                 .collect(Collectors.toMap(LastChat::agendaId, LastChat::chatId, (a, b) -> b));
@@ -119,6 +115,14 @@ public class MemberAgendaChatRepositoryImpl implements MemberAgendaChatRepositor
                         lastReadChatMap.getOrDefault(chat.agendaId(), MIN_OBJECT_ID)
                 ))
                 .toList();
+    }
+
+    public List<AgendaLastReadChat> getLastReadChats(List<Long> agendaIdList, Long memberId) {
+        return mongoTemplate.find(
+                new Query(
+                        Criteria.where(AGENDA_ID).in(agendaIdList)
+                                .and(MEMBER_ID).is(memberId)
+                ), AgendaLastReadChat.class);
     }
 
 
