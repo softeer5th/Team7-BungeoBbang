@@ -3,7 +3,7 @@ import { create } from 'zustand';
 
 export interface ChatMessage {
   roomType: 'OPINION' | 'AGENDA';
-  event: 'CHAT';
+  event: 'CHAT' | 'ERROR';
   opinionId?: number;
   agendaId?: number;
   message: string;
@@ -187,8 +187,11 @@ export const useSocketStore = create<SocketState>((set, get) => ({
           const data = JSON.parse(event.data) as ChatMessage;
           console.log('Received message:', data);
 
-          if (data.code === 7) {
-            callback(data);
+          if (data.event === 'ERROR') {
+            if (data.code === 7) {
+              callback(data);
+              return;
+            }
             return;
           }
 

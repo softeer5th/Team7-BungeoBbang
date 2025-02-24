@@ -1,6 +1,7 @@
+'use client';
+
 import { TopAppBar } from '@/components/TopAppBar';
 import { BottomNavigation } from '@/components/bottom-navigation/BottomNavigation';
-import Typography from '@/styles/Typography';
 import ArrowUp from '@/assets/icons/full-arrow-up.svg?react';
 import SchoolIcon from '@/assets/imgs/img_school.svg?react';
 import PersonIcon from '@/assets/imgs/img_person.svg?react';
@@ -12,6 +13,7 @@ import { motion } from 'framer-motion';
 import { LogoutDialog as Logout } from '@/components/Dialog/LogoutDialog';
 import JwtManager from '@/utils/jwtManager';
 import { bottomItems, moveToDestination } from '../../destinations';
+import { RotatingMessages } from '@/components/text-field/RotatingMessage';
 
 const OpinionEntryPage = () => {
   const navigate = useNavigate();
@@ -54,8 +56,7 @@ const OpinionEntryPage = () => {
         >
           <S.TitleInputContainer>
             <S.TitleWrapper>
-              <Typography variant="display2">더 나은 학교를 위해</Typography>
-              <Typography variant="display2">여러분의 생각을 들려주세요!</Typography>
+              <RotatingMessages />
             </S.TitleWrapper>
             <S.SubTitle>여러분의 의견에 대해 빠른 시일에 답변드리겠습니다.</S.SubTitle>
             <S.InputContainer
