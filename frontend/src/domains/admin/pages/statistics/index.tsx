@@ -176,7 +176,6 @@ const StatisticsPage = () => {
 
       <TabBarContainer
         tabItems={tabItems}
-        currentTabSelectedIndex={tabItems.findIndex((tab) => tab.itemId === currentTab)}
         onTabItemClick={(itemId) => setCurrentTab(itemId)}
         contents={() => {
           return (

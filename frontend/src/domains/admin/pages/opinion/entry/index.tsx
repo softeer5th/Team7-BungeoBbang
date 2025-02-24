@@ -74,17 +74,26 @@ const OpinionEntryPage: React.FC = () => {
     (message: ChatMessage) => {
       console.log(message);
       if (message.eventType === 'START') {
+        const startMessage = message as unknown as {
+          eventType: 'START';
+          opinionId: number;
+          categoryType: string;
+          opinionType: keyof typeof ChatOpinionType;
+          message: string;
+          createdAt: string;
+        };
+
         const newOpinion: Opinion = {
-          id: String(message.opinionId),
-          category: findChatCategoryType(message.categoryType),
-          title: ChatOpinionType[message.opinionType]?.label,
-          text: message.message,
-          time: formatLastChatTime(message.createdAt),
+          id: String(startMessage.opinionId),
+          category: findChatCategoryType(startMessage.categoryType),
+          title: ChatOpinionType[startMessage.opinionType]?.label,
+          text: startMessage.message,
+          time: formatLastChatTime(startMessage.createdAt),
           iconColor: '#FFC107',
           hasAlarm: true,
-          createdAt: new Date(message.createdAt),
-          isReminded: true,
-          lastChatId: 0,
+          createdAt: new Date(startMessage.createdAt),
+          isReminded: false,
+          lastChatId: '000000000000000000000000',
         };
 
         setOpinions((prev) => {
@@ -173,6 +182,7 @@ const OpinionEntryPage: React.FC = () => {
                 time={opinion.time}
                 hasAlarm={opinion.hasAlarm}
                 onClick={() => {
+                  socketManager('OPINION', 'ENTER', Number(opinion.id), 'ADMIN');
                   navigate('/opinion/chat/' + opinion.id, {
                     state: {
                       opinionType: opinion.title,
@@ -181,7 +191,6 @@ const OpinionEntryPage: React.FC = () => {
                     },
                   });
                   invalidateQueries('adminOpinions');
-                  socketManager('OPINION', 'ENTER', Number(opinion.id), 'ADMIN');
                 }}
                 createdAt={opinion.createdAt}
                 isReminded={opinion.isReminded}
