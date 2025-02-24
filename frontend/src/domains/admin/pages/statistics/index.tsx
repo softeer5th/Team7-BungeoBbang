@@ -52,7 +52,9 @@ const StatisticsPage = () => {
   const [agendaStats, setAgendaStats] = useState<AgendaStatisticsData | null>(null);
   const navigate = useNavigate();
   const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
-  const { getCache, setCache } = useCacheStore();
+
+  const getCache = useCacheStore((state) => state.getCache);
+  const setCache = useCacheStore((state) => state.setCache);
 
   const fetchData = async () => {
     try {

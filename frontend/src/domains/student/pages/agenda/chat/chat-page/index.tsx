@@ -58,7 +58,9 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
 
     const navigate = useNavigate();
 
-    const { subscribe, sendMessage } = useSocketStore();
+    const subscribe = useSocketStore((state) => state.subscribe);
+    const sendMessage = useSocketStore((state) => state.sendMessage);
+
     const memberId = localStorage.getItem('member_id');
     const socketManager = useSocketManager();
 

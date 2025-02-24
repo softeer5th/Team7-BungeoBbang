@@ -3,8 +3,9 @@ import { useSocketStore, ChatMessage } from '@/store/socketStore';
 
 export const useChat = (type: 'OPINION' | 'AGENDA', roomId: number) => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
-  const { subscribe, sendMessage } = useSocketStore();
 
+  const subscribe = useSocketStore((state) => state.subscribe);
+  const sendMessage = useSocketStore((state) => state.sendMessage);
   // 메시지 수신 핸들러
   const handleMessage = useCallback((message: ChatMessage) => {
     setMessages((prev) => [...prev, message]);

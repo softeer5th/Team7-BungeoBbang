@@ -16,7 +16,9 @@ export const useQuery = (
   const { staleTime = 5 * 60 * 1000, enabled = true, onSuccess, onError } = options;
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<any>(null);
-  const { getCache, setCache } = useCacheStore();
+
+  const getCache = useCacheStore((state) => state.getCache);
+  const setCache = useCacheStore((state) => state.setCache);
   const isMounted = useRef(true);
 
   const fetchData = useCallback(
