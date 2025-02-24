@@ -4,7 +4,6 @@ import jakarta.persistence.Id;
 import lombok.Builder;
 import lombok.Getter;
 import org.bson.types.ObjectId;
-import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
@@ -27,15 +26,16 @@ public class OpinionChat {
 
     private boolean isAdmin;
 
-    @CreatedDate
     private LocalDateTime createdAt;
 
     @Builder
-    public OpinionChat(Long memberId, Long opinionId, String chat, List<String> images, boolean isAdmin) {
+    public OpinionChat(ObjectId id, Long memberId, Long opinionId, String chat, List<String> images, boolean isAdmin, LocalDateTime createdAt) {
+        this.id = id;
         this.memberId = memberId;
         this.opinionId = opinionId;
         this.chat = chat;
         this.images = images;
         this.isAdmin = isAdmin;
+        this.createdAt = createdAt;
     }
 }

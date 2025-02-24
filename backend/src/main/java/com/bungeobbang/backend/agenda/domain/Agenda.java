@@ -55,11 +55,16 @@ public class Agenda extends BaseTimeEntity {
     @Column(name = "participant_count", nullable = false, columnDefinition = "int default 0")
     private int count;
 
+    @Column
+    private String firstChatId;
+
     @OneToMany(mappedBy = "agenda")
     private List<AgendaImage> images = new ArrayList<>();
+    @OneToMany(mappedBy = "agenda", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<AgendaMember> agendaMembers = new ArrayList<>();
 
     @Builder
-    public Agenda(Long id, CategoryType categoryType, University university, Admin admin, String title, LocalDate startDate, LocalDate endDate, String content, boolean isEnd, int count, List<AgendaImage> images) {
+    public Agenda(Long id, CategoryType categoryType, University university, Admin admin, String title, LocalDate startDate, LocalDate endDate, String content, boolean isEnd, int count, List<AgendaImage> images, String firstChatId) {
         this.id = id;
         this.categoryType = categoryType;
         this.university = university;
@@ -71,10 +76,19 @@ public class Agenda extends BaseTimeEntity {
         this.isEnd = isEnd;
         this.count = count;
         this.images = images;
+        this.firstChatId = firstChatId;
     }
 
     public void end() {
         this.endDate = LocalDate.now();
         this.isEnd = true;
+    }
+
+    public void increaseParticipantCount(int num) {
+        this.count += num;
+    }
+
+    public void setFirstChatId(String chatId) {
+        this.firstChatId = chatId;
     }
 }

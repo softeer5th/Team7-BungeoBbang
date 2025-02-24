@@ -1,6 +1,6 @@
 package com.bungeobbang.backend.agenda.domain;
 
-import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.bson.types.ObjectId;
@@ -8,6 +8,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -21,7 +22,7 @@ import java.util.List;
 @Document(collection = "agenda_chat") // ✅ 단일 컬렉션 사용
 @Getter
 @NoArgsConstructor
-@AllArgsConstructor
+
 public class AgendaChat {
     @Id
     private ObjectId id;
@@ -40,4 +41,22 @@ public class AgendaChat {
 
     @Field("memberId")
     private Long memberId;
+
+    private LocalDateTime createdAt;
+
+    @Builder
+    public AgendaChat(ObjectId id, Long agendaId, String chat, List<String> images, boolean isAdmin, Long memberId, LocalDateTime createdAt) {
+        this.id = id;
+        this.agendaId = agendaId;
+        this.chat = chat;
+        this.images = images;
+        this.isAdmin = isAdmin;
+        this.memberId = memberId;
+        this.createdAt = createdAt;
+    }
+
+    public void update(String chat, List<String> images) {
+        this.chat = chat;
+        this.images = images;
+    }
 }

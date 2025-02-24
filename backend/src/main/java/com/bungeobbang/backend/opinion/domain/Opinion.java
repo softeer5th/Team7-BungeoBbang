@@ -5,7 +5,10 @@ import com.bungeobbang.backend.common.type.CategoryType;
 import com.bungeobbang.backend.member.domain.Member;
 import com.bungeobbang.backend.university.domain.University;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import static jakarta.persistence.EnumType.STRING;
 import static jakarta.persistence.GenerationType.IDENTITY;
@@ -38,10 +41,11 @@ public class Opinion extends BaseTimeEntity {
     private boolean isRemind;
 
     @Column(name = "chat_count", nullable = false)
-    private int chatCount;
+    private Long chatCount;
 
     @Builder
-    public Opinion(University university, OpinionType opinionType, CategoryType categoryType, Member member, boolean isRemind, int chatCount) {
+    public Opinion(Long id, University university, OpinionType opinionType, CategoryType categoryType, Member member, boolean isRemind, Long chatCount) {
+        this.id = id;
         this.university = university;
         this.opinionType = opinionType;
         this.categoryType = categoryType;
@@ -52,5 +56,17 @@ public class Opinion extends BaseTimeEntity {
 
     public void setRemind() {
         this.isRemind = true;
+    }
+
+    public void unsetRemind() {
+        this.isRemind = false;
+    }
+
+    public void plusOneChatCount() {
+        this.chatCount++;
+    }
+
+    public void resetChatCount() {
+        this.chatCount = 0L;
     }
 }

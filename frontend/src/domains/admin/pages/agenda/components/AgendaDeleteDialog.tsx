@@ -17,11 +17,9 @@ export const AgendaDeleteDialog: React.FC<AgendaDeleteDialogProps> = ({
   return (
     <Dialog
       title={title}
-      body="
-           채팅방을 삭제하시나요?<br />
-            삭제된 채팅방의 데이터는<br />
-            영구적으로 삭제됩니다.
-        "
+      body="채팅방을 삭제하시나요?
+            삭제된 채팅방의 데이터는
+            영구적으로 삭제됩니다. "
       onConfirm={onConfirm}
       onDismiss={onDismiss}
       confirmButton={{

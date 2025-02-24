@@ -24,7 +24,7 @@ import face5 from '@/assets/imgs/face5.png';
 import face6 from '@/assets/imgs/face6.png';
 import face7 from '@/assets/imgs/face7.png';
 import face8 from '@/assets/imgs/face8.png';
-import { ChatToast } from '@/components/ChatToast.tsx';
+import { ChatToast } from '@/components/Toast/ChatToast.tsx';
 import { ImagePreview } from '@/components/Chat/ImagePreview.tsx';
 import { SendDialog } from '../../components/SendDialog.tsx';
 import {

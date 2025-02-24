@@ -1,6 +1,7 @@
 package com.bungeobbang.backend.agenda.domain.infrastructure;
 
 import com.bungeobbang.backend.agenda.domain.repository.CustomAgendaRepository;
+import com.bungeobbang.backend.agenda.dto.MemberAgendaSubResult;
 import com.bungeobbang.backend.agenda.dto.response.AgendaResponse;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
@@ -12,6 +13,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 import static com.bungeobbang.backend.agenda.domain.QAgenda.agenda;
+import static com.bungeobbang.backend.agenda.domain.QAgendaMember.agendaMember;
 
 /**
  * <h2>CustomAgendaRepositoryImpl</h2>
@@ -56,6 +58,33 @@ public class CustomAgendaRepositoryImpl implements CustomAgendaRepository {
                 .fetch();
     }
 
+    @Override
+    public List<MemberAgendaSubResult> getUpcomingAgendasWithParticipation(Long universityId, LocalDate endDate, Long agendaId, Long memberId) {
+        return queryFactory.select(Projections.constructor(MemberAgendaSubResult.class,
+                        agenda.id,
+                        agenda.categoryType,
+                        agenda.title,
+                        agenda.startDate,
+                        agenda.endDate,
+                        agenda.count,
+                        queryFactory.select(agendaMember.id)
+                                .from(agendaMember)
+                                .where(agendaMember.agenda.id.eq(agenda.id)
+                                        .and(agendaMember.member.id.eq(memberId))
+                                        .and(agendaMember.isDeleted.not()))
+                                .exists()
+                ))
+                .from(agenda)
+                .where(
+                        agenda.university.id.eq(universityId)
+                                .and(agenda.startDate.gt(LocalDate.now())) // 시작 전 상태
+                                .and(gtEndDateOrEqEndDateAndGtId(endDate, agendaId)) // 무한 스크롤
+                )
+                .orderBy(agenda.endDate.asc(), agenda.id.asc()) // 종료 날짜 오름차순 정렬
+                .limit(AGENDA_SIZE) // 페이지 사이즈 제한
+                .fetch();
+    }
+
     /**
      * <h3>진행 중인 안건 목록 조회</h3>
      * <p>현재 날짜 기준으로 진행 중(시작됨~종료 전)인 안건 목록을 조회합니다.</p>
@@ -68,7 +97,7 @@ public class CustomAgendaRepositoryImpl implements CustomAgendaRepository {
     @Override
     public List<AgendaResponse> getActiveAgendas(Long universityId, LocalDate endDate, Long agendaId) {
         return queryFactory.select(Projections.constructor(AgendaResponse.class,
-                        agenda.id.as("agendaId"),
+                        agenda.id,
                         agenda.categoryType,
                         agenda.title,
                         agenda.startDate,
@@ -78,8 +107,39 @@ public class CustomAgendaRepositoryImpl implements CustomAgendaRepository {
                 .from(agenda)
                 .where(
                         agenda.university.id.eq(universityId)
-                                .and(agenda.startDate.lt(LocalDate.now())) // 이미 시작됨
-                                .and(agenda.endDate.gt(LocalDate.now())) // 아직 종료되지 않음
+                                .and(agenda.startDate.loe(LocalDate.now())) // 이미 시작됨
+                                .and(agenda.endDate.goe(LocalDate.now())) // 아직 종료되지 않음
+                                .and(agenda.isEnd.not()) // 종료되지 않음
+                                .and(gtEndDateOrEqEndDateAndGtId(endDate, agendaId)) // 무한 스크롤
+                )
+                .orderBy(agenda.endDate.asc(), agenda.id.asc()) // 종료 날짜 오름차순 정렬
+                .limit(AGENDA_SIZE) // 페이지 사이즈 제한
+                .fetch();
+    }
+
+    public List<MemberAgendaSubResult> getActiveAgendasWithParticipation(Long universityId, LocalDate endDate, Long agendaId, Long memberId) {
+        return queryFactory.select(Projections.constructor(MemberAgendaSubResult.class,
+                        agenda.id,
+                        agenda.categoryType,
+                        agenda.title,
+                        agenda.startDate,
+                        agenda.endDate,
+                        agenda.count,
+                        queryFactory.select(agendaMember.id)
+                                .from(agendaMember)
+                                .where(agendaMember.agenda.id.eq(agenda.id)
+                                        .and(agendaMember.member.id.eq(memberId))
+                                        .and(agendaMember.isDeleted.not())
+                                )
+                                .exists()
+
+                ))
+                .from(agenda)
+                .where(
+                        agenda.university.id.eq(universityId)
+                                .and(agenda.startDate.loe(LocalDate.now())) // 이미 시작됨
+                                .and(agenda.endDate.goe(LocalDate.now())) // 아직 종료되지 않음
+                                .and(agenda.isEnd.not())
                                 .and(gtEndDateOrEqEndDateAndGtId(endDate, agendaId)) // 무한 스크롤
                 )
                 .orderBy(agenda.endDate.asc(), agenda.id.asc()) // 종료 날짜 오름차순 정렬
@@ -99,7 +159,7 @@ public class CustomAgendaRepositoryImpl implements CustomAgendaRepository {
     @Override
     public List<AgendaResponse> getClosedAgendas(Long universityId, LocalDate endDate, Long agendaId) {
         return queryFactory.select(Projections.constructor(AgendaResponse.class,
-                        agenda.id.as("agendaId"),
+                        agenda.id,
                         agenda.categoryType,
                         agenda.title,
                         agenda.startDate,
@@ -110,12 +170,42 @@ public class CustomAgendaRepositoryImpl implements CustomAgendaRepository {
                 .where(
                         agenda.university.id.eq(universityId)
                                 .and(agenda.endDate.lt(LocalDate.now())) // 종료된 상태
+                                .or(agenda.isEnd)
+                                .and(ltEndDateOrEqEndDateAndGtId(endDate, agendaId)) // 무한 스크롤
+
+                )
+                .orderBy(agenda.endDate.desc(), agenda.id.asc()) // 종료 날짜 내림차순 정렬
+                .limit(AGENDA_SIZE) // 페이지 사이즈 제한
+                .fetch();
+    }
+
+    public List<MemberAgendaSubResult> getClosedAgendasWithParticipation(Long universityId, LocalDate endDate, Long agendaId, Long memberId) {
+        return queryFactory.select(Projections.constructor(MemberAgendaSubResult.class,
+                        agenda.id,
+                        agenda.categoryType,
+                        agenda.title,
+                        agenda.startDate,
+                        agenda.endDate,
+                        agenda.count,
+                        queryFactory.select(agendaMember.id)
+                                .from(agendaMember)
+                                .where(agendaMember.agenda.id.eq(agenda.id)
+                                        .and(agendaMember.member.id.eq(memberId))
+                                        .and(agendaMember.isDeleted.not()))
+                                .exists()
+                ))
+                .from(agenda)
+                .where(
+                        agenda.university.id.eq(universityId)
+                                .and(agenda.endDate.lt(LocalDate.now())) // 종료된 상태
+                                .or(agenda.isEnd)
                                 .and(ltEndDateOrEqEndDateAndGtId(endDate, agendaId)) // 무한 스크롤
                 )
                 .orderBy(agenda.endDate.desc(), agenda.id.asc()) // 종료 날짜 내림차순 정렬
                 .limit(AGENDA_SIZE) // 페이지 사이즈 제한
                 .fetch();
     }
+
 
     /**
      * <h3>커서 기반 무한 스크롤 지원 - 종료 날짜 기준 조회</h3>

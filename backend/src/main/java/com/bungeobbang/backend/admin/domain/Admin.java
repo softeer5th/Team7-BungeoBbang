@@ -30,9 +30,11 @@ public class Admin extends BaseTimeEntity {
     @JoinColumn(name = "university_id", nullable = false)
     private University university;
 
-    public Admin(Long id, String loginId, String password) {
+    public Admin(Long id, String loginId, String password, String name, University university) {
         this.id = id;
         this.loginId = loginId;
         this.password = password;
+        this.name = name;
+        this.university = university;
     }
 }

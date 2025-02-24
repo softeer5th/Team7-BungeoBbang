@@ -27,7 +27,7 @@ import { ImagePreview } from '@/components/Chat/ImagePreview.tsx';
 import { useEnterLeaveHandler } from '@/hooks/useEnterLeaveHandler.ts';
 import { ChatRoomInfo } from '../../agenda/chat/chat-page/index.tsx';
 import useInfiniteScroll from '@/hooks/useInfiniteScroll.tsx';
-import { ChatToast } from '@/components/ChatToast.tsx';
+import { ChatToast } from '@/components/Toast/ChatToast.tsx';
 import {
   FIRST_REMAIN_ITEMS,
   LAST_REMAIN_ITEMS,
@@ -91,6 +91,7 @@ const OpinionChatPage = () => {
             getReloadChatDataFromRecent();
           }
         } else {
+          console.log('gethasdownmor', getHasDownMore(), isWatchingBottom());
           if (!getHasDownMore()) {
             if (isWatchingBottom()) {
               isLiveReceiveChatAdded.current = true;
@@ -344,12 +345,18 @@ const OpinionChatPage = () => {
     setChatData((prev) => [...prev, newChat]);
   };
 
-  const { setTriggerUpItem, setTriggerDownItem, getHasDownMore, setHasUpMore, setHasDownMore } =
-    useInfiniteScroll({
-      initialFetch: getInitialChatData,
-      fetchUpMore: getMoreUpChatData,
-      fetchDownMore: getMoreDownChatData,
-    });
+  const {
+    setTriggerUpItem,
+    setTriggerDownItem,
+    getHasUpMore,
+    getHasDownMore,
+    setHasUpMore,
+    setHasDownMore,
+  } = useInfiniteScroll({
+    initialFetch: getInitialChatData,
+    fetchUpMore: getMoreUpChatData,
+    fetchDownMore: getMoreDownChatData,
+  });
 
   useLayoutEffect(() => {
     if (!elementRef.current) return;
@@ -467,7 +474,7 @@ const OpinionChatPage = () => {
       />
       <S.ChatList ref={elementRef}>
         {chatData.map((chat, chatIndex) => {
-          const isUpTriggerItem = chatIndex === FIRST_REMAIN_ITEMS;
+          const isUpTriggerItem = chatIndex === FIRST_REMAIN_ITEMS && getHasUpMore();
           const isDownTriggerItem = chatIndex === chatData.length - LAST_REMAIN_ITEMS;
 
           if (chat.type === ChatType.RECEIVE) {

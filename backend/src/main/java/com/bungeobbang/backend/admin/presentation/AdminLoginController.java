@@ -2,8 +2,9 @@ package com.bungeobbang.backend.admin.presentation;
 
 
 import com.bungeobbang.backend.admin.dto.request.AdminLoginRequest;
+import com.bungeobbang.backend.admin.dto.response.AdminLoginResponse;
+import com.bungeobbang.backend.admin.dto.response.AdminLoginResult;
 import com.bungeobbang.backend.admin.service.AdminLoginService;
-import com.bungeobbang.backend.member.dto.response.MemberTokens;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -24,14 +25,14 @@ public class AdminLoginController {
     private final AdminLoginService adminLoginService;
 
     @PostMapping("/login")
-    public ResponseEntity<Void> login(
+    public ResponseEntity<AdminLoginResponse> login(
             @RequestBody @Valid final AdminLoginRequest adminLoginRequest
     ) {
-        final MemberTokens tokens = adminLoginService.login(adminLoginRequest);
+        final AdminLoginResult response = adminLoginService.login(adminLoginRequest);
         return ResponseEntity.
                 status(CREATED)
-                .header(ACCESS_TOKEN, tokens.accessToken())
-                .header(REFRESH_TOKEN, tokens.refreshToken())
-                .build();
+                .header(ACCESS_TOKEN, response.memberTokens().accessToken())
+                .header(REFRESH_TOKEN, response.memberTokens().refreshToken())
+                .body(response.adminIdResponse());
     }
 }

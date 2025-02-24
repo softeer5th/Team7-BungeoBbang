@@ -2,14 +2,15 @@ package com.bungeobbang.backend.agenda.presentation;
 
 import com.bungeobbang.backend.agenda.dto.response.AgendaChatResponse;
 import com.bungeobbang.backend.agenda.dto.response.AgendaDetailResponse;
-import com.bungeobbang.backend.agenda.dto.response.AgendaResponse;
-import com.bungeobbang.backend.agenda.dto.response.MyAgendaResponse;
+import com.bungeobbang.backend.agenda.dto.response.member.MemberAgendaResponse;
+import com.bungeobbang.backend.agenda.dto.response.member.MyAgendaResponse;
 import com.bungeobbang.backend.agenda.presentation.api.AgendaApi;
-import com.bungeobbang.backend.agenda.service.AgendaChatService;
-import com.bungeobbang.backend.agenda.service.AgendaService;
+import com.bungeobbang.backend.agenda.service.MemberAgendaChatService;
+import com.bungeobbang.backend.agenda.service.MemberAgendaService;
 import com.bungeobbang.backend.agenda.status.AgendaStatusType;
+import com.bungeobbang.backend.auth.common.Auth;
 import com.bungeobbang.backend.auth.domain.Accessor;
-import com.bungeobbang.backend.auth.member.Auth;
+import com.bungeobbang.backend.common.type.ScrollType;
 import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
 import org.springframework.http.ResponseEntity;
@@ -22,26 +23,26 @@ import java.util.List;
 @RequestMapping("/student/agendas")
 @RequiredArgsConstructor
 public class AgendaController implements AgendaApi {
-    private final AgendaService agendaService;
-    private final AgendaChatService agendaChatService;
+    private final MemberAgendaService memberAgendaService;
+    private final MemberAgendaChatService memberAgendaChatService;
 
     @Override
     @PostMapping("/{agendaId}")
     public ResponseEntity<Void> participateAgenda(
             @Auth Accessor accessor,
             @PathVariable Long agendaId) {
-        agendaService.participateAgenda(accessor.id(), agendaId);
+        memberAgendaService.participateAgenda(accessor.id(), agendaId);
         return ResponseEntity.noContent().build();
     }
 
     @Override
     @GetMapping
-    public ResponseEntity<List<AgendaResponse>> getAgendasByStatus(
+    public ResponseEntity<List<MemberAgendaResponse>> getAgendasByStatus(
             @Auth Accessor accessor,
             @RequestParam AgendaStatusType status,
             @RequestParam(required = false) LocalDate endDate,
             @RequestParam(required = false) Long agendaId) {
-        return ResponseEntity.ok(agendaService.getAgendasByStatus(accessor.id(), status, endDate, agendaId));
+        return ResponseEntity.ok(memberAgendaService.getAgendasByStatus(accessor.id(), status, endDate, agendaId));
     }
 
     @Override
@@ -50,7 +51,7 @@ public class AgendaController implements AgendaApi {
             @Auth Accessor accessor,
             @PathVariable Long agendaId
     ) {
-        return ResponseEntity.ok(agendaService.getAgendaDetail(accessor.id(), agendaId));
+        return ResponseEntity.ok(memberAgendaService.getAgendaDetail(accessor.id(), agendaId));
     }
 
     @Override
@@ -58,7 +59,7 @@ public class AgendaController implements AgendaApi {
     public ResponseEntity<List<MyAgendaResponse>> getMyAgendas(
             @Auth Accessor accessor
     ) {
-        return ResponseEntity.ok(agendaService.getMyAgenda(accessor.id()));
+        return ResponseEntity.ok(memberAgendaService.getMyAgenda(accessor.id()));
     }
 
     @Override
@@ -67,7 +68,7 @@ public class AgendaController implements AgendaApi {
             @Auth Accessor accessor,
             @PathVariable Long agendaId
     ) {
-        agendaService.exitAgenda(accessor.id(), agendaId);
+        memberAgendaService.exitAgenda(accessor.id(), agendaId);
         return ResponseEntity.noContent().build();
     }
 
@@ -76,8 +77,9 @@ public class AgendaController implements AgendaApi {
     public ResponseEntity<List<AgendaChatResponse>> getChats(
             @Auth Accessor accessor,
             @PathVariable Long agendaId,
-            @RequestParam(required = false) ObjectId chatId
+            @RequestParam(required = false) ObjectId chatId,
+            @RequestParam(required = false, name = "scroll") ScrollType scrollType
     ) {
-        return ResponseEntity.ok(agendaChatService.getChats(accessor.id(), agendaId, chatId));
+        return ResponseEntity.ok(memberAgendaChatService.getChats(accessor.id(), agendaId, chatId, scrollType));
     }
 }

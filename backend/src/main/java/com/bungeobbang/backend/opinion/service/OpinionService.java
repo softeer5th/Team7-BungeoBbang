@@ -1,180 +1,98 @@
 package com.bungeobbang.backend.opinion.service;
 
 import com.bungeobbang.backend.common.exception.ErrorCode;
-import com.bungeobbang.backend.common.exception.MemberException;
 import com.bungeobbang.backend.common.exception.OpinionException;
-import com.bungeobbang.backend.member.domain.Member;
-import com.bungeobbang.backend.member.domain.repository.MemberRepository;
+import com.bungeobbang.backend.common.type.ScrollType;
 import com.bungeobbang.backend.opinion.domain.Opinion;
 import com.bungeobbang.backend.opinion.domain.OpinionChat;
-import com.bungeobbang.backend.opinion.domain.OpinionLastRead;
-import com.bungeobbang.backend.opinion.domain.repository.OpinionChatRepository;
-import com.bungeobbang.backend.opinion.domain.repository.OpinionLastReadRepository;
-import com.bungeobbang.backend.opinion.domain.repository.OpinionRepository;
-import com.bungeobbang.backend.opinion.dto.request.OpinionCreationRequest;
-import com.bungeobbang.backend.opinion.dto.response.*;
-import com.bungeobbang.backend.university.domain.University;
+import com.bungeobbang.backend.opinion.domain.repository.*;
+import com.bungeobbang.backend.opinion.dto.response.OpinionChatResponse;
+import com.bungeobbang.backend.opinion.dto.response.OpinionDetailResponse;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.bson.types.ObjectId;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
+
 /**
- * 말해요 서비스 로직을 처리하는 클래스.
+ * 말해요 채팅 내역 관련 비즈니스 로직을 처리하는 서비스 클래스.
  */
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class OpinionService {
 
-    private final OpinionRepository opinionRepository;
+    /**
+     * 가장 큰 ObjectId 값을 나타내는 상수.
+     * MongoDB의 ObjectId는 시간순으로 정렬되므로, 초기에 가장 최신 데이터(ObjectId가 가장 큼)를 가져오기 위함.
+     */
+    private static final String MAX_OBJECT_ID = "ffffffffffffffffffffffff";
+
     private final OpinionChatRepository opinionChatRepository;
-    private final MemberRepository memberRepository;
-    private final OpinionLastReadRepository opinionLastReadRepository;
+    private final OpinionRepository opinionRepository;
+    private final CustomOpinionChatRepository customOpinionChatRepository;
+    private final CustomOpinionLastReadRepository customOpinionLastReadRepository;
 
     /**
-     * 의견 통계 정보를 계산합니다.
+     * 특정 말해요(opinionId)의 채팅 내역을 조회하는 메서드.
      *
-     * @param memberId 회원 ID
-     * @return OpinionStatisticsResponse 1달간 말해요 통계 응답 객체
-     * @throws MemberException 학생 정보를 조회할 수 없는 경우 예외 발생
+     * @param opinionId  조회할 말해요 채팅방의 ID
+     * @param chatId 조회를 시작할 채팅 메시지의 ID
+     * @param userId   요청을 보낸 유저의 ID
+     * @param scroll 스크롤 방향
+     * @return OpinionChatResponse 리스트 (해당 채팅방의 메시지 목록)
      */
-    public OpinionStatisticsResponse computeOpinionStatistics(final Long memberId) {
-        final Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new MemberException(ErrorCode.INVALID_MEMBER));
-        final List<Opinion> opinions = opinionRepository.findAllByCreatedAtBetweenAndUniversityId(
-                LocalDateTime.now().minusMonths(1L),
-                LocalDateTime.now(),
-                member.getUniversity().getId());
-        final List<Long> opinionIds = opinions.stream()
-                .map(Opinion::getId)
+    public List<OpinionChatResponse> findOpinionChat(final Long opinionId, ObjectId chatId, final Long userId, ScrollType scroll) {
+        // scroll == INITIAL 이면 마지막읽은 채팅 포함 10개 조회
+        // scroll=up 이면 과거 채팅 10개 조회, down 이면 최신 채팅 10개 조회
+        return customOpinionChatRepository.findOpinionChats(opinionId, chatId, scroll)
+                .stream()
+                .map(opinionChat -> OpinionChatResponse.of(opinionChat, userId, opinionId))
                 .toList();
-
-        final List<Long> opinionChats = opinionChatRepository.findDistinctOpinionIdByIsAdminTrue(opinionIds);
-
-        final int opinionCount = opinions.size();
-        final int responseCount = opinionChats.size();
-        final double rawRate = (double) responseCount / opinionCount;
-        final int adminResponseRate = (int) Math.round(rawRate * 100);
-        return new OpinionStatisticsResponse(opinionCount, adminResponseRate);
     }
 
-    /**
-     * 말해요의 새로운 의견 생성(==채팅방 생성)
-     *
-     * @param creationRequest 의견 생성 요청 객체
-     * @param memberId        학생 ID
-     * @return OpinionCreationResponse opinionId
-     * @throws MemberException 학생 정보를 조회할 수 없는 경우 예외 발생
-     */
-    public OpinionCreationResponse createOpinion(
-            final OpinionCreationRequest creationRequest,
-            final Long memberId
-    ) {
-        final Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new MemberException(ErrorCode.INVALID_MEMBER));
-
-        final Opinion opinion = createOpinionEntity(creationRequest, member);
-        final Long opinionId = opinionRepository.save(opinion).getId();
-        saveOpinionChat(creationRequest, member, opinionId);
-
-        return new OpinionCreationResponse(opinionId);
-    }
-
-    /**
-     * 학생의 리마인드를 처리합니다.
-     *
-     * @param opinionId 채팅방ID(==opinionId)
-     * @throws OpinionException 말해요 채팅방을 조회할 수 없는 경우 예외 발생
-     */
-    @Transactional
-    public void remindOpinion(final Long opinionId) {
+    public OpinionDetailResponse findOpinionDetail(final Long opinionId) {
         final Opinion opinion = opinionRepository.findById(opinionId)
                 .orElseThrow(() -> new OpinionException(ErrorCode.INVALID_OPINION));
-        opinion.setRemind();
+        return new OpinionDetailResponse(opinion.getUniversity().getName(), opinion.isRemind());
     }
 
-    /**
-     * 회원의 의견 목록을 조회합니다.
-     *
-     * @param memberId 학생 ID
-     * @return MemberOpinionListResponse 학생 본인이 만들었던 말해요 채팅방 정보 리스트
-     */
-    public MemberOpinionInfoListResponse findMemberOpinionList(final Long memberId) {
-        final List<Opinion> opinions = opinionRepository.findAllByMemberId(memberId);
-        final List<MemberOpinionInfoResponse> opinionInfos = convertToMemberOpinionInfoList(opinions);
-        return new MemberOpinionInfoListResponse(opinionInfos);
+    public void updateLastReadToMax(final Long opinionId, final boolean isAdmin) {
+        customOpinionLastReadRepository.updateLastRead(opinionId, isAdmin, new ObjectId(MAX_OBJECT_ID));
     }
 
-    /**
-     * Opinion 엔티티를 생성합니다.
-     *
-     * @param creationRequest 의견 생성 요청 객체
-     * @param member          회원 객체
-     * @return Opinion 생성된 의견 엔티티
-     */
-    private Opinion createOpinionEntity(final OpinionCreationRequest creationRequest, final Member member) {
-        final University university = member.getUniversity();
-        return Opinion.builder()
-                .university(university)
-                .opinionType(creationRequest.opinionType())
-                .categoryType(creationRequest.categoryType())
-                .member(member)
-                .isRemind(false)
-                .chatCount(1)
-                .build();
+    public void updateLastReadToLastChatId(final Long opinionId, final boolean isAdmin) {
+        OpinionChat lastChat = opinionChatRepository.findTop1ByOpinionIdOrderByIdDesc(opinionId)
+                .orElseThrow(() -> new OpinionException(ErrorCode.INVALID_OPINION_CHAT));
+        customOpinionLastReadRepository.updateLastRead(opinionId, isAdmin, lastChat.getId());
     }
 
-    /**
-     * OpinionChat 엔티티를 저장합니다.
-     *
-     * @param creationRequest 말해요 채팅방 생성 요청 객체
-     * @param member          학생 객체
-     * @param opinionId       말해요 채팅방 ID
-     */
-    private void saveOpinionChat(final OpinionCreationRequest creationRequest,
-                                 final Member member,
-                                 final Long opinionId) {
-        final OpinionChat opinionChat = OpinionChat.builder()
-                .memberId(member.getId())
-                .opinionId(opinionId)
-                .chat(creationRequest.content())
-                .images(creationRequest.images())
-                .build();
-        opinionChatRepository.save(opinionChat);
+    public OpinionChat saveChat(
+            final Long userId, final Long opinionId,
+            final String chat, final List<String> images,
+            final boolean isAdmin, final LocalDateTime createdAt) {
+        return opinionChatRepository.save(
+                OpinionChat.builder()
+                        .memberId(userId)
+                        .opinionId(opinionId)
+                        .chat(chat)
+                        .images(images)
+                        .isAdmin(isAdmin)
+                        .createdAt(createdAt)
+                        .build()
+        );
     }
 
-    /**
-     * Opinion 리스트를 MemberOpinionInfo 리스트로 변환합니다.
-     * 마지막 읽은 채팅의 id와 실제 마지막 채팅의 id를 비교하여 isNew를 결정합니다.
-     *
-     * @param opinions Opinion 리스트
-     * @return List<MemberOpinionInfo> 변환된 회원 의견 정보 리스트
-     */
-    private List<MemberOpinionInfoResponse> convertToMemberOpinionInfoList(final List<Opinion> opinions) {
-        return opinions.stream()
-                .map(opinion -> {
-                    log.debug("opinionId: {}", opinion.getId());
-                    final OpinionLastRead opinionLastRead = opinionLastReadRepository.findByOpinionIdAndIsAdmin(opinion.getId(), false)
-                            .orElseThrow(() -> new OpinionException(ErrorCode.INVALID_OPINION_LAST_READ));
-                    log.debug("opinionLastReadChatId: {}", opinionLastRead.getLastReadChatId());
-                    final OpinionChat lastChat = opinionChatRepository.findTopByOpinionIdOrderByCreatedAtDesc(opinion.getId())
-                            .orElseThrow(() -> new OpinionException(ErrorCode.INVALID_OPINION_CHAT));
-                    log.debug("lastChatId: " + lastChat.getId());
-
-                    return MemberOpinionInfoResponse.builder()
-                            .opinionId(opinion.getId())
-                            .opinionType(opinion.getOpinionType())
-                            .categoryType(opinion.getCategoryType())
-                            .lastChat(lastChat.getChat())
-                            .lastChatCreatedAt(lastChat.getCreatedAt())
-                            .isNew(!opinionLastRead.getLastReadChatId().equals(lastChat.getId()))
-                            .build();
-                })
-                .sorted()
-                .toList();
+    // 최신 채팅이 3개 미만이거나, 3개 중 학생회 채팅이 존재하는 경우 OK.
+    // 최신 채팅 3개 모두 학생 채팅인경우 예외 발생
+    public void validateChatCount(Long opinionId) {
+        List<OpinionChat> chats = opinionChatRepository.findTop3ByOpinionIdOrderByIdDesc(opinionId);
+        if (chats.size() < 3) return;
+        for (OpinionChat opinionChat : chats) {
+            if (opinionChat.isAdmin()) return;
+        }
+        throw new OpinionException(ErrorCode.CHAT_COUNT_LIMIT_EXCEEDED);
     }
 }

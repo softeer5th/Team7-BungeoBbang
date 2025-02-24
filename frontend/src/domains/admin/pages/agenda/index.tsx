@@ -320,7 +320,8 @@ const AgendaPage: React.FC = () => {
                 showIcon={true}
                 text={
                   tab.itemId === tabItems[0].itemId
-                    ? `현재 진행중인 채팅방이 없습니다.\n채팅방을 개설해주세요!`
+                    ? `현재 진행중인 채팅방이 없습니다.
+                    채팅방을 개설해주세요!`
                     : '현재 종료된 채팅방이 없습니다.'
                 }
               />

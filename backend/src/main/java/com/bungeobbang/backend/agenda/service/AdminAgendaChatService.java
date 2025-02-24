@@ -1,11 +1,13 @@
 package com.bungeobbang.backend.agenda.service;
 
+import com.bungeobbang.backend.agenda.domain.AgendaChat;
+import com.bungeobbang.backend.agenda.domain.repository.AdminAgendaChatRepository;
 import com.bungeobbang.backend.agenda.domain.repository.AgendaChatRepository;
+import com.bungeobbang.backend.agenda.dto.request.AgendaChatRequest;
 import com.bungeobbang.backend.agenda.dto.response.AgendaChatResponse;
+import com.bungeobbang.backend.common.type.ScrollType;
 import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -22,8 +24,9 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class AdminAgendaChatService {
-    private static final int CHAT_SIZE = 10;
     private final AgendaChatRepository agendaChatRepository;
+    private final AdminAgendaChatRepository adminAgendaChatRepository;
+    private static final ObjectId MAX_OBJECT_ID = new ObjectId("ffffffffffffffffffffffff");
 
     /**
      * ✅ 답해요 채팅 내역 조회 (무한 스크롤 방식)
@@ -34,22 +37,30 @@ public class AdminAgendaChatService {
      *                 - `chatId`가 존재하면 해당 ID 이전의 데이터 10개 조회
      * @return `AgendaChatResponse` 리스트 (최대 10개)
      */
-    public List<AgendaChatResponse> getChats(Long adminId, Long agendaId, ObjectId chatId) {
-
-        Pageable pageable = PageRequest.of(0, CHAT_SIZE);
-
-        // ✅ 최신 채팅 10개 조회 (첫 페이지)
-        if (chatId == null) {
-            return agendaChatRepository.findAllByAgendaId(agendaId, true, pageable)
-                    .stream()
-                    .map(AgendaChatResponse::from)
-                    .toList();
-        }
-
-        // ✅ 특정 `chatId` 이전의 채팅 10개 조회 (무한 스크롤)
-        return agendaChatRepository.findAllByAgendaIdAndIdLessThan(agendaId, true, chatId, pageable)
+    public List<AgendaChatResponse> getChats(Long adminId, Long agendaId, ObjectId chatId, ScrollType scrollType) {
+        return adminAgendaChatRepository.findChatsByScroll(agendaId, chatId, scrollType)
                 .stream()
                 .map(AgendaChatResponse::from)
                 .toList();
+
+    }
+
+    public void saveChat(AgendaChatRequest request) {
+        agendaChatRepository.save(AgendaChat.builder()
+                .images(request.images())
+                .isAdmin(true)
+                .agendaId(request.agendaId())
+                .chat(request.chat())
+                .createdAt(request.createdAt())
+                .build());
+    }
+
+    public void updateLastReadToMax(Long agendaId, Long adminId) {
+        adminAgendaChatRepository.upsertAdminLastReadChat(agendaId, adminId, MAX_OBJECT_ID);
+    }
+
+    public void updateLastRead(Long agendaId, Long adminId) {
+        final AgendaChat lastChat = adminAgendaChatRepository.findLastChat(agendaId);
+        adminAgendaChatRepository.upsertAdminLastReadChat(agendaId, adminId, lastChat.getId());
     }
 }

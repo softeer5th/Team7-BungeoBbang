@@ -17,11 +17,9 @@ export const AgendaEndDialog: React.FC<AgendaEndDialogProps> = ({
   return (
     <Dialog
       title={title}
-      body="
-           채팅방을 종료하시나요?<br />
-            종료된 채팅방은 종료 페이지로 이동되며,<br />
-            다시 개설되지 않습니다.
-        "
+      body="채팅방을 종료하시나요?
+            종료된 채팅방은 종료 페이지로 이동되며,
+            다시 개설되지 않습니다."
       onConfirm={onConfirm}
       onDismiss={onDismiss}
       confirmButton={{

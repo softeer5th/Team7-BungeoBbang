@@ -1,0 +1,77 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:test  # 테스트용 H2 인메모리 DB
+    driverClassName: org.h2.Driver
+    username: sa
+    password:
+  jpa:
+    hibernate:
+      ddl-auto: create-drop  # 테스트 실행 시 DB 테이블 자동 생성 후 제거
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
+        format_sql: true
+    show-sql: true
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+      settings:
+        web-allow-others: false  # 외부 접근 차단
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      username:
+      password:
+
+    mongodb:
+      uri: mongodb://localhost:27017/test
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    subject: test
+    username: test
+    password: test
+    properties:
+      mail:
+        transport:
+          protocol: smtp
+        smtp:
+          auth: true
+          timeout: 99999
+          starttls:
+            enable: false
+  sql:
+    init:
+      mode: never
+
+security:
+  jwt:
+    secret-key: 928E2MWLh7X_97Bhu_OnAFdfzvpA2jFqfg4VP8tPp6s # 테스트용 키
+    access-expiration-time: 18000
+    refresh-expiration-time: 18000
+
+oauth2:
+  provider:
+    kakao:
+      client_id: test
+      client_secret: test
+      redirect-uri: test
+      request-token-uri: test
+      request-user-info-uri: test
+    google:
+      client-id: test
+      client-secret: test
+      redirect-uri: test
+      request-token-uri: test
+      request-user-info-uri: test
+
+cloud:
+  aws:
+    credentials:
+      access-key: test
+      secret-key: test
+    region: ap-northeast-2
+    s3:
+      bucket: test

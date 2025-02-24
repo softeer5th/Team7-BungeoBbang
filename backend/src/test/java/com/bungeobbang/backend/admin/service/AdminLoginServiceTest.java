@@ -2,10 +2,13 @@ package com.bungeobbang.backend.admin.service;
 
 import com.bungeobbang.backend.admin.config.PasswordEncoder;
 import com.bungeobbang.backend.admin.domain.Admin;
-import com.bungeobbang.backend.admin.domain.repository.AdminRefreshTokenRepository;
 import com.bungeobbang.backend.admin.domain.repository.AdminRepository;
 import com.bungeobbang.backend.admin.dto.request.AdminLoginRequest;
+import com.bungeobbang.backend.admin.dto.response.AdminLoginResult;
 import com.bungeobbang.backend.auth.JwtProvider;
+import com.bungeobbang.backend.auth.domain.Authority;
+import com.bungeobbang.backend.auth.domain.repository.RefreshTokenRepository;
+import com.bungeobbang.backend.auth.domain.repository.UuidRepository;
 import com.bungeobbang.backend.common.exception.AuthException;
 import com.bungeobbang.backend.common.exception.ErrorCode;
 import com.bungeobbang.backend.member.dto.response.MemberTokens;
@@ -20,6 +23,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Optional;
 
+import static com.bungeobbang.backend.admin.fixture.AdminFixture.NAVER_ADMIN;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -37,7 +41,9 @@ class AdminLoginServiceTest {
     @Mock
     private JwtProvider jwtProvider;
     @Mock
-    private AdminRefreshTokenRepository adminRefreshTokenRepository;
+    private RefreshTokenRepository refreshTokenRepository;
+    @Mock
+    private UuidRepository uuidRepository;
 
     @Test
     @DisplayName("존재하지 않는 아이디로 로그인하면 에러가 발생한다")
@@ -56,7 +62,7 @@ class AdminLoginServiceTest {
     @DisplayName("비밀번호가 일치하지 않으면 에러가 발생한다.")
     void login_mismatch_password() {
         // given
-        Admin admin = new Admin(1L, "admin", "admin");
+        Admin admin = NAVER_ADMIN;
         when(adminRepository.findByLoginId(Mockito.anyString()))
                 .thenReturn(Optional.of(admin));
         final AdminLoginRequest request = new AdminLoginRequest("admin", "invalid_password");
@@ -73,7 +79,7 @@ class AdminLoginServiceTest {
     @DisplayName("로그인에 성공하면 어세스토큰과 리프레시 토큰을 발급한다.")
     void login_success() {
         // given
-        Admin admin = new Admin(1L, "admin", "admin");
+        Admin admin = NAVER_ADMIN;
         when(adminRepository.findByLoginId(Mockito.anyString()))
                 .thenReturn(Optional.of(admin));
         final AdminLoginRequest request = new AdminLoginRequest("admin", "invalid_password");
@@ -81,14 +87,15 @@ class AdminLoginServiceTest {
                 .thenReturn(TRUE);
 
         final MemberTokens expected = new MemberTokens("access_token", "refresh_token");
-        when(jwtProvider.generateLoginToken(Mockito.anyString()))
+        when(jwtProvider.generateLoginToken(Mockito.anyString(), Mockito.any(Authority.class), Mockito.anyString()))
                 .thenReturn(expected);
-        doNothing().when(adminRefreshTokenRepository).saveRefreshToken(Mockito.anyString(), Mockito.anyString());
+        doNothing().when(refreshTokenRepository).saveRefreshToken(Mockito.any(Authority.class), Mockito.anyString(), Mockito.anyString());
 
         // when
-        final MemberTokens actual = adminLoginService.login(request);
+        final AdminLoginResult actual = adminLoginService.login(request);
 
         // then
-        Assertions.assertThat(actual).isEqualTo(expected);
+        Assertions.assertThat(actual.memberTokens()).isEqualTo(expected);
+        Assertions.assertThat(actual.adminIdResponse().adminId()).isEqualTo(admin.getId());
     }
 }
