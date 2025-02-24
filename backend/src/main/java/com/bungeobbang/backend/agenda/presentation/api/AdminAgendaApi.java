@@ -148,6 +148,7 @@ public interface AdminAgendaApi {
     @Operation(summary = "답해요 월 통계")
     @GetMapping("/statistics/month")
     ResponseEntity<AgendaStatisticResponse> getAgendaByMonth(
+            @Auth Accessor accessor,
             @RequestParam int year,
             @RequestParam int month
     );
@@ -155,6 +156,7 @@ public interface AdminAgendaApi {
     @Operation(summary = "답해요 월 카테고리 통계")
     @GetMapping("/statistics/month/category")
     ResponseEntity<List<AgendaCategoryResponse>> getAgendaByCategory(
+            @Auth Accessor accessor,
             @RequestParam int year,
             @RequestParam int month
     );
@@ -162,12 +164,14 @@ public interface AdminAgendaApi {
     @Operation(summary = "답해요 월 통계")
     @GetMapping("/statistics/year")
     ResponseEntity<AgendaStatisticResponse> getAgendaByYear(
+            @Auth Accessor accessor,
             @RequestParam int year
     );
 
     @Operation(summary = "답해요 월 카테고리 통계")
     @GetMapping("/statistics/year/category")
     ResponseEntity<List<AgendaCategoryResponse>> getAgendaByCategory(
+            @Auth Accessor accessor,
             @RequestParam int year
     );
 }
