@@ -262,6 +262,8 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
 
     const getMoreUpChatData = async () => {
       try {
+        if (isUpDirection.current) return;
+
         isUpDirection.current = true;
         const response = await api.get(`/student/agendas/${roomId}/chat`, {
           params: {
@@ -285,6 +287,8 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
 
     const getMoreDownChatData = async () => {
       try {
+        if (isDownDirection.current || isUpDirection.current) return;
+
         isDownDirection.current = true;
         const response = await api.get(`/student/agendas/${roomId}/chat`, {
           params: {
@@ -292,6 +296,12 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
             scroll: 'DOWN',
           },
         });
+
+        if (isUpDirection.current) {
+          //동시 요청 후 렌더링 막음
+          isDownDirection.current = false;
+          return;
+        }
 
         const formattedData = formatChatData(response.data, false);
 
@@ -357,9 +367,7 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
 
         isUpDirection.current = false;
         return;
-      }
-
-      if (isDownDirection.current) {
+      } else if (isDownDirection.current) {
         if (isDownOverflow.current === true) {
           restoreScrollTopFromDown();
           isDownOverflow.current = false;
@@ -399,9 +407,7 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
         }
 
         isLiveSendChatAdded.current = false;
-      }
-
-      if (isLiveReceiveChatAdded.current) {
+      } else if (isLiveReceiveChatAdded.current) {
         if (isLiveReceiveOverflow.current === true) {
           scrollToBottom();
           isLiveReceiveOverflow.current = false;
