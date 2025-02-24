@@ -10,7 +10,7 @@
     "preview": "vite preview",
     "format": "prettier --write .",
     "type-check": "tsc --noEmit",
-    "prepare": "husky",
+    "prepare": "cd .. && husky frontend/.husky",
     "postinstall": "npm install rollup @rollup/plugin-node-resolve @rollup/plugin-commonjs",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build"
