@@ -1,13 +1,12 @@
-<p align="right">
-    <img src="https://github.com/user-attachments/assets/a71e67d3-6cb7-42d1-9660-083f212d2161" alt="logo">
-</p>
-
-
+<div >
+    <img src="https://github.com/user-attachments/assets/b41c30ab-ab7d-45eb-aba3-eba37a0e02c2" alt="wiki" width="150" >
+    <img src="https://github.com/user-attachments/assets/aa157a3b-d002-472a-93d0-290bf56d6d16" alt="logo" width ="150" align="right">
+</div>
 
 ## 🚀 서비스 설명
+
 ![image](https://github.com/user-attachments/assets/4df6508b-9c5a-416f-ba66-92d4a0e23fe4)
 <h2 align="center"> 🎓 학생과 학생회를 연결하는 능동적인 소통 플랫폼 <strong>on:u</strong></h1>
-
 <p align="center">
     학교 생활에서 겪는 문제들을 <strong>생생하게 공유하고</strong>,<br>
     자신의 의견을 적극적으로 표현할 수 있도록 돕는 <strong>능동적인 소통 플랫폼</strong>입니다! 🚀
