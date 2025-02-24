@@ -17,7 +17,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.UUID;
 
-import static com.bungeobbang.backend.auth.domain.Authority.MEMBER;
+import static com.bungeobbang.backend.auth.domain.Authority.ADMIN;
 
 @Service
 @RequiredArgsConstructor
@@ -37,15 +37,15 @@ public class AdminLoginService {
         }
 
         String uuid = UUID.randomUUID().toString();
-        uuidRepository.save(MEMBER, uuid, String.valueOf(admin.getId()));
+        uuidRepository.save(ADMIN, uuid, String.valueOf(admin.getId()));
 
         MemberTokens memberTokens = jwtProvider.generateLoginToken(
                 admin.getId().toString(),
-                MEMBER,
+                ADMIN,
                 uuid,
                 String.valueOf(admin.getUniversity().getId())
         );
-        refreshTokenRepository.saveRefreshToken(MEMBER, String.valueOf(admin.getId()), memberTokens.refreshToken());
+        refreshTokenRepository.saveRefreshToken(ADMIN, String.valueOf(admin.getId()), memberTokens.refreshToken());
 
         return new AdminLoginResult(memberTokens, new AdminLoginResponse(admin.getId()));
     }
