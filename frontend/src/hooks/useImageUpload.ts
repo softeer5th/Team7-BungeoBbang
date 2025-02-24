@@ -4,6 +4,7 @@ import { AUTH_CONFIG } from '@/config/auth';
 
 interface UseImageUploadReturn {
   images: string[];
+  setInitialImages: (images: string[]) => void;
   showSizeDialog: boolean;
   handleImageDelete: (index: number) => void;
   handleImageUpload: (files: FileList) => Promise<void>;
@@ -22,6 +23,15 @@ export const useImageUpload = (
   const [images, setImages] = useState<string[]>([]);
   const [showSizeDialog, setShowSizeDialog] = useState(false);
 
+  const setInitialImages = (newImages: string[]) => {
+    setImages(newImages);
+  };
+
+  const uploadImages = async (files: File[]): Promise<string[]> => {
+    const formData = new FormData();
+    files.forEach((file) => {
+      formData.append('images', file);
+      
   const getSignedUrl = async (file: File): Promise<PresignedUrlResponse> => {
     const response = await api.post('/api/images/presigned', {
       contentType: file.type,
@@ -86,6 +96,7 @@ export const useImageUpload = (
 
   return {
     images,
+    setInitialImages,
     showSizeDialog,
     handleImageDelete,
     handleImageUpload,
