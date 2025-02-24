@@ -72,12 +72,12 @@ class AdminAgendaChatRepositoryImplTest {
 
     @Test
     @DisplayName("마지막 읽은 채팅을 업데이트한다.")
-    void upsertAdminLastReadChat() {
+    void upsertLastReadChat() {
         //given
 
         final ObjectId max = new ObjectId("ffffffffffffffffffffffff");
         // when
-        adminAgendaChatRepository.upsertAdminLastReadChat(1L, 1L, max);
+        adminAgendaChatRepository.upsertLastReadChat(1L, 1L, max);
 
         // then
         Query query = new Query();

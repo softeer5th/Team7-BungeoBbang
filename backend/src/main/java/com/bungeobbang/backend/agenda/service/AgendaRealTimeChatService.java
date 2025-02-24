@@ -3,7 +3,13 @@ package com.bungeobbang.backend.agenda.service;
 import com.bungeobbang.backend.admin.domain.Admin;
 import com.bungeobbang.backend.admin.domain.repository.AdminRepository;
 import com.bungeobbang.backend.agenda.domain.Agenda;
+import com.bungeobbang.backend.agenda.domain.AgendaAdminLastReadChat;
+import com.bungeobbang.backend.agenda.domain.AgendaLastReadChat;
+import com.bungeobbang.backend.agenda.domain.repository.AdminAgendaChatRepository;
 import com.bungeobbang.backend.agenda.domain.repository.AgendaRepository;
+import com.bungeobbang.backend.agenda.domain.repository.MemberAgendaChatRepository;
+import com.bungeobbang.backend.agenda.dto.AgendaLatestChat;
+import com.bungeobbang.backend.agenda.dto.LastChat;
 import com.bungeobbang.backend.chat.event.agenda.AgendaAdminEvent;
 import com.bungeobbang.backend.chat.event.agenda.AgendaMemberEvent;
 import com.bungeobbang.backend.chat.event.common.AdminConnectEvent;
@@ -18,6 +24,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.bson.types.ObjectId;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 import org.springframework.web.socket.TextMessage;
@@ -25,6 +32,9 @@ import org.springframework.web.socket.WebSocketSession;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static com.bungeobbang.backend.common.exception.ErrorCode.ECHO_SEND_FAIL;
 import static com.bungeobbang.backend.common.exception.ErrorCode.JSON_PARSE_FAIL;
@@ -49,8 +59,11 @@ public class AgendaRealTimeChatService {
     private final AdminRepository adminRepository;
     private final AgendaRepository agendaRepository;
     private final MessageQueueService messageQueueService;
+    private static final ObjectId MAX_OBJECT_ID = new ObjectId("ffffffffffffffffffffffff");
+    private final MemberAgendaChatRepository memberAgendaChatRepository;
     private static final String AGENDA_ADMIN_PREFIX = "A_A";
     private final ObjectMapper objectMapper;
+    private final AdminAgendaChatRepository adminAgendaChatRepository;
 
     /**
      * 학생이 웹소켓에 연결될 때 호출된다.
@@ -69,6 +82,20 @@ public class AgendaRealTimeChatService {
     public void memberDisconnect(MemberDisconnectEvent event) {
         log.info("️✂ memberDisconnect event: {}", event);
         List<Agenda> agendas = agendaRepository.findActiveAgendasByMemberId(event.memberId());
+
+        // 강제 종료로 인해 exit 처리되지 않은 채팅방에 대해 마지막 읽은 채팅 세팅
+        final List<AgendaLastReadChat> lastReadChats = memberAgendaChatRepository.getLastReadChats(agendas.stream().map(Agenda::getId).toList(), event.memberId());
+        List<Long> agendaIds = lastReadChats.stream()
+                .filter(lastReadChat -> lastReadChat.getLastReadChatId().equals(MAX_OBJECT_ID))
+                .map(AgendaLastReadChat::getAgendaId)
+                .collect(Collectors.toList());
+        final Map<Long, AgendaLatestChat> lastChats = memberAgendaChatRepository.findLastChats(agendaIds, event.memberId())
+                .stream()
+                .collect(Collectors.toMap(AgendaLatestChat::agendaId, Function.identity()));
+
+        agendas.forEach(agenda -> memberAgendaChatRepository.upsertLastReadChat(agenda.getId(), event.memberId(), lastChats.get(agenda.getId()).chatId()));
+
+        // 구독 해제
         agendas.forEach(agenda -> messageQueueService.unsubscribe(event.session(), AGENDA_ADMIN_PREFIX + agenda.getId()));
     }
 
@@ -90,6 +117,19 @@ public class AgendaRealTimeChatService {
     public void adminDisconnect(AdminDisconnectEvent event) {
         log.info("️✂ AdminDisconnect event: {}", event);
         final List<Agenda> agendas = getAgenda(event.adminId());
+
+        // 강제 종료로 인해 exit 처리되지 않은 채팅방에 대해 마지막 읽은 채팅 세팅
+        final List<AgendaAdminLastReadChat> lastReadChats = adminAgendaChatRepository.findLastReadChatsByAdminId(agendas.stream().map(Agenda::getId).toList(), event.adminId());
+        List<Long> agendaIds = lastReadChats.stream()
+                .filter(lastReadChat -> lastReadChat.getLastReadChatId().equals(MAX_OBJECT_ID))
+                .map(AgendaAdminLastReadChat::getAgendaId)
+                .collect(Collectors.toList());
+        final Map<Long, LastChat> lastChats = adminAgendaChatRepository.findLastChats(agendaIds)
+                .stream()
+                .collect(Collectors.toMap(LastChat::agendaId, Function.identity()));
+
+        agendas.forEach(agenda -> adminAgendaChatRepository.upsertLastReadChat(agenda.getId(), event.adminId(), lastChats.get(agenda.getId()).chatId()));
+        // 구독 해제
         agendas.forEach(agenda -> messageQueueService.unsubscribe(event.session(), AGENDA_MEMBER_PREFIX + agenda.getId()));
         agendas.forEach(agenda -> messageQueueService.unsubscribe(event.session(), AGENDA_ADMIN_PREFIX + agenda.getId()));
     }
