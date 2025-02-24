@@ -12,6 +12,7 @@ export interface ChatMessage {
   adminId?: number;
   createdAt: string;
   code?: number;
+  eventType?: 'START';
 }
 
 interface SocketState {

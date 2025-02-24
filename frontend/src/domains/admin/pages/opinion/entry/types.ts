@@ -11,7 +11,7 @@ export interface Opinion {
   hasAlarm: boolean;
   isReminded: boolean;
   createdAt: Date;
-  lastChatId: boolean;
+  lastChatId: string;
 }
 
 export interface OpinionResponse {
@@ -25,6 +25,6 @@ export interface OpinionResponse {
     content: string;
     createdAt: string;
   };
-  lastReadChatId: boolean;
+  lastReadChatId: string;
   hasNewChat: boolean;
 }
