@@ -29,7 +29,6 @@ export const TabBarContainer: React.FC<TabBarContainerProps> = ({
   const [activeIndex, setActiveIndex] = useState(0);
 
   const containerRef = useRef<HTMLDivElement>(null);
-  const [translateX, setTranslateX] = useState(0);
 
   const handleTabContentScroll = (e: React.UIEvent<HTMLDivElement>) => {
     if (containerRef.current) {
@@ -40,28 +39,19 @@ export const TabBarContainer: React.FC<TabBarContainerProps> = ({
       if (scrollLeft % width === 0) {
         setActiveIndex(index);
       }
-
-      console.log('tab item slide', index);
     }
   };
 
   const handleTabItemClick = (itemId: string) => {
     const newActiveIndex = tabItems.findIndex((item) => item.itemId === itemId);
-
     setActiveIndex(newActiveIndex);
-
-    scrollTabContent(newActiveIndex);
-    onTabItemClick(itemId);
-    console.log('tab item click', newActiveIndex);
-  };
-
-  const scrollTabContent = (index: number) => {
     if (containerRef.current) {
-      const scrollLeft = containerRef.current?.scrollLeft;
-      const width = containerRef.current?.offsetWidth;
-
-      setTranslateX(scrollLeft + -index * width);
+      containerRef.current.scrollTo({
+        left: newActiveIndex * containerRef.current.offsetWidth,
+        behavior: 'smooth',
+      });
     }
+    onTabItemClick(itemId);
   };
 
   if (tabItems.length === 0) return;
@@ -84,11 +74,7 @@ export const TabBarContainer: React.FC<TabBarContainerProps> = ({
         onScroll={handleTabContentScroll}
       >
         {tabItems.map((tab, index) => {
-          return (
-            <TabContent key={tab.itemId} transX={translateX}>
-              {contents(index)}
-            </TabContent>
-          );
+          return <TabContent key={tab.itemId}>{contents(index)}</TabContent>;
         })}
       </TabContentContainer>
     </>
@@ -109,14 +95,9 @@ const TabContentContainer = styled.div<{
   }
 `;
 
-export const TabContent = styled.div<{
-  transX: number;
-}>`
+export const TabContent = styled.div`
   min-width: 100%;
   max-width: 100%;
 
   scroll-snap-align: center;
-
-  transform: translateX(${(props) => props.transX}px);
-  transition: transform 0.3s ease;
 `;

@@ -201,11 +201,9 @@ const OpinionChatPage = () => {
         }),
         api.get(`/api/opinions/${roomId}`),
       ]);
-      console.log('responsesseee', response);
-
       const formattedData = formatChatData(response.data, true);
 
-      // setHasDownMore(false);
+      setHasDownMore(false);
       setChatData(formattedData);
       enterResponse.data.isReminded && setIsReminded(true);
     } catch (error) {
@@ -223,14 +221,11 @@ const OpinionChatPage = () => {
         },
       });
 
-      console.log('reload responsesseee', response);
-
       const formattedData = formatChatData(response.data, true);
 
       setHasUpMore(true);
       setHasDownMore(false);
       setChatData(formattedData);
-      // enterResponse.data.isReminded && setIsReminded(true);
     } catch (error) {
       console.error('fail to get chat data', error);
     }
@@ -313,7 +308,6 @@ const OpinionChatPage = () => {
 
   useLayoutEffect(() => {
     if (!elementRef.current || chatData.length === 0) return;
-    console.log('getchasdata', chatData);
 
     if (isInitialTopLoading.current === true) {
       scrollToTop();
@@ -350,7 +344,6 @@ const OpinionChatPage = () => {
 
     if (isDownDirection.current) {
       if (isDownOverflow.current === true) {
-        // console.log("down 호출");
         restoreScrollTopFromDown();
         isDownOverflow.current = false;
         isDownDirection.current = false;
@@ -361,7 +354,6 @@ const OpinionChatPage = () => {
 
       if (MAX_CHAT_DATA_LENGTH < chatData.length) {
         isDownOverflow.current = true;
-        // console.log("slice!!");
 
         setHasUpMore(true);
         setChatData((prev) => prev.slice(chatData.length - MAX_CHAT_DATA_LENGTH));
