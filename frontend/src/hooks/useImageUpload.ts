@@ -27,11 +27,6 @@ export const useImageUpload = (
     setImages(newImages);
   };
 
-  const uploadImages = async (files: File[]): Promise<string[]> => {
-    const formData = new FormData();
-    files.forEach((file) => {
-      formData.append('images', file);
-      
   const getSignedUrl = async (file: File): Promise<PresignedUrlResponse> => {
     const response = await api.post('/api/images/presigned', {
       contentType: file.type,
