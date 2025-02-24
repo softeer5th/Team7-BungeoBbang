@@ -10,6 +10,7 @@ import com.bungeobbang.backend.agenda.service.MemberAgendaService;
 import com.bungeobbang.backend.agenda.status.AgendaStatusType;
 import com.bungeobbang.backend.auth.common.Auth;
 import com.bungeobbang.backend.auth.domain.Accessor;
+import com.bungeobbang.backend.auth.member.MemberOnly;
 import com.bungeobbang.backend.common.type.ScrollType;
 import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
@@ -28,6 +29,7 @@ public class AgendaController implements AgendaApi {
 
     @Override
     @PostMapping("/{agendaId}")
+    @MemberOnly
     public ResponseEntity<Void> participateAgenda(
             @Auth Accessor accessor,
             @PathVariable Long agendaId) {
@@ -37,6 +39,7 @@ public class AgendaController implements AgendaApi {
 
     @Override
     @GetMapping
+    @MemberOnly
     public ResponseEntity<List<MemberAgendaResponse>> getAgendasByStatus(
             @Auth Accessor accessor,
             @RequestParam AgendaStatusType status,
@@ -47,6 +50,7 @@ public class AgendaController implements AgendaApi {
 
     @Override
     @GetMapping("/{agendaId}")
+    @MemberOnly
     public ResponseEntity<AgendaDetailResponse> getAgendaDetail(
             @Auth Accessor accessor,
             @PathVariable Long agendaId
@@ -56,6 +60,7 @@ public class AgendaController implements AgendaApi {
 
     @Override
     @GetMapping("/my")
+    @MemberOnly
     public ResponseEntity<List<MyAgendaResponse>> getMyAgendas(
             @Auth Accessor accessor
     ) {
@@ -64,6 +69,7 @@ public class AgendaController implements AgendaApi {
 
     @Override
     @DeleteMapping("/{agendaId}")
+    @MemberOnly
     public ResponseEntity<Void> exitAgenda(
             @Auth Accessor accessor,
             @PathVariable Long agendaId
@@ -74,6 +80,7 @@ public class AgendaController implements AgendaApi {
 
     @Override
     @GetMapping("/{agendaId}/chat")
+    @MemberOnly
     public ResponseEntity<List<AgendaChatResponse>> getChats(
             @Auth Accessor accessor,
             @PathVariable Long agendaId,

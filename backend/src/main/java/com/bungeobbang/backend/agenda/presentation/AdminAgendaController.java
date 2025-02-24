@@ -12,6 +12,7 @@ import com.bungeobbang.backend.agenda.presentation.api.AdminAgendaApi;
 import com.bungeobbang.backend.agenda.service.AdminAgendaChatService;
 import com.bungeobbang.backend.agenda.service.AdminAgendaService;
 import com.bungeobbang.backend.agenda.status.AgendaStatusType;
+import com.bungeobbang.backend.auth.admin.AdminOnly;
 import com.bungeobbang.backend.auth.common.Auth;
 import com.bungeobbang.backend.auth.domain.Accessor;
 import com.bungeobbang.backend.common.type.ScrollType;
@@ -34,6 +35,7 @@ public class AdminAgendaController implements AdminAgendaApi {
 
     @Override
     @GetMapping
+    @AdminOnly
     public ResponseEntity<List<AdminAgendaResponse>> getAgendasByStatus(
             @Auth Accessor accessor,
             @RequestParam AgendaStatusType status,
@@ -44,6 +46,7 @@ public class AdminAgendaController implements AdminAgendaApi {
 
     @Override
     @GetMapping("/{agendaId}")
+    @AdminOnly
     public ResponseEntity<AgendaDetailResponse> getAgendaDetail(
             @Auth Accessor accessor,
             @PathVariable Long agendaId) {
@@ -52,6 +55,7 @@ public class AdminAgendaController implements AdminAgendaApi {
 
     @Override
     @PostMapping
+    @AdminOnly
     public ResponseEntity<AgendaCreationResponse> createAgenda(
             @Auth Accessor accessor,
             @RequestBody @Valid AgendaCreationRequest request) {
@@ -60,6 +64,7 @@ public class AdminAgendaController implements AdminAgendaApi {
 
     @Override
     @PatchMapping("/{agendaId}/close")
+    @AdminOnly
     public ResponseEntity<Void> endAgenda(@Auth Accessor accessor,
                                           @PathVariable Long agendaId) {
         adminAgendaService.endAgenda(accessor.id(), agendaId);
@@ -68,6 +73,7 @@ public class AdminAgendaController implements AdminAgendaApi {
 
     @Override
     @DeleteMapping("/{agendaId}")
+    @AdminOnly
     public ResponseEntity<Void> deleteAgenda(@Auth Accessor accessor,
                                              @PathVariable Long agendaId) {
         adminAgendaService.deleteAgenda(accessor.id(), agendaId);
@@ -76,6 +82,7 @@ public class AdminAgendaController implements AdminAgendaApi {
 
     @Override
     @PatchMapping("/{agendaId}")
+    @AdminOnly
     public ResponseEntity<Void> editAgenda(@Auth Accessor accessor,
                                            @PathVariable Long agendaId,
                                            @RequestBody @Valid AgendaEditRequest request) {
@@ -85,6 +92,7 @@ public class AdminAgendaController implements AdminAgendaApi {
 
     @Override
     @GetMapping("/{agendaId}/chat")
+    @AdminOnly
     public ResponseEntity<List<AgendaChatResponse>> getAgendaChat(
             @Auth Accessor accessor,
             @PathVariable Long agendaId,
@@ -93,6 +101,7 @@ public class AdminAgendaController implements AdminAgendaApi {
         return ResponseEntity.ok(adminAgendaChatService.getChats(accessor.id(), agendaId, chatId, scrollType));
     }
 
+    @AdminOnly
     @Override
     public ResponseEntity<AgendaStatisticResponse> getAgendaByMonth(
             @RequestParam int year,
@@ -101,6 +110,7 @@ public class AdminAgendaController implements AdminAgendaApi {
         return ResponseEntity.ok(response);
     }
 
+    @AdminOnly
     @Override
     public ResponseEntity<List<AgendaCategoryResponse>> getAgendaByCategory(
             @RequestParam int year,
@@ -108,11 +118,13 @@ public class AdminAgendaController implements AdminAgendaApi {
         return ResponseEntity.ok(adminAgendaService.getAgendaCountByCategory(year, month));
     }
 
+    @AdminOnly
     @Override
     public ResponseEntity<AgendaStatisticResponse> getAgendaByYear(int year) {
         return ResponseEntity.ok(adminAgendaService.getAgendaStatisticsByMonth(year));
     }
 
+    @AdminOnly
     @Override
     public ResponseEntity<List<AgendaCategoryResponse>> getAgendaByCategory(int year) {
         return ResponseEntity.ok(adminAgendaService.getAgendaCountByCategory(year));
