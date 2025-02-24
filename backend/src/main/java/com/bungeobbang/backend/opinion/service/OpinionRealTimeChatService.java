@@ -8,23 +8,31 @@ import com.bungeobbang.backend.chat.service.MessageQueueService;
 import com.bungeobbang.backend.common.exception.AdminException;
 import com.bungeobbang.backend.common.exception.ErrorCode;
 import com.bungeobbang.backend.common.exception.OpinionException;
+import com.bungeobbang.backend.opinion.domain.OpinionLastRead;
+import com.bungeobbang.backend.opinion.domain.repository.OpinionLastReadRepository;
 import com.bungeobbang.backend.opinion.domain.repository.OpinionRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import org.bson.types.ObjectId;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 import org.springframework.web.socket.WebSocketSession;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class OpinionRealTimeChatService {
     private static final String OPINION_PREFIX = "O_";
     private static final String OPINION_UNIV_PREFIX = "OU_";
+    private static final ObjectId MAX_OBJECT_ID = new ObjectId("ffffffffffffffffffffffff");
     private final OpinionRepository opinionRepository;
     private final MessageQueueService messageQueueService;
     private final AdminRepository adminRepository;
     private final ObjectMapper objectMapper;
+    private final OpinionLastReadRepository opinionLastReadRepository;
+    private final OpinionService opinionService;
 
     @EventListener
     public void memberConnect(final MemberConnectEvent event) {
@@ -86,15 +94,30 @@ public class OpinionRealTimeChatService {
 
     @EventListener
     public void disconnectMember(final MemberDisconnectEvent event) {
-        opinionRepository.findAllByMemberId(event.memberId())
-                .forEach(opinion ->
-                        messageQueueService.unsubscribe(event.session(), OPINION_PREFIX + opinion.getId()));
+        List<Long> opinionIds = opinionRepository.findAllOpinionIdsByMemberId(event.memberId());
+        List<OpinionLastRead> lastReads = opinionLastReadRepository.findByOpinionIdInAndIsAdmin(opinionIds, false);
+        lastReads.forEach(lastRead -> {
+            if (lastRead.getLastReadChatId().equals(MAX_OBJECT_ID)) {
+                opinionService.updateLastReadToLastChatId(lastRead.getOpinionId(), false);
+            }
+        });
+
+        opinionIds.forEach(opinionId -> {
+                    messageQueueService.unsubscribe(event.session(), OPINION_PREFIX + opinionId);
+                });
     }
 
     @EventListener
     public void disconnectAdmin(final AdminDisconnectEvent event) {
         Admin admin = adminRepository.findById(event.adminId())
                 .orElseThrow(() -> new AdminException(ErrorCode.INVALID_ADMIN));
+        List<Long> opinionIds = opinionRepository.findAllOpinionIdsByUniversityId(admin.getUniversity().getId());
+        List<OpinionLastRead> lastReads = opinionLastReadRepository.findByOpinionIdInAndIsAdmin(opinionIds, true);
+        lastReads.forEach(lastRead -> {
+            if (lastRead.getLastReadChatId().equals(MAX_OBJECT_ID)) {
+                opinionService.updateLastReadToLastChatId(lastRead.getOpinionId(), true);
+            }
+        });
         messageQueueService.unsubscribe(event.session(), OPINION_UNIV_PREFIX + admin.getUniversity().getId());
     }
 
