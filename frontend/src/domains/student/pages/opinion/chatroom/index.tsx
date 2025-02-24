@@ -53,9 +53,11 @@ const OpinionChatPage = () => {
 
   const navigate = useNavigate();
   const { roomId } = useParams();
-  const { subscribe, sendMessage } = useSocketStore();
+
+  const subscribe = useSocketStore((state) => state.subscribe);
+  const sendMessage = useSocketStore((state) => state.sendMessage);
   const memberId = localStorage.getItem('member_id');
-  // const { socket } = useSocketStore();
+
   const socketManager = useSocketManager();
   const location = useLocation();
   const lastChatId = location.state?.lastChatId || '000000000000000000000000';

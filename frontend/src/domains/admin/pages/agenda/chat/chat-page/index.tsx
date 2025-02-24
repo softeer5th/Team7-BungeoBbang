@@ -77,7 +77,8 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
 
     const navigate = useNavigate();
 
-    const { subscribe, sendMessage } = useSocketStore();
+    const subscribe = useSocketStore((state) => state.subscribe);
+    const sendMessage = useSocketStore((state) => state.sendMessage);
 
     const handleMessageReceive = useCallback(
       (message: ChatMessage) => {

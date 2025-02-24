@@ -30,8 +30,8 @@ const tabItems: TabBarItemProps[] = [
 const MyPage = () => {
   const theme = useTheme();
   const navigate = useNavigate();
-  const { subscribe } = useSocketStore();
-  const { invalidateQueries } = useCacheStore();
+  const subscribe = useSocketStore((state) => state.subscribe);
+  const invalidateQueries = useCacheStore((state) => state.invalidateQueries);
 
   const [tabContents, setTabContents] = useState<Record<string, ChatPreviewData[]>>({
     opinion: [],

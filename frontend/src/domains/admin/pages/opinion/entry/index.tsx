@@ -31,10 +31,10 @@ const OpinionEntryPage: React.FC = () => {
   const [selectedChip, setSelectedChip] = useState('ALL');
   const [opinions, setOpinions] = useState<Opinion[]>([]);
   const [isLogoutDialogOpen, setLogoutDialogOpen] = useState(false);
-  const { subscribe } = useSocketStore();
-  const { invalidateQueries } = useCacheStore();
+  const subscribe = useSocketStore((state) => state.subscribe);
   const [isFirstOpinion, setIsFirstOpinion] = useState(false);
 
+  const invalidateQueries = useCacheStore((state) => state.invalidateQueries);
   const navigate = useNavigate();
   const socketManager = useSocketManager();
 

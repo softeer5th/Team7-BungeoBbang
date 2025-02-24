@@ -4,6 +4,7 @@ import { BottomNavigationItem, BottomNavigationItemProps } from './BottomNavigat
 import { BorderProps } from '../border/BorderProps';
 // import { getBorderStyle } from '../border/getBorderType';
 import { useSocketStore } from '@/store/socketStore';
+import { useAlarmStore } from '@/store/alarmStore';
 
 interface BottomNavigationProps {
   startDestination: string;
@@ -33,8 +34,9 @@ export const BottomNavigation = forwardRef<HTMLDivElement, BottomNavigationProps
     ref,
   ) => {
     const [selectedItem, setSelectedItem] = useState(startDestination);
-    const [hasNewMessage, setHasNewMessage] = useState(false);
-    const { subscribe } = useSocketStore();
+    const hasNewMessage = useAlarmStore((state) => state.hasNewMessage);
+    const setHasNewMessage = useAlarmStore((state) => state.setHasNewMessage);
+    const subscribe = useSocketStore((state) => state.subscribe);
 
     useEffect(() => {
       const unsubscribeOpinion = subscribe('OPINION', -1, () => {
@@ -55,7 +57,7 @@ export const BottomNavigation = forwardRef<HTMLDivElement, BottomNavigationProps
         unsubscribeAgenda();
         console.log('unsubscribe');
       };
-    }, [selectedItem, subscribe]);
+    }, [selectedItem, subscribe, setHasNewMessage]);
 
     return (
       <BottomNavigationWrapper ref={ref} backgroundColor={backgroundColor} border={border}>
@@ -69,7 +71,8 @@ export const BottomNavigation = forwardRef<HTMLDivElement, BottomNavigationProps
             onItemClick={() => {
               setSelectedItem(destination.itemId);
               onItemClick(destination.itemId);
-              if (destination.itemId === 'my' && startDestination === 'my') {
+
+              if (destination.itemId === 'my') {
                 setHasNewMessage(false);
               }
             }}

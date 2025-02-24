@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { ChevronLeft } from 'react-feather';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import * as S from './styles';
 import api from '@/utils/api';
 
@@ -14,6 +14,8 @@ const UniversitySelection = () => {
   const [selectedUniversity, setSelectedUniversity] = useState<University | null>(null);
   const [universityObject, setUniversityObject] = useState<University[]>([]);
   const navigate = useNavigate();
+  const location = useLocation();
+  const memberId = location.state.memberID;
 
   useEffect(() => {
     const FetchUniversities = async () => {
@@ -43,6 +45,7 @@ const UniversitySelection = () => {
       navigate('/email', {
         state: {
           university: selectedUniversity,
+          memberId: memberId,
         },
       });
     }
