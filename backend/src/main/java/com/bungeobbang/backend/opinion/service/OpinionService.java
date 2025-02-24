@@ -45,10 +45,10 @@ public class OpinionService {
     /**
      * 특정 말해요(opinionId)의 채팅 내역을 조회하는 메서드.
      *
-     * @param opinionId  조회할 말해요 채팅방의 ID
-     * @param chatId 조회를 시작할 채팅 메시지의 ID
+     * @param opinionId 조회할 말해요 채팅방의 ID
+     * @param chatId    조회를 시작할 채팅 메시지의 ID
      * @param accessor  요청을 보낸 유저의 접근자
-     * @param scroll 스크롤 방향
+     * @param scroll    스크롤 방향
      * @return OpinionChatResponse 리스트 (해당 채팅방의 메시지 목록)
      */
     public List<OpinionChatResponse> findOpinionChat(final Long opinionId, ObjectId chatId, final Accessor accessor, ScrollType scroll) {
@@ -59,22 +59,6 @@ public class OpinionService {
                 .stream()
                 .map(opinionChat -> OpinionChatResponse.of(opinionChat, accessor.id(), opinionId))
                 .toList();
-    }
-
-    private void validateOpinion(final Long opinionId, final Accessor accessor) {
-        Opinion opinion = opinionRepository.findById(opinionId)
-                .orElseThrow(() -> new OpinionException(ErrorCode.INVALID_OPINION));
-
-        // 학생 : 본인이 작성한 말해요가 아닌 경우
-        if (accessor.isMember() && (!Objects.equals(opinion.getMember().getId(), accessor.id())))
-            throw new OpinionException(ErrorCode.UNAUTHORIZED_OPINION_ACCESS);
-        if (accessor.isAdmin()) {
-            Admin admin = adminRepository.findById(accessor.id())
-                    .orElseThrow(() -> new OpinionException(ErrorCode.INVALID_ADMIN));
-            // 학생회 : 본인 대학의 말해요가 아닌 경우
-            if (!admin.getUniversity().getId().equals(opinion.getUniversity().getId()))
-                throw new OpinionException(ErrorCode.UNAUTHORIZED_UNIVERSITY_OPINION_ACCESS);
-        }
     }
 
     public OpinionDetailResponse findOpinionDetail(final Long opinionId) {
@@ -107,6 +91,22 @@ public class OpinionService {
                         .createdAt(createdAt)
                         .build()
         );
+    }
+
+    private void validateOpinion(final Long opinionId, final Accessor accessor) {
+        Opinion opinion = opinionRepository.findById(opinionId)
+                .orElseThrow(() -> new OpinionException(ErrorCode.INVALID_OPINION));
+
+        // 학생 : 본인이 작성한 말해요가 아닌 경우
+        if (accessor.isMember() && (!Objects.equals(opinion.getMember().getId(), accessor.id())))
+            throw new OpinionException(ErrorCode.UNAUTHORIZED_OPINION_ACCESS);
+        if (accessor.isAdmin()) {
+            Admin admin = adminRepository.findById(accessor.id())
+                    .orElseThrow(() -> new OpinionException(ErrorCode.INVALID_ADMIN));
+            // 학생회 : 본인 대학의 말해요가 아닌 경우
+            if (!admin.getUniversity().getId().equals(opinion.getUniversity().getId()))
+                throw new OpinionException(ErrorCode.UNAUTHORIZED_UNIVERSITY_OPINION_ACCESS);
+        }
     }
 
     // 최신 채팅이 3개 미만이거나, 3개 중 학생회 채팅이 존재하는 경우 OK.

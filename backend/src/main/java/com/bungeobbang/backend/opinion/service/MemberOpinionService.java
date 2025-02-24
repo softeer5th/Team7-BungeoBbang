@@ -154,11 +154,6 @@ public class MemberOpinionService {
         opinion.setRemind();
     }
 
-    private void validateOpinionAuthor(final Opinion opinion, final Long memberId) {
-        if (!opinion.getMember().getId().equals(memberId))
-            throw new OpinionException(ErrorCode.UNAUTHORIZED_OPINION_ACCESS);
-    }
-
     /**
      * 학생이 생성한 말해요 리스트를 조회합니다.
      *
@@ -169,25 +164,6 @@ public class MemberOpinionService {
         final Map<Long, Opinion> opinions = opinionRepository.findAllByMemberId(memberId)
                 .stream().collect(Collectors.toMap(Opinion::getId, Function.identity()));
         return convertToMemberOpinionInfoList(opinions);
-    }
-
-    /**
-     * Opinion(말해요) 엔티티를 생성합니다.
-     *
-     * @param creationRequest 의견 생성 요청 객체
-     * @param member          회원 객체
-     * @return Opinion 생성된 의견 엔티티
-     */
-    private Opinion createOpinionEntity(final OpinionCreationRequest creationRequest, final Member member) {
-        final University university = member.getUniversity();
-        return Opinion.builder()
-                .university(university)
-                .opinionType(creationRequest.opinionType())
-                .categoryType(creationRequest.categoryType())
-                .member(member)
-                .isRemind(false)
-                .chatCount(1L)
-                .build();
     }
 
     /**
@@ -209,6 +185,25 @@ public class MemberOpinionService {
                 .createdAt(LocalDateTime.now())
                 .build();
         return opinionChatRepository.save(opinionChat).getId();
+    }
+
+    /**
+     * Opinion(말해요) 엔티티를 생성합니다.
+     *
+     * @param creationRequest 의견 생성 요청 객체
+     * @param member          회원 객체
+     * @return Opinion 생성된 의견 엔티티
+     */
+    private Opinion createOpinionEntity(final OpinionCreationRequest creationRequest, final Member member) {
+        final University university = member.getUniversity();
+        return Opinion.builder()
+                .university(university)
+                .opinionType(creationRequest.opinionType())
+                .categoryType(creationRequest.categoryType())
+                .member(member)
+                .isRemind(false)
+                .chatCount(1L)
+                .build();
     }
 
     /**
@@ -255,4 +250,10 @@ public class MemberOpinionService {
 
         return answeredOpinionRepository.countByIdBetweenAndUniversityId(startObjectId, endObjectId, universityId);
     }
+
+    private void validateOpinionAuthor(final Opinion opinion, final Long memberId) {
+        if (!opinion.getMember().getId().equals(memberId))
+            throw new OpinionException(ErrorCode.UNAUTHORIZED_OPINION_ACCESS);
+    }
+
 }

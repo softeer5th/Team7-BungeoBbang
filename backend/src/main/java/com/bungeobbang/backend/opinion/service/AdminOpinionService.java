@@ -70,6 +70,31 @@ public class AdminOpinionService {
         return responses;
     }
 
+    @Transactional
+    public void unsetRemindOpinion(final Long opinionId) {
+        final Opinion opinion = opinionRepository.findById(opinionId)
+                .orElseThrow(() -> new OpinionException(ErrorCode.INVALID_OPINION));
+        opinion.unsetRemind();
+    }
+
+    public AdminOpinionStatisticsResponse computeYearlyStatistics(final Year year, final Accessor accessor) {
+        final LocalDateTime startOfYear = year.atMonth(1).atDay(1).atStartOfDay();
+        final LocalDateTime endOfYear = year.atMonth(12).atEndOfMonth().atTime(23, 59, 59);
+        return getStatisticsByPeriod(startOfYear, endOfYear, accessor);
+    }
+
+    public AdminOpinionStatisticsResponse computeMonthlyStatistics(final YearMonth yearMonth, final Accessor accessor) {
+        final LocalDateTime startOfMonth = yearMonth.atDay(1).atStartOfDay();
+        final LocalDateTime endOfMonth = yearMonth.atEndOfMonth().atTime(23, 59, 59);
+        return getStatisticsByPeriod(startOfMonth, endOfMonth, accessor);
+    }
+
+    public void updateAnsweredOpinion(final OpinionChat savedChat) {
+        customAnsweredOpinionRepository.upsert(
+                savedChat.getOpinionId(),
+                getAdminUniversityId(savedChat.getMemberId()));
+    }
+
     /**
      * 카테고리 필터를 적용하여 말해요 채팅방(Opinion) 목록을 조회합니다.
      *
@@ -125,25 +150,6 @@ public class AdminOpinionService {
         return results;
     }
 
-    @Transactional
-    public void unsetRemindOpinion(final Long opinionId) {
-        final Opinion opinion = opinionRepository.findById(opinionId)
-                .orElseThrow(() -> new OpinionException(ErrorCode.INVALID_OPINION));
-        opinion.unsetRemind();
-    }
-
-    public AdminOpinionStatisticsResponse computeYearlyStatistics(final Year year, final Accessor accessor) {
-        final LocalDateTime startOfYear = year.atMonth(1).atDay(1).atStartOfDay();
-        final LocalDateTime endOfYear = year.atMonth(12).atEndOfMonth().atTime(23, 59, 59);
-        return getStatisticsByPeriod(startOfYear, endOfYear, accessor);
-    }
-
-    public AdminOpinionStatisticsResponse computeMonthlyStatistics(final YearMonth yearMonth, final Accessor accessor) {
-        final LocalDateTime startOfMonth = yearMonth.atDay(1).atStartOfDay();
-        final LocalDateTime endOfMonth = yearMonth.atEndOfMonth().atTime(23, 59, 59);
-        return getStatisticsByPeriod(startOfMonth, endOfMonth, accessor);
-    }
-
     /**
      * 특정 기간의 의견 및 답변 통계를 계산하는 공통 메서드
      */
@@ -195,12 +201,6 @@ public class AdminOpinionService {
         final ObjectId endObjectId = new ObjectId(new Date(endDateTime.atZone(koreaZone).toInstant().toEpochMilli()));
 
         return answeredOpinionRepository.countByIdBetweenAndUniversityId(startObjectId, endObjectId, universityId);
-    }
-
-    public void updateAnsweredOpinion(final OpinionChat savedChat) {
-        customAnsweredOpinionRepository.upsert(
-                savedChat.getOpinionId(),
-                getAdminUniversityId(savedChat.getMemberId()));
     }
 
     private Long getUniversityId(final Accessor accessor) {
