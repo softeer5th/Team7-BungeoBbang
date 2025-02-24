@@ -61,7 +61,6 @@ const AgendaPage = () => {
         params: params,
       });
 
-      console.log('response', response);
       const newRooms = response.data.map((data: ServerData) =>
         mapResponseToChatListCardData(data, status),
       );
@@ -85,7 +84,6 @@ const AgendaPage = () => {
       const selectedRoom = chatRooms.find((room) => room.roomId === selectedChatRoomEnter);
       await api.post(`/student/agendas/${selectedChatRoomEnter}`);
       socketManager('AGENDA', 'PARTICIPATE', selectedChatRoomEnter || -1, 'STUDENT');
-      console.log('selectedRoom', selectedRoom);
       navigate(`/agenda/chat/${selectedChatRoomEnter}?isEnd=false&isParticipate=true`, {
         state: { lastChatId: selectedRoom?.lastChatId },
       });
@@ -149,9 +147,7 @@ const AgendaPage = () => {
                     onClick={() => {
                       const isEnd = !room.isInProgress;
                       const isParticipate = room.isParticipate;
-                      console.log(isEnd, isParticipate);
                       if (isEnd || isParticipate) {
-                        console.log('여기', room.lastChatId);
                         navigate(
                           `/agenda/chat/${room.roomId}?isEnd=${isEnd}&isParticipate=${isParticipate}`,
                           {
