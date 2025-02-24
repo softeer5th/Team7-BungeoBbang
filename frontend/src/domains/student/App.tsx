@@ -30,11 +30,11 @@ function AppContent() {
         <Route path="/" element={<LoginPage />} />
         <Route path="/kakao/redirect" element={<OAuthCallback />} />
         <Route path="/google/redirect" element={<OAuthCallback />} />
+        <Route path="/univ" element={<UniversitySelection />} />
+        <Route path="/email" element={<EmailVerification />} />
 
         {/* Protected routes */}
         <Route element={<ProtectedRoute />}>
-          <Route path="/email" element={<EmailVerification />} />
-          <Route path="/univ" element={<UniversitySelection />} />
           <Route path="/agenda" element={<AgendaPage />} />
           <Route path="/agenda/chat/:roomId" element={<AgendaChatPage />} />
           <Route path="/my" element={<MyPage />} />

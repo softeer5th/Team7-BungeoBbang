@@ -20,6 +20,7 @@ export default function SchoolEmailPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const university = location.state?.university;
+  const memberId = location.state?.memberId;
 
   const isEmailValid = email.length > 0;
   const isVerificationValid = verificationCode.length > 0;
@@ -66,14 +67,21 @@ export default function SchoolEmailPage() {
       return;
     }
 
-    const memberId = await JWTManager.getMemberId();
-
     try {
-      await api.patch('/student/auth/university', {
+      const response = await api.patch('/student/auth/university', {
         memberId: memberId,
         universityId: university.id,
         email: email,
       });
+
+      const accessToken = response.headers['access-token'];
+      const refreshToken = response.headers['refresh-token'];
+
+      if (!accessToken || !refreshToken || !memberId) {
+        throw new Error(' token or member id not found in headers');
+      }
+      await JWTManager.setTokens(refreshToken, accessToken, memberId);
+
       navigate('/login/success');
     } catch (err) {
       setError(
