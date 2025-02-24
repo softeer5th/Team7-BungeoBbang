@@ -37,17 +37,16 @@ const OpinionEntryPage = () => {
 
   return (
     <>
-      <TopAppBar
-        leftIconSrc="/src/assets/icons/logo.svg"
-        rightIconSrc="/src/assets/icons/logout.svg"
-        backgroundColor="#51A2FF"
-        foregroundColor="#ffffff"
-        onRightIconClick={() => {
-          setShowLogoutDialog(true);
-        }}
-      />
-
       <S.OpinionEntryContainer>
+        <TopAppBar
+          leftIconSrc="/src/assets/icons/logo.svg"
+          rightIconSrc="/src/assets/icons/logout.svg"
+          backgroundColor="#51A2FF"
+          foregroundColor="#ffffff"
+          onRightIconClick={() => {
+            setShowLogoutDialog(true);
+          }}
+        />
         <motion.div
           initial={{ opacity: 0, y: 57 }}
           animate={{ opacity: 1, y: 0 }}
@@ -77,6 +76,7 @@ const OpinionEntryPage = () => {
               initial={{ opacity: 0, y: 85 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.9, ease: 'easeInOut' }}
+              style={{ width: '100%' }}
             >
               <S.StatisticContainer>
                 <S.StatLabel>
@@ -96,6 +96,7 @@ const OpinionEntryPage = () => {
               initial={{ opacity: 0, y: 85 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.9, ease: 'easeInOut' }}
+              style={{ width: '100%' }}
             >
               <S.StatisticContainer>
                 <S.StatLabel>
@@ -113,12 +114,12 @@ const OpinionEntryPage = () => {
             </motion.div>
           </S.StatisticWrapper>
         )}
+        <BottomNavigation
+          startDestination="opinion"
+          destinations={bottomItems}
+          onItemClick={(itemId) => navigate(moveToDestination(itemId))}
+        />
       </S.OpinionEntryContainer>
-      <BottomNavigation
-        startDestination="opinion"
-        destinations={bottomItems}
-        onItemClick={(itemId) => navigate(moveToDestination(itemId))}
-      />
       {showLogoutDialog && (
         <Logout
           onDismiss={() => setShowLogoutDialog(false)}
