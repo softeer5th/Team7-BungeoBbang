@@ -1,9 +1,9 @@
 import styled from 'styled-components';
 
 export const OpinionEntryContainer = styled.div`
-  height: calc(100svh - 110px - env(safe-area-inset-bottom));
+  height: calc(100svh);
   background-color: #51a2ff;
-  padding: 16px;
+
   display: flex;
   flex-direction: column;
 `;
@@ -39,6 +39,7 @@ export const SubTitle = styled.div`
 export const InputContainer = styled.div`
   position: relative;
   width: 100%;
+  padding: 16px;
 `;
 
 export const Input = styled.div`
@@ -53,8 +54,8 @@ export const Input = styled.div`
 
 export const SendButton = styled.button`
   position: absolute;
-  right: 15px;
-  bottom: 0;
+  right: 31px;
+  bottom: 16px;
   transform: translateY(-50%);
   display: flex;
   width: 30px;
@@ -73,12 +74,14 @@ export const StatisticWrapper = styled.div`
   flex-direction: row;
   justify-content: space-between;
   margin-top: auto;
-  margin-bottom: 14px;
   gap: 15px;
+  padding: 16px;
+  margin-bottom: 14px;
+  width: 100%;
 `;
 
 export const StatisticContainer = styled.div`
-  width: 164px;
+  width: 100%;
   height: 108px;
   border-radius: 16px;
   background: var(--default-color-palette-30, #84bdff);
