@@ -56,11 +56,11 @@ public class AdminAgendaChatService {
     }
 
     public void updateLastReadToMax(Long agendaId, Long adminId) {
-        adminAgendaChatRepository.upsertAdminLastReadChat(agendaId, adminId, MAX_OBJECT_ID);
+        adminAgendaChatRepository.upsertLastReadChat(agendaId, adminId, MAX_OBJECT_ID);
     }
 
     public void updateLastRead(Long agendaId, Long adminId) {
         final AgendaChat lastChat = adminAgendaChatRepository.findLastChat(agendaId);
-        adminAgendaChatRepository.upsertAdminLastReadChat(agendaId, adminId, lastChat.getId());
+        adminAgendaChatRepository.upsertLastReadChat(agendaId, adminId, lastChat.getId());
     }
 }
