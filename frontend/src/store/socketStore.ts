@@ -43,7 +43,6 @@ export const useSocketStore = create<SocketState>((set, get) => ({
   activeSubscriptions: {},
 
   connect: (isAdmin: boolean) => {
-    // 기존 소켓과 heartbeat interval 정리
     const currentSocket = get().socket;
     const currentInterval = get().heartbeatInterval;
 
@@ -96,18 +95,6 @@ export const useSocketStore = create<SocketState>((set, get) => ({
       console.log('WebSocket connected successfully');
       set({ socket: ws });
       startHeartbeat();
-
-      // Resubscribe all active subscriptions
-      const activeSubscriptions = get().activeSubscriptions;
-      Object.entries(activeSubscriptions).forEach(([key, subscription]) => {
-        const [roomType, roomId] = key.split(':');
-        subscription.callback &&
-          get().subscribe(
-            roomType as 'OPINION' | 'AGENDA',
-            parseInt(roomId),
-            subscription.callback,
-          );
-      });
     };
 
     ws.onerror = (error) => {
