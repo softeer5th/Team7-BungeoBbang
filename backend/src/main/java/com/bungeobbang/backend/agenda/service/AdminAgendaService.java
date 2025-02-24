@@ -97,11 +97,6 @@ public class AdminAgendaService {
                 .collect(Collectors.toList());
     }
 
-    private static void validAdminWithAgenda(final Admin admin, final Agenda agenda) {
-        if (!admin.getUniversity().equals(agenda.getUniversity()))
-            throw new AgendaException(FORBIDDEN_UNIVERSITY_ACCESS);
-    }
-
     /**
      * ✅ 새로운 "답해요" 채팅방을 생성합니다.
      *
@@ -240,6 +235,29 @@ public class AdminAgendaService {
 
     }
 
+    private static void validAdminWithAgenda(final Admin admin, final Agenda agenda) {
+        if (!admin.getUniversity().equals(agenda.getUniversity()))
+            throw new AgendaException(FORBIDDEN_UNIVERSITY_ACCESS);
+    }
+
+    public AgendaStatisticResponse getAgendaStatisticsByMonth(int year, int month) {
+        final int countByMonth = agendaRepository.countByCreatedAtBetween(year, month);
+        final int participateCount = agendaRepository.countAgendaMembersByMonth(year, month);
+        return new AgendaStatisticResponse(countByMonth, participateCount);
+
+    }
+
+    public List<AgendaCategoryResponse> getAgendaCountByCategory(int year, int month) {
+        return agendaRepository.findCategoryStatisticsByMonth(year, month);
+    }
+
+    public AgendaStatisticResponse getAgendaStatisticsByMonth(int year) {
+        final int countByMonth = agendaRepository.countAgendaByYear(year);
+        final int participateCount = agendaRepository.countAgendaMemberByYear(year);
+        return new AgendaStatisticResponse(countByMonth, participateCount);
+
+    }
+
     private Admin getAdmin(Long adminId) {
         return adminRepository.findById(adminId)
                 .orElseThrow(() -> new AdminException(INVALID_ADMIN));
@@ -331,24 +349,6 @@ public class AdminAgendaService {
                                 .name(image)
                                 .build())
                 .toList();
-    }
-
-    public AgendaStatisticResponse getAgendaStatisticsByMonth(int year, int month) {
-        final int countByMonth = agendaRepository.countByCreatedAtBetween(year, month);
-        final int participateCount = agendaRepository.countAgendaMembersByMonth(year, month);
-        return new AgendaStatisticResponse(countByMonth, participateCount);
-
-    }
-
-    public List<AgendaCategoryResponse> getAgendaCountByCategory(int year, int month) {
-        return agendaRepository.findCategoryStatisticsByMonth(year, month);
-    }
-
-    public AgendaStatisticResponse getAgendaStatisticsByMonth(int year) {
-        final int countByMonth = agendaRepository.countAgendaByYear(year);
-        final int participateCount = agendaRepository.countAgendaMemberByYear(year);
-        return new AgendaStatisticResponse(countByMonth, participateCount);
-
     }
 
     public List<AgendaCategoryResponse> getAgendaCountByCategory(int year) {
