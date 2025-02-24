@@ -77,11 +77,12 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
 
     const navigate = useNavigate();
 
-    const { subscribe, sendMessage } = useSocketStore();
+    const subscribe = useSocketStore((state) => state.subscribe);
+    const sendMessage = useSocketStore((state) => state.sendMessage);
 
     const handleMessageReceive = useCallback(
       (message: ChatMessage) => {
-        // console.log('message', message);
+        console.log('message', message);
         if (message.roomType === 'AGENDA' && message.agendaId === Number(roomId)) {
           const newChat = {
             type: message.adminId === Number(memberId) ? ChatType.SEND : ChatType.RECEIVE,
@@ -293,7 +294,8 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
 
     const getMoreDownChatData = async () => {
       try {
-        if (isDownDirection.current) return;
+        if (isDownDirection.current || isUpDirection.current) return;
+
         isDownDirection.current = true;
         const response = await api.get(`/admin/agendas/${roomId}/chat`, {
           params: {
@@ -301,6 +303,12 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
             scroll: 'DOWN',
           },
         });
+
+        if (isUpDirection.current) {
+          //동시 요청 후 렌더링 막음
+          isDownDirection.current = false;
+          return;
+        }
 
         const formattedData = formatChatData(response.data, true);
 
@@ -367,9 +375,7 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
         isUpDirection.current = false;
 
         return;
-      }
-
-      if (isDownDirection.current === true) {
+      } else if (isDownDirection.current === true) {
         if (isDownOverflow.current === true) {
           restoreScrollTopFromDown();
           isDownOverflow.current = false;
@@ -410,9 +416,7 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
         }
 
         isLiveSendChatAdded.current = false;
-      }
-
-      if (isLiveReceiveChatAdded.current) {
+      } else if (isLiveReceiveChatAdded.current) {
         if (isLiveReceiveOverflow.current === true) {
           scrollToBottom();
           isLiveReceiveOverflow.current = false;
@@ -494,8 +498,10 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
 
                     return date ? <TextBadge text={date} /> : null;
                   })()}
+
                   <ReceiverChat
                     chatId={curChatData.chatId}
+                    key={curChatData.chatId}
                     ref={
                       isUpTriggerItem
                         ? (el) => {
@@ -544,6 +550,7 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
 
                     return date ? <TextBadge text={date} /> : null;
                   })()}
+
                   <SenderChat
                     key={curChatData.chatId}
                     chatId={curChatData.chatId}

@@ -317,7 +317,7 @@ const CreateAgendaPage = () => {
                           <S.ImageItem>
                             <S.DeleteIconBox
                               onClick={() => {
-                                  handleImageDelete(index);
+                                handleImageDelete(index);
                               }}
                             >
                               <DeleteIcon

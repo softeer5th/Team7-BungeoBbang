@@ -3,7 +3,7 @@ import Calendar from 'react-calendar';
 import { useState } from 'react';
 import 'react-calendar/dist/Calendar.css';
 import Typography from '@/styles/Typography';
-import { View } from 'react-calendar/dist/esm/shared/types.js';
+import { View, Value } from 'react-calendar/dist/esm/shared/types.js';
 
 interface DurationContentProps {
   currentDate: [Date, Date] | null;
@@ -21,11 +21,41 @@ export const DurationContent = ({
   sevenDaysLater.setDate(today.getDate() + 7);
 
   const [value, setValue] = useState<[Date, Date]>(currentDate || [nextDay, sevenDaysLater]);
+  const [activeStartDate, setActiveStartDate] = useState<Date | undefined>(undefined);
+
+  const [isSelecting, setIsSelecting] = useState(false);
+
+  const handleChange = (value: Value) => {
+    if (Array.isArray(value)) {
+      setValue(value as [Date, Date]);
+      setIsSelecting(false);
+      // 범위 선택 완료시 마지막 선택한 날짜의 달을 저장
+      if (value[1] instanceof Date) {
+        setActiveStartDate(value[1]);
+      }
+    } else if (value instanceof Date) {
+      setValue([value, value] as [Date, Date]);
+      setIsSelecting(true);
+    }
+  };
 
   const handleComplete = () => {
     if (value) {
       const [startDate, endDate] = value;
       onDurationSelected(startDate, endDate);
+    }
+  };
+
+  const handleActiveStartDateChange = ({
+    activeStartDate,
+  }: {
+    activeStartDate: Date | null;
+    action: string;
+    value: Value;
+    view: string;
+  }) => {
+    if (activeStartDate) {
+      setActiveStartDate(activeStartDate);
     }
   };
 
@@ -39,16 +69,25 @@ export const DurationContent = ({
       </HeaderContainer>
       <CalendarWrapper>
         <StyledCalendar
-          onChange={(val) => setValue(val as [Date, Date])}
+          onChange={handleChange}
           value={value}
           selectRange={true}
           minDate={new Date()}
           showNeighboringMonth={false}
+          activeStartDate={activeStartDate}
+          onActiveStartDateChange={handleActiveStartDateChange}
           formatMonthYear={(locale, date) =>
             `${date.toLocaleString(locale, { month: 'long' })} ${date.getFullYear()}`
           }
           formatDay={(_, date) => formatCalendarDay(date)}
           tileClassName={({ date, view }) => getTileClassName(date, view, value)}
+          onClickDay={(date) => {
+            if (!isSelecting) {
+              // 새로운 선택 시작시 이전 선택 초기화
+              setValue([date, date] as [Date, Date]);
+              setIsSelecting(true);
+            }
+          }}
         />
       </CalendarWrapper>
     </Container>

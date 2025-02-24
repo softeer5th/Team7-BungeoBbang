@@ -44,7 +44,12 @@ const OpinionChatPage = () => {
 
   const navigate = useNavigate();
   const { roomId } = useParams();
-  const { subscribe, sendMessage, socket, connect } = useSocketStore();
+
+  const subscribe = useSocketStore((state) => state.subscribe);
+  const sendMessage = useSocketStore((state) => state.sendMessage);
+  const socket = useSocketStore((state) => state.socket);
+  const connect = useSocketStore((state) => state.connect);
+
   const memberId = localStorage.getItem('member_id');
   const location = useLocation();
   const opinionType = location.state?.opinionType || '';
@@ -241,6 +246,7 @@ const OpinionChatPage = () => {
           scroll: 'UP',
         },
       });
+
       const formattedData = formatChatData(response.data, true);
 
       setChatData((prev: ChatData[]) => {
@@ -257,7 +263,8 @@ const OpinionChatPage = () => {
 
   const getMoreDownChatData = async () => {
     try {
-      if (isDownDirection.current) return;
+      if (isDownDirection.current || isUpDirection.current) return;
+
       isDownDirection.current = true;
       const response = await api.get(`/api/opinions/${roomId}/chat`, {
         params: {
@@ -265,6 +272,12 @@ const OpinionChatPage = () => {
           scroll: 'DOWN',
         },
       });
+
+      if (isUpDirection.current) {
+        //동시 요청 후 렌더링 막음
+        isDownDirection.current = false;
+        return;
+      }
 
       const formattedData = formatChatData(response.data, true);
 
@@ -340,9 +353,7 @@ const OpinionChatPage = () => {
 
       isUpDirection.current = false;
       return;
-    }
-
-    if (isDownDirection.current) {
+    } else if (isDownDirection.current) {
       if (isDownOverflow.current === true) {
         restoreScrollTopFromDown();
         isDownOverflow.current = false;
@@ -373,19 +384,16 @@ const OpinionChatPage = () => {
       }
 
       scrollToBottom();
-
       if (MAX_CHAT_DATA_LENGTH < chatData.length) {
         isLiveSendOverflow.current = true;
-
         setHasUpMore(true);
         setChatData((prev) => prev.slice(chatData.length - MAX_CHAT_DATA_LENGTH));
         return;
       }
 
       isLiveSendChatAdded.current = false;
-    }
-
-    if (isLiveReceiveChatAdded.current) {
+      return;
+    } else if (isLiveReceiveChatAdded.current) {
       if (isLiveReceiveOverflow.current === true) {
         scrollToBottom();
         isLiveReceiveOverflow.current = false;
@@ -436,7 +444,7 @@ const OpinionChatPage = () => {
                 })()}
                 <ReceiverChat
                   chatId={curChatData.chatId}
-                  key={index}
+                  key={curChatData.chatId}
                   ref={
                     isUpTriggerItem
                       ? (el) => {
@@ -482,7 +490,7 @@ const OpinionChatPage = () => {
                 })()}
                 <SenderChat
                   chatId={curChatData.chatId}
-                  key={index}
+                  key={curChatData.chatId}
                   ref={
                     isUpTriggerItem
                       ? (el) => {

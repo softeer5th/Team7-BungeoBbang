@@ -17,7 +17,7 @@ interface SocketManagerProps {
 }
 
 export const useSocketManager = () => {
-  const { socket } = useSocketStore();
+  const socket = useSocketStore((state) => state.socket);
   const storedMemberId = localStorage.getItem('member_id');
 
   return (

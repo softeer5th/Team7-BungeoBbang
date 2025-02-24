@@ -48,8 +48,21 @@ export const ImagePreview = ({
 
   const handleTouchEnd = () => {
     setIsDragging(false);
-    const targetIndex = Math.round(-dragDistance / window.innerWidth);
-    const newIndex = Math.max(0, Math.min(totalImages - 1, targetIndex));
+
+    // 현재 드래그 거리와 화면 너비를 이용해 드래그 비율 계산
+    const dragRatio = -dragDistance / window.innerWidth - currentIndex;
+
+    // 드래그 방향에 따라 다른 임계값 적용 (15% = 0.15)
+    let newIndex = currentIndex;
+    if (dragRatio > 0.15) {
+      newIndex = currentIndex + 1;
+    } else if (dragRatio < -0.15) {
+      newIndex = currentIndex - 1;
+    }
+
+    // 인덱스 범위 제한
+    newIndex = Math.max(0, Math.min(totalImages - 1, newIndex));
+
     onChangeImage?.(newIndex);
     animateDrag(-newIndex * window.innerWidth);
   };

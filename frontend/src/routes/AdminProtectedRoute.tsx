@@ -5,7 +5,9 @@ import JWTManager from '@/utils/jwtManager';
 
 export const AdminProtectedRoute = () => {
   const location = useLocation();
-  const { connect, disconnect } = useSocketStore();
+
+  const connect = useSocketStore((state) => state.connect);
+  const disconnect = useSocketStore((state) => state.disconnect);
 
   useEffect(() => {
     const initializeSocket = async () => {

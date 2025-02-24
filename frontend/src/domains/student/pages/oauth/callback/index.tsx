@@ -21,18 +21,19 @@ const OAuthCallback = () => {
           code: decodeURIComponent(encodedCode),
         });
 
-        const accessToken = response.headers['access-token'];
-        const refreshToken = response.headers['refresh-token'];
         const memberID = response.data.memberId;
 
-        if (!accessToken || !refreshToken || !memberID) {
-          throw new Error(' token or member id not found in headers');
+        if (response.data.isEmailVerified) {
+          const accessToken = response.headers['access-token'];
+          const refreshToken = response.headers['refresh-token'];
+          if (!accessToken || !refreshToken || !memberID) {
+            throw new Error(' token or member id not found in headers');
+          }
+          await JWTManager.setTokens(refreshToken, accessToken, memberID);
+          navigate('/opinion/entry');
+        } else {
+          navigate('/univ', { state: { memberID: memberID } });
         }
-
-        await JWTManager.setTokens(refreshToken, accessToken, memberID);
-        console.log(await JWTManager.getMemberId());
-        console.log(response.data.isEmailVerified);
-        response.data.isEmailVerified ? navigate('/opinion/entry') : navigate('/univ');
       } catch (error) {
         console.error('OAuth callback error:', error);
         navigate('/');
