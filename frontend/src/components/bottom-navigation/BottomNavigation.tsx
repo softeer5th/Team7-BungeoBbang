@@ -39,14 +39,16 @@ export const BottomNavigation = forwardRef<HTMLDivElement, BottomNavigationProps
     const subscribe = useSocketStore((state) => state.subscribe);
 
     useEffect(() => {
-      const unsubscribeOpinion = subscribe('OPINION', -1, () => {
-        if (selectedItem !== 'my') {
+      const memberId = localStorage.getItem('member_id');
+
+      const unsubscribeOpinion = subscribe('OPINION', -1, (message) => {
+        if (selectedItem !== 'my' && message.memberId !== Number(memberId)) {
           setHasNewMessage(true);
         }
       });
 
-      const unsubscribeAgenda = subscribe('AGENDA', -1, () => {
-        if (selectedItem !== 'my') {
+      const unsubscribeAgenda = subscribe('AGENDA', -1, (message) => {
+        if (selectedItem !== 'my' && message.memberId !== Number(memberId)) {
           setHasNewMessage(true);
         }
       });
