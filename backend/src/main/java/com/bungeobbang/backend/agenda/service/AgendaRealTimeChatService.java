@@ -89,12 +89,13 @@ public class AgendaRealTimeChatService {
                 .filter(lastReadChat -> lastReadChat.getLastReadChatId().equals(MAX_OBJECT_ID))
                 .map(AgendaLastReadChat::getAgendaId)
                 .collect(Collectors.toList());
-        final Map<Long, AgendaLatestChat> lastChats = memberAgendaChatRepository.findLastChats(agendaIds, event.memberId())
-                .stream()
-                .collect(Collectors.toMap(AgendaLatestChat::agendaId, Function.identity()));
+        if (!agendaIds.isEmpty()) {
+            final Map<Long, AgendaLatestChat> lastChats = memberAgendaChatRepository.findLastChats(agendaIds, event.memberId())
+                    .stream()
+                    .collect(Collectors.toMap(AgendaLatestChat::agendaId, Function.identity()));
 
-        agendas.forEach(agenda -> memberAgendaChatRepository.upsertLastReadChat(agenda.getId(), event.memberId(), lastChats.get(agenda.getId()).chatId()));
-
+            agendas.forEach(agenda -> memberAgendaChatRepository.upsertLastReadChat(agenda.getId(), event.memberId(), lastChats.get(agenda.getId()).chatId()));
+        }
         // 구독 해제
         agendas.forEach(agenda -> messageQueueService.unsubscribe(event.session(), AGENDA_ADMIN_PREFIX + agenda.getId()));
     }
