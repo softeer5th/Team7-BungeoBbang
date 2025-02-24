@@ -91,7 +91,6 @@ const OpinionChatPage = () => {
             getReloadChatDataFromRecent();
           }
         } else {
-          console.log('gethasdownmor', getHasDownMore(), isWatchingBottom());
           if (!getHasDownMore()) {
             if (isWatchingBottom()) {
               isLiveReceiveChatAdded.current = true;
@@ -248,7 +247,6 @@ const OpinionChatPage = () => {
         }),
         api.get(`/api/opinions/${roomId}`),
       ]);
-      console.log('responsesseee', response);
 
       const formattedData = formatChatData(response.data, false);
 
@@ -360,7 +358,6 @@ const OpinionChatPage = () => {
 
   useLayoutEffect(() => {
     if (!elementRef.current) return;
-    console.log('getchasdata', chatData);
 
     if (isInitialTopLoading.current === true) {
       scrollToTop();

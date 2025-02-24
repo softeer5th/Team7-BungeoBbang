@@ -81,7 +81,7 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
 
     const handleMessageReceive = useCallback(
       (message: ChatMessage) => {
-        console.log('message', message);
+        // console.log('message', message);
         if (message.roomType === 'AGENDA' && message.agendaId === Number(roomId)) {
           const newChat = {
             type: message.adminId === Number(memberId) ? ChatType.SEND : ChatType.RECEIVE,
@@ -211,8 +211,6 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
         ]);
         const formattedData = formatChatData(response.data, true);
 
-        console.log('responsesseee', response, formattedData);
-
         setChatData(formattedData);
         setChatRoomInfo({
           title: chatInfo.data.title,
@@ -235,11 +233,10 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
           }),
           api.get(`/admin/agendas/${roomId}`),
         ]);
-        console.log('responsesseee', response);
 
         const formattedData = formatChatData(response.data, true);
 
-        // setHasDownMore(false);
+        setHasDownMore(false);
         setChatData(formattedData);
         setChatRoomInfo({
           title: chatInfo.data.title,
@@ -259,8 +256,6 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
             scroll: 'INITIAL',
           },
         });
-
-        console.log('reload responsesseee', response);
 
         const formattedData = formatChatData(response.data, true);
 
@@ -284,7 +279,6 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
         });
 
         const formattedData = formatChatData(response.data, true);
-        console.log('up!!', response);
         setChatData((prev: ChatData[]) => {
           if (response.data.length < MAX_CHAT_PAGE_DATA) {
             setHasUpMore(false);
@@ -341,7 +335,6 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
 
     useLayoutEffect(() => {
       if (!elementRef.current || chatData.length === 0) return;
-      console.log('getchasdata', chatData);
 
       if (isInitialTopLoading.current === true) {
         scrollToTop();
@@ -388,7 +381,6 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
 
         if (MAX_CHAT_DATA_LENGTH < chatData.length) {
           isDownOverflow.current = true;
-          // console.log("slice!!");
 
           setHasUpMore(true);
           setChatData((prev) => prev.slice(chatData.length - MAX_CHAT_DATA_LENGTH));
