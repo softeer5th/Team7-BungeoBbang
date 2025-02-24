@@ -136,7 +136,7 @@ public class AdminAgendaService {
 
         save.setFirstChatId(firstChat.getId().toString());
         // 생성한 학생회의 마지막 읽은 채팅을 업데이트한다.
-        adminAgendaChatRepository.upsertAdminLastReadChat(save.getId(), adminId, firstChat.getId());
+        adminAgendaChatRepository.upsertLastReadChat(save.getId(), adminId, firstChat.getId());
 
         return AgendaCreationResponse.from(save);
     }

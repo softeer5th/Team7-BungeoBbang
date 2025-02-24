@@ -1,6 +1,7 @@
 package com.bungeobbang.backend.agenda.domain.repository;
 
 import com.bungeobbang.backend.agenda.domain.AgendaChat;
+import com.bungeobbang.backend.agenda.domain.AgendaLastReadChat;
 import com.bungeobbang.backend.agenda.dto.AgendaLatestChat;
 import com.bungeobbang.backend.common.type.ScrollType;
 import org.bson.types.ObjectId;
@@ -14,6 +15,8 @@ public interface MemberAgendaChatRepository {
      * 주어진 답해요 채팅방들의 마지막 채팅을 조회한다.
      */
     List<AgendaLatestChat> findLastChats(List<Long> agendaIdList, Long memberId);
+
+    List<AgendaLastReadChat> getLastReadChats(List<Long> agendaIdList, Long memberId);
 
     /*
      * member의 마지막 읽은 채팅을 upsert한다.
