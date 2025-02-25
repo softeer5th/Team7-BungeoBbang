@@ -19,6 +19,8 @@ interface SocketState {
   socket: WebSocket | null;
   hasNewMessage: boolean;
   activeSubscriptions: { [key: string]: { callback: (message: ChatMessage) => void } };
+  retryCount: number;
+  maxRetries: number;
   connect: (isAdmin: boolean) => void;
   disconnect: () => void;
   clearNewMessage: () => void;
@@ -47,6 +49,7 @@ export const useSocketStore = create<SocketState>((set, get) => ({
   connect: (isAdmin: boolean) => {
     const currentSocket = get().socket;
     const currentInterval = get().heartbeatInterval;
+    const currentRetryCount = get().retryCount;
 
     if (currentSocket) {
       currentSocket.close();

@@ -9,6 +9,7 @@ import {
   mapOpinionResponseToChatPreviewData,
   mapAgendaResponseToChatPreviewData,
 } from '@/domains/student/pages/my/util/AgendaChatRoomMapper';
+import { ChatPreviewData } from '@/domains/student/pages/my/data/ChatPreviewData';
 
 export const useLoginDataInit = () => {
   const setCache = useCacheStore((state) => state.setCache);
@@ -35,8 +36,8 @@ export const useLoginDataInit = () => {
 
         // 새 메시지 알림 상태 설정
         const hasNewChat =
-          myOpinions.some((opinion) => opinion.hasNewChat) ||
-          myAgendas.some((agenda) => agenda.hasNewChat);
+          myOpinions.some((opinion: ChatPreviewData) => opinion.hasNewChat) ||
+          myAgendas.some((agenda: ChatPreviewData) => agenda.hasNewChat);
 
         setHasNewMessage(hasNewChat);
       } catch (error) {
