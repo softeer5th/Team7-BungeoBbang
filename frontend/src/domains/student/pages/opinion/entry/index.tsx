@@ -1,5 +1,3 @@
-'use client';
-
 import { TopAppBar } from '@/components/TopAppBar';
 import { BottomNavigation } from '@/components/bottom-navigation/BottomNavigation';
 import ArrowUp from '@/assets/icons/full-arrow-up.svg?react';
@@ -11,12 +9,14 @@ import { useState, useEffect } from 'react';
 import api from '@/utils/api';
 import { motion } from 'framer-motion';
 import { LogoutDialog as Logout } from '@/components/Dialog/LogoutDialog';
-import JwtManager from '@/utils/jwtManager';
 import { bottomItems, moveToDestination } from '../../destinations';
 import { RotatingMessages } from '@/components/text-field/RotatingMessage';
+import { useCacheStore } from '@/store/cacheStore';
 
 const OpinionEntryPage = () => {
   const navigate = useNavigate();
+  const getCache = useCacheStore((state) => state.getCache);
+  const setCache = useCacheStore((state) => state.setCache);
 
   const [statistic, setStatistic] = useState({ opinionCount: 0, adminResponseRate: 0 });
   const [showStatistic, setShowStatistic] = useState(true);
@@ -25,17 +25,34 @@ const OpinionEntryPage = () => {
   useEffect(() => {
     const getStatistic = async () => {
       try {
-        const access = await JwtManager.getAccessToken();
-        console.log(access);
+        // 캐시 키 생성
+        const cacheKey = 'student-opinions-stats';
+
+        // 캐시된 데이터 확인
+        const cachedData = getCache(cacheKey);
+
+        if (cachedData) {
+          // 캐시된 데이터가 있으면 사용
+          cachedData.opinionCount < 4 ? setShowStatistic(false) : setStatistic(cachedData);
+          return;
+        }
+
+        // 캐시된 데이터가 없으면 API 호출
         const response = await api.get('/student/opinions');
+
+        // 결과를 캐시에 저장 (30분 동안 유효)
+        setCache(cacheKey, response.data, 30 * 60 * 1000);
+
+        // 상태 업데이트
         response.data.opinionCount < 4 ? setShowStatistic(false) : setStatistic(response.data);
       } catch (error) {
         setShowStatistic(false);
         console.log(error);
       }
     };
+
     getStatistic();
-  }, []);
+  }, [getCache, setCache]);
 
   return (
     <>
