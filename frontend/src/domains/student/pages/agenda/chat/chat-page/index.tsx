@@ -27,6 +27,7 @@ import {
   RECENT_CHAT_ID,
 } from '@/utils/chat/chat_const.ts';
 import { Dialog } from '@/components/Dialog/Dialog.tsx';
+import { useCacheStore } from '@/store/cacheStore';
 
 interface ChatPageProps {
   roomId: number;
@@ -63,6 +64,7 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
 
     const memberId = localStorage.getItem('member_id');
     const socketManager = useSocketManager();
+    const invalidateQueries = useCacheStore((state) => state.invalidateQueries);
 
     const exitChatRoom = async () => {
       try {
@@ -206,6 +208,7 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
           }),
           api.get(`/student/agendas/${roomId}`),
         ]);
+        response.data.length > 1 && invalidateQueries('my-opinions');
         const formattedData = formatChatData(response.data, false);
         setChatData(formattedData);
         setChatRoomInfo({

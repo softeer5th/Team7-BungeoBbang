@@ -24,6 +24,7 @@ export const ChatPreviewItem: React.FC<ChatPreviewItemProps> = ({
               lastChatId: chatData.lastChatId,
               opinionType: chatData.opinionType.label,
               categoryType: chatData.categoryType.type,
+              title: chatData.opinionType.label,
             },
           });
         } else {

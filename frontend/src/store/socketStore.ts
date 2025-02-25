@@ -1,5 +1,5 @@
-// src/store/socketStore.ts
 import { create } from 'zustand';
+import { useCacheStore } from './cacheStore';
 
 export interface ChatMessage {
   roomType: 'OPINION' | 'AGENDA';
@@ -19,6 +19,8 @@ interface SocketState {
   socket: WebSocket | null;
   hasNewMessage: boolean;
   activeSubscriptions: { [key: string]: { callback: (message: ChatMessage) => void } };
+  retryCount: number;
+  maxRetries: number;
   connect: (isAdmin: boolean) => void;
   disconnect: () => void;
   clearNewMessage: () => void;
@@ -41,10 +43,13 @@ export const useSocketStore = create<SocketState>((set, get) => ({
   socket: null,
   hasNewMessage: false,
   activeSubscriptions: {},
+  retryCount: 0,
+  maxRetries: 3,
 
   connect: (isAdmin: boolean) => {
     const currentSocket = get().socket;
     const currentInterval = get().heartbeatInterval;
+    const currentRetryCount = get().retryCount;
 
     if (currentSocket) {
       currentSocket.close();
@@ -99,6 +104,16 @@ export const useSocketStore = create<SocketState>((set, get) => ({
 
     ws.onerror = (error) => {
       console.error('WebSocket error:', error);
+      set({ retryCount: currentRetryCount + 1 });
+
+      if (currentRetryCount + 1 >= get().maxRetries) {
+        console.error('WebSocket connection failed multiple times. Logging out.');
+
+        import('@/utils/jwtManager').then(({ default: JWTManager }) => {
+          JWTManager.clearTokens();
+          window.location.href = '/';
+        });
+      }
     };
 
     ws.onclose = () => {
@@ -180,6 +195,23 @@ export const useSocketStore = create<SocketState>((set, get) => ({
               return;
             }
             return;
+          }
+
+          if (data.event === 'CHAT') {
+            const currentUserId = Number(localStorage.getItem('member_id'));
+            const senderId = data.memberId || data.adminId;
+
+            if (senderId !== currentUserId) {
+              const invalidateQueries = useCacheStore.getState().invalidateQueries;
+
+              if (data.roomType === 'OPINION') {
+                invalidateQueries('my-opinions');
+              } else if (data.roomType === 'AGENDA') {
+                invalidateQueries('my-agendas');
+              }
+
+              set({ hasNewMessage: true });
+            }
           }
 
           if (
