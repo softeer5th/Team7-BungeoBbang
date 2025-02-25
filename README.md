@@ -1,9 +1,11 @@
 <div >
     <a href="https://github.com/softeer5th/Team7-BungeoBbang/wiki">
-  <img src="https://github.com/user-attachments/assets/b41c30ab-ab7d-45eb-aba3-eba37a0e02c2" alt="wiki" width="150">
+  <img src="https://github.com/user-attachments/assets/2875806e-5a61-41de-b42b-60155f81d0d4" alt="wiki" width="180">
 </a>
-    <img src="https://github.com/user-attachments/assets/aa157a3b-d002-472a-93d0-290bf56d6d16" alt="logo" width ="150" align="right">
+    <img src="https://github.com/user-attachments/assets/aa157a3b-d002-472a-93d0-290bf56d6d16" alt="logo" width ="180" align="right">
 </div>
+
+
 
 ## 🚀 서비스 설명
 
