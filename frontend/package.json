@@ -10,7 +10,7 @@
     "preview": "vite preview",
     "format": "prettier --write .",
     "type-check": "tsc --noEmit",
-    "prepare": "husky",
+    "prepare": "cd .. && husky frontend/.husky",
     "postinstall": "npm install rollup @rollup/plugin-node-resolve @rollup/plugin-commonjs",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build"
@@ -64,8 +64,11 @@
     "vite": "^6.1.0",
     "vite-plugin-pwa": "^0.21.1"
   },
-  "husky": {
-    "configFile": ".huskyrc.json"
+  "lint-staged": {
+    "**/*.{ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ]
   },
   "eslintConfig": {
     "extends": [
