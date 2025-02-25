@@ -207,7 +207,7 @@ export const useSocketStore = create<SocketState>((set, get) => ({
             set({ hasNewMessage: true });
           } else if (data.eventType === 'START') {
             const invalidateQueries = useCacheStore.getState().invalidateQueries;
-            invalidateQueries('admin_opinions');
+            invalidateQueries('admin-opinions');
           }
 
           if (
