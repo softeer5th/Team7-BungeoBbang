@@ -7,7 +7,7 @@
 
 ## 🚀 서비스 설명
 
-![image](https://github.com/user-attachments/assets/4df6508b-9c5a-416f-ba66-92d4a0e23fe4)
+![cover](https://github.com/user-attachments/assets/7b066e4e-6667-45d8-913d-ef95f6dde637)
 <h2 align="center"> 🎓 학생과 학생회를 연결하는 능동적인 소통 플랫폼 <strong>on:u</strong></h1>
 <p align="center">
     학교 생활에서 겪는 문제들을 <strong>생생하게 공유하고</strong>,<br>
