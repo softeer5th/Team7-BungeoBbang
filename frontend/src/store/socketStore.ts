@@ -1,5 +1,5 @@
-// src/store/socketStore.ts
 import { create } from 'zustand';
+import { useCacheStore } from './cacheStore';
 
 export interface ChatMessage {
   roomType: 'OPINION' | 'AGENDA';
@@ -192,6 +192,23 @@ export const useSocketStore = create<SocketState>((set, get) => ({
               return;
             }
             return;
+          }
+
+          if (data.event === 'CHAT') {
+            const currentUserId = Number(localStorage.getItem('member_id'));
+            const senderId = data.memberId || data.adminId;
+
+            if (senderId !== currentUserId) {
+              const invalidateQueries = useCacheStore.getState().invalidateQueries;
+
+              if (data.roomType === 'OPINION') {
+                invalidateQueries('my-opinions');
+              } else if (data.roomType === 'AGENDA') {
+                invalidateQueries('my-agendas');
+              }
+
+              set({ hasNewMessage: true });
+            }
           }
 
           if (
