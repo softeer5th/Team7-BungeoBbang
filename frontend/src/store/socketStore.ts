@@ -41,6 +41,8 @@ export const useSocketStore = create<SocketState>((set, get) => ({
   socket: null,
   hasNewMessage: false,
   activeSubscriptions: {},
+  retryCount: 0,
+  maxRetries: 3,
 
   connect: (isAdmin: boolean) => {
     const currentSocket = get().socket;
@@ -99,6 +101,16 @@ export const useSocketStore = create<SocketState>((set, get) => ({
 
     ws.onerror = (error) => {
       console.error('WebSocket error:', error);
+      set({ retryCount: currentRetryCount + 1 });
+
+      if (currentRetryCount + 1 >= get().maxRetries) {
+        console.error('WebSocket connection failed multiple times. Logging out.');
+
+        import('@/utils/jwtManager').then(({ default: JWTManager }) => {
+          JWTManager.clearTokens();
+          window.location.href = '/';
+        });
+      }
     };
 
     ws.onclose = () => {
