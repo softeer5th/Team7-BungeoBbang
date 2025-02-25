@@ -42,52 +42,52 @@ public interface AgendaRepository extends JpaRepository<Agenda, Long> {
 
     @Query("""
             SELECT COUNT(a)
-                        FROM Agenda a
-                                    WHERE YEAR(a.createdAt) = :year
-                                                AND MONTH(a.createdAt) = :month
-                                                            AND a.university = :university
+            FROM Agenda a
+            WHERE YEAR(a.createdAt) = :year
+            AND MONTH(a.createdAt) = :month
+            AND a.university = :university
             """)
     int countByCreatedAtBetweenAndUniversity(@Param("year") int year, @Param("month") int month, @Param("universityId") University university);
 
     @Query("""
             SELECT coalesce( SUM(a.count),0)
-                        FROM Agenda a
-                                    WHERE YEAR(a.createdAt) = :year
-                                                AND MONTH(a.createdAt) = :month
-                                                            AND a.university = :university
+            FROM Agenda a
+            WHERE YEAR(a.createdAt) = :year
+            AND MONTH(a.createdAt) = :month
+            AND a.university = :university
             """)
     int countAgendaMembersByMonthAndUniversity(@Param("year") int year, @Param("month") int month, @Param("university") University university);
 
     @Query("""
             SELECT new com.bungeobbang.backend.agenda.dto.response.admin.AgendaCategoryResponse(a.categoryType, COUNT(a))
-                        FROM Agenda a
-                        WHERE a.university = :university And YEAR(a.createdAt) = :year AND MONTH(a.createdAt) = :month
-                        GROUP BY a.categoryType
+            FROM Agenda a
+            WHERE a.university = :university And YEAR(a.createdAt) = :year AND MONTH(a.createdAt) = :month
+            GROUP BY a.categoryType
             """)
     List<AgendaCategoryResponse> findCategoryStatisticsByMonthAndUniversity(@Param("year") int year, @Param("month") int month, @Param("university") University university);
 
 
     @Query("""
-             SELECT COUNT(a) FROM Agenda a
-                         WHERE YEAR(a.createdAt) = :year
-                                     AND a.university = :university
+            SELECT COUNT(a) FROM Agenda a
+            WHERE YEAR(a.createdAt) = :year
+            AND a.university = :university
             """)
     int countAgendaByYearAndUniversity(@Param("year") int year, @Param("university") University university);
 
     @Query("""
             SELECT coalesce( SUM(a.count),0)
-                        FROM Agenda a
+            FROM Agenda a
             WHERE a.university = :university
-                        AND YEAR(a.createdAt) = :year
+            AND YEAR(a.createdAt) = :year
             """)
     int countAgendaMemberByYearAndUniversity(@Param("year") int year, @Param("university") University university);
 
     @Query("""
             SELECT new com.bungeobbang.backend.agenda.dto.response.admin.AgendaCategoryResponse(a.categoryType, COUNT(a))
-                        FROM Agenda a
-                        WHERE  a.university = :university
-                                    AND YEAR(a.createdAt) = :year
-                        GROUP BY a.categoryType
+            FROM Agenda a
+            WHERE  a.university = :university
+            AND YEAR(a.createdAt) = :year
+            GROUP BY a.categoryType
             """)
     List<AgendaCategoryResponse> findCategoryStatisticsByYearAndUniversity(@Param("year") int year, @Param("university") University university);
 }
