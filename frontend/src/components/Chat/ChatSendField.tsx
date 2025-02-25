@@ -164,25 +164,6 @@ export const ChatSendField = forwardRef<HTMLDivElement, ChatSendFieldProps>(
       handleResizeHeight();
     }, [message, handleResizeHeight]);
 
-    const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-      if (e.key === 'Enter') {
-        if (e.nativeEvent.isComposing) return;
-
-        if (e.shiftKey) {
-          return;
-        }
-
-        e.preventDefault();
-        handleSend();
-      }
-    };
-
-    const handleKeyUp = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-      if (e.key === 'Enter' && !e.shiftKey && window.innerWidth > 768) {
-        setMessage('');
-      }
-    };
-
     return (
       <>
         <ChatSendContainer
@@ -251,8 +232,6 @@ export const ChatSendField = forwardRef<HTMLDivElement, ChatSendFieldProps>(
                     handleTextInput(e.target.value);
                   }}
                   disabled={textDisabled}
-                  onKeyDown={handleKeyDown}
-                  onKeyUp={handleKeyUp}
                 />
 
                 <SendButtonWrapper />
