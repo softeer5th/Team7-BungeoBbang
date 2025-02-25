@@ -36,6 +36,7 @@ import {
   RECENT_CHAT_ID,
 } from '@/utils/chat/chat_const.ts';
 import { Dialog } from '@/components/Dialog/Dialog.tsx';
+import { useCacheStore } from '@/store/cacheStore';
 
 const OpinionChatPage = () => {
   const chatSendFieldRef = useRef<HTMLDivElement>(null);
@@ -62,6 +63,8 @@ const OpinionChatPage = () => {
   const location = useLocation();
   const lastChatId = location.state?.lastChatId || '000000000000000000000000';
   const roomTitle = location.state?.title || '학생회';
+  //캐시 처리
+  const invalidateQueries = useCacheStore((state) => state.invalidateQueries);
 
   const handleMessageReceive = useCallback(
     (message: ChatMessage) => {
@@ -222,6 +225,8 @@ const OpinionChatPage = () => {
         }),
         api.get(`/api/opinions/${roomId}`),
       ]);
+
+      response.data.length > 1 && invalidateQueries('my-opinions');
 
       const formattedData = formatChatData(response.data, false);
 
