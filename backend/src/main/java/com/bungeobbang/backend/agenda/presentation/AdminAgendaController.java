@@ -107,7 +107,7 @@ public class AdminAgendaController implements AdminAgendaApi {
             @Auth Accessor accessor,
             @RequestParam int year,
             @RequestParam int month) {
-        final AgendaStatisticResponse response = adminAgendaService.getAgendaStatisticsByMonth(year, month);
+        final AgendaStatisticResponse response = adminAgendaService.getAgendaStatisticsByMonth(accessor.id(), year, month);
         return ResponseEntity.ok(response);
     }
 
@@ -117,7 +117,7 @@ public class AdminAgendaController implements AdminAgendaApi {
             @Auth Accessor accessor,
             @RequestParam int year,
             @RequestParam int month) {
-        return ResponseEntity.ok(adminAgendaService.getAgendaCountByCategory(year, month));
+        return ResponseEntity.ok(adminAgendaService.getAgendaCountByCategory(accessor.id(), year, month));
     }
 
     @AdminOnly
@@ -125,7 +125,7 @@ public class AdminAgendaController implements AdminAgendaApi {
     public ResponseEntity<AgendaStatisticResponse> getAgendaByYear(
             @Auth Accessor accessor,
             int year) {
-        return ResponseEntity.ok(adminAgendaService.getAgendaStatisticsByMonth(year));
+        return ResponseEntity.ok(adminAgendaService.getAgendaStatisticsByYear(accessor.id(), year));
     }
 
     @AdminOnly
@@ -133,7 +133,7 @@ public class AdminAgendaController implements AdminAgendaApi {
     public ResponseEntity<List<AgendaCategoryResponse>> getAgendaByCategory(
             @Auth Accessor accessor,
             int year) {
-        return ResponseEntity.ok(adminAgendaService.getAgendaCountByCategory(year));
+        return ResponseEntity.ok(adminAgendaService.getAgendaCountByCategory(accessor.id(), year));
     }
 
 }

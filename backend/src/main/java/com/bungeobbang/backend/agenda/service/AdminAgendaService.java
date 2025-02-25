@@ -25,6 +25,7 @@ import com.bungeobbang.backend.badword.service.BadWordService;
 import com.bungeobbang.backend.common.exception.AdminException;
 import com.bungeobbang.backend.common.exception.AgendaException;
 import com.bungeobbang.backend.common.exception.ErrorCode;
+import com.bungeobbang.backend.university.domain.University;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -240,22 +241,37 @@ public class AdminAgendaService {
             throw new AgendaException(FORBIDDEN_UNIVERSITY_ACCESS);
     }
 
-    public AgendaStatisticResponse getAgendaStatisticsByMonth(int year, int month) {
-        final int countByMonth = agendaRepository.countByCreatedAtBetween(year, month);
-        final int participateCount = agendaRepository.countAgendaMembersByMonth(year, month);
+    public AgendaStatisticResponse getAgendaStatisticsByMonth(Long id, int year, int month) {
+        final Admin admin = getAdmin(id);
+
+        final University university = admin.getUniversity();
+        final int countByMonth = agendaRepository.countByCreatedAtBetweenAndUniversity(year, month, university);
+        final int participateCount = agendaRepository.countAgendaMembersByMonthAndUniversity(year, month, university);
         return new AgendaStatisticResponse(countByMonth, participateCount);
 
     }
 
-    public List<AgendaCategoryResponse> getAgendaCountByCategory(int year, int month) {
-        return agendaRepository.findCategoryStatisticsByMonth(year, month);
+    public List<AgendaCategoryResponse> getAgendaCountByCategory(Long id, int year, int month) {
+        final Admin admin = getAdmin(id);
+        final University university = admin.getUniversity();
+
+        return agendaRepository.findCategoryStatisticsByMonthAndUniversity(year, month, university);
     }
 
-    public AgendaStatisticResponse getAgendaStatisticsByMonth(int year) {
-        final int countByMonth = agendaRepository.countAgendaByYear(year);
-        final int participateCount = agendaRepository.countAgendaMemberByYear(year);
-        return new AgendaStatisticResponse(countByMonth, participateCount);
+    public AgendaStatisticResponse getAgendaStatisticsByYear(Long id, int year) {
+        final Admin admin = getAdmin(id);
+        final University university = admin.getUniversity();
 
+        final int countByMonth = agendaRepository.countAgendaByYearAndUniversity(year, university);
+        final int participateCount = agendaRepository.countAgendaMemberByYearAndUniversity(year, university);
+        return new AgendaStatisticResponse(countByMonth, participateCount);
+    }
+
+    public List<AgendaCategoryResponse> getAgendaCountByCategory(Long id, int year) {
+        final Admin admin = getAdmin(id);
+        final University university = admin.getUniversity();
+
+        return agendaRepository.findCategoryStatisticsByYearAndUniversity(year, university);
     }
 
     private Admin getAdmin(Long adminId) {
@@ -349,9 +365,5 @@ public class AdminAgendaService {
                                 .name(image)
                                 .build())
                 .toList();
-    }
-
-    public List<AgendaCategoryResponse> getAgendaCountByCategory(int year) {
-        return agendaRepository.findCategoryStatisticsByYear(year);
     }
 }
