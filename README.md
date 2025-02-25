@@ -43,8 +43,10 @@
 
 <p align="center">
     <strong>on:u</strong>를 통해 학생들은 더 적극적으로 자신의 목소리를 낼 수 있고,<br>
-    학생회는 보다 명확하게 학생들의 의견을 반영할 수 있는 환경을 만들 수 있어요. 🏫🚸
+    학생회는 보다 명확하게 학생들의 의견을 반영할 수 있는 환경을 만들 수 있습니다. 🏫🚸
 </p>
+
+---
 
 ## **🔗 배포 링크**
  **학생 페이지 배포 링크:** [on:u for student](https://onu-univ.site)  
@@ -71,6 +73,12 @@
             <td align="center">FE</td>
             <td align="center">BE</td>
             <td align="center">BE</td>
+        </tr>
+        <tr>
+            <td align="center">CI/CD, 인증/인가 기능구현<br>말해요 기능 구현<br>캐싱 및 웹소켓 관리</td>
+            <td align="center">답해요 기능 구현<br>채팅 무한 스크롤 구현<br>공통 컴포넌트 문서화</td>
+            <td align="center">답해요 API 구현<br>인증,인가 기능 구현<br>CI 파이프라인 구축</td>
+            <td align="center">답해요 API 구현<br> 금칙어 시스템 구현<br>CD 파이프라인 구축</td>
         </tr>
     </table>
 </p>
@@ -173,7 +181,7 @@ API 명세서 swagger 링크입니다.
 | 분야 | 링크 | 분야 | 링크 |
 |------|---------------------------------|------|---------------------------------|
 | **FE_이지훈** |[전역적 소켓 관리](https://github.com/softeer5th/Team7-BungeoBbang/wiki/%EC%A0%84%EC%97%AD%EC%A0%81-%EC%86%8C%EC%BC%93-%EA%B4%80%EB%A6%AC) | **BE_오주은** | [중복 웹소켓 세션 처리 전략 및 구현 결정](https://github.com/softeer5th/Team7-BungeoBbang/wiki/%EC%A4%91%EB%B3%B5-%EC%9B%B9%EC%86%8C%EC%BC%93-%EC%84%B8%EC%85%98-%EC%B2%98%EB%A6%AC-%EC%A0%84%EB%9E%B5-%EB%B0%8F-%EA%B5%AC%ED%98%84-%EA%B2%B0%EC%A0%95) |
-| **FE_이지훈** |[쿼리 캐싱을 통한 서버 상태관리](https://github.com/softeer5th/Team7-BungeoBbang/wiki/%EC%BF%BC%EB%A6%AC-%EC%BA%90%EC%8B%B1%EC%9D%84-%EC%9D%B4%EC%9A%A9%ED%95%9C-%EC%84%9C%EB%B2%84-%EC%83%81%ED%83%9C%EA%B4%80%EB%A6%AC) | **BE_오주은** | [채팅방 웹소켓 이벤트 정리](https://github.com/softeer5th/Team7-BungeoBbang/wiki/%EC%B1%84%ED%8C%85%EB%B0%A9-%EC%9B%B9%EC%86%8C%EC%BC%93-%EC%9D%B4%EB%B2%A4%ED%8A%B8-%EC%A0%95%EB%A6%AC) |
+| **FE_이지훈** |[쿼리 캐싱을 통한 서버 상태관리](https://github.com/softeer5th/Team7-BungeoBbang/wiki/%EC%BF%BC%EB%A6%AC-%EC%BA%90%EC%8B%B1%EC%9D%84-%EC%9D%B4%EC%9A%A9%ED%95%9C-%EC%84%9C%EB%B2%84-%EC%83%81%ED%83%9C%EA%B4%80%EB%A6%AC) | **BE_오주은** | [답해요 성능 테스트](https://github.com/softeer5th/Team7-BungeoBbang/wiki/%EC%84%B1%EB%8A%A5-%ED%85%8C%EC%8A%A4%ED%8A%B8,-%EC%9D%B8%EB%8D%B1%EC%8A%A4%EB%A5%BC-%EC%9D%B4%EC%9A%A9%ED%95%9C-%EC%9D%91%EB%8B%B5-%EC%8B%9C%EA%B0%84-%EA%B0%9C%EC%84%A0) |
 | **FE_황유란** | [공통 컴포넌트 구현 및 문서화](https://github.com/softeer5th/Team7-BungeoBbang/wiki/%EA%B3%B5%ED%86%B5-%EC%BB%B4%ED%8F%AC%EB%84%8C%ED%8A%B8-%EB%AC%B8%EC%84%9C%ED%99%94%EB%A5%BC-%ED%86%B5%ED%95%B4-UI-%EC%9E%AC%EC%82%AC%EC%9A%A9%EC%84%B1-%ED%96%A5%EC%83%81) | **BE_전경석** | [Redis Sync vs Async 비교](https://github.com/softeer5th/Team7-BungeoBbang/wiki/Redis-sync-vs-Async) |
 | **FE_황유란** | [채팅 무한스크롤](https://github.com/softeer5th/Team7-BungeoBbang/wiki/%EC%9C%84%EC%95%84%EB%9E%98%EB%A1%9C-%EB%AC%B4%ED%95%9C-%EC%8A%A4%ED%81%AC%EB%A1%A4-%EA%B5%AC%ED%98%84%ED%95%B4%EC%84%9C-%EC%BB%A4%EC%8A%A4%ED%85%80-%ED%9B%85-%EB%A7%8C%EB%93%A4%EA%B8%B0) | **BE_전경석** | [금칙어 필터링](https://github.com/softeer5th/Team7-BungeoBbang/wiki/%EA%B8%88%EC%B9%99%EC%96%B4-%ED%95%84%ED%84%B0%EB%A7%81) |
 
