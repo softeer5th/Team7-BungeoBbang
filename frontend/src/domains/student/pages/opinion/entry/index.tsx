@@ -7,14 +7,13 @@ import SchoolIcon from '@/assets/imgs/img_school.svg?react';
 import PersonIcon from '@/assets/imgs/img_person.svg?react';
 import * as S from './styles';
 import { useNavigate } from 'react-router-dom';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import api from '@/utils/api';
 import { motion } from 'framer-motion';
 import { LogoutDialog as Logout } from '@/components/Dialog/LogoutDialog';
+import JwtManager from '@/utils/jwtManager';
 import { bottomItems, moveToDestination } from '../../destinations';
 import { RotatingMessages } from '@/components/text-field/RotatingMessage';
-import { useCheckNewMessages } from '@/hooks/useCheckNewMessages';
-import { useQuery } from '@/hooks/useQuery';
 
 const OpinionEntryPage = () => {
   const navigate = useNavigate();
@@ -23,27 +22,20 @@ const OpinionEntryPage = () => {
   const [showStatistic, setShowStatistic] = useState(true);
   const [showLogoutDialog, setShowLogoutDialog] = useState(false);
 
-  useCheckNewMessages();
-
-  const fetchStatistics = async () => {
-    const response = await api.get('/student/opinions');
-    return response.data;
-  };
-
-  useQuery('student-opinions-stats', fetchStatistics, {
-    staleTime: 5 * 60 * 1000,
-    onSuccess: (data) => {
-      if (data.opinionCount < 4) {
+  useEffect(() => {
+    const getStatistic = async () => {
+      try {
+        const access = await JwtManager.getAccessToken();
+        console.log(access);
+        const response = await api.get('/student/opinions');
+        response.data.opinionCount < 4 ? setShowStatistic(false) : setStatistic(response.data);
+      } catch (error) {
         setShowStatistic(false);
-      } else {
-        setShowStatistic(true);
-        setStatistic(data);
+        console.log(error);
       }
-    },
-    onError: () => {
-      setShowStatistic(false);
-    },
-  });
+    };
+    getStatistic();
+  }, []);
 
   return (
     <>
