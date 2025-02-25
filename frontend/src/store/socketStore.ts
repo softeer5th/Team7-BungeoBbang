@@ -195,23 +195,19 @@ export const useSocketStore = create<SocketState>((set, get) => ({
               return;
             }
             return;
-          }
+          } else if (data.event === 'CHAT') {
+            const invalidateQueries = useCacheStore.getState().invalidateQueries;
 
-          if (data.event === 'CHAT') {
-            const currentUserId = Number(localStorage.getItem('member_id'));
-            const senderId = data.memberId || data.adminId;
-
-            if (senderId !== currentUserId) {
-              const invalidateQueries = useCacheStore.getState().invalidateQueries;
-
-              if (data.roomType === 'OPINION') {
-                invalidateQueries('my-opinions');
-              } else if (data.roomType === 'AGENDA') {
-                invalidateQueries('my-agendas');
-              }
-
-              set({ hasNewMessage: true });
+            if (data.roomType === 'OPINION') {
+              invalidateQueries('my-opinions');
+            } else if (data.roomType === 'AGENDA') {
+              invalidateQueries('my-agendas');
             }
+
+            set({ hasNewMessage: true });
+          } else if (data.eventType === 'START') {
+            const invalidateQueries = useCacheStore.getState().invalidateQueries;
+            invalidateQueries('admin_opinions');
           }
 
           if (
