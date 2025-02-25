@@ -38,7 +38,6 @@ export const handleApiError = async (error: AxiosError): Promise<never> => {
 
     case 404:
       apiError = new ApiError(404, `요청한 리소스를 찾을 수 없습니다.`);
-      redirect = true;
       break;
 
     case 409:
