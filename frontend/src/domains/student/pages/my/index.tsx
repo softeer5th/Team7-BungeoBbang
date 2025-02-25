@@ -59,12 +59,15 @@ const MyPage = () => {
     setTabContents((prev) => ({ ...prev, agenda: data }));
   }, []);
 
-  const { refetch: refetchOpinions } = useQuery('my-opinions', fetchOpinions, {
+  // 캐시 시간을 5분으로 설정
+  useQuery('my-opinions', fetchOpinions, {
     onSuccess: handleOpinionSuccess,
+    staleTime: 5 * 60 * 1000, // 5분 동안 캐시 유지
   });
 
-  const { refetch: refetchAgendas } = useQuery('my-agendas', fetchAgendas, {
+  useQuery('my-agendas', fetchAgendas, {
     onSuccess: handleAgendaSuccess,
+    staleTime: 5 * 60 * 1000, // 5분 동안 캐시 유지
   });
 
   const handleNewMessage = useCallback(
@@ -114,13 +117,15 @@ const MyPage = () => {
     };
   }, [subscribe, handleNewMessage]);
 
-  useEffect(() => {
-    refetchOpinions();
-    refetchAgendas();
-  }, [refetchOpinions, refetchAgendas]);
+  // 매번 refetch 하는 부분 제거
+  // useEffect(() => {
+  //   refetchOpinions();
+  //   refetchAgendas();
+  // }, [refetchOpinions, refetchAgendas]);
 
   return (
     <S.Container>
+      {/* 나머지 JSX 코드는 그대로 유지 */}
       <TopAppBar
         leftIconSrc="/src/assets/icons/logo.svg"
         rightIconSrc="/src/assets/icons/logout.svg"
