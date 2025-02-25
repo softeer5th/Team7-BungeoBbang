@@ -1,5 +1,5 @@
 <div >
-    <a href="https://www.example.com](https://github.com/softeer5th/Team7-BungeoBbang/wiki">
+    <a href="https://github.com/softeer5th/Team7-BungeoBbang/wiki">
   <img src="https://github.com/user-attachments/assets/b41c30ab-ab7d-45eb-aba3-eba37a0e02c2" alt="wiki" width="150">
 </a>
     <img src="https://github.com/user-attachments/assets/aa157a3b-d002-472a-93d0-290bf56d6d16" alt="logo" width ="150" align="right">
