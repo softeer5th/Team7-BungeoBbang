@@ -44,7 +44,7 @@
     학생회는 보다 명확하게 학생들의 의견을 반영할 수 있는 환경을 만들 수 있어요. 🏫🚸
 </p>
 
-## **🔗 링크**
+## **🔗 배포 링크**
  **학생 페이지 배포 링크:** [on:u for student](https://onu-univ.site)  
  **학생회 페이지 배포 링크:** [on:u for student council](https://admin.onu-univ.site)  
 ## **👥 팀원 소개**
