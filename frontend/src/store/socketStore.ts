@@ -23,7 +23,6 @@ interface SocketState {
   maxRetries: number;
   connect: (isAdmin: boolean) => void;
   disconnect: () => void;
-  clearNewMessage: () => void;
   subscribe: (
     roomType: 'OPINION' | 'AGENDA',
     roomId: number,
@@ -148,10 +147,6 @@ export const useSocketStore = create<SocketState>((set, get) => ({
       socket.close();
       set({ socket: null });
     }
-  },
-
-  clearNewMessage: () => {
-    set({ hasNewMessage: false });
   },
 
   subscribe: (
