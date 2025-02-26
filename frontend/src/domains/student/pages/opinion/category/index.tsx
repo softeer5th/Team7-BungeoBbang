@@ -13,6 +13,7 @@ import { ImageFileSizeDialog } from '@/components/Dialog/ImageFileSizeDialog';
 import { Dialog } from '@/components/Dialog/Dialog';
 
 import { ChatOpinionType } from '@/types/ChatOpinionType';
+import { useCacheStore } from '@/store/cacheStore';
 
 const OpinionCategoryPage: React.FC = () => {
   const navigate = useNavigate();
@@ -52,6 +53,9 @@ const OpinionCategoryPage: React.FC = () => {
       const response = await api.post('/student/opinions', messageData);
       if (response.data.opinionId) {
         socketManager('OPINION', 'START', response.data.opinionId, 'STUDENT');
+        const invalidateQueries = useCacheStore.getState().invalidateQueries;
+        invalidateQueries('admin-opinions');
+        invalidateQueries('my-opinions');
         navigate('/opinion/chat/' + response.data.opinionId, {
           state: {
             from: 'opinion',

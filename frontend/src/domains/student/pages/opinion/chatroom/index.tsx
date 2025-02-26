@@ -610,6 +610,8 @@ const OpinionChatPage = () => {
             try {
               await api.delete(`/student/opinions/${roomId}`);
               socketManager('OPINION', 'DELETE', Number(roomId), 'STUDENT');
+              const invalidateQueries = useCacheStore.getState().invalidateQueries;
+              invalidateQueries('my-opinions');
               navigate('/my');
             } catch (error) {
               console.error('채팅방 삭제 실패:', error);
