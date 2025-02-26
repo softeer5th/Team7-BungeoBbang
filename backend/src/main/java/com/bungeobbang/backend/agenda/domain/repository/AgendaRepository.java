@@ -47,7 +47,7 @@ public interface AgendaRepository extends JpaRepository<Agenda, Long> {
             AND MONTH(a.createdAt) = :month
             AND a.university = :university
             """)
-    int countByCreatedAtBetweenAndUniversity(@Param("year") int year, @Param("month") int month, @Param("universityId") University university);
+    int countByCreatedAtBetweenAndUniversity(@Param("year") int year, @Param("month") int month, @Param("university") University university);
 
     @Query("""
             SELECT coalesce( SUM(a.count),0)
