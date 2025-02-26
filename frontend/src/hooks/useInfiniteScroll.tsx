@@ -54,9 +54,9 @@ const useInfiniteScroll = ({
         (entries) => {
           const [entry] = entries;
           if (entry.isIntersecting && hasUpMore.current && !!fetchUpMore) {
-            setTimeout(() => {
+            // setTimeout(() => {/*여기*/
               fetchUpMore();
-            }, 500);
+            // }, 500);
           }
         },
         { threshold },
@@ -74,9 +74,9 @@ const useInfiniteScroll = ({
           const [entry] = entries;
 
           if (entry.isIntersecting && hasDownMore.current && !!fetchDownMore) {
-            setTimeout(() => {
+            // setTimeout(() => {/*여기*/
               fetchDownMore();
-            }, 500);
+            // }, 500);
           }
         },
         { threshold },

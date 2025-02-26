@@ -21,6 +21,13 @@ const updateSW = registerSW({
 
 const isAdmin = window.location.hostname.startsWith('admin');
 
+const root = document.querySelector('#root');
+
+// 터치이벤트에 passive 옵션을 false로 설정해야 e.preventDefault()가 작동합니다.
+root?.addEventListener('touchmove', (e) => {
+  e.preventDefault(); // 기본 스크롤 및 바운스 효과를 막음
+}, { passive: false });
+
 createRoot(document.getElementById('root')!).render(
-  <ThemeProvider theme={theme}>{isAdmin ? <AdminApp /> : <StudentApp />}</ThemeProvider>,
+  <ThemeProvider theme={theme}>{!isAdmin ? <AdminApp /> : <StudentApp />}</ThemeProvider>,
 );
