@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { TabBarItemProps } from './TabBarItem';
 import { TabBar } from './TabBar';
@@ -12,6 +12,7 @@ export interface TabBarContainerProps {
   tabBarTextColor?: string;
   tabBarSelectedTextColor?: string;
   onTabItemClick?: (itemId: string) => void;
+  onSelectedItemChanged?: (itemId: string) => void;
   contents: (index: number) => React.ReactNode;
 }
 
@@ -24,6 +25,7 @@ export const TabBarContainer: React.FC<TabBarContainerProps> = ({
   tabBarTextColor = '#C6C6C6',
   tabBarSelectedTextColor = '#1F87FF',
   onTabItemClick = () => {},
+  onSelectedItemChanged = () => {},
   contents,
 }) => {
   const [activeIndex, setActiveIndex] = useState(0);
@@ -53,6 +55,10 @@ export const TabBarContainer: React.FC<TabBarContainerProps> = ({
     }
     onTabItemClick(itemId);
   };
+
+  useEffect(() => {
+    onSelectedItemChanged(tabItems[activeIndex].itemId);
+  }, [activeIndex]);
 
   if (tabItems.length === 0) return;
 

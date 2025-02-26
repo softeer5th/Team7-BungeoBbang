@@ -179,6 +179,7 @@ const StatisticsPage = () => {
       <TabBarContainer
         tabItems={tabItems}
         onTabItemClick={(itemId) => setCurrentTab(itemId)}
+        onSelectedItemChanged={(itemId) => setCurrentTab(itemId)}
         contents={() => {
           return (
             <Content>
