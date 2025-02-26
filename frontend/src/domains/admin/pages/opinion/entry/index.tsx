@@ -49,7 +49,7 @@ const OpinionEntryPage: React.FC = () => {
   }, []);
 
   // const { isLoading } =
-  useQuery('adminOpinions', fetchOpinions, {
+  useQuery('admin-opinions', fetchOpinions, {
     staleTime: 5 * 60 * 1000, // 5분 동안 캐시 유지
     onSuccess: (data: OpinionResponse[]) => {
       const formattedOpinions = data.map((item) => ({
@@ -107,7 +107,7 @@ const OpinionEntryPage: React.FC = () => {
         return;
       }
       // 새 메시지가 오면 캐시 무효화
-      invalidateQueries('adminOpinions');
+      invalidateQueries('admin-opinions');
 
       setOpinions((prev) => {
         const opinionIndex = prev.findIndex((opinion) => Number(opinion.id) === message.opinionId);
@@ -190,7 +190,7 @@ const OpinionEntryPage: React.FC = () => {
                       categoryType: opinion.category,
                     },
                   });
-                  invalidateQueries('adminOpinions');
+                  invalidateQueries('admin-opinions');
                 }}
                 createdAt={opinion.createdAt}
                 isReminded={opinion.isReminded}
