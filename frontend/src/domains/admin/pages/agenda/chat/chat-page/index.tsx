@@ -363,6 +363,7 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
         }
 
         remainCurrentScroll();
+        console.log("up");
 
         if (MAX_CHAT_DATA_LENGTH < chatData.length) {
           isUpOverflow.current = true;
@@ -377,6 +378,7 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
         return;
       } else if (isDownDirection.current === true) {
         if (isDownOverflow.current === true) {
+
           restoreScrollTopFromDown();
           isDownOverflow.current = false;
           isDownDirection.current = false;
@@ -384,6 +386,7 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
         }
 
         rememberCurrentScrollHeight();
+
 
         if (MAX_CHAT_DATA_LENGTH < chatData.length) {
           isDownOverflow.current = true;
@@ -399,6 +402,7 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
 
       if (isLiveSendChatAdded.current) {
         if (isLiveSendOverflow.current === true) {
+
           scrollToBottom();
           isLiveSendOverflow.current = false;
           isLiveSendChatAdded.current = false;
@@ -406,7 +410,6 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
         }
 
         scrollToBottom();
-
         if (MAX_CHAT_DATA_LENGTH < chatData.length) {
           isLiveSendOverflow.current = true;
 
@@ -417,7 +420,9 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
 
         isLiveSendChatAdded.current = false;
       } else if (isLiveReceiveChatAdded.current) {
+      
         if (isLiveReceiveOverflow.current === true) {
+          console.log("live receive overflow");
           scrollToBottom();
           isLiveReceiveOverflow.current = false;
           isLiveReceiveChatAdded.current = false;
@@ -425,6 +430,7 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
         }
 
         scrollToBottom();
+        console.log("live receive");
 
         if (MAX_CHAT_DATA_LENGTH < chatData.length) {
           isLiveReceiveOverflow.current = true;
@@ -450,6 +456,8 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
         return randomValue;
       }
     };
+
+    usePreventBounce(elementRef);
 
     return (
       <S.Container>
@@ -642,3 +650,35 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
 );
 
 export default ChatPage;
+
+export const usePreventBounce = (elementRef: React.RefObject<HTMLDivElement>) => {
+  useEffect(() => {
+    const handleTouchMove = (e: TouchEvent) => {
+      const scrollContainer = elementRef.current;
+      if (!scrollContainer) return;
+
+      const scrollTop = scrollContainer.scrollTop;
+      const scrollHeight = scrollContainer.scrollHeight;
+      const offsetHeight = scrollContainer.offsetHeight;
+
+      const atTop = scrollTop <= 0;
+      const atBottom = scrollTop + offsetHeight >= scrollHeight;
+
+      // 맨 위에서 아래로 스크롤하거나, 맨 아래에서 위로 스크롤할 때 preventDefault()
+      if ((atTop && e.touches[0].clientY > 0) || (atBottom && e.touches[0].clientY < 0)) {
+        e.preventDefault();
+      }
+    };
+
+    const scrollContainer = elementRef.current;
+    if (scrollContainer) {
+      scrollContainer.addEventListener('touchmove', handleTouchMove, { passive: false });
+    }
+
+    return () => {
+      if (scrollContainer) {
+        scrollContainer.removeEventListener('touchmove', handleTouchMove);
+      }
+    };
+  }, [elementRef]);
+};
