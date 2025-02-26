@@ -32,8 +32,8 @@ const tabItems: TabBarItemProps[] = [
 ];
 
 const AgendaPage: React.FC = () => {
-  const MAX_PAGE_ITEMS = 6;
-  const TRIGGER_REST_ITEMS = 3;
+  const MAX_PAGE_ITEMS = 8;
+  const TRIGGER_REST_ITEMS = 1;
 
   const theme = useTheme();
   const navigate = useNavigate();
@@ -71,7 +71,10 @@ const AgendaPage: React.FC = () => {
         ),
       });
 
-      if (progress.data.length < MAX_PAGE_ITEMS) isInProgessEnd.current = true;
+      if (progress.data.length < MAX_PAGE_ITEMS) {
+        isInProgessEnd.current = true;
+        if (progress.data.length === 0) fetchProgressChatRooms();
+      }
       if (closed.data.length < MAX_PAGE_ITEMS) setCompleteHasMore(false);
     } catch (error) {
       console.error('Error fetching all chat rooms:', error);
