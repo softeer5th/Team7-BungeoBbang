@@ -203,6 +203,7 @@ export const useSocketStore = create<SocketState>((set, get) => ({
           } else if (data.eventType === 'START') {
             const invalidateQueries = useCacheStore.getState().invalidateQueries;
             invalidateQueries('admin-opinions');
+            invalidateQueries('my-opinions');
           }
 
           if (

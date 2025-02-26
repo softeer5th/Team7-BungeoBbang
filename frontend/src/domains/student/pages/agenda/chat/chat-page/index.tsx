@@ -208,7 +208,7 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
           }),
           api.get(`/student/agendas/${roomId}`),
         ]);
-        response.data.length > 1 && invalidateQueries('my-opinions');
+        response.data.length > 1 && invalidateQueries('my-agendas');
         const formattedData = formatChatData(response.data, false);
         setChatData(formattedData);
         setChatRoomInfo({
@@ -574,6 +574,8 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
             onConfirm={() => {
               exitChatRoom();
               setExitDialogOpen(false);
+              const invalidateQueries = useCacheStore.getState().invalidateQueries;
+              invalidateQueries('my-agendas');
             }}
             onDismiss={() => {
               setExitDialogOpen(false);
