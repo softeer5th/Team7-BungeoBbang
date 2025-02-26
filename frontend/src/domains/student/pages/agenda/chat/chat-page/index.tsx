@@ -208,7 +208,7 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
           }),
           api.get(`/student/agendas/${roomId}`),
         ]);
-        response.data.length > 1 && invalidateQueries('my-opinions');
+        response.data.length > 1 && invalidateQueries('my-agendas');
         const formattedData = formatChatData(response.data, false);
         setChatData(formattedData);
         setChatRoomInfo({
