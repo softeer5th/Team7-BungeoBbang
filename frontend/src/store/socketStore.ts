@@ -23,7 +23,6 @@ interface SocketState {
   maxRetries: number;
   connect: (isAdmin: boolean) => void;
   disconnect: () => void;
-  clearNewMessage: () => void;
   subscribe: (
     roomType: 'OPINION' | 'AGENDA',
     roomId: number,
@@ -150,10 +149,6 @@ export const useSocketStore = create<SocketState>((set, get) => ({
     }
   },
 
-  clearNewMessage: () => {
-    set({ hasNewMessage: false });
-  },
-
   subscribe: (
     roomType: 'OPINION' | 'AGENDA',
     roomId: number,
@@ -208,6 +203,7 @@ export const useSocketStore = create<SocketState>((set, get) => ({
           } else if (data.eventType === 'START') {
             const invalidateQueries = useCacheStore.getState().invalidateQueries;
             invalidateQueries('admin-opinions');
+            invalidateQueries('my-opinions');
           }
 
           if (

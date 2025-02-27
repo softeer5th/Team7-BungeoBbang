@@ -16,6 +16,7 @@ import api from '@/utils/api.ts';
 import { addDateDivider, formatChatData } from '@/utils/chat/formatChatData.ts';
 import useInfiniteScroll from '@/hooks/useInfiniteScroll.tsx';
 import { useScroll } from '@/hooks/useScrollBottom.tsx';
+import { useCacheStore } from '@/store/cacheStore.ts';
 import face1 from '@/assets/imgs/face1.png';
 import face2 from '@/assets/imgs/face2.png';
 import face3 from '@/assets/imgs/face3.png';
@@ -609,6 +610,8 @@ const ChatPage = forwardRef<HTMLDivElement, ChatPageProps>(
             onConfirm={() => {
               handleSendMessage(message, images);
               setShowSendDialog(false); // 얘 나중에 삭제
+              const invalidateQueries = useCacheStore.getState().invalidateQueries;
+              invalidateQueries('my-agendas');
             }}
             onDismiss={() => setShowSendDialog(false)}
           />
