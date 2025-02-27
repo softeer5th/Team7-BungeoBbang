@@ -10,9 +10,6 @@ export const Container = styled.div`
   justify-content: flex-start;
   min-height: 100dvh;
   max-height: 100dvh;
-
-  overscroll-behavior: contain; 
-  -webkit-overflow-scrolling: auto;
 `;
 
 export const ToolTip = styled.div`

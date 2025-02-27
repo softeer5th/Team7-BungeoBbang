@@ -117,9 +117,14 @@ export const useSocketStore = create<SocketState>((set, get) => ({
 
     ws.onclose = () => {
       console.log('WebSocket connection closed');
-      set({ socket: null });
 
-      // Clear heartbeat interval
+      set((state) => {
+        if (state.socket === ws) {
+          return { socket: null };
+        }
+        return state; // 이미 다른 소켓이 연결되었으면 변경하지 않음
+      });
+
       const currentInterval = get().heartbeatInterval;
       if (currentInterval !== null && currentInterval !== undefined) {
         clearInterval(currentInterval);
@@ -128,6 +133,7 @@ export const useSocketStore = create<SocketState>((set, get) => ({
 
       setTimeout(() => {
         if (!get().socket) {
+          console.log('Reconnecting WebSocket...');
           get().connect(isAdmin);
         }
       }, 1000);
