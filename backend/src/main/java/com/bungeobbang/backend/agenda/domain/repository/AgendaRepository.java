@@ -20,7 +20,11 @@ public interface AgendaRepository extends JpaRepository<Agenda, Long> {
     @Query("SELECT a FROM Agenda a WHERE a.id = :agendaId")
     Optional<Agenda> findByIdWithLock(@Param("agendaId") Long id);
 
-    boolean existsByIdAndEndDateBefore(Long id, LocalDate endDate);
+    @Query("""
+            SELECT CASE WHEN COUNT(a) > 0 THEN true ELSE false END
+                        FROM Agenda a WHERE a.id = :id AND (a.endDate < :endDate OR a.isEnd = true)
+            """)
+    boolean existsByIdAndEndDateBefore(@Param("id") Long id, @Param("endDate") LocalDate endDate);
 
     @Query("""
             select a from Agenda a
