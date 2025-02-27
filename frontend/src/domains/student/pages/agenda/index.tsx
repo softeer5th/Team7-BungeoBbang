@@ -17,8 +17,8 @@ import { useSocketManager } from '@/hooks/useSocketManager';
 import { motion } from 'framer-motion';
 
 const AgendaPage = () => {
-  const MAX_PAGE_ITEMS = 6;
-  const TRIGGER_REST_ITEMS = 3;
+  const MAX_PAGE_ITEMS = 8;
+  const TRIGGER_REST_ITEMS = 1;
 
   const theme = useTheme();
   const navigate = useNavigate();
@@ -70,6 +70,7 @@ const AgendaPage = () => {
       if (newRooms.length < MAX_PAGE_ITEMS) {
         if (!isInProgessEnd.current) {
           isInProgessEnd.current = true;
+          if (newRooms.length === 0) fetchChatRooms();
         } else {
           setHasMore(false);
         }
