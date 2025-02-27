@@ -7,6 +7,7 @@ import com.bungeobbang.backend.common.exception.MemberException;
 import com.bungeobbang.backend.common.exception.OpinionException;
 import com.bungeobbang.backend.member.domain.Member;
 import com.bungeobbang.backend.member.domain.repository.MemberRepository;
+import com.bungeobbang.backend.opinion.domain.AnsweredOpinion;
 import com.bungeobbang.backend.opinion.domain.Opinion;
 import com.bungeobbang.backend.opinion.domain.OpinionChat;
 import com.bungeobbang.backend.opinion.domain.OpinionLastRead;
@@ -137,6 +138,9 @@ public class MemberOpinionService {
                 .orElseThrow(() -> new OpinionException(ErrorCode.INVALID_OPINION));
         validateOpinionAuthor(opinion, memberId);
         opinionRepository.delete(opinion);
+        final AnsweredOpinion answeredOpinion = answeredOpinionRepository.findByOpinionId(opinionId)
+                        .orElseThrow(() -> new OpinionException(ErrorCode.INVALID_OPINION));
+        answeredOpinionRepository.delete(answeredOpinion);
     }
 
     /**
