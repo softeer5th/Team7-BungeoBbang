@@ -28,10 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -138,9 +135,8 @@ public class MemberOpinionService {
                 .orElseThrow(() -> new OpinionException(ErrorCode.INVALID_OPINION));
         validateOpinionAuthor(opinion, memberId);
         opinionRepository.delete(opinion);
-        final AnsweredOpinion answeredOpinion = answeredOpinionRepository.findByOpinionId(opinionId)
-                        .orElseThrow(() -> new OpinionException(ErrorCode.INVALID_OPINION));
-        answeredOpinionRepository.delete(answeredOpinion);
+        Optional<AnsweredOpinion> answeredOpinion = answeredOpinionRepository.findByOpinionId(opinionId);
+        answeredOpinion.ifPresent(answeredOpinionRepository::delete);
     }
 
     /**
